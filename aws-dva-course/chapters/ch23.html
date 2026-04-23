@@ -840,142 +840,142 @@ cdk deploy          # creates the stack</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">ما الذي يحدث عند تنفيذ <span dir="ltr" class="font-mono">cdk synth</span>؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">cdk synth</span> do?</span>",
+        question: "<span class=\"lang-ar\">ما الذي يحدث عند تنفيذ <span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span>؟<\/span><span class=\"lang-en\">What does <span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span> do?<\/span>",
         options: [
-          "<span class="lang-ar">ينشر Stack إلى AWS.</span><span class="lang-en">Deploys the stack to AWS.</span>",
-          "<span class="lang-ar">يحوّل كود CDK إلى قالب CloudFormation ويطبعه (بدون نشر).</span><span class="lang-en">Converts CDK code to a CloudFormation template and prints it (without deploying).</span>",
-          "<span class="lang-ar">يحذف Stack.</span><span class="lang-en">Destroys the stack.</span>",
-          "<span class="lang-ar">يثبّت CDK CLI.</span><span class="lang-en">Installs the CDK CLI.</span>"
+          "<span class=\"lang-ar\">ينشر Stack إلى AWS.<\/span><span class=\"lang-en\">Deploys the stack to AWS.<\/span>",
+          "<span class=\"lang-ar\">يحوّل كود CDK إلى قالب CloudFormation ويطبعه (بدون نشر).<\/span><span class=\"lang-en\">Converts CDK code to a CloudFormation template and prints it (without deploying).<\/span>",
+          "<span class=\"lang-ar\">يحذف Stack.<\/span><span class=\"lang-en\">Destroys the stack.<\/span>",
+          "<span class=\"lang-ar\">يثبّت CDK CLI.<\/span><span class=\"lang-en\">Installs the CDK CLI.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cdk synth</span> يُنفّذ الكود ويولّد قالب CloudFormation في <span dir="ltr" class="font-mono">cdk.out/</span>. لا ينشر شيئاً. مفيد للتحقّق من الإخراج قبل الـ deploy.</span><span class="lang-en"><span dir="ltr" class="font-mono">cdk synth</span> runs the code and generates a CloudFormation template in <span dir="ltr" class="font-mono">cdk.out/</span>. Deploys nothing. Useful for inspecting output before deploy.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span> يُنفّذ الكود ويولّد قالب CloudFormation في <span dir=\"ltr\" class=\"font-mono\">cdk.out/<\/span>. لا ينشر شيئاً. مفيد للتحقّق من الإخراج قبل الـ deploy.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span> runs the code and generates a CloudFormation template in <span dir=\"ltr\" class=\"font-mono\">cdk.out/<\/span>. Deploys nothing. Useful for inspecting output before deploy.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">عند تشغيل <span dir="ltr" class="font-mono">cdk deploy</span> لأوّل مرّة في حساب/منطقة جديدة، يظهر خطأ <em>Policy contains a statement with one or more invalid principal</em>. ما الحل؟</span><span class="lang-en">On first <span dir="ltr" class="font-mono">cdk deploy</span> in a new account/region, error: <em>Policy contains a statement with one or more invalid principal</em>. Fix?</span>",
+        question: "<span class=\"lang-ar\">عند تشغيل <span dir=\"ltr\" class=\"font-mono\">cdk deploy<\/span> لأوّل مرّة في حساب/منطقة جديدة، يظهر خطأ <em>Policy contains a statement with one or more invalid principal<\/em>. ما الحل؟<\/span><span class=\"lang-en\">On first <span dir=\"ltr\" class=\"font-mono\">cdk deploy<\/span> in a new account/region, error: <em>Policy contains a statement with one or more invalid principal<\/em>. Fix?<\/span>",
         options: [
-          "<span class="lang-ar">تثبيت CDK CLI جديد.</span><span class="lang-en">Install a new CDK CLI.</span>",
-          "<span class="lang-ar">تشغيل cdk bootstrap aws://ACCOUNT/REGION.</span><span class="lang-en">Run cdk bootstrap aws://ACCOUNT/REGION.</span>",
-          "<span class="lang-ar">تغيير إصدار Node.js.</span><span class="lang-en">Change Node.js version.</span>",
-          "<span class="lang-ar">حذف pom.xml.</span><span class="lang-en">Delete pom.xml.</span>"
+          "<span class=\"lang-ar\">تثبيت CDK CLI جديد.<\/span><span class=\"lang-en\">Install a new CDK CLI.<\/span>",
+          "<span class=\"lang-ar\">تشغيل cdk bootstrap aws://ACCOUNT/REGION.<\/span><span class=\"lang-en\">Run cdk bootstrap aws://ACCOUNT/REGION.<\/span>",
+          "<span class=\"lang-ar\">تغيير إصدار Node.js.<\/span><span class=\"lang-en\">Change Node.js version.<\/span>",
+          "<span class=\"lang-ar\">حذف pom.xml.<\/span><span class=\"lang-en\">Delete pom.xml.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الخطأ الكلاسيكيّ لعدم إجراء <strong>Bootstrap</strong>. CDK يحتاج S3 Bucket و IAM Roles في كل حساب/منطقة لتخزين ملفات النشر. شغّل <span dir="ltr" class="font-mono">cdk bootstrap</span> مرّة واحدة لكل environment.</span><span class="lang-en">Classic missing-<strong>Bootstrap</strong> error. CDK needs an S3 bucket and IAM roles in every account/region to stage deploy files. Run <span dir="ltr" class="font-mono">cdk bootstrap</span> once per environment.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">الخطأ الكلاسيكيّ لعدم إجراء <strong>Bootstrap<\/strong>. CDK يحتاج S3 Bucket و IAM Roles في كل حساب/منطقة لتخزين ملفات النشر. شغّل <span dir=\"ltr\" class=\"font-mono\">cdk bootstrap<\/span> مرّة واحدة لكل environment.<\/span><span class=\"lang-en\">Classic missing-<strong>Bootstrap<\/strong> error. CDK needs an S3 bucket and IAM roles in every account/region to stage deploy files. Run <span dir=\"ltr\" class=\"font-mono\">cdk bootstrap<\/span> once per environment.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">أيّ Construct يُولّد CloudFormation resources أقل وهو الأقرب إلى CloudFormation الخام؟</span><span class="lang-en">Which construct level generates the fewest CloudFormation resources and is closest to raw CloudFormation?</span>",
+        question: "<span class=\"lang-ar\">أيّ Construct يُولّد CloudFormation resources أقل وهو الأقرب إلى CloudFormation الخام؟<\/span><span class=\"lang-en\">Which construct level generates the fewest CloudFormation resources and is closest to raw CloudFormation?<\/span>",
         options: [
-          "<span class="lang-ar">L1 (CFN Resources)</span><span class="lang-en">L1 (CFN Resources)</span>",
-          "<span class="lang-ar">L2 (intent-based)</span><span class="lang-en">L2 (intent-based)</span>",
-          "<span class="lang-ar">L3 (Patterns)</span><span class="lang-en">L3 (Patterns)</span>",
-          "<span class="lang-ar">كلّها متساوية</span><span class="lang-en">All equal</span>"
+          "<span class=\"lang-ar\">L1 (CFN Resources)<\/span><span class=\"lang-en\">L1 (CFN Resources)<\/span>",
+          "<span class=\"lang-ar\">L2 (intent-based)<\/span><span class=\"lang-en\">L2 (intent-based)<\/span>",
+          "<span class=\"lang-ar\">L3 (Patterns)<\/span><span class=\"lang-en\">L3 (Patterns)<\/span>",
+          "<span class=\"lang-ar\">كلّها متساوية<\/span><span class=\"lang-en\">All equal<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>L1 (Cfn*)</strong> خريطة 1:1 مع CloudFormation. كل خاصّية يجب تحديدها يدوياً. <strong>L2</strong> يضيف افتراضات ذكية و methods مساعدة. <strong>L3</strong> يُنشئ patterns كاملة (عشرات الموارد).</span><span class="lang-en"><strong>L1 (Cfn*)</strong> is 1:1 with CloudFormation. Every property manual. <strong>L2</strong> adds smart defaults and helper methods. <strong>L3</strong> builds full patterns (dozens of resources).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>L1 (Cfn*)<\/strong> خريطة 1:1 مع CloudFormation. كل خاصّية يجب تحديدها يدوياً. <strong>L2<\/strong> يضيف افتراضات ذكية و methods مساعدة. <strong>L3<\/strong> يُنشئ patterns كاملة (عشرات الموارد).<\/span><span class=\"lang-en\"><strong>L1 (Cfn*)<\/strong> is 1:1 with CloudFormation. Every property manual. <strong>L2<\/strong> adds smart defaults and helper methods. <strong>L3<\/strong> builds full patterns (dozens of resources).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">مطوّر Java يفضّل كتابة IaC بـ Java بدلاً من YAML، مع استخدام IntelliJ و Maven. ما الأفضل؟</span><span class="lang-en">A Java developer prefers IaC in Java instead of YAML, using IntelliJ + Maven. Best fit?</span>",
+        question: "<span class=\"lang-ar\">مطوّر Java يفضّل كتابة IaC بـ Java بدلاً من YAML، مع استخدام IntelliJ و Maven. ما الأفضل؟<\/span><span class=\"lang-en\">A Java developer prefers IaC in Java instead of YAML, using IntelliJ + Maven. Best fit?<\/span>",
         options: [
-          "<span class="lang-ar">CloudFormation YAML</span><span class="lang-en">CloudFormation YAML</span>",
-          "<span class="lang-ar">SAM</span><span class="lang-en">SAM</span>",
-          "<span class="lang-ar">CDK بـ Java</span><span class="lang-en">CDK with Java</span>",
-          "<span class="lang-ar">Terraform</span><span class="lang-en">Terraform</span>"
+          "<span class=\"lang-ar\">CloudFormation YAML<\/span><span class=\"lang-en\">CloudFormation YAML<\/span>",
+          "<span class=\"lang-ar\">SAM<\/span><span class=\"lang-en\">SAM<\/span>",
+          "<span class=\"lang-ar\">CDK بـ Java<\/span><span class=\"lang-en\">CDK with Java<\/span>",
+          "<span class=\"lang-ar\">Terraform<\/span><span class=\"lang-en\">Terraform<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>CDK</strong> مصمّم لهذه الحالة بالتحديد: يدعم Java و TypeScript و Python و C# و Go. يتكامل مع pom.xml و Maven و IntelliJ بسلاسة. يُولّد CloudFormation في الخلفيّة.</span><span class="lang-en"><strong>CDK</strong> is built for this: supports Java, TypeScript, Python, C#, Go. Integrates smoothly with pom.xml, Maven, IntelliJ. Generates CloudFormation behind the scenes.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CDK<\/strong> مصمّم لهذه الحالة بالتحديد: يدعم Java و TypeScript و Python و C# و Go. يتكامل مع pom.xml و Maven و IntelliJ بسلاسة. يُولّد CloudFormation في الخلفيّة.<\/span><span class=\"lang-en\"><strong>CDK<\/strong> is built for this: supports Java, TypeScript, Python, C#, Go. Integrates smoothly with pom.xml, Maven, IntelliJ. Generates CloudFormation behind the scenes.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">للتأكّد من أنّ Stack CDK يحتوي على دالّة Lambda بإعدادات محدّدة، ما النوع الأنسب من الاختبار؟</span><span class="lang-en">To verify a CDK stack contains a Lambda with specific properties, which test type is best?</span>",
+        question: "<span class=\"lang-ar\">للتأكّد من أنّ Stack CDK يحتوي على دالّة Lambda بإعدادات محدّدة، ما النوع الأنسب من الاختبار؟<\/span><span class=\"lang-en\">To verify a CDK stack contains a Lambda with specific properties, which test type is best?<\/span>",
         options: [
-          "<span class="lang-ar">Unit test للمنطق التجاريّ.</span><span class="lang-en">Unit test of business logic.</span>",
-          "<span class="lang-ar">Fine-grained Assertion باستخدام CDK Assertions module.</span><span class="lang-en">Fine-grained assertion with the CDK Assertions module.</span>",
-          "<span class="lang-ar">Integration test بعد النشر.</span><span class="lang-en">Integration test after deploy.</span>",
-          "<span class="lang-ar">Snapshot test فقط.</span><span class="lang-en">Snapshot test only.</span>"
+          "<span class=\"lang-ar\">Unit test للمنطق التجاريّ.<\/span><span class=\"lang-en\">Unit test of business logic.<\/span>",
+          "<span class=\"lang-ar\">Fine-grained Assertion باستخدام CDK Assertions module.<\/span><span class=\"lang-en\">Fine-grained assertion with the CDK Assertions module.<\/span>",
+          "<span class=\"lang-ar\">Integration test بعد النشر.<\/span><span class=\"lang-en\">Integration test after deploy.<\/span>",
+          "<span class=\"lang-ar\">Snapshot test فقط.<\/span><span class=\"lang-en\">Snapshot test only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Fine-grained Assertions</strong> مع <span dir="ltr" class="font-mono">Template.fromStack</span> + <span dir="ltr" class="font-mono">hasResourceProperties</span> يُتيحان فحص موارد محدّدة قبل النشر. Snapshot tests مفيدة لاكتشاف تغييرات غير متوقّعة، لكنّ Fine-grained أدقّ لفحص خاصّيّة بعينها.</span><span class="lang-en"><strong>Fine-grained assertions</strong> with <span dir="ltr" class="font-mono">Template.fromStack</span> + <span dir="ltr" class="font-mono">hasResourceProperties</span> let you check specific resources pre-deploy. Snapshot tests catch surprises but fine-grained is more precise.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Fine-grained Assertions<\/strong> مع <span dir=\"ltr\" class=\"font-mono\">Template.fromStack<\/span> + <span dir=\"ltr\" class=\"font-mono\">hasResourceProperties<\/span> يُتيحان فحص موارد محدّدة قبل النشر. Snapshot tests مفيدة لاكتشاف تغييرات غير متوقّعة، لكنّ Fine-grained أدقّ لفحص خاصّيّة بعينها.<\/span><span class=\"lang-en\"><strong>Fine-grained assertions<\/strong> with <span dir=\"ltr\" class=\"font-mono\">Template.fromStack<\/span> + <span dir=\"ltr\" class=\"font-mono\">hasResourceProperties<\/span> let you check specific resources pre-deploy. Snapshot tests catch surprises but fine-grained is more precise.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد معاينة التغييرات قبل نشر Stack. ما الأمر المناسب في CDK؟</span><span class="lang-en">A company wants to preview changes before deploying a stack. Which CDK command?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد معاينة التغييرات قبل نشر Stack. ما الأمر المناسب في CDK؟<\/span><span class=\"lang-en\">A company wants to preview changes before deploying a stack. Which CDK command?<\/span>",
         options: [
-          "<span class="lang-ar">cdk synth</span><span class="lang-en">cdk synth</span>",
-          "<span class="lang-ar">cdk diff</span><span class="lang-en">cdk diff</span>",
-          "<span class="lang-ar">cdk destroy</span><span class="lang-en">cdk destroy</span>",
-          "<span class="lang-ar">cdk bootstrap</span><span class="lang-en">cdk bootstrap</span>"
+          "<span class=\"lang-ar\">cdk synth<\/span><span class=\"lang-en\">cdk synth<\/span>",
+          "<span class=\"lang-ar\">cdk diff<\/span><span class=\"lang-en\">cdk diff<\/span>",
+          "<span class=\"lang-ar\">cdk destroy<\/span><span class=\"lang-en\">cdk destroy<\/span>",
+          "<span class=\"lang-ar\">cdk bootstrap<\/span><span class=\"lang-en\">cdk bootstrap<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cdk diff</span> يقارن الـ Stack المحلّيّ مع المنشور ويُظهر أيّ الموارد ستضاف، تتغيّر، أو تُحذَف. تحت الغطاء يستخدم CloudFormation ChangeSets. <span dir="ltr" class="font-mono">cdk synth</span> فقط يطبع القالب دون مقارنة.</span><span class="lang-en"><span dir="ltr" class="font-mono">cdk diff</span> compares the local stack to the deployed one, showing what will be added, changed, or deleted. Uses CloudFormation ChangeSets under the hood. <span dir="ltr" class="font-mono">cdk synth</span> only prints the template without comparison.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">cdk diff<\/span> يقارن الـ Stack المحلّيّ مع المنشور ويُظهر أيّ الموارد ستضاف، تتغيّر، أو تُحذَف. تحت الغطاء يستخدم CloudFormation ChangeSets. <span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span> فقط يطبع القالب دون مقارنة.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">cdk diff<\/span> compares the local stack to the deployed one, showing what will be added, changed, or deleted. Uses CloudFormation ChangeSets under the hood. <span dir=\"ltr\" class=\"font-mono\">cdk synth<\/span> only prints the template without comparison.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q7",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الآتي صحيح عن CDK؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about CDK? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الآتي صحيح عن CDK؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which are TRUE about CDK? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">CDK يدعم TypeScript و Python و Java و .NET و Go.</span><span class="lang-en">CDK supports TypeScript, Python, Java, .NET, Go.</span>",
-          "<span class="lang-ar">CDK يُولّد قالب CloudFormation.</span><span class="lang-en">CDK generates a CloudFormation template.</span>",
-          "<span class="lang-ar">CDK يتطلّب Bootstrap مرّة واحدة لكل حساب/منطقة.</span><span class="lang-en">CDK requires one-time bootstrap per account/region.</span>",
-          "<span class="lang-ar">CDK يستبدل CloudFormation ولا يعتمد عليه.</span><span class="lang-en">CDK replaces CloudFormation and doesn't use it.</span>"
+          "<span class=\"lang-ar\">CDK يدعم TypeScript و Python و Java و .NET و Go.<\/span><span class=\"lang-en\">CDK supports TypeScript, Python, Java, .NET, Go.<\/span>",
+          "<span class=\"lang-ar\">CDK يُولّد قالب CloudFormation.<\/span><span class=\"lang-en\">CDK generates a CloudFormation template.<\/span>",
+          "<span class=\"lang-ar\">CDK يتطلّب Bootstrap مرّة واحدة لكل حساب/منطقة.<\/span><span class=\"lang-en\">CDK requires one-time bootstrap per account/region.<\/span>",
+          "<span class=\"lang-ar\">CDK يستبدل CloudFormation ولا يعتمد عليه.<\/span><span class=\"lang-en\">CDK replaces CloudFormation and doesn't use it.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">CDK يدعم ٥ لغات، يُولّد CloudFormation، ويتطلّب bootstrap. لكنّه <strong>يعتمد</strong> على CloudFormation في النشر الفعليّ لا يستبدله — فقط يعطيك طريقة أذكى للكتابة.</span><span class="lang-en">CDK supports 5 languages, generates CloudFormation, and requires bootstrap. But it <strong>uses</strong> CloudFormation for actual deploys — it doesn't replace it, it just gives you a smarter authoring experience.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١ و٣</span><span class=\"lang-en\">Sections 1 and 3</span>"
+        explanation: "<span class=\"lang-ar\">CDK يدعم ٥ لغات، يُولّد CloudFormation، ويتطلّب bootstrap. لكنّه <strong>يعتمد<\/strong> على CloudFormation في النشر الفعليّ لا يستبدله — فقط يعطيك طريقة أذكى للكتابة.<\/span><span class=\"lang-en\">CDK supports 5 languages, generates CloudFormation, and requires bootstrap. But it <strong>uses<\/strong> CloudFormation for actual deploys — it doesn't replace it, it just gives you a smarter authoring experience.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١ و٣<\/span><span class=\"lang-en\">Sections 1 and 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">أيّ Construct يحتوي على جميع البنية الكاملة لتطبيق Fargate خلف ALB مع VPC في سطر واحد؟</span><span class="lang-en">Which construct creates a full Fargate-behind-ALB + VPC stack in one line?</span>",
+        question: "<span class=\"lang-ar\">أيّ Construct يحتوي على جميع البنية الكاملة لتطبيق Fargate خلف ALB مع VPC في سطر واحد؟<\/span><span class=\"lang-en\">Which construct creates a full Fargate-behind-ALB + VPC stack in one line?<\/span>",
         options: [
-          "<span class="lang-ar">L1 CfnService</span><span class="lang-en">L1 CfnService</span>",
-          "<span class="lang-ar">L2 FargateService</span><span class="lang-en">L2 FargateService</span>",
-          "<span class="lang-ar">L3 ApplicationLoadBalancedFargateService</span><span class="lang-en">L3 ApplicationLoadBalancedFargateService</span>",
-          "<span class="lang-ar">L2 Vpc</span><span class="lang-en">L2 Vpc</span>"
+          "<span class=\"lang-ar\">L1 CfnService<\/span><span class=\"lang-en\">L1 CfnService<\/span>",
+          "<span class=\"lang-ar\">L2 FargateService<\/span><span class=\"lang-en\">L2 FargateService<\/span>",
+          "<span class=\"lang-ar\">L3 ApplicationLoadBalancedFargateService<\/span><span class=\"lang-en\">L3 ApplicationLoadBalancedFargateService<\/span>",
+          "<span class=\"lang-ar\">L2 Vpc<\/span><span class=\"lang-en\">L2 Vpc<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>L3 (Patterns)</strong> هي constructs تحتوي <strong>عدّة موارد ذات صلة</strong>. <span dir="ltr" class="font-mono">ApplicationLoadBalancedFargateService</span> يُنشِئ VPC + Cluster + Task Def + Service + ALB + Target Group + Security Groups + IAM في سطر واحد.</span><span class="lang-en"><strong>L3 Patterns</strong> are constructs that wrap <strong>multiple related resources</strong>. <span dir="ltr" class="font-mono">ApplicationLoadBalancedFargateService</span> creates VPC + Cluster + Task Def + Service + ALB + Target Group + SGs + IAM in one line.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>L3 (Patterns)<\/strong> هي constructs تحتوي <strong>عدّة موارد ذات صلة<\/strong>. <span dir=\"ltr\" class=\"font-mono\">ApplicationLoadBalancedFargateService<\/span> يُنشِئ VPC + Cluster + Task Def + Service + ALB + Target Group + Security Groups + IAM في سطر واحد.<\/span><span class=\"lang-en\"><strong>L3 Patterns<\/strong> are constructs that wrap <strong>multiple related resources<\/strong>. <span dir=\"ltr\" class=\"font-mono\">ApplicationLoadBalancedFargateService<\/span> creates VPC + Cluster + Task Def + Service + ALB + Target Group + SGs + IAM in one line.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">أيّ عبارة <strong>خاطئة</strong> عن الفرق بين CDK و SAM؟</span><span class="lang-en">Which statement about CDK vs SAM is <strong>FALSE</strong>?</span>",
+        question: "<span class=\"lang-ar\">أيّ عبارة <strong>خاطئة<\/strong> عن الفرق بين CDK و SAM؟<\/span><span class=\"lang-en\">Which statement about CDK vs SAM is <strong>FALSE<\/strong>?<\/span>",
         options: [
-          "<span class="lang-ar">SAM مخصّص للـ Serverless، CDK عامّ.</span><span class="lang-en">SAM is serverless-focused, CDK is general.</span>",
-          "<span class="lang-ar">CDK يدعم لغات برمجة، SAM YAML فقط.</span><span class="lang-en">CDK supports programming languages, SAM is YAML only.</span>",
-          "<span class="lang-ar">SAM لا يعتمد على CloudFormation.</span><span class="lang-en">SAM does not rely on CloudFormation.</span>",
-          "<span class="lang-ar">يمكن استخدام sam local invoke على قالب ناتج من cdk synth.</span><span class="lang-en">You can use sam local invoke on the template emitted by cdk synth.</span>"
+          "<span class=\"lang-ar\">SAM مخصّص للـ Serverless، CDK عامّ.<\/span><span class=\"lang-en\">SAM is serverless-focused, CDK is general.<\/span>",
+          "<span class=\"lang-ar\">CDK يدعم لغات برمجة، SAM YAML فقط.<\/span><span class=\"lang-en\">CDK supports programming languages, SAM is YAML only.<\/span>",
+          "<span class=\"lang-ar\">SAM لا يعتمد على CloudFormation.<\/span><span class=\"lang-en\">SAM does not rely on CloudFormation.<\/span>",
+          "<span class=\"lang-ar\">يمكن استخدام sam local invoke على قالب ناتج من cdk synth.<\/span><span class=\"lang-en\">You can use sam local invoke on the template emitted by cdk synth.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">العبارة الخاطئة: <strong>SAM يعتمد على CloudFormation</strong> (يتحوّل إليه عبر Transform). التقارب الصحيح: كلاهما يعتمد على CloudFormation لكنّ CDK بلغة برمجة و SAM بـ YAML مختصر.</span><span class="lang-en">False: <strong>SAM relies on CloudFormation</strong> (transforms into it via the Transform header). Correct view: both use CloudFormation under the hood; CDK uses a language, SAM uses short YAML.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">العبارة الخاطئة: <strong>SAM يعتمد على CloudFormation<\/strong> (يتحوّل إليه عبر Transform). التقارب الصحيح: كلاهما يعتمد على CloudFormation لكنّ CDK بلغة برمجة و SAM بـ YAML مختصر.<\/span><span class=\"lang-en\">False: <strong>SAM relies on CloudFormation<\/strong> (transforms into it via the Transform header). Correct view: both use CloudFormation under the hood; CDK uses a language, SAM uses short YAML.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">للحصول على IAM Policy مناسبة تلقائياً عند منح Lambda صلاحية قراءة S3 Bucket في CDK، ما الميزة؟</span><span class="lang-en">To auto-generate a correct IAM policy when granting a Lambda read on an S3 bucket in CDK, which feature?</span>",
+        question: "<span class=\"lang-ar\">للحصول على IAM Policy مناسبة تلقائياً عند منح Lambda صلاحية قراءة S3 Bucket في CDK، ما الميزة؟<\/span><span class=\"lang-en\">To auto-generate a correct IAM policy when granting a Lambda read on an S3 bucket in CDK, which feature?<\/span>",
         options: [
-          "<span class="lang-ar">L1 CfnBucketPolicy يدويّاً.</span><span class="lang-en">L1 CfnBucketPolicy manually.</span>",
-          "<span class="lang-ar">L2 methods مثل bucket.grantRead(lambda).</span><span class="lang-en">L2 methods like bucket.grantRead(lambda).</span>",
-          "<span class="lang-ar">L3 Pattern فقط.</span><span class="lang-en">L3 Pattern only.</span>",
-          "<span class="lang-ar">Aspects.</span><span class="lang-en">Aspects.</span>"
+          "<span class=\"lang-ar\">L1 CfnBucketPolicy يدويّاً.<\/span><span class=\"lang-en\">L1 CfnBucketPolicy manually.<\/span>",
+          "<span class=\"lang-ar\">L2 methods مثل bucket.grantRead(lambda).<\/span><span class=\"lang-en\">L2 methods like bucket.grantRead(lambda).<\/span>",
+          "<span class=\"lang-ar\">L3 Pattern فقط.<\/span><span class=\"lang-en\">L3 Pattern only.<\/span>",
+          "<span class=\"lang-ar\">Aspects.<\/span><span class=\"lang-en\">Aspects.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>L2 Constructs</strong> تقدّم methods مساعدة مثل <span dir="ltr" class="font-mono">bucket.grantRead(lambda)</span> و <span dir="ltr" class="font-mono">table.grantReadWriteData(fn)</span>. هذه تُولّد IAM Policy بأقلّ امتياز تلقائياً. واحدة من أكبر مزايا CDK مقارنة بـ YAML.</span><span class="lang-en"><strong>L2 constructs</strong> provide helper methods like <span dir="ltr" class="font-mono">bucket.grantRead(lambda)</span> and <span dir="ltr" class="font-mono">table.grantReadWriteData(fn)</span>. These auto-generate least-privilege IAM policies. One of CDK's biggest wins over YAML.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>L2 Constructs<\/strong> تقدّم methods مساعدة مثل <span dir=\"ltr\" class=\"font-mono\">bucket.grantRead(lambda)<\/span> و <span dir=\"ltr\" class=\"font-mono\">table.grantReadWriteData(fn)<\/span>. هذه تُولّد IAM Policy بأقلّ امتياز تلقائياً. واحدة من أكبر مزايا CDK مقارنة بـ YAML.<\/span><span class=\"lang-en\"><strong>L2 constructs<\/strong> provide helper methods like <span dir=\"ltr\" class=\"font-mono\">bucket.grantRead(lambda)<\/span> and <span dir=\"ltr\" class=\"font-mono\">table.grantReadWriteData(fn)<\/span>. These auto-generate least-privilege IAM policies. One of CDK's biggest wins over YAML.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       }
     ];
 

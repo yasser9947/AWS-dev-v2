@@ -902,227 +902,227 @@ aws ec2 authorize-security-group-ingress \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot في Acme يحتاج إلى <strong>توجيه</strong> الطلبات حسب المسار: <span dir="ltr" class="font-mono">/api/*</span> إلى خوادم API، و <span dir="ltr" class="font-mono">/web/*</span> إلى خوادم الويب. ما الـ Load Balancer المناسب؟</span><span class="lang-en">An Acme Spring Boot app needs <strong>path-based routing</strong>: <span dir="ltr" class="font-mono">/api/*</span> to API servers, <span dir="ltr" class="font-mono">/web/*</span> to web servers. Which LB?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot في Acme يحتاج إلى <strong>توجيه<\/strong> الطلبات حسب المسار: <span dir=\"ltr\" class=\"font-mono\">/api/*<\/span> إلى خوادم API، و <span dir=\"ltr\" class=\"font-mono\">/web/*<\/span> إلى خوادم الويب. ما الـ Load Balancer المناسب؟<\/span><span class=\"lang-en\">An Acme Spring Boot app needs <strong>path-based routing<\/strong>: <span dir=\"ltr\" class=\"font-mono\">/api/*<\/span> to API servers, <span dir=\"ltr\" class=\"font-mono\">/web/*<\/span> to web servers. Which LB?<\/span>",
         options: [
-          "<span class="lang-ar">Classic Load Balancer</span><span class="lang-en">Classic Load Balancer</span>",
-          "<span class="lang-ar">Application Load Balancer</span><span class="lang-en">Application Load Balancer</span>",
-          "<span class="lang-ar">Network Load Balancer</span><span class="lang-en">Network Load Balancer</span>",
-          "<span class="lang-ar">Gateway Load Balancer</span><span class="lang-en">Gateway Load Balancer</span>"
+          "<span class=\"lang-ar\">Classic Load Balancer<\/span><span class=\"lang-en\">Classic Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Application Load Balancer<\/span><span class=\"lang-en\">Application Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Network Load Balancer<\/span><span class=\"lang-en\">Network Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Gateway Load Balancer<\/span><span class=\"lang-en\">Gateway Load Balancer<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">توجيه المسارات (path-based routing) ميزة <strong>ALB (Layer 7)</strong> الأساسيّة. يمكنك توجيه المسارات أو hostnames أو headers إلى Target Groups مختلفة. CLB و NLB يعملان على Layer 4 ولا يفهمان محتوى HTTP. GWLB للـ appliances الأمنيّة.</span><span class="lang-en">Path-based routing is a core <strong>ALB (Layer 7)</strong> feature. Route on paths, hostnames, or headers to different Target Groups. CLB/NLB are Layer 4 and don't understand HTTP. GWLB is for security appliances.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">جيل قديم لا يدعم path routing الحديث.</span><span class=\"lang-en\">Legacy, lacks modern path routing.</span>", "", "<span class=\"lang-ar\">Layer 4 — لا يفهم HTTP.</span><span class=\"lang-en\">Layer 4 — can't inspect HTTP.</span>", "<span class=\"lang-ar\">لـ firewall appliances لا للتطبيقات.</span><span class=\"lang-en\">For firewall appliances, not apps.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢ — أنواع LB</span><span class=\"lang-en\">Section 2 — LB types</span>"
+        explanation: "<span class=\"lang-ar\">توجيه المسارات (path-based routing) ميزة <strong>ALB (Layer 7)<\/strong> الأساسيّة. يمكنك توجيه المسارات أو hostnames أو headers إلى Target Groups مختلفة. CLB و NLB يعملان على Layer 4 ولا يفهمان محتوى HTTP. GWLB للـ appliances الأمنيّة.<\/span><span class=\"lang-en\">Path-based routing is a core <strong>ALB (Layer 7)<\/strong> feature. Route on paths, hostnames, or headers to different Target Groups. CLB/NLB are Layer 4 and don't understand HTTP. GWLB is for security appliances.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">جيل قديم لا يدعم path routing الحديث.<\/span><span class=\"lang-en\">Legacy, lacks modern path routing.<\/span>", "", "<span class=\"lang-ar\">Layer 4 — لا يفهم HTTP.<\/span><span class=\"lang-en\">Layer 4 — can't inspect HTTP.<\/span>", "<span class=\"lang-ar\">لـ firewall appliances لا للتطبيقات.<\/span><span class=\"lang-en\">For firewall appliances, not apps.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — أنواع LB<\/span><span class=\"lang-en\">Section 2 — LB types<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">شركة تقدّم لعبة online تستخدم UDP وتحتاج IP ثابتاً لعملائها ضمن ACL. ما الـ Load Balancer المناسب؟</span><span class="lang-en">A gaming company uses UDP and needs a static IP to whitelist at customer ACLs. Which LB?</span>",
+        question: "<span class=\"lang-ar\">شركة تقدّم لعبة online تستخدم UDP وتحتاج IP ثابتاً لعملائها ضمن ACL. ما الـ Load Balancer المناسب؟<\/span><span class=\"lang-en\">A gaming company uses UDP and needs a static IP to whitelist at customer ACLs. Which LB?<\/span>",
         options: [
-          "<span class="lang-ar">Application Load Balancer</span><span class="lang-en">Application Load Balancer</span>",
-          "<span class="lang-ar">Network Load Balancer</span><span class="lang-en">Network Load Balancer</span>",
-          "<span class="lang-ar">Classic Load Balancer</span><span class="lang-en">Classic Load Balancer</span>",
-          "<span class="lang-ar">Gateway Load Balancer</span><span class="lang-en">Gateway Load Balancer</span>"
+          "<span class=\"lang-ar\">Application Load Balancer<\/span><span class=\"lang-en\">Application Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Network Load Balancer<\/span><span class=\"lang-en\">Network Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Classic Load Balancer<\/span><span class=\"lang-en\">Classic Load Balancer<\/span>",
+          "<span class=\"lang-ar\">Gateway Load Balancer<\/span><span class=\"lang-en\">Gateway Load Balancer<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>NLB</strong> هو الوحيد الذي يدعم UDP (و TCP/TLS)، ويحصل على <strong>IP ثابت لكلّ AZ</strong> مع دعم Elastic IP. ALB يدعم HTTP/WebSocket فقط ولا يعطي IP ثابت. CLB ممنوع للأحمال الحديثة. GWLB لـ firewall.</span><span class="lang-en"><strong>NLB</strong> is the only one supporting UDP (and TCP/TLS), and gets a <strong>static IP per AZ</strong> with EIP support. ALB is HTTP/WebSocket only and has no static IP. CLB is legacy. GWLB is for firewalls.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يدعم HTTP/HTTPS/WebSocket فقط — لا UDP.</span><span class=\"lang-en\">HTTP/HTTPS/WebSocket only — no UDP.</span>", "", "<span class=\"lang-ar\">قديم، ولا يعطي static IP.</span><span class=\"lang-en\">Legacy, no static IP.</span>", "<span class=\"lang-ar\">مخصّص لـ firewalls.</span><span class=\"lang-en\">For firewalls.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>NLB<\/strong> هو الوحيد الذي يدعم UDP (و TCP/TLS)، ويحصل على <strong>IP ثابت لكلّ AZ<\/strong> مع دعم Elastic IP. ALB يدعم HTTP/WebSocket فقط ولا يعطي IP ثابت. CLB ممنوع للأحمال الحديثة. GWLB لـ firewall.<\/span><span class=\"lang-en\"><strong>NLB<\/strong> is the only one supporting UDP (and TCP/TLS), and gets a <strong>static IP per AZ<\/strong> with EIP support. ALB is HTTP/WebSocket only and has no static IP. CLB is legacy. GWLB is for firewalls.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يدعم HTTP/HTTPS/WebSocket فقط — لا UDP.<\/span><span class=\"lang-en\">HTTP/HTTPS/WebSocket only — no UDP.<\/span>", "", "<span class=\"lang-ar\">قديم، ولا يعطي static IP.<\/span><span class=\"lang-en\">Legacy, no static IP.<\/span>", "<span class=\"lang-ar\">مخصّص لـ firewalls.<\/span><span class=\"lang-en\">For firewalls.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العبارات صحيحة عن Auto Scaling Groups؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about Auto Scaling Groups? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العبارات صحيحة عن Auto Scaling Groups؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are true about Auto Scaling Groups? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">ASG نفسه مجانيّ — تدفع فقط للخوادم.</span><span class="lang-en">ASG itself is free — you only pay for instances.</span>",
-          "<span class="lang-ar">يستبدل خوادماً فاشلة تلقائياً بناءً على فحص الصحّة.</span><span class="lang-en">Auto-replaces failed instances based on health checks.</span>",
-          "<span class="lang-ar">يدعم Target Tracking و Step و Scheduled و Predictive scaling.</span><span class="lang-en">Supports Target Tracking, Step, Scheduled, and Predictive scaling.</span>",
-          "<span class="lang-ar">يمكنه استخدام مقاييس مخصّصة (Custom Metrics) من CloudWatch.</span><span class="lang-en">Can scale on custom CloudWatch metrics.</span>",
-          "<span class="lang-ar">Launch Configurations الجديدة ما تزال مفضَّلة على Launch Templates.</span><span class="lang-en">New Launch Configurations are preferred over Launch Templates.</span>"
+          "<span class=\"lang-ar\">ASG نفسه مجانيّ — تدفع فقط للخوادم.<\/span><span class=\"lang-en\">ASG itself is free — you only pay for instances.<\/span>",
+          "<span class=\"lang-ar\">يستبدل خوادماً فاشلة تلقائياً بناءً على فحص الصحّة.<\/span><span class=\"lang-en\">Auto-replaces failed instances based on health checks.<\/span>",
+          "<span class=\"lang-ar\">يدعم Target Tracking و Step و Scheduled و Predictive scaling.<\/span><span class=\"lang-en\">Supports Target Tracking, Step, Scheduled, and Predictive scaling.<\/span>",
+          "<span class=\"lang-ar\">يمكنه استخدام مقاييس مخصّصة (Custom Metrics) من CloudWatch.<\/span><span class=\"lang-en\">Can scale on custom CloudWatch metrics.<\/span>",
+          "<span class=\"lang-ar\">Launch Configurations الجديدة ما تزال مفضَّلة على Launch Templates.<\/span><span class=\"lang-en\">New Launch Configurations are preferred over Launch Templates.<\/span>"
         ],
         correct: [0,1,2,3],
-        explanation: "<span class="lang-ar">ASG مجانيّ ويستبدل الفاشلين ويدعم كلّ أنواع سياسات التوسعة، بما فيها custom metrics. <strong>Launch Configurations مُهمَلة (deprecated)</strong> — Launch Templates هي المعياريّة.</span><span class="lang-en">ASG is free, auto-replaces failed instances, supports all policy types including custom metrics. <strong>Launch Configurations are deprecated</strong> — Launch Templates are standard.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">ASG مجانيّ ويستبدل الفاشلين ويدعم كلّ أنواع سياسات التوسعة، بما فيها custom metrics. <strong>Launch Configurations مُهمَلة (deprecated)<\/strong> — Launch Templates هي المعياريّة.<\/span><span class=\"lang-en\">ASG is free, auto-replaces failed instances, supports all policy types including custom metrics. <strong>Launch Configurations are deprecated<\/strong> — Launch Templates are standard.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">فريق Acme يلاحظ أنّ خوادم AZ-A تعمل بـ ٨٠٪ CPU بينما AZ-B بـ ٢٠٪. ASG له ٢ خادم في AZ-A و ٤ في AZ-B، والـ ALB بدون Cross-Zone. ما السبب؟</span><span class="lang-en">Acme sees AZ-A instances at 80% CPU while AZ-B are at 20%. ASG has 2 instances in AZ-A, 4 in AZ-B, and ALB has no Cross-Zone. Why?</span>",
+        question: "<span class=\"lang-ar\">فريق Acme يلاحظ أنّ خوادم AZ-A تعمل بـ ٨٠٪ CPU بينما AZ-B بـ ٢٠٪. ASG له ٢ خادم في AZ-A و ٤ في AZ-B، والـ ALB بدون Cross-Zone. ما السبب؟<\/span><span class=\"lang-en\">Acme sees AZ-A instances at 80% CPU while AZ-B are at 20%. ASG has 2 instances in AZ-A, 4 in AZ-B, and ALB has no Cross-Zone. Why?<\/span>",
         options: [
-          "<span class="lang-ar">ASG لا يوزّع بالتساوي.</span><span class="lang-en">ASG doesn't distribute evenly.</span>",
-          "<span class="lang-ar">الـ ALB بدون Cross-Zone يوجّه ٥٠٪ لكلّ AZ — فالخادمان في AZ-A يتقاسمان نفس حِمل الأربعة في AZ-B.</span><span class="lang-en">With no Cross-Zone, ALB routes 50% per AZ — so 2 instances in AZ-A share the same load as 4 in AZ-B.</span>",
-          "<span class="lang-ar">AZ-A فيها مشكلة في الشبكة.</span><span class="lang-en">AZ-A has network trouble.</span>",
-          "<span class="lang-ar">Security Group يحدّ من AZ-B.</span><span class="lang-en">A Security Group is throttling AZ-B.</span>"
+          "<span class=\"lang-ar\">ASG لا يوزّع بالتساوي.<\/span><span class=\"lang-en\">ASG doesn't distribute evenly.<\/span>",
+          "<span class=\"lang-ar\">الـ ALB بدون Cross-Zone يوجّه ٥٠٪ لكلّ AZ — فالخادمان في AZ-A يتقاسمان نفس حِمل الأربعة في AZ-B.<\/span><span class=\"lang-en\">With no Cross-Zone, ALB routes 50% per AZ — so 2 instances in AZ-A share the same load as 4 in AZ-B.<\/span>",
+          "<span class=\"lang-ar\">AZ-A فيها مشكلة في الشبكة.<\/span><span class=\"lang-en\">AZ-A has network trouble.<\/span>",
+          "<span class=\"lang-ar\">Security Group يحدّ من AZ-B.<\/span><span class=\"lang-en\">A Security Group is throttling AZ-B.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>بدون Cross-Zone</strong> (معطَّل افتراضياً في NLB/GWLB، يمكن تعطيله في ALB أيضاً)، كلّ عقدة LB توجّه لخوادم AZ نفسها فقط. عقدة AZ-A تستقبل ٥٠٪ من الحِمل لخادمين فقط. الحلّ: فعِّل Cross-Zone أو وازن عدد الخوادم بين AZs.</span><span class="lang-en"><strong>Without Cross-Zone</strong> (default off on NLB/GWLB, can be toggled on ALB too), each LB node only sends to its own AZ's instances. AZ-A's node gets 50% of traffic for just 2 instances. Fix: enable Cross-Zone or balance instance counts.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ASG يوزّع بالتساوي حسب الإعدادات.</span><span class=\"lang-en\">ASG distributes per config.</span>", "", "<span class=\"lang-ar\">لا علاقة لفشل AZ هنا.</span><span class=\"lang-en\">No AZ failure involved.</span>", "<span class=\"lang-ar\">SG يسمح أو يمنع — لا يخنق (throttle).</span><span class=\"lang-en\">SGs allow/deny, don't throttle.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>بدون Cross-Zone<\/strong> (معطَّل افتراضياً في NLB/GWLB، يمكن تعطيله في ALB أيضاً)، كلّ عقدة LB توجّه لخوادم AZ نفسها فقط. عقدة AZ-A تستقبل ٥٠٪ من الحِمل لخادمين فقط. الحلّ: فعِّل Cross-Zone أو وازن عدد الخوادم بين AZs.<\/span><span class=\"lang-en\"><strong>Without Cross-Zone<\/strong> (default off on NLB/GWLB, can be toggled on ALB too), each LB node only sends to its own AZ's instances. AZ-A's node gets 50% of traffic for just 2 instances. Fix: enable Cross-Zone or balance instance counts.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ASG يوزّع بالتساوي حسب الإعدادات.<\/span><span class=\"lang-en\">ASG distributes per config.<\/span>", "", "<span class=\"lang-ar\">لا علاقة لفشل AZ هنا.<\/span><span class=\"lang-en\">No AZ failure involved.<\/span>", "<span class=\"lang-ar\">SG يسمح أو يمنع — لا يخنق (throttle).<\/span><span class=\"lang-en\">SGs allow/deny, don't throttle.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تشغيل Lambda خلف Load Balancer كـ backend. ما الخيار الوحيد الممكن؟</span><span class="lang-en">A dev wants Lambda behind a Load Balancer as backend. Which is the only possible option?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تشغيل Lambda خلف Load Balancer كـ backend. ما الخيار الوحيد الممكن؟<\/span><span class=\"lang-en\">A dev wants Lambda behind a Load Balancer as backend. Which is the only possible option?<\/span>",
         options: [
-          "<span class="lang-ar">Classic Load Balancer.</span><span class="lang-en">Classic Load Balancer.</span>",
-          "<span class="lang-ar">Application Load Balancer.</span><span class="lang-en">Application Load Balancer.</span>",
-          "<span class="lang-ar">Network Load Balancer.</span><span class="lang-en">Network Load Balancer.</span>",
-          "<span class="lang-ar">Gateway Load Balancer.</span><span class="lang-en">Gateway Load Balancer.</span>"
+          "<span class=\"lang-ar\">Classic Load Balancer.<\/span><span class=\"lang-en\">Classic Load Balancer.<\/span>",
+          "<span class=\"lang-ar\">Application Load Balancer.<\/span><span class=\"lang-en\">Application Load Balancer.<\/span>",
+          "<span class=\"lang-ar\">Network Load Balancer.<\/span><span class=\"lang-en\">Network Load Balancer.<\/span>",
+          "<span class=\"lang-ar\">Gateway Load Balancer.<\/span><span class=\"lang-en\">Gateway Load Balancer.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>فقط ALB يدعم Lambda كـ target</strong>. الـ HTTP request يُترجَم إلى JSON event. NLB لا يدعم Lambda (Layer 4 لا يعرف HTTP ولا يمكنه تحويل الطلب إلى event). CLB قديم. GWLB للـ appliances.</span><span class="lang-en"><strong>Only ALB supports Lambda targets</strong>. HTTP request is translated to a JSON event. NLB doesn't (Layer 4, no HTTP-to-event translation). CLB is legacy. GWLB is for appliances.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Lambda.</span><span class=\"lang-en\">Doesn't support Lambda.</span>", "", "<span class=\"lang-ar\">NLB على Layer 4 — لا يفهم HTTP ولا يحوّله إلى event.</span><span class=\"lang-en\">NLB is Layer 4 — no HTTP-to-event translation.</span>", "<span class=\"lang-ar\">ليست هذه حالة استخدامه.</span><span class=\"lang-en\">Not its use case.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>فقط ALB يدعم Lambda كـ target<\/strong>. الـ HTTP request يُترجَم إلى JSON event. NLB لا يدعم Lambda (Layer 4 لا يعرف HTTP ولا يمكنه تحويل الطلب إلى event). CLB قديم. GWLB للـ appliances.<\/span><span class=\"lang-en\"><strong>Only ALB supports Lambda targets<\/strong>. HTTP request is translated to a JSON event. NLB doesn't (Layer 4, no HTTP-to-event translation). CLB is legacy. GWLB is for appliances.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Lambda.<\/span><span class=\"lang-en\">Doesn't support Lambda.<\/span>", "", "<span class=\"lang-ar\">NLB على Layer 4 — لا يفهم HTTP ولا يحوّله إلى event.<\/span><span class=\"lang-en\">NLB is Layer 4 — no HTTP-to-event translation.<\/span>", "<span class=\"lang-ar\">ليست هذه حالة استخدامه.<\/span><span class=\"lang-en\">Not its use case.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">مطوّر ضبط <span dir="ltr" class="font-mono">/health</span> في Spring Boot ليفحص قاعدة بيانات RDS. بعد ارتفاع الحِمل على RDS، كلّ الخوادم أصبحت unhealthy في ALB فجأة والنظام تعطّل. ما الخطأ؟</span><span class="lang-en">A dev made Spring Boot's <span dir="ltr" class="font-mono">/health</span> check RDS. Under RDS load, all instances became unhealthy in ALB at once and the system went down. What went wrong?</span>",
+        question: "<span class=\"lang-ar\">مطوّر ضبط <span dir=\"ltr\" class=\"font-mono\">/health<\/span> في Spring Boot ليفحص قاعدة بيانات RDS. بعد ارتفاع الحِمل على RDS، كلّ الخوادم أصبحت unhealthy في ALB فجأة والنظام تعطّل. ما الخطأ؟<\/span><span class=\"lang-en\">A dev made Spring Boot's <span dir=\"ltr\" class=\"font-mono\">/health<\/span> check RDS. Under RDS load, all instances became unhealthy in ALB at once and the system went down. What went wrong?<\/span>",
         options: [
-          "<span class="lang-ar">ALB health check يجب أن يفحص كلّ التبعيّات.</span><span class="lang-en">ALB health checks must verify all dependencies.</span>",
-          "<span class="lang-ar">RDS لم يكن Multi-AZ.</span><span class="lang-en">RDS wasn't Multi-AZ.</span>",
-          "<span class="lang-ar">فحص الصحّة العميق تسبّب في cascading failure — اجعل <span dir="ltr" class="font-mono">/health</span> للـ ALB سطحياً، واحتفظ بالفحص العميق لأدوات المراقبة الداخليّة.</span><span class="lang-en">Deep health checks caused cascading failure — keep <span dir="ltr" class="font-mono">/health</span> for ALB shallow; deep checks go to internal monitoring only.</span>",
-          "<span class="lang-ar">يجب إعادة تشغيل الخوادم.</span><span class="lang-en">Restart the instances.</span>"
+          "<span class=\"lang-ar\">ALB health check يجب أن يفحص كلّ التبعيّات.<\/span><span class=\"lang-en\">ALB health checks must verify all dependencies.<\/span>",
+          "<span class=\"lang-ar\">RDS لم يكن Multi-AZ.<\/span><span class=\"lang-en\">RDS wasn't Multi-AZ.<\/span>",
+          "<span class=\"lang-ar\">فحص الصحّة العميق تسبّب في cascading failure — اجعل <span dir=\"ltr\" class=\"font-mono\">/health<\/span> للـ ALB سطحياً، واحتفظ بالفحص العميق لأدوات المراقبة الداخليّة.<\/span><span class=\"lang-en\">Deep health checks caused cascading failure — keep <span dir=\"ltr\" class=\"font-mono\">/health<\/span> for ALB shallow; deep checks go to internal monitoring only.<\/span>",
+          "<span class=\"lang-ar\">يجب إعادة تشغيل الخوادم.<\/span><span class=\"lang-en\">Restart the instances.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">خطأ معماريّ كلاسيكيّ: عندما يفحص <span dir="ltr" class="font-mono">/health</span> تبعيّة خارجيّة (DB, Redis)، أيّ بطء فيها يُسقِط كلّ الخوادم معاً، ممّا يجعل ALB يزيلها كلّها من Target Group. القاعدة: <strong>liveness سطحيّ للـ LB، readiness عميق للمراقبة الداخليّة</strong>.</span><span class="lang-en">Classic architectural mistake: when <span dir="ltr" class="font-mono">/health</span> checks external deps (DB, Redis), any slowness cascades through all instances and ALB drops them all. Rule: <strong>shallow liveness for LB, deep readiness for internal monitoring</strong>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">عكس الصحيح — هذا هو سبب المشكلة.</span><span class=\"lang-en\">Opposite of the right answer — this caused the bug.</span>", "<span class=\"lang-ar\">RDS Multi-AZ لا يحلّ مشكلة التصميم.</span><span class=\"lang-en\">Multi-AZ doesn't fix the design flaw.</span>", "", "<span class=\"lang-ar\">إعادة تشغيل دون تصحيح السبب سيتكرّر.</span><span class=\"lang-en\">Restart without fixing will recur.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣ — فخّ السينيور</span><span class=\"lang-en\">Section 3 — Senior pitfall</span>"
+        explanation: "<span class=\"lang-ar\">خطأ معماريّ كلاسيكيّ: عندما يفحص <span dir=\"ltr\" class=\"font-mono\">/health<\/span> تبعيّة خارجيّة (DB, Redis)، أيّ بطء فيها يُسقِط كلّ الخوادم معاً، ممّا يجعل ALB يزيلها كلّها من Target Group. القاعدة: <strong>liveness سطحيّ للـ LB، readiness عميق للمراقبة الداخليّة<\/strong>.<\/span><span class=\"lang-en\">Classic architectural mistake: when <span dir=\"ltr\" class=\"font-mono\">/health<\/span> checks external deps (DB, Redis), any slowness cascades through all instances and ALB drops them all. Rule: <strong>shallow liveness for LB, deep readiness for internal monitoring<\/strong>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">عكس الصحيح — هذا هو سبب المشكلة.<\/span><span class=\"lang-en\">Opposite of the right answer — this caused the bug.<\/span>", "<span class=\"lang-ar\">RDS Multi-AZ لا يحلّ مشكلة التصميم.<\/span><span class=\"lang-en\">Multi-AZ doesn't fix the design flaw.<\/span>", "", "<span class=\"lang-ar\">إعادة تشغيل دون تصحيح السبب سيتكرّر.<\/span><span class=\"lang-en\">Restart without fixing will recur.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣ — فخّ السينيور<\/span><span class=\"lang-en\">Section 3 — Senior pitfall<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">Acme تريد تحديث AMI لجميع خوادم ASG من 100 خادم بدون انقطاع. الطريقة الأمثل؟</span><span class="lang-en">Acme wants to update the AMI on a 100-instance ASG with no downtime. Best approach?</span>",
+        question: "<span class=\"lang-ar\">Acme تريد تحديث AMI لجميع خوادم ASG من 100 خادم بدون انقطاع. الطريقة الأمثل؟<\/span><span class=\"lang-en\">Acme wants to update the AMI on a 100-instance ASG with no downtime. Best approach?<\/span>",
         options: [
-          "<span class="lang-ar">تعديل كلّ خادم يدوياً.</span><span class="lang-en">Modify each instance manually.</span>",
-          "<span class="lang-ar">إنهاء كلّ الخوادم دفعة واحدة — ASG سيعيد الإنشاء.</span><span class="lang-en">Terminate all at once — ASG will recreate.</span>",
-          "<span class="lang-ar">تحديث Launch Template ثم <strong>Instance Refresh</strong> مع Min Healthy Percentage = 70٪.</span><span class="lang-en">Update Launch Template, then <strong>Instance Refresh</strong> with Min Healthy Percentage = 70%.</span>",
-          "<span class="lang-ar">بناء ASG جديد وحذف القديم.</span><span class="lang-en">Create a new ASG and delete the old.</span>"
+          "<span class=\"lang-ar\">تعديل كلّ خادم يدوياً.<\/span><span class=\"lang-en\">Modify each instance manually.<\/span>",
+          "<span class=\"lang-ar\">إنهاء كلّ الخوادم دفعة واحدة — ASG سيعيد الإنشاء.<\/span><span class=\"lang-en\">Terminate all at once — ASG will recreate.<\/span>",
+          "<span class=\"lang-ar\">تحديث Launch Template ثم <strong>Instance Refresh<\/strong> مع Min Healthy Percentage = 70٪.<\/span><span class=\"lang-en\">Update Launch Template, then <strong>Instance Refresh<\/strong> with Min Healthy Percentage = 70%.<\/span>",
+          "<span class=\"lang-ar\">بناء ASG جديد وحذف القديم.<\/span><span class=\"lang-en\">Create a new ASG and delete the old.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Instance Refresh</strong> هي الطريقة الرسميّة: تحدّث Launch Template ثمّ يستبدل ASG الخوادم تدريجياً مع الاحتفاظ بنسبة صحّية دنيا. يتحكّم بـ warm-up time لكلّ خادم جديد. إنهاء الكلّ دفعة واحدة يتسبّب في انقطاع كامل.</span><span class="lang-en"><strong>Instance Refresh</strong> is the official path: update the Launch Template and ASG replaces instances gradually while honoring a minimum healthy percentage. Controls warm-up per new instance. Terminate-all causes a full outage.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يتوسّع ويخالف immutable infra.</span><span class=\"lang-en\">Doesn't scale, breaks immutable infra.</span>", "<span class=\"lang-ar\">انقطاع كامل.</span><span class=\"lang-en\">Full outage.</span>", "", "<span class=\"lang-ar\">تعقيد بلا فائدة — Instance Refresh أبسط.</span><span class=\"lang-en\">Needless complexity — Instance Refresh is simpler.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Instance Refresh<\/strong> هي الطريقة الرسميّة: تحدّث Launch Template ثمّ يستبدل ASG الخوادم تدريجياً مع الاحتفاظ بنسبة صحّية دنيا. يتحكّم بـ warm-up time لكلّ خادم جديد. إنهاء الكلّ دفعة واحدة يتسبّب في انقطاع كامل.<\/span><span class=\"lang-en\"><strong>Instance Refresh<\/strong> is the official path: update the Launch Template and ASG replaces instances gradually while honoring a minimum healthy percentage. Controls warm-up per new instance. Terminate-all causes a full outage.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يتوسّع ويخالف immutable infra.<\/span><span class=\"lang-en\">Doesn't scale, breaks immutable infra.<\/span>", "<span class=\"lang-ar\">انقطاع كامل.<\/span><span class=\"lang-en\">Full outage.<\/span>", "", "<span class=\"lang-ar\">تعقيد بلا فائدة — Instance Refresh أبسط.<\/span><span class=\"lang-en\">Needless complexity — Instance Refresh is simpler.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تطبيق e-commerce يستخدم sticky sessions ويضع بيانات السلّة في الذاكرة المحلّية للخادم. مطوّر يريد تحسين المعمار. ما النصيحة السينيورية؟</span><span class="lang-en">An e-commerce app uses sticky sessions and keeps cart data in instance memory. A dev wants to improve the architecture. Senior advice?</span>",
+        question: "<span class=\"lang-ar\">تطبيق e-commerce يستخدم sticky sessions ويضع بيانات السلّة في الذاكرة المحلّية للخادم. مطوّر يريد تحسين المعمار. ما النصيحة السينيورية؟<\/span><span class=\"lang-en\">An e-commerce app uses sticky sessions and keeps cart data in instance memory. A dev wants to improve the architecture. Senior advice?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة مدّة الـ cookie لستّة أشهر.</span><span class="lang-en">Extend cookie lifetime to 6 months.</span>",
-          "<span class="lang-ar">نقل بيانات السلّة إلى <strong>ElastiCache/Redis</strong> وجعل الخوادم stateless — بذلك تستطيع تعطيل stickiness وتحقيق توازن أفضل ومرونة حقيقيّة.</span><span class="lang-en">Move cart data to <strong>ElastiCache/Redis</strong>, make instances stateless — then stickiness can be off, balancing improves, and true elasticity.</span>",
-          "<span class="lang-ar">استخدام CLB بدل ALB.</span><span class="lang-en">Switch to CLB.</span>",
-          "<span class="lang-ar">إضافة EBS Multi-Attach.</span><span class="lang-en">Add EBS Multi-Attach.</span>"
+          "<span class=\"lang-ar\">زيادة مدّة الـ cookie لستّة أشهر.<\/span><span class=\"lang-en\">Extend cookie lifetime to 6 months.<\/span>",
+          "<span class=\"lang-ar\">نقل بيانات السلّة إلى <strong>ElastiCache/Redis<\/strong> وجعل الخوادم stateless — بذلك تستطيع تعطيل stickiness وتحقيق توازن أفضل ومرونة حقيقيّة.<\/span><span class=\"lang-en\">Move cart data to <strong>ElastiCache/Redis<\/strong>, make instances stateless — then stickiness can be off, balancing improves, and true elasticity.<\/span>",
+          "<span class=\"lang-ar\">استخدام CLB بدل ALB.<\/span><span class=\"lang-en\">Switch to CLB.<\/span>",
+          "<span class=\"lang-ar\">إضافة EBS Multi-Attach.<\/span><span class=\"lang-en\">Add EBS Multi-Attach.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الحالة (session state) في ذاكرة الخادم تقيّد المرونة: لا يمكن استبدال خادم بدون فقدان جلسات، و stickiness تسبّب عدم توازن الحِمل. الحلّ المعياريّ: <strong>نقل الحالة إلى مخزن خارجيّ مشترك</strong> (ElastiCache، DynamoDB). هذا مبدأ الـ 12-factor app.</span><span class="lang-en">In-memory session state kills elasticity: instances can't be replaced without losing sessions, and stickiness causes load imbalance. Canonical fix: <strong>externalize state</strong> (ElastiCache, DynamoDB). 12-factor app principle.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يعمّق المشكلة، لا يحلّها.</span><span class=\"lang-en\">Makes it worse, not better.</span>", "", "<span class=\"lang-ar\">CLB قديم ولا يحلّ مشكلة التصميم.</span><span class=\"lang-en\">CLB is legacy and doesn't fix the design.</span>", "<span class=\"lang-ar\">Multi-Attach للتخزين لا لحالة الجلسة.</span><span class=\"lang-en\">Multi-Attach is storage, not session.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">الحالة (session state) في ذاكرة الخادم تقيّد المرونة: لا يمكن استبدال خادم بدون فقدان جلسات، و stickiness تسبّب عدم توازن الحِمل. الحلّ المعياريّ: <strong>نقل الحالة إلى مخزن خارجيّ مشترك<\/strong> (ElastiCache، DynamoDB). هذا مبدأ الـ 12-factor app.<\/span><span class=\"lang-en\">In-memory session state kills elasticity: instances can't be replaced without losing sessions, and stickiness causes load imbalance. Canonical fix: <strong>externalize state<\/strong> (ElastiCache, DynamoDB). 12-factor app principle.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعمّق المشكلة، لا يحلّها.<\/span><span class=\"lang-en\">Makes it worse, not better.<\/span>", "", "<span class=\"lang-ar\">CLB قديم ولا يحلّ مشكلة التصميم.<\/span><span class=\"lang-en\">CLB is legacy and doesn't fix the design.<\/span>", "<span class=\"lang-ar\">Multi-Attach للتخزين لا لحالة الجلسة.<\/span><span class=\"lang-en\">Multi-Attach is storage, not session.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">ALB يحمل SSL لنطاقَين مختلفَين (<span dir="ltr" class="font-mono">acme.com</span> و <span dir="ltr" class="font-mono">shop.acme.com</span>). كيف يعرف أيّ شهادة يقدّم لكلّ طلب؟</span><span class="lang-en">An ALB serves SSL for two domains (<span dir="ltr" class="font-mono">acme.com</span> and <span dir="ltr" class="font-mono">shop.acme.com</span>). How does it know which cert to serve?</span>",
+        question: "<span class=\"lang-ar\">ALB يحمل SSL لنطاقَين مختلفَين (<span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> و <span dir=\"ltr\" class=\"font-mono\">shop.acme.com<\/span>). كيف يعرف أيّ شهادة يقدّم لكلّ طلب؟<\/span><span class=\"lang-en\">An ALB serves SSL for two domains (<span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> and <span dir=\"ltr\" class=\"font-mono\">shop.acme.com<\/span>). How does it know which cert to serve?<\/span>",
         options: [
-          "<span class="lang-ar">عبر Route 53.</span><span class="lang-en">Via Route 53.</span>",
-          "<span class="lang-ar">عبر <strong>SNI (Server Name Indication)</strong> — العميل يرسل اسم المضيف المطلوب في TLS handshake.</span><span class="lang-en">Via <strong>SNI (Server Name Indication)</strong> — client sends the hostname in the TLS handshake.</span>",
-          "<span class="lang-ar">عبر IP العميل.</span><span class="lang-en">Via client IP.</span>",
-          "<span class="lang-ar">عبر path في URL.</span><span class="lang-en">Via URL path.</span>"
+          "<span class=\"lang-ar\">عبر Route 53.<\/span><span class=\"lang-en\">Via Route 53.<\/span>",
+          "<span class=\"lang-ar\">عبر <strong>SNI (Server Name Indication)<\/strong> — العميل يرسل اسم المضيف المطلوب في TLS handshake.<\/span><span class=\"lang-en\">Via <strong>SNI (Server Name Indication)<\/strong> — client sends the hostname in the TLS handshake.<\/span>",
+          "<span class=\"lang-ar\">عبر IP العميل.<\/span><span class=\"lang-en\">Via client IP.<\/span>",
+          "<span class=\"lang-ar\">عبر path في URL.<\/span><span class=\"lang-en\">Via URL path.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>SNI</strong> يسمح بعدّة شهادات على نفس listener. العميل يرسل اسم المضيف في بداية TLS handshake، والخادم يختار الشهادة المناسبة. مدعوم في ALB و NLB و CloudFront، <u>غير مدعوم في CLB</u>. Route 53 للـ DNS لا للـ SSL. الـ path يظهر بعد فكّ التشفير — متأخّر جداً لاختيار الشهادة.</span><span class="lang-en"><strong>SNI</strong> allows multiple certs on one listener. The client sends the hostname at the start of the TLS handshake; the server picks the matching cert. Supported in ALB, NLB, CloudFront; <u>not in CLB</u>. Route 53 is DNS. Path is visible only after decryption — too late to pick the cert.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Route 53 يحلّ الأسماء لا يختار SSL.</span><span class=\"lang-en\">Route 53 resolves names, doesn't pick SSL.</span>", "", "<span class=\"lang-ar\">الـ IP لا يحدّد النطاق.</span><span class=\"lang-en\">IP doesn't identify the domain.</span>", "<span class=\"lang-ar\">الـ path خلف SSL — مجهول قبل فكّ التشفير.</span><span class=\"lang-en\">Path is post-SSL — unknown before decryption.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>SNI<\/strong> يسمح بعدّة شهادات على نفس listener. العميل يرسل اسم المضيف في بداية TLS handshake، والخادم يختار الشهادة المناسبة. مدعوم في ALB و NLB و CloudFront، <u>غير مدعوم في CLB<\/u>. Route 53 للـ DNS لا للـ SSL. الـ path يظهر بعد فكّ التشفير — متأخّر جداً لاختيار الشهادة.<\/span><span class=\"lang-en\"><strong>SNI<\/strong> allows multiple certs on one listener. The client sends the hostname at the start of the TLS handshake; the server picks the matching cert. Supported in ALB, NLB, CloudFront; <u>not in CLB<\/u>. Route 53 is DNS. Path is visible only after decryption — too late to pick the cert.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Route 53 يحلّ الأسماء لا يختار SSL.<\/span><span class=\"lang-en\">Route 53 resolves names, doesn't pick SSL.<\/span>", "", "<span class=\"lang-ar\">الـ IP لا يحدّد النطاق.<\/span><span class=\"lang-en\">IP doesn't identify the domain.<\/span>", "<span class=\"lang-ar\">الـ path خلف SSL — مجهول قبل فكّ التشفير.<\/span><span class=\"lang-en\">Path is post-SSL — unknown before decryption.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">Acme تريد توسعة ASG عندما يزيد معدّل الطلبات لكلّ خادم. ما المقياس الأفضل؟</span><span class="lang-en">Acme wants to scale ASG when requests per instance rise. Best metric?</span>",
+        question: "<span class=\"lang-ar\">Acme تريد توسعة ASG عندما يزيد معدّل الطلبات لكلّ خادم. ما المقياس الأفضل؟<\/span><span class=\"lang-en\">Acme wants to scale ASG when requests per instance rise. Best metric?<\/span>",
         options: [
-          "<span class="lang-ar">CPUUtilization</span><span class="lang-en">CPUUtilization</span>",
-          "<span class="lang-ar">NetworkIn</span><span class="lang-en">NetworkIn</span>",
-          "<span class="lang-ar"><span class="font-mono">RequestCountPerTarget</span> (من ALB)</span><span class="lang-en"><span class="font-mono">RequestCountPerTarget</span> (from ALB)</span>",
-          "<span class="lang-ar">DiskReadOps</span><span class="lang-en">DiskReadOps</span>"
+          "<span class=\"lang-ar\">CPUUtilization<\/span><span class=\"lang-en\">CPUUtilization<\/span>",
+          "<span class=\"lang-ar\">NetworkIn<\/span><span class=\"lang-en\">NetworkIn<\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">RequestCountPerTarget<\/span> (من ALB)<\/span><span class=\"lang-en\"><span class=\"font-mono\">RequestCountPerTarget<\/span> (from ALB)<\/span>",
+          "<span class=\"lang-ar\">DiskReadOps<\/span><span class=\"lang-en\">DiskReadOps<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">RequestCountPerTarget</span> يقيس عدد الطلبات لكلّ خادم بالضبط، وهو الأدقّ لحالة "طلبات لكلّ خادم". CPUUtilization قد لا يرتبط بعدد الطلبات (تطبيقات IO-bound)، و NetworkIn قياس خام لا يعكس الحِمل الفعليّ.</span><span class="lang-en"><span dir="ltr" class="font-mono">RequestCountPerTarget</span> precisely measures requests per instance — the right fit. CPUUtilization may not correlate with request volume (IO-bound apps). NetworkIn is raw and doesn't reflect actual load.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير دقيق لأنّه يعتمد على نوع التطبيق.</span><span class=\"lang-en\">Imprecise — depends on app type.</span>", "<span class=\"lang-ar\">قياس خام، لا يعبّر عن الحِمل الحقيقيّ.</span><span class=\"lang-en\">Raw bytes, not true load.</span>", "", "<span class=\"lang-ar\">لا علاقة بعدد الطلبات.</span><span class=\"lang-en\">Unrelated to request count.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget<\/span> يقيس عدد الطلبات لكلّ خادم بالضبط، وهو الأدقّ لحالة \"طلبات لكلّ خادم\". CPUUtilization قد لا يرتبط بعدد الطلبات (تطبيقات IO-bound)، و NetworkIn قياس خام لا يعكس الحِمل الفعليّ.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget<\/span> precisely measures requests per instance — the right fit. CPUUtilization may not correlate with request volume (IO-bound apps). NetworkIn is raw and doesn't reflect actual load.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير دقيق لأنّه يعتمد على نوع التطبيق.<\/span><span class=\"lang-en\">Imprecise — depends on app type.<\/span>", "<span class=\"lang-ar\">قياس خام، لا يعبّر عن الحِمل الحقيقيّ.<\/span><span class=\"lang-en\">Raw bytes, not true load.<\/span>", "", "<span class=\"lang-ar\">لا علاقة بعدد الطلبات.<\/span><span class=\"lang-en\">Unrelated to request count.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "multi",
-        question: "<span class="lang-ar">أيّ الأهداف (targets) يدعمها <strong>ALB</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which targets does <strong>ALB</strong> support? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ الأهداف (targets) يدعمها <strong>ALB<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which targets does <strong>ALB<\/strong> support? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">EC2 Instances (بما فيها المُدارة عبر ASG).</span><span class="lang-en">EC2 instances (incl. ASG-managed).</span>",
-          "<span class="lang-ar">Lambda functions.</span><span class="lang-en">Lambda functions.</span>",
-          "<span class="lang-ar">IP addresses (خاصّة).</span><span class="lang-en">IP addresses (private).</span>",
-          "<span class="lang-ar">تطبيقات on-premises مباشرةً دون VPN.</span><span class="lang-en">On-premises directly without VPN.</span>",
-          "<span class="lang-ar">ECS tasks.</span><span class="lang-en">ECS tasks.</span>"
+          "<span class=\"lang-ar\">EC2 Instances (بما فيها المُدارة عبر ASG).<\/span><span class=\"lang-en\">EC2 instances (incl. ASG-managed).<\/span>",
+          "<span class=\"lang-ar\">Lambda functions.<\/span><span class=\"lang-en\">Lambda functions.<\/span>",
+          "<span class=\"lang-ar\">IP addresses (خاصّة).<\/span><span class=\"lang-en\">IP addresses (private).<\/span>",
+          "<span class=\"lang-ar\">تطبيقات on-premises مباشرةً دون VPN.<\/span><span class=\"lang-en\">On-premises directly without VPN.<\/span>",
+          "<span class=\"lang-ar\">ECS tasks.<\/span><span class=\"lang-en\">ECS tasks.<\/span>"
         ],
         correct: [0,1,2,4],
-        explanation: "<span class="lang-ar">ALB يدعم EC2, Lambda, IP addresses (خاصّة فقط), و ECS tasks. الوصول لـ on-premises يتطلّب VPN أو Direct Connect لأنّ الـ IPs الخاصّة يجب أن تكون قابلة للوصول من الـ VPC.</span><span class="lang-en">ALB supports EC2, Lambda, private IPs, and ECS tasks. On-premises needs VPN or Direct Connect because private IPs must be reachable from the VPC.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">ALB يدعم EC2, Lambda, IP addresses (خاصّة فقط), و ECS tasks. الوصول لـ on-premises يتطلّب VPN أو Direct Connect لأنّ الـ IPs الخاصّة يجب أن تكون قابلة للوصول من الـ VPC.<\/span><span class=\"lang-en\">ALB supports EC2, Lambda, private IPs, and ECS tasks. On-premises needs VPN or Direct Connect because private IPs must be reachable from the VPC.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">ASG مُنشأ على 3 AZs بـ Desired=6. فجأة AZ-A تتعطّل. ماذا يحدث؟</span><span class="lang-en">An ASG spans 3 AZs with Desired=6. AZ-A suddenly fails. What happens?</span>",
+        question: "<span class=\"lang-ar\">ASG مُنشأ على 3 AZs بـ Desired=6. فجأة AZ-A تتعطّل. ماذا يحدث؟<\/span><span class=\"lang-en\">An ASG spans 3 AZs with Desired=6. AZ-A suddenly fails. What happens?<\/span>",
         options: [
-          "<span class="lang-ar">ASG يتوقّف تماماً.</span><span class="lang-en">ASG stops entirely.</span>",
-          "<span class="lang-ar">ASG يُعيد توزيع الخوادم المفقودة على AZ-B و AZ-C تلقائياً ليحافظ على Desired=6.</span><span class="lang-en">ASG automatically redistributes lost instances across AZ-B and AZ-C to maintain Desired=6.</span>",
-          "<span class="lang-ar">يجب إعادة إنشاء ASG.</span><span class="lang-en">Must recreate the ASG.</span>",
-          "<span class="lang-ar">الخوادم في AZ-A تبقى pending إلى أن تعود AZ-A.</span><span class="lang-en">AZ-A's instances stay pending until AZ-A returns.</span>"
+          "<span class=\"lang-ar\">ASG يتوقّف تماماً.<\/span><span class=\"lang-en\">ASG stops entirely.<\/span>",
+          "<span class=\"lang-ar\">ASG يُعيد توزيع الخوادم المفقودة على AZ-B و AZ-C تلقائياً ليحافظ على Desired=6.<\/span><span class=\"lang-en\">ASG automatically redistributes lost instances across AZ-B and AZ-C to maintain Desired=6.<\/span>",
+          "<span class=\"lang-ar\">يجب إعادة إنشاء ASG.<\/span><span class=\"lang-en\">Must recreate the ASG.<\/span>",
+          "<span class=\"lang-ar\">الخوادم في AZ-A تبقى pending إلى أن تعود AZ-A.<\/span><span class=\"lang-en\">AZ-A's instances stay pending until AZ-A returns.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">ASG مصمَّم للإتاحة العالية: يفقد خوادم AZ-A، فيُنشئ بدائل في AZ-B و AZ-C ليحافظ على Desired. ALB كذلك يحوّل الحِمل إلى الـ AZs السليمة تلقائياً. لذا تنتشر دائماً عبر <strong>٣ AZs</strong> على الأقلّ في الإنتاج.</span><span class="lang-en">ASG is built for HA: loses AZ-A instances and launches replacements in AZ-B and AZ-C to maintain Desired. ALB also diverts traffic to healthy AZs. That's why prod always spans <strong>at least 3 AZs</strong>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ASG صامد للفشل.</span><span class=\"lang-en\">ASG is failure-resilient.</span>", "", "<span class=\"lang-ar\">غير ضروريّ — ASG ذاتيّ الشفاء.</span><span class=\"lang-en\">Not needed — ASG self-heals.</span>", "<span class=\"lang-ar\">ASG لا ينتظر AZ — يستبدل فوراً.</span><span class=\"lang-en\">ASG doesn't wait — it replaces.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١ — HA</span><span class=\"lang-en\">Section 1 — HA</span>"
+        explanation: "<span class=\"lang-ar\">ASG مصمَّم للإتاحة العالية: يفقد خوادم AZ-A، فيُنشئ بدائل في AZ-B و AZ-C ليحافظ على Desired. ALB كذلك يحوّل الحِمل إلى الـ AZs السليمة تلقائياً. لذا تنتشر دائماً عبر <strong>٣ AZs<\/strong> على الأقلّ في الإنتاج.<\/span><span class=\"lang-en\">ASG is built for HA: loses AZ-A instances and launches replacements in AZ-B and AZ-C to maintain Desired. ALB also diverts traffic to healthy AZs. That's why prod always spans <strong>at least 3 AZs<\/strong>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ASG صامد للفشل.<\/span><span class=\"lang-en\">ASG is failure-resilient.<\/span>", "", "<span class=\"lang-ar\">غير ضروريّ — ASG ذاتيّ الشفاء.<\/span><span class=\"lang-en\">Not needed — ASG self-heals.<\/span>", "<span class=\"lang-ar\">ASG لا ينتظر AZ — يستبدل فوراً.<\/span><span class=\"lang-en\">ASG doesn't wait — it replaces.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١ — HA<\/span><span class=\"lang-en\">Section 1 — HA<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">لماذا يُفضَّل ALB على CLB في التطبيقات الجديدة؟</span><span class="lang-en">Why is ALB preferred over CLB for new applications?</span>",
+        question: "<span class=\"lang-ar\">لماذا يُفضَّل ALB على CLB في التطبيقات الجديدة؟<\/span><span class=\"lang-en\">Why is ALB preferred over CLB for new applications?<\/span>",
         options: [
-          "<span class="lang-ar">ALB أرخص فقط.</span><span class="lang-en">ALB is only cheaper.</span>",
-          "<span class="lang-ar">ALB يدعم path/host routing و WebSocket و HTTP/2 و Lambda و container port mapping و SNI، وهي ميزات لا يدعمها CLB.</span><span class="lang-en">ALB supports path/host routing, WebSocket, HTTP/2, Lambda, container port mapping, SNI — all unsupported by CLB.</span>",
-          "<span class="lang-ar">CLB أسرع من ALB.</span><span class="lang-en">CLB is faster than ALB.</span>",
-          "<span class="lang-ar">لا يوجد فرق حقيقيّ.</span><span class="lang-en">No real difference.</span>"
+          "<span class=\"lang-ar\">ALB أرخص فقط.<\/span><span class=\"lang-en\">ALB is only cheaper.<\/span>",
+          "<span class=\"lang-ar\">ALB يدعم path/host routing و WebSocket و HTTP/2 و Lambda و container port mapping و SNI، وهي ميزات لا يدعمها CLB.<\/span><span class=\"lang-en\">ALB supports path/host routing, WebSocket, HTTP/2, Lambda, container port mapping, SNI — all unsupported by CLB.<\/span>",
+          "<span class=\"lang-ar\">CLB أسرع من ALB.<\/span><span class=\"lang-en\">CLB is faster than ALB.<\/span>",
+          "<span class=\"lang-ar\">لا يوجد فرق حقيقيّ.<\/span><span class=\"lang-en\">No real difference.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CLB من ٢٠٠٩ — لا يدعم المعماريات الحديثة. ALB (٢٠١٦) أُنشئ للـ microservices و containers و serverless. أهمّ الميزات: توجيه Layer 7 الذكيّ، دعم Lambda، SNI لعدّة شهادات، ودعم HTTP/2 و WebSocket.</span><span class="lang-en">CLB is from 2009 — lacks modern features. ALB (2016) was built for microservices, containers, serverless. Key wins: smart Layer 7 routing, Lambda support, SNI for multiple certs, HTTP/2 and WebSocket.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ليست النقطة الأساس.</span><span class=\"lang-en\">Not the main point.</span>", "", "<span class=\"lang-ar\">عكس الحقيقة — ALB أسرع وأذكى.</span><span class=\"lang-en\">Opposite — ALB is faster and smarter.</span>", "<span class=\"lang-ar\">الفرق ضخم.</span><span class=\"lang-en\">Huge difference exists.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">CLB من ٢٠٠٩ — لا يدعم المعماريات الحديثة. ALB (٢٠١٦) أُنشئ للـ microservices و containers و serverless. أهمّ الميزات: توجيه Layer 7 الذكيّ، دعم Lambda، SNI لعدّة شهادات، ودعم HTTP/2 و WebSocket.<\/span><span class=\"lang-en\">CLB is from 2009 — lacks modern features. ALB (2016) was built for microservices, containers, serverless. Key wins: smart Layer 7 routing, Lambda support, SNI for multiple certs, HTTP/2 and WebSocket.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليست النقطة الأساس.<\/span><span class=\"lang-en\">Not the main point.<\/span>", "", "<span class=\"lang-ar\">عكس الحقيقة — ALB أسرع وأذكى.<\/span><span class=\"lang-en\">Opposite — ALB is faster and smarter.<\/span>", "<span class=\"lang-ar\">الفرق ضخم.<\/span><span class=\"lang-en\">Huge difference exists.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">NLB بدون Cross-Zone LB، Acme لديه خادم في AZ-A وخادمان في AZ-B. ما نسبة الحِمل على كلّ خادم؟</span><span class="lang-en">NLB without Cross-Zone LB. Acme has 1 instance in AZ-A and 2 in AZ-B. Load distribution?</span>",
+        question: "<span class=\"lang-ar\">NLB بدون Cross-Zone LB، Acme لديه خادم في AZ-A وخادمان في AZ-B. ما نسبة الحِمل على كلّ خادم؟<\/span><span class=\"lang-en\">NLB without Cross-Zone LB. Acme has 1 instance in AZ-A and 2 in AZ-B. Load distribution?<\/span>",
         options: [
-          "<span class="lang-ar">كلّ خادم يستقبل ٣٣٪ بالتساوي.</span><span class="lang-en">Each instance gets 33%.</span>",
-          "<span class="lang-ar">خادم AZ-A يستقبل ٥٠٪، وكلّ خادم في AZ-B يستقبل ٢٥٪.</span><span class="lang-en">AZ-A's instance gets 50%, each AZ-B instance gets 25%.</span>",
-          "<span class="lang-ar">خادم AZ-B يستقبل ٥٠٪ وكلّ واحد في AZ-A ٥٠٪.</span><span class="lang-en">AZ-B gets 50%, AZ-A instance 50%.</span>",
-          "<span class="lang-ar">التوزيع عشوائيّ.</span><span class="lang-en">Random.</span>"
+          "<span class=\"lang-ar\">كلّ خادم يستقبل ٣٣٪ بالتساوي.<\/span><span class=\"lang-en\">Each instance gets 33%.<\/span>",
+          "<span class=\"lang-ar\">خادم AZ-A يستقبل ٥٠٪، وكلّ خادم في AZ-B يستقبل ٢٥٪.<\/span><span class=\"lang-en\">AZ-A's instance gets 50%, each AZ-B instance gets 25%.<\/span>",
+          "<span class=\"lang-ar\">خادم AZ-B يستقبل ٥٠٪ وكلّ واحد في AZ-A ٥٠٪.<\/span><span class=\"lang-en\">AZ-B gets 50%, AZ-A instance 50%.<\/span>",
+          "<span class=\"lang-ar\">التوزيع عشوائيّ.<\/span><span class=\"lang-en\">Random.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">بدون Cross-Zone، كلّ عقدة LB تأخذ ٥٠٪ من الحِمل وتوزّعها على خوادم AZ الخاصّة بها. AZ-A بخادم واحد → ٥٠٪ له. AZ-B بخادمين → ٢٥٪ لكلّ واحد. هذا يسبّب "إرهاق" الخادم الوحيد في AZ-A.</span><span class="lang-en">Without Cross-Zone, each LB node takes 50% and distributes only to its AZ's instances. AZ-A (1 instance) → 50% on it. AZ-B (2) → 25% each. AZ-A's lone instance is overworked.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">هذا التوزيع مع Cross-Zone مُفعَّل.</span><span class=\"lang-en\">That's what Cross-Zone enabled does.</span>", "", "<span class=\"lang-ar\">معكوس.</span><span class=\"lang-en\">Reversed.</span>", "<span class=\"lang-ar\">LB يتّبع قواعد، ليس عشوائياً.</span><span class=\"lang-en\">LB follows rules, not random.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">بدون Cross-Zone، كلّ عقدة LB تأخذ ٥٠٪ من الحِمل وتوزّعها على خوادم AZ الخاصّة بها. AZ-A بخادم واحد → ٥٠٪ له. AZ-B بخادمين → ٢٥٪ لكلّ واحد. هذا يسبّب \"إرهاق\" الخادم الوحيد في AZ-A.<\/span><span class=\"lang-en\">Without Cross-Zone, each LB node takes 50% and distributes only to its AZ's instances. AZ-A (1 instance) → 50% on it. AZ-B (2) → 25% each. AZ-A's lone instance is overworked.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذا التوزيع مع Cross-Zone مُفعَّل.<\/span><span class=\"lang-en\">That's what Cross-Zone enabled does.<\/span>", "", "<span class=\"lang-ar\">معكوس.<\/span><span class=\"lang-en\">Reversed.<\/span>", "<span class=\"lang-ar\">LB يتّبع قواعد، ليس عشوائياً.<\/span><span class=\"lang-en\">LB follows rules, not random.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">فريق Acme يستخدم ASG مع Scheduled Scaling لرفع Min=10 كلّ جمعة ٥ مساءً. مطوّر يقترح استبدال Scheduled بـ Predictive. متى يكون Predictive أفضل؟</span><span class="lang-en">Acme uses Scheduled Scaling to set Min=10 every Friday 5pm. A dev suggests Predictive instead. When is Predictive better?</span>",
+        question: "<span class=\"lang-ar\">فريق Acme يستخدم ASG مع Scheduled Scaling لرفع Min=10 كلّ جمعة ٥ مساءً. مطوّر يقترح استبدال Scheduled بـ Predictive. متى يكون Predictive أفضل؟<\/span><span class=\"lang-en\">Acme uses Scheduled Scaling to set Min=10 every Friday 5pm. A dev suggests Predictive instead. When is Predictive better?<\/span>",
         options: [
-          "<span class="lang-ar">دائماً — Predictive أفضل من Scheduled.</span><span class="lang-en">Always — Predictive beats Scheduled.</span>",
-          "<span class="lang-ar">عندما تكون أنماط الحِمل متكرّرة لكن غير معروفة بشكل مسبق دقيق — يحلّلها ML من التاريخ ويتنبّأ مسبقاً.</span><span class="lang-en">When load patterns are recurring but not precisely known — ML analyzes history and forecasts ahead.</span>",
-          "<span class="lang-ar">عند الحِمل البسيط والثابت.</span><span class="lang-en">For simple constant loads.</span>",
-          "<span class="lang-ar">Predictive لا يستخدم ML.</span><span class="lang-en">Predictive doesn't use ML.</span>"
+          "<span class=\"lang-ar\">دائماً — Predictive أفضل من Scheduled.<\/span><span class=\"lang-en\">Always — Predictive beats Scheduled.<\/span>",
+          "<span class=\"lang-ar\">عندما تكون أنماط الحِمل متكرّرة لكن غير معروفة بشكل مسبق دقيق — يحلّلها ML من التاريخ ويتنبّأ مسبقاً.<\/span><span class=\"lang-en\">When load patterns are recurring but not precisely known — ML analyzes history and forecasts ahead.<\/span>",
+          "<span class=\"lang-ar\">عند الحِمل البسيط والثابت.<\/span><span class=\"lang-en\">For simple constant loads.<\/span>",
+          "<span class=\"lang-ar\">Predictive لا يستخدم ML.<\/span><span class=\"lang-en\">Predictive doesn't use ML.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Scheduled</strong> مثاليّ للأنماط المعروفة بدقّة ("كلّ جمعة ٥ مساءً"). <strong>Predictive</strong> يستخدم ML لتحليل أنماط تاريخيّة معقّدة والتنبّؤ بها — مفيد عندما لا يمكنك كتابة جدول ثابت. الاثنان متكاملان لا متنافسان. Predictive ليس دائماً أفضل — فقط عند التعقيد.</span><span class="lang-en"><strong>Scheduled</strong> is perfect for precisely known patterns ("every Friday 5pm"). <strong>Predictive</strong> uses ML for complex recurring patterns you can't hand-schedule. They complement, not compete. Predictive isn't always better — only for complexity.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير صحيح — لكلّ حالة استخدامها.</span><span class=\"lang-en\">Not so — each has its case.</span>", "", "<span class=\"lang-ar\">Scheduled كافٍ وأبسط.</span><span class=\"lang-en\">Scheduled is simpler and enough.</span>", "<span class=\"lang-ar\">Predictive يستخدم ML.</span><span class=\"lang-en\">Predictive does use ML.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Scheduled<\/strong> مثاليّ للأنماط المعروفة بدقّة (\"كلّ جمعة ٥ مساءً\"). <strong>Predictive<\/strong> يستخدم ML لتحليل أنماط تاريخيّة معقّدة والتنبّؤ بها — مفيد عندما لا يمكنك كتابة جدول ثابت. الاثنان متكاملان لا متنافسان. Predictive ليس دائماً أفضل — فقط عند التعقيد.<\/span><span class=\"lang-en\"><strong>Scheduled<\/strong> is perfect for precisely known patterns (\"every Friday 5pm\"). <strong>Predictive<\/strong> uses ML for complex recurring patterns you can't hand-schedule. They complement, not compete. Predictive isn't always better — only for complexity.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير صحيح — لكلّ حالة استخدامها.<\/span><span class=\"lang-en\">Not so — each has its case.<\/span>", "", "<span class=\"lang-ar\">Scheduled كافٍ وأبسط.<\/span><span class=\"lang-en\">Scheduled is simpler and enough.<\/span>", "<span class=\"lang-ar\">Predictive يستخدم ML.<\/span><span class=\"lang-en\">Predictive does use ML.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

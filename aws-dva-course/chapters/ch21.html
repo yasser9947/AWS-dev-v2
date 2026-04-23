@@ -917,214 +917,214 @@ aws cloudformation describe-stack-resource-drifts \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد قيمة متغيّرة (AMI ID) تتغيّر حسب المنطقة. ما أفضل آليّة في CloudFormation؟</span><span class="lang-en">A developer needs an AMI ID that varies by region. Best CloudFormation feature?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد قيمة متغيّرة (AMI ID) تتغيّر حسب المنطقة. ما أفضل آليّة في CloudFormation؟<\/span><span class=\"lang-en\">A developer needs an AMI ID that varies by region. Best CloudFormation feature?<\/span>",
         options: [
-          "<span class="lang-ar">Parameters مع AllowedValues</span><span class="lang-en">Parameters with AllowedValues</span>",
-          "<span class="lang-ar">Mappings مع FindInMap</span><span class="lang-en">Mappings with FindInMap</span>",
-          "<span class="lang-ar">Conditions مع If</span><span class="lang-en">Conditions with If</span>",
-          "<span class="lang-ar">Outputs</span><span class="lang-en">Outputs</span>"
+          "<span class=\"lang-ar\">Parameters مع AllowedValues<\/span><span class=\"lang-en\">Parameters with AllowedValues<\/span>",
+          "<span class=\"lang-ar\">Mappings مع FindInMap<\/span><span class=\"lang-en\">Mappings with FindInMap<\/span>",
+          "<span class=\"lang-ar\">Conditions مع If<\/span><span class=\"lang-en\">Conditions with If<\/span>",
+          "<span class=\"lang-ar\">Outputs<\/span><span class=\"lang-en\">Outputs<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Mappings</strong> هي الحل المعياري لتفرّعات ثابتة حسب Region أو Environment. تُقرَأ بـ <span dir="ltr" class="font-mono">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]</span>. Parameters للمدخلات الديناميكيّة من المستخدم، Conditions لإنشاء موارد شرطيّ، Outputs لتصدير قيم.</span><span class="lang-en"><strong>Mappings</strong> is the standard pattern for static lookups by region/environment. Read via <span dir="ltr" class="font-mono">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]</span>. Parameters are for dynamic user inputs, Conditions for conditional creation, Outputs for exports.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يصلح لكنّه يتطلّب إدخال المستخدم في كل نشر.</span><span class=\"lang-en\">Works but requires user input on every deploy.</span>", "", "<span class=\"lang-ar\">للإنشاء الشرطيّ لا للقراءة من جدول.</span><span class=\"lang-en\">For conditional creation, not table lookup.</span>", "<span class=\"lang-ar\">لتصدير قيم بعد الإنشاء.</span><span class=\"lang-en\">For exporting values post-create.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢ — أقسام القالب</span><span class=\"lang-en\">Section 2 — Template sections</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Mappings<\/strong> هي الحل المعياري لتفرّعات ثابتة حسب Region أو Environment. تُقرَأ بـ <span dir=\"ltr\" class=\"font-mono\">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]<\/span>. Parameters للمدخلات الديناميكيّة من المستخدم، Conditions لإنشاء موارد شرطيّ، Outputs لتصدير قيم.<\/span><span class=\"lang-en\"><strong>Mappings<\/strong> is the standard pattern for static lookups by region/environment. Read via <span dir=\"ltr\" class=\"font-mono\">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]<\/span>. Parameters are for dynamic user inputs, Conditions for conditional creation, Outputs for exports.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يصلح لكنّه يتطلّب إدخال المستخدم في كل نشر.<\/span><span class=\"lang-en\">Works but requires user input on every deploy.<\/span>", "", "<span class=\"lang-ar\">للإنشاء الشرطيّ لا للقراءة من جدول.<\/span><span class=\"lang-en\">For conditional creation, not table lookup.<\/span>", "<span class=\"lang-ar\">لتصدير قيم بعد الإنشاء.<\/span><span class=\"lang-en\">For exporting values post-create.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — أقسام القالب<\/span><span class=\"lang-en\">Section 2 — Template sections<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java Spring Boot يحتاج إلى كلمة مرور قاعدة بيانات كـ Parameter. ما الخاصّية التي تُخفيها في Console والـ Events؟</span><span class="lang-en">A Java Spring Boot app needs a DB password parameter. Which property hides it in the Console and events?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java Spring Boot يحتاج إلى كلمة مرور قاعدة بيانات كـ Parameter. ما الخاصّية التي تُخفيها في Console والـ Events؟<\/span><span class=\"lang-en\">A Java Spring Boot app needs a DB password parameter. Which property hides it in the Console and events?<\/span>",
         options: [
-          "<span class="lang-ar">Hidden: true</span><span class="lang-en">Hidden: true</span>",
-          "<span class="lang-ar">NoEcho: true</span><span class="lang-en">NoEcho: true</span>",
-          "<span class="lang-ar">Secure: true</span><span class="lang-en">Secure: true</span>",
-          "<span class="lang-ar">Encrypted: true</span><span class="lang-en">Encrypted: true</span>"
+          "<span class=\"lang-ar\">Hidden: true<\/span><span class=\"lang-en\">Hidden: true<\/span>",
+          "<span class=\"lang-ar\">NoEcho: true<\/span><span class=\"lang-en\">NoEcho: true<\/span>",
+          "<span class=\"lang-ar\">Secure: true<\/span><span class=\"lang-en\">Secure: true<\/span>",
+          "<span class=\"lang-ar\">Encrypted: true<\/span><span class=\"lang-en\">Encrypted: true<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">NoEcho: true</span> هي الطريقة المعتمدة في CloudFormation لمنع ظهور القيمة في Console والـ Stack Events والـ API. أفضل حتى من ذلك: استخدم <strong>Secrets Manager</strong> أو <strong>SSM Parameter Store</strong> وارجع إليهما بـ <span dir="ltr" class="font-mono">Type: AWS::SSM::Parameter::Value&lt;String&gt;</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">NoEcho: true</span> is the standard way to mask the value in Console, Stack Events, and API. Even better: store in <strong>Secrets Manager</strong> or <strong>SSM Parameter Store</strong> and reference with <span dir="ltr" class="font-mono">Type: AWS::SSM::Parameter::Value&lt;String&gt;</span>.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">NoEcho: true<\/span> هي الطريقة المعتمدة في CloudFormation لمنع ظهور القيمة في Console والـ Stack Events والـ API. أفضل حتى من ذلك: استخدم <strong>Secrets Manager<\/strong> أو <strong>SSM Parameter Store<\/strong> وارجع إليهما بـ <span dir=\"ltr\" class=\"font-mono\">Type: AWS::SSM::Parameter::Value&lt;String&gt;<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">NoEcho: true<\/span> is the standard way to mask the value in Console, Stack Events, and API. Even better: store in <strong>Secrets Manager<\/strong> or <strong>SSM Parameter Store<\/strong> and reference with <span dir=\"ltr\" class=\"font-mono\">Type: AWS::SSM::Parameter::Value&lt;String&gt;<\/span>.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة Acme عندها Stack للـ VPC و Stack منفصل للتطبيقات. التطبيق يحتاج مُعرّف VPC. ما الآليّة الصحيحة؟</span><span class="lang-en">Acme has a VPC stack and a separate application stack. The app needs the VPC ID. Correct mechanism?</span>",
+        question: "<span class=\"lang-ar\">شركة Acme عندها Stack للـ VPC و Stack منفصل للتطبيقات. التطبيق يحتاج مُعرّف VPC. ما الآليّة الصحيحة؟<\/span><span class=\"lang-en\">Acme has a VPC stack and a separate application stack. The app needs the VPC ID. Correct mechanism?<\/span>",
         options: [
-          "<span class="lang-ar">نسخ القيمة يدوياً عند كل تحديث.</span><span class="lang-en">Manually copy the value on every update.</span>",
-          "<span class="lang-ar">استخدام Output مع Export في Stack الأوّل و ImportValue في الثاني.</span><span class="lang-en">Output with Export in the first stack, and ImportValue in the second.</span>",
-          "<span class="lang-ar">Nested Stacks فقط.</span><span class="lang-en">Nested Stacks only.</span>",
-          "<span class="lang-ar">إنشاء Parameter يُدخَل يدوياً.</span><span class="lang-en">A parameter entered manually.</span>"
+          "<span class=\"lang-ar\">نسخ القيمة يدوياً عند كل تحديث.<\/span><span class=\"lang-en\">Manually copy the value on every update.<\/span>",
+          "<span class=\"lang-ar\">استخدام Output مع Export في Stack الأوّل و ImportValue في الثاني.<\/span><span class=\"lang-en\">Output with Export in the first stack, and ImportValue in the second.<\/span>",
+          "<span class=\"lang-ar\">Nested Stacks فقط.<\/span><span class=\"lang-en\">Nested Stacks only.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Parameter يُدخَل يدوياً.<\/span><span class=\"lang-en\">A parameter entered manually.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الآليّة الرسميّة للـ <strong>Cross-Stack Reference</strong>: صدّر القيمة بـ <span dir="ltr" class="font-mono">Export: Name: ...</span> ثم استوردها بـ <span dir="ltr" class="font-mono">!ImportValue</span>. لا يمكن حذف Stack مُصدِّر ما دامت قيمه مستوردة في Stack آخر.</span><span class="lang-en">The official <strong>cross-stack reference</strong>: export with <span dir="ltr" class="font-mono">Export: Name: ...</span>, import with <span dir="ltr" class="font-mono">!ImportValue</span>. You can't delete an exporting stack while its values are imported elsewhere.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣ — ImportValue</span><span class=\"lang-en\">Section 3 — ImportValue</span>"
+        explanation: "<span class=\"lang-ar\">الآليّة الرسميّة للـ <strong>Cross-Stack Reference<\/strong>: صدّر القيمة بـ <span dir=\"ltr\" class=\"font-mono\">Export: Name: ...<\/span> ثم استوردها بـ <span dir=\"ltr\" class=\"font-mono\">!ImportValue<\/span>. لا يمكن حذف Stack مُصدِّر ما دامت قيمه مستوردة في Stack آخر.<\/span><span class=\"lang-en\">The official <strong>cross-stack reference<\/strong>: export with <span dir=\"ltr\" class=\"font-mono\">Export: Name: ...<\/span>, import with <span dir=\"ltr\" class=\"font-mono\">!ImportValue<\/span>. You can't delete an exporting stack while its values are imported elsewhere.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣ — ImportValue<\/span><span class=\"lang-en\">Section 3 — ImportValue<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">في قالب يُنشِئ RDS، يريد المطوّر الحفاظ على البيانات حتى لو حُذف الـ Stack. ما الخاصيّة الصحيحة؟</span><span class="lang-en">A template creates RDS. The developer wants data preserved even if the stack is deleted. Correct property?</span>",
+        question: "<span class=\"lang-ar\">في قالب يُنشِئ RDS، يريد المطوّر الحفاظ على البيانات حتى لو حُذف الـ Stack. ما الخاصيّة الصحيحة؟<\/span><span class=\"lang-en\">A template creates RDS. The developer wants data preserved even if the stack is deleted. Correct property?<\/span>",
         options: [
-          "<span class="lang-ar">UpdatePolicy: Retain</span><span class="lang-en">UpdatePolicy: Retain</span>",
-          "<span class="lang-ar">DeletionPolicy: Retain أو Snapshot</span><span class="lang-en">DeletionPolicy: Retain or Snapshot</span>",
-          "<span class="lang-ar">TerminationProtection: true</span><span class="lang-en">TerminationProtection: true</span>",
-          "<span class="lang-ar">BackupPolicy: Enabled</span><span class="lang-en">BackupPolicy: Enabled</span>"
+          "<span class=\"lang-ar\">UpdatePolicy: Retain<\/span><span class=\"lang-en\">UpdatePolicy: Retain<\/span>",
+          "<span class=\"lang-ar\">DeletionPolicy: Retain أو Snapshot<\/span><span class=\"lang-en\">DeletionPolicy: Retain or Snapshot<\/span>",
+          "<span class=\"lang-ar\">TerminationProtection: true<\/span><span class=\"lang-en\">TerminationProtection: true<\/span>",
+          "<span class=\"lang-ar\">BackupPolicy: Enabled<\/span><span class=\"lang-en\">BackupPolicy: Enabled<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>DeletionPolicy</strong> يتحكّم بسلوك الحذف. <strong>Retain</strong> يُبقي المورد، <strong>Snapshot</strong> يأخذ لقطة نهائيّة قبل الحذف (مدعوم لـ RDS، EBS، ElastiCache، Redshift). <strong>TerminationProtection</strong> على مستوى Stack لمنع حذفه بالكامل.</span><span class="lang-en"><strong>DeletionPolicy</strong> controls delete behavior. <strong>Retain</strong> keeps the resource, <strong>Snapshot</strong> takes a final snapshot before delete (supported for RDS, EBS, ElastiCache, Redshift). <strong>TerminationProtection</strong> is at stack level to prevent stack deletion.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يوجد UpdatePolicy: Retain.</span><span class=\"lang-en\">No UpdatePolicy: Retain.</span>", "", "<span class=\"lang-ar\">يمنع حذف الـ Stack كلّه لا مورد واحد.</span><span class=\"lang-en\">Prevents whole-stack delete, not a single resource.</span>", "<span class=\"lang-ar\">غير موجودة.</span><span class=\"lang-en\">Not a property.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>DeletionPolicy<\/strong> يتحكّم بسلوك الحذف. <strong>Retain<\/strong> يُبقي المورد، <strong>Snapshot<\/strong> يأخذ لقطة نهائيّة قبل الحذف (مدعوم لـ RDS، EBS، ElastiCache، Redshift). <strong>TerminationProtection<\/strong> على مستوى Stack لمنع حذفه بالكامل.<\/span><span class=\"lang-en\"><strong>DeletionPolicy<\/strong> controls delete behavior. <strong>Retain<\/strong> keeps the resource, <strong>Snapshot<\/strong> takes a final snapshot before delete (supported for RDS, EBS, ElastiCache, Redshift). <strong>TerminationProtection<\/strong> is at stack level to prevent stack deletion.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يوجد UpdatePolicy: Retain.<\/span><span class=\"lang-en\">No UpdatePolicy: Retain.<\/span>", "", "<span class=\"lang-ar\">يمنع حذف الـ Stack كلّه لا مورد واحد.<\/span><span class=\"lang-en\">Prevents whole-stack delete, not a single resource.<\/span>", "<span class=\"lang-ar\">غير موجودة.<\/span><span class=\"lang-en\">Not a property.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">Stack في حالة <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span>. ما الإجراء الصحيح؟</span><span class="lang-en">A stack is in <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span>. Correct action?</span>",
+        question: "<span class=\"lang-ar\">Stack في حالة <span dir=\"ltr\" class=\"font-mono\">UPDATE_ROLLBACK_FAILED<\/span>. ما الإجراء الصحيح؟<\/span><span class=\"lang-en\">A stack is in <span dir=\"ltr\" class=\"font-mono\">UPDATE_ROLLBACK_FAILED<\/span>. Correct action?<\/span>",
         options: [
-          "<span class="lang-ar">حذف الـ Stack مباشرةً.</span><span class="lang-en">Immediately delete the stack.</span>",
-          "<span class="lang-ar">إصلاح المورد يدوياً ثم استدعاء ContinueUpdateRollback.</span><span class="lang-en">Manually fix the resource, then call ContinueUpdateRollback.</span>",
-          "<span class="lang-ar">إنشاء Stack جديد فوق القديم.</span><span class="lang-en">Create a new stack on top of the old.</span>",
-          "<span class="lang-ar">تجاهل الخطأ والمتابعة بتحديث جديد.</span><span class="lang-en">Ignore and push a new update.</span>"
+          "<span class=\"lang-ar\">حذف الـ Stack مباشرةً.<\/span><span class=\"lang-en\">Immediately delete the stack.<\/span>",
+          "<span class=\"lang-ar\">إصلاح المورد يدوياً ثم استدعاء ContinueUpdateRollback.<\/span><span class=\"lang-en\">Manually fix the resource, then call ContinueUpdateRollback.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Stack جديد فوق القديم.<\/span><span class=\"lang-en\">Create a new stack on top of the old.<\/span>",
+          "<span class=\"lang-ar\">تجاهل الخطأ والمتابعة بتحديث جديد.<\/span><span class=\"lang-en\">Ignore and push a new update.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">عندما يفشل الـ Rollback (غالباً لأنّ Drift حدث على مورد)، الحل الرسميّ هو إصلاح المورد يدوياً في الـ Console ثم استدعاء <span dir="ltr" class="font-mono">ContinueUpdateRollback API</span> من Console أو CLI. لا يمكن تنفيذ تحديث جديد من هذه الحالة.</span><span class="lang-en">When rollback itself fails (often due to drift on a resource), the official fix is to manually repair the resource in Console, then call <span dir="ltr" class="font-mono">ContinueUpdateRollback API</span> from Console or CLI. You cannot push a new update from this state.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤ — Rollbacks</span><span class=\"lang-en\">Section 4 — Rollbacks</span>"
+        explanation: "<span class=\"lang-ar\">عندما يفشل الـ Rollback (غالباً لأنّ Drift حدث على مورد)، الحل الرسميّ هو إصلاح المورد يدوياً في الـ Console ثم استدعاء <span dir=\"ltr\" class=\"font-mono\">ContinueUpdateRollback API<\/span> من Console أو CLI. لا يمكن تنفيذ تحديث جديد من هذه الحالة.<\/span><span class=\"lang-en\">When rollback itself fails (often due to drift on a resource), the official fix is to manually repair the resource in Console, then call <span dir=\"ltr\" class=\"font-mono\">ContinueUpdateRollback API<\/span> from Console or CLI. You cannot push a new update from this state.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤ — Rollbacks<\/span><span class=\"lang-en\">Section 4 — Rollbacks<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">شركة كبيرة تريد نشر نفس الإعدادات الأمنيّة على ٣٠ حساب AWS في ٣ مناطق مختلفة بعمليّة واحدة. ما الخاصيّة المناسبة؟</span><span class="lang-en">A large company wants to deploy the same security baseline across 30 AWS accounts in 3 regions in one operation. Which feature?</span>",
+        question: "<span class=\"lang-ar\">شركة كبيرة تريد نشر نفس الإعدادات الأمنيّة على ٣٠ حساب AWS في ٣ مناطق مختلفة بعمليّة واحدة. ما الخاصيّة المناسبة؟<\/span><span class=\"lang-en\">A large company wants to deploy the same security baseline across 30 AWS accounts in 3 regions in one operation. Which feature?<\/span>",
         options: [
-          "<span class="lang-ar">Nested Stacks</span><span class="lang-en">Nested Stacks</span>",
-          "<span class="lang-ar">StackSets</span><span class="lang-en">StackSets</span>",
-          "<span class="lang-ar">ChangeSets</span><span class="lang-en">ChangeSets</span>",
-          "<span class="lang-ar">Custom Resources</span><span class="lang-en">Custom Resources</span>"
+          "<span class=\"lang-ar\">Nested Stacks<\/span><span class=\"lang-en\">Nested Stacks<\/span>",
+          "<span class=\"lang-ar\">StackSets<\/span><span class=\"lang-en\">StackSets<\/span>",
+          "<span class=\"lang-ar\">ChangeSets<\/span><span class=\"lang-en\">ChangeSets<\/span>",
+          "<span class=\"lang-ar\">Custom Resources<\/span><span class=\"lang-en\">Custom Resources<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>StackSets</strong> مصمّمة خصّيصاً للنشر عبر حسابات ومناطق متعدّدة. يمكن تطبيقها على كل حسابات AWS Organizations. Nested Stacks هي Stack داخل Stack (موضوع مختلف). ChangeSets للمعاينة، Custom Resources لموارد غير مدعومة.</span><span class="lang-en"><strong>StackSets</strong> are designed for multi-account, multi-region deployment. They can be applied to all AWS Organizations accounts. Nested Stacks = stack inside a stack (different topic). ChangeSets = preview. Custom Resources = unsupported resources.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>StackSets<\/strong> مصمّمة خصّيصاً للنشر عبر حسابات ومناطق متعدّدة. يمكن تطبيقها على كل حسابات AWS Organizations. Nested Stacks هي Stack داخل Stack (موضوع مختلف). ChangeSets للمعاينة، Custom Resources لموارد غير مدعومة.<\/span><span class=\"lang-en\"><strong>StackSets<\/strong> are designed for multi-account, multi-region deployment. They can be applied to all AWS Organizations accounts. Nested Stacks = stack inside a stack (different topic). ChangeSets = preview. Custom Resources = unsupported resources.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">قبل تطبيق تحديث على Stack إنتاج مهمّ، يريد المطوّر رؤية تفاصيل التغييرات. ما الميزة الصحيحة؟</span><span class="lang-en">Before applying an update to a critical prod stack, the developer wants to see exactly what will change. Which feature?</span>",
+        question: "<span class=\"lang-ar\">قبل تطبيق تحديث على Stack إنتاج مهمّ، يريد المطوّر رؤية تفاصيل التغييرات. ما الميزة الصحيحة؟<\/span><span class=\"lang-en\">Before applying an update to a critical prod stack, the developer wants to see exactly what will change. Which feature?<\/span>",
         options: [
-          "<span class="lang-ar">Stack Policy</span><span class="lang-en">Stack Policy</span>",
-          "<span class="lang-ar">ChangeSet</span><span class="lang-en">ChangeSet</span>",
-          "<span class="lang-ar">Drift Detection</span><span class="lang-en">Drift Detection</span>",
-          "<span class="lang-ar">Stack Events</span><span class="lang-en">Stack Events</span>"
+          "<span class=\"lang-ar\">Stack Policy<\/span><span class=\"lang-en\">Stack Policy<\/span>",
+          "<span class=\"lang-ar\">ChangeSet<\/span><span class=\"lang-en\">ChangeSet<\/span>",
+          "<span class=\"lang-ar\">Drift Detection<\/span><span class=\"lang-en\">Drift Detection<\/span>",
+          "<span class=\"lang-ar\">Stack Events<\/span><span class=\"lang-en\">Stack Events<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>ChangeSet</strong> يُنشئ معاينة: أي مورد سيُعدَّل (Modify) أم يُستبدَل (Replace) أم يُحذَف. المطوّر يراجع ثم يُنفّذ. <strong>Stack Policy</strong> يحمي من تحديثات معيّنة. <strong>Drift Detection</strong> يكشف تغييرات يدويّة سابقة.</span><span class="lang-en"><strong>ChangeSet</strong> creates a preview: which resources will be modified, replaced, or deleted. Developer reviews, then executes. <strong>Stack Policy</strong> protects from unwanted updates. <strong>Drift Detection</strong> finds past manual changes.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>ChangeSet<\/strong> يُنشئ معاينة: أي مورد سيُعدَّل (Modify) أم يُستبدَل (Replace) أم يُحذَف. المطوّر يراجع ثم يُنفّذ. <strong>Stack Policy<\/strong> يحمي من تحديثات معيّنة. <strong>Drift Detection<\/strong> يكشف تغييرات يدويّة سابقة.<\/span><span class=\"lang-en\"><strong>ChangeSet<\/strong> creates a preview: which resources will be modified, replaced, or deleted. Developer reviews, then executes. <strong>Stack Policy<\/strong> protects from unwanted updates. <strong>Drift Detection<\/strong> finds past manual changes.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q8",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الآتي صحيح عن Intrinsic Functions؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about intrinsic functions? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الآتي صحيح عن Intrinsic Functions؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which are TRUE about intrinsic functions? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">!Ref على Parameter يُرجِع قيمته.</span><span class="lang-en">!Ref on a Parameter returns its value.</span>",
-          "<span class="lang-ar">!Ref على Resource يُرجِع المُعرّف الفيزيائيّ.</span><span class="lang-en">!Ref on a Resource returns the physical ID.</span>",
-          "<span class="lang-ar">!GetAtt تقرأ صفات المورد (مثل PublicIp).</span><span class="lang-en">!GetAtt reads resource attributes (like PublicIp).</span>",
-          "<span class="lang-ar">!Join و !Sub نفس الشيء.</span><span class="lang-en">!Join and !Sub are identical.</span>"
+          "<span class=\"lang-ar\">!Ref على Parameter يُرجِع قيمته.<\/span><span class=\"lang-en\">!Ref on a Parameter returns its value.<\/span>",
+          "<span class=\"lang-ar\">!Ref على Resource يُرجِع المُعرّف الفيزيائيّ.<\/span><span class=\"lang-en\">!Ref on a Resource returns the physical ID.<\/span>",
+          "<span class=\"lang-ar\">!GetAtt تقرأ صفات المورد (مثل PublicIp).<\/span><span class=\"lang-en\">!GetAtt reads resource attributes (like PublicIp).<\/span>",
+          "<span class=\"lang-ar\">!Join و !Sub نفس الشيء.<\/span><span class=\"lang-en\">!Join and !Sub are identical.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">!Ref</span> على Parameter يُرجِع قيمته، على Resource يُرجِع المُعرّف الفيزيائيّ (EC2 ID مثلاً). <span dir="ltr" class="font-mono">!GetAtt</span> لصفات إضافية كـ <span dir="ltr" class="font-mono">PublicIp</span>. <span dir="ltr" class="font-mono">!Join</span> يدمج قائمة، <span dir="ltr" class="font-mono">!Sub</span> يستبدل متغيّرات في سلسلة — مختلفتان.</span><span class="lang-en"><span dir="ltr" class="font-mono">!Ref</span> on a parameter returns its value; on a resource returns the physical ID. <span dir="ltr" class="font-mono">!GetAtt</span> reads extra attributes like <span dir="ltr" class="font-mono">PublicIp</span>. <span dir="ltr" class="font-mono">!Join</span> joins a list; <span dir="ltr" class="font-mono">!Sub</span> substitutes variables — different functions.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">!Ref<\/span> على Parameter يُرجِع قيمته، على Resource يُرجِع المُعرّف الفيزيائيّ (EC2 ID مثلاً). <span dir=\"ltr\" class=\"font-mono\">!GetAtt<\/span> لصفات إضافية كـ <span dir=\"ltr\" class=\"font-mono\">PublicIp<\/span>. <span dir=\"ltr\" class=\"font-mono\">!Join<\/span> يدمج قائمة، <span dir=\"ltr\" class=\"font-mono\">!Sub<\/span> يستبدل متغيّرات في سلسلة — مختلفتان.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">!Ref<\/span> on a parameter returns its value; on a resource returns the physical ID. <span dir=\"ltr\" class=\"font-mono\">!GetAtt<\/span> reads extra attributes like <span dir=\"ltr\" class=\"font-mono\">PublicIp<\/span>. <span dir=\"ltr\" class=\"font-mono\">!Join<\/span> joins a list; <span dir=\"ltr\" class=\"font-mono\">!Sub<\/span> substitutes variables — different functions.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">قالب يُنشِئ EC2 Instance مع UserData لتثبيت Apache. ما الدّالة الصحيحة لترميز النص؟</span><span class="lang-en">A template creates an EC2 Instance with UserData to install Apache. Correct encoding function?</span>",
+        question: "<span class=\"lang-ar\">قالب يُنشِئ EC2 Instance مع UserData لتثبيت Apache. ما الدّالة الصحيحة لترميز النص؟<\/span><span class=\"lang-en\">A template creates an EC2 Instance with UserData to install Apache. Correct encoding function?<\/span>",
         options: [
-          "<span class="lang-ar">!Encode</span><span class="lang-en">!Encode</span>",
-          "<span class="lang-ar">!Base64</span><span class="lang-en">!Base64</span>",
-          "<span class="lang-ar">!Join</span><span class="lang-en">!Join</span>",
-          "<span class="lang-ar">!Sub</span><span class="lang-en">!Sub</span>"
+          "<span class=\"lang-ar\">!Encode<\/span><span class=\"lang-en\">!Encode<\/span>",
+          "<span class=\"lang-ar\">!Base64<\/span><span class=\"lang-en\">!Base64<\/span>",
+          "<span class=\"lang-ar\">!Join<\/span><span class=\"lang-en\">!Join<\/span>",
+          "<span class=\"lang-ar\">!Sub<\/span><span class=\"lang-en\">!Sub<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">EC2 UserData يتطلّب Base64 encoding. استخدم <span dir="ltr" class="font-mono">Fn::Base64</span> (أو <span dir="ltr" class="font-mono">!Base64</span>) لإرسال السكربت. يمكن دمجها مع <span dir="ltr" class="font-mono">!Sub</span> لاستبدال متغيّرات قبل الترميز.</span><span class="lang-en">EC2 UserData requires Base64 encoding. Use <span dir="ltr" class="font-mono">Fn::Base64</span> (or <span dir="ltr" class="font-mono">!Base64</span>) to send the script. Combine with <span dir="ltr" class="font-mono">!Sub</span> for variable substitution before encoding.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">EC2 UserData يتطلّب Base64 encoding. استخدم <span dir=\"ltr\" class=\"font-mono\">Fn::Base64<\/span> (أو <span dir=\"ltr\" class=\"font-mono\">!Base64<\/span>) لإرسال السكربت. يمكن دمجها مع <span dir=\"ltr\" class=\"font-mono\">!Sub<\/span> لاستبدال متغيّرات قبل الترميز.<\/span><span class=\"lang-en\">EC2 UserData requires Base64 encoding. Use <span dir=\"ltr\" class=\"font-mono\">Fn::Base64<\/span> (or <span dir=\"ltr\" class=\"font-mono\">!Base64<\/span>) to send the script. Combine with <span dir=\"ltr\" class=\"font-mono\">!Sub<\/span> for variable substitution before encoding.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">قالب CloudFormation يُنشئ IAM Role. عند <span dir="ltr" class="font-mono">create-stack</span> يحصل المطوّر على <span dir="ltr" class="font-mono">InsufficientCapabilitiesException</span>. ما الحل؟</span><span class="lang-en">A CloudFormation template creates an IAM Role. On <span dir="ltr" class="font-mono">create-stack</span>, the developer gets <span dir="ltr" class="font-mono">InsufficientCapabilitiesException</span>. Fix?</span>",
+        question: "<span class=\"lang-ar\">قالب CloudFormation يُنشئ IAM Role. عند <span dir=\"ltr\" class=\"font-mono\">create-stack<\/span> يحصل المطوّر على <span dir=\"ltr\" class=\"font-mono\">InsufficientCapabilitiesException<\/span>. ما الحل؟<\/span><span class=\"lang-en\">A CloudFormation template creates an IAM Role. On <span dir=\"ltr\" class=\"font-mono\">create-stack<\/span>, the developer gets <span dir=\"ltr\" class=\"font-mono\">InsufficientCapabilitiesException<\/span>. Fix?<\/span>",
         options: [
-          "<span class="lang-ar">تمرير --capabilities CAPABILITY_IAM.</span><span class="lang-en">Pass --capabilities CAPABILITY_IAM.</span>",
-          "<span class="lang-ar">تعطيل Rollback.</span><span class="lang-en">Disable rollback.</span>",
-          "<span class="lang-ar">تغيير حساب AWS.</span><span class="lang-en">Change AWS account.</span>",
-          "<span class="lang-ar">استخدام Nested Stacks.</span><span class="lang-en">Use Nested Stacks.</span>"
+          "<span class=\"lang-ar\">تمرير --capabilities CAPABILITY_IAM.<\/span><span class=\"lang-en\">Pass --capabilities CAPABILITY_IAM.<\/span>",
+          "<span class=\"lang-ar\">تعطيل Rollback.<\/span><span class=\"lang-en\">Disable rollback.<\/span>",
+          "<span class=\"lang-ar\">تغيير حساب AWS.<\/span><span class=\"lang-en\">Change AWS account.<\/span>",
+          "<span class=\"lang-ar\">استخدام Nested Stacks.<\/span><span class=\"lang-en\">Use Nested Stacks.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">CloudFormation يطلب <strong>اعتراف صريح</strong> من المطوّر قبل إنشاء موارد IAM (تدبير أمنيّ). مرّر <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> أو <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span> (إذا الموارد بأسماء). للـ Nested Stacks أو Macros مطلوب <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span><span class="lang-en">CloudFormation requires <strong>explicit acknowledgement</strong> before creating IAM resources (security measure). Pass <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> or <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span> (if resources are named). Nested Stacks or macros need <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">CloudFormation يطلب <strong>اعتراف صريح<\/strong> من المطوّر قبل إنشاء موارد IAM (تدبير أمنيّ). مرّر <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_IAM<\/span> أو <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_NAMED_IAM<\/span> (إذا الموارد بأسماء). للـ Nested Stacks أو Macros مطلوب <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_AUTO_EXPAND<\/span>.<\/span><span class=\"lang-en\">CloudFormation requires <strong>explicit acknowledgement<\/strong> before creating IAM resources (security measure). Pass <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_IAM<\/span> or <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_NAMED_IAM<\/span> (if resources are named). Nested Stacks or macros need <span dir=\"ltr\" class=\"font-mono\">CAPABILITY_AUTO_EXPAND<\/span>.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تشغيل دالّة Lambda كجزء من عمليّة CloudFormation (مثل تفريغ S3 Bucket قبل حذفه). أيّ ميزة يستخدم؟</span><span class="lang-en">A developer wants to run a Lambda function as part of a CloudFormation operation (e.g. empty an S3 bucket before delete). Which feature?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تشغيل دالّة Lambda كجزء من عمليّة CloudFormation (مثل تفريغ S3 Bucket قبل حذفه). أيّ ميزة يستخدم؟<\/span><span class=\"lang-en\">A developer wants to run a Lambda function as part of a CloudFormation operation (e.g. empty an S3 bucket before delete). Which feature?<\/span>",
         options: [
-          "<span class="lang-ar">Metadata</span><span class="lang-en">Metadata</span>",
-          "<span class="lang-ar">Helper Scripts (cfn-init)</span><span class="lang-en">Helper Scripts (cfn-init)</span>",
-          "<span class="lang-ar">Custom Resources</span><span class="lang-en">Custom Resources</span>",
-          "<span class="lang-ar">Outputs</span><span class="lang-en">Outputs</span>"
+          "<span class=\"lang-ar\">Metadata<\/span><span class=\"lang-en\">Metadata<\/span>",
+          "<span class=\"lang-ar\">Helper Scripts (cfn-init)<\/span><span class=\"lang-en\">Helper Scripts (cfn-init)<\/span>",
+          "<span class=\"lang-ar\">Custom Resources<\/span><span class=\"lang-en\">Custom Resources<\/span>",
+          "<span class=\"lang-ar\">Outputs<\/span><span class=\"lang-en\">Outputs<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Custom Resources</strong> مدعومة بـ Lambda أو SNS، تُستخدَم لتشغيل منطق مخصّص أثناء create/update/delete. النوع <span dir="ltr" class="font-mono">Custom::MyType</span> مع <span dir="ltr" class="font-mono">ServiceToken</span> يشير إلى Lambda ARN. <strong>cfn-init</strong> لإعداد نظام التشغيل داخل EC2.</span><span class="lang-en"><strong>Custom Resources</strong> backed by Lambda or SNS run custom logic during create/update/delete. Type <span dir="ltr" class="font-mono">Custom::MyType</span> with <span dir="ltr" class="font-mono">ServiceToken</span> pointing at a Lambda ARN. <strong>cfn-init</strong> is for OS setup inside EC2.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥ — Custom Resources</span><span class=\"lang-en\">Section 5 — Custom Resources</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Custom Resources<\/strong> مدعومة بـ Lambda أو SNS، تُستخدَم لتشغيل منطق مخصّص أثناء create/update/delete. النوع <span dir=\"ltr\" class=\"font-mono\">Custom::MyType<\/span> مع <span dir=\"ltr\" class=\"font-mono\">ServiceToken<\/span> يشير إلى Lambda ARN. <strong>cfn-init<\/strong> لإعداد نظام التشغيل داخل EC2.<\/span><span class=\"lang-en\"><strong>Custom Resources<\/strong> backed by Lambda or SNS run custom logic during create/update/delete. Type <span dir=\"ltr\" class=\"font-mono\">Custom::MyType<\/span> with <span dir=\"ltr\" class=\"font-mono\">ServiceToken<\/span> pointing at a Lambda ARN. <strong>cfn-init<\/strong> is for OS setup inside EC2.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥ — Custom Resources<\/span><span class=\"lang-en\">Section 5 — Custom Resources<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مورد A يحتاج إلى المورد B قبله (مثل تطبيق يحتاج RDS). كيف تفرض الترتيب في القالب؟</span><span class="lang-en">Resource A needs resource B first (e.g. an app that requires RDS). How to force the order?</span>",
+        question: "<span class=\"lang-ar\">مورد A يحتاج إلى المورد B قبله (مثل تطبيق يحتاج RDS). كيف تفرض الترتيب في القالب؟<\/span><span class=\"lang-en\">Resource A needs resource B first (e.g. an app that requires RDS). How to force the order?<\/span>",
         options: [
-          "<span class="lang-ar">ترتيب الظهور في YAML.</span><span class="lang-en">Order in YAML.</span>",
-          "<span class="lang-ar">استخدام DependsOn.</span><span class="lang-en">Use DependsOn.</span>",
-          "<span class="lang-ar">فصل في Stacks منفصلة.</span><span class="lang-en">Separate into different stacks.</span>",
-          "<span class="lang-ar">CloudFormation تُدرك تلقائياً.</span><span class="lang-en">CloudFormation auto-detects.</span>"
+          "<span class=\"lang-ar\">ترتيب الظهور في YAML.<\/span><span class=\"lang-en\">Order in YAML.<\/span>",
+          "<span class=\"lang-ar\">استخدام DependsOn.<\/span><span class=\"lang-en\">Use DependsOn.<\/span>",
+          "<span class=\"lang-ar\">فصل في Stacks منفصلة.<\/span><span class=\"lang-en\">Separate into different stacks.<\/span>",
+          "<span class=\"lang-ar\">CloudFormation تُدرك تلقائياً.<\/span><span class=\"lang-en\">CloudFormation auto-detects.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CloudFormation يُدرك معظم الاعتماديّات تلقائياً عبر <span dir="ltr" class="font-mono">!Ref</span> و <span dir="ltr" class="font-mono">!GetAtt</span>. للاعتماديّات الصريحة (بدون مرجع)، استخدم <span dir="ltr" class="font-mono">DependsOn</span>. ترتيب YAML لا يهمّ لـ CloudFormation.</span><span class="lang-en">CloudFormation auto-detects most dependencies via <span dir="ltr" class="font-mono">!Ref</span> and <span dir="ltr" class="font-mono">!GetAtt</span>. For explicit, non-reference dependencies, use <span dir="ltr" class="font-mono">DependsOn</span>. YAML order doesn't matter.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">CloudFormation يُدرك معظم الاعتماديّات تلقائياً عبر <span dir=\"ltr\" class=\"font-mono\">!Ref<\/span> و <span dir=\"ltr\" class=\"font-mono\">!GetAtt<\/span>. للاعتماديّات الصريحة (بدون مرجع)، استخدم <span dir=\"ltr\" class=\"font-mono\">DependsOn<\/span>. ترتيب YAML لا يهمّ لـ CloudFormation.<\/span><span class=\"lang-en\">CloudFormation auto-detects most dependencies via <span dir=\"ltr\" class=\"font-mono\">!Ref<\/span> and <span dir=\"ltr\" class=\"font-mono\">!GetAtt<\/span>. For explicit, non-reference dependencies, use <span dir=\"ltr\" class=\"font-mono\">DependsOn<\/span>. YAML order doesn't matter.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">عمليّة <span dir="ltr" class="font-mono">cfn-signal</span> تُستخدَم لماذا؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">cfn-signal</span> do?</span>",
+        question: "<span class=\"lang-ar\">عمليّة <span dir=\"ltr\" class=\"font-mono\">cfn-signal<\/span> تُستخدَم لماذا؟<\/span><span class=\"lang-en\">What does <span dir=\"ltr\" class=\"font-mono\">cfn-signal<\/span> do?<\/span>",
         options: [
-          "<span class="lang-ar">إعادة تشغيل EC2 Instance.</span><span class="lang-en">Reboot EC2 Instance.</span>",
-          "<span class="lang-ar">إخبار CloudFormation أنّ EC2 Instance أصبحت جاهزة (مع CreationPolicy).</span><span class="lang-en">Tell CloudFormation an EC2 Instance is ready (with CreationPolicy).</span>",
-          "<span class="lang-ar">إلغاء Stack.</span><span class="lang-en">Cancel the stack.</span>",
-          "<span class="lang-ar">نشر رسالة SNS.</span><span class="lang-en">Publish SNS message.</span>"
+          "<span class=\"lang-ar\">إعادة تشغيل EC2 Instance.<\/span><span class=\"lang-en\">Reboot EC2 Instance.<\/span>",
+          "<span class=\"lang-ar\">إخبار CloudFormation أنّ EC2 Instance أصبحت جاهزة (مع CreationPolicy).<\/span><span class=\"lang-en\">Tell CloudFormation an EC2 Instance is ready (with CreationPolicy).<\/span>",
+          "<span class=\"lang-ar\">إلغاء Stack.<\/span><span class=\"lang-en\">Cancel the stack.<\/span>",
+          "<span class=\"lang-ar\">نشر رسالة SNS.<\/span><span class=\"lang-en\">Publish SNS message.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cfn-signal</span> يُستخدَم داخل UserData لإخبار CloudFormation أنّ الخادم أكمل إعداده. يعمل مع <span dir="ltr" class="font-mono">CreationPolicy</span> (ينتظر CloudFormation إشارة بدلاً من اعتبار الخادم جاهزاً بمجرّد الإطلاق). <span dir="ltr" class="font-mono">cfn-init</span> لقراءة Metadata، <span dir="ltr" class="font-mono">cfn-hup</span> للتحقّق من تغييرات metadata دوريّاً.</span><span class="lang-en"><span dir="ltr" class="font-mono">cfn-signal</span> is used inside UserData to tell CloudFormation the instance finished setup. Works with <span dir="ltr" class="font-mono">CreationPolicy</span> (CloudFormation waits for the signal instead of assuming ready on boot). <span dir="ltr" class="font-mono">cfn-init</span> reads metadata, <span dir="ltr" class="font-mono">cfn-hup</span> checks metadata changes periodically.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١ — Helper Scripts</span><span class=\"lang-en\">Section 1 — Helper scripts</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">cfn-signal<\/span> يُستخدَم داخل UserData لإخبار CloudFormation أنّ الخادم أكمل إعداده. يعمل مع <span dir=\"ltr\" class=\"font-mono\">CreationPolicy<\/span> (ينتظر CloudFormation إشارة بدلاً من اعتبار الخادم جاهزاً بمجرّد الإطلاق). <span dir=\"ltr\" class=\"font-mono\">cfn-init<\/span> لقراءة Metadata، <span dir=\"ltr\" class=\"font-mono\">cfn-hup<\/span> للتحقّق من تغييرات metadata دوريّاً.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">cfn-signal<\/span> is used inside UserData to tell CloudFormation the instance finished setup. Works with <span dir=\"ltr\" class=\"font-mono\">CreationPolicy<\/span> (CloudFormation waits for the signal instead of assuming ready on boot). <span dir=\"ltr\" class=\"font-mono\">cfn-init<\/span> reads metadata, <span dir=\"ltr\" class=\"font-mono\">cfn-hup<\/span> checks metadata changes periodically.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١ — Helper Scripts<\/span><span class=\"lang-en\">Section 1 — Helper scripts<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">شركة Acme تريد حماية Stack الإنتاج من تحديثات غير مقصودة على قاعدة البيانات، بينما يُسمَح بتحديث الباقي. ما الآليّة؟</span><span class="lang-en">Acme wants to protect the prod DB in a stack from accidental updates, while allowing other resources to update. What mechanism?</span>",
+        question: "<span class=\"lang-ar\">شركة Acme تريد حماية Stack الإنتاج من تحديثات غير مقصودة على قاعدة البيانات، بينما يُسمَح بتحديث الباقي. ما الآليّة؟<\/span><span class=\"lang-en\">Acme wants to protect the prod DB in a stack from accidental updates, while allowing other resources to update. What mechanism?<\/span>",
         options: [
-          "<span class="lang-ar">Stack Policy</span><span class="lang-en">Stack Policy</span>",
-          "<span class="lang-ar">DeletionPolicy</span><span class="lang-en">DeletionPolicy</span>",
-          "<span class="lang-ar">TerminationProtection</span><span class="lang-en">TerminationProtection</span>",
-          "<span class="lang-ar">Capabilities</span><span class="lang-en">Capabilities</span>"
+          "<span class=\"lang-ar\">Stack Policy<\/span><span class=\"lang-en\">Stack Policy<\/span>",
+          "<span class=\"lang-ar\">DeletionPolicy<\/span><span class=\"lang-en\">DeletionPolicy<\/span>",
+          "<span class=\"lang-ar\">TerminationProtection<\/span><span class=\"lang-en\">TerminationProtection<\/span>",
+          "<span class=\"lang-ar\">Capabilities<\/span><span class=\"lang-en\">Capabilities<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>Stack Policy</strong> JSON تحدّد ما يُسمَح به أثناء تحديث الـ Stack. يمكن <span dir="ltr" class="font-mono">Deny Update:*</span> على مورد محدّد (كالـ Production DB) و <span dir="ltr" class="font-mono">Allow Update:*</span> للباقي. <strong>DeletionPolicy</strong> للحذف فقط، <strong>TerminationProtection</strong> يحمي Stack بالكامل من الحذف.</span><span class="lang-en">A <strong>Stack Policy</strong> is a JSON document specifying allowed update actions. You can <span dir="ltr" class="font-mono">Deny Update:*</span> on specific resources (like the prod DB) and <span dir="ltr" class="font-mono">Allow Update:*</span> on others. <strong>DeletionPolicy</strong> is for delete only; <strong>TerminationProtection</strong> prevents full stack deletion.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Stack Policy<\/strong> JSON تحدّد ما يُسمَح به أثناء تحديث الـ Stack. يمكن <span dir=\"ltr\" class=\"font-mono\">Deny Update:*<\/span> على مورد محدّد (كالـ Production DB) و <span dir=\"ltr\" class=\"font-mono\">Allow Update:*<\/span> للباقي. <strong>DeletionPolicy<\/strong> للحذف فقط، <strong>TerminationProtection<\/strong> يحمي Stack بالكامل من الحذف.<\/span><span class=\"lang-en\">A <strong>Stack Policy<\/strong> is a JSON document specifying allowed update actions. You can <span dir=\"ltr\" class=\"font-mono\">Deny Update:*<\/span> on specific resources (like the prod DB) and <span dir=\"ltr\" class=\"font-mono\">Allow Update:*<\/span> on others. <strong>DeletionPolicy<\/strong> is for delete only; <strong>TerminationProtection<\/strong> prevents full stack deletion.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يشكّ أنّ زميله عدّل Security Group يدويّاً خارج CloudFormation. ما الإجراء الصحيح؟</span><span class="lang-en">A developer suspects a teammate manually edited a Security Group outside CloudFormation. Correct action?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يشكّ أنّ زميله عدّل Security Group يدويّاً خارج CloudFormation. ما الإجراء الصحيح؟<\/span><span class=\"lang-en\">A developer suspects a teammate manually edited a Security Group outside CloudFormation. Correct action?<\/span>",
         options: [
-          "<span class="lang-ar">تشغيل cfn-init.</span><span class="lang-en">Run cfn-init.</span>",
-          "<span class="lang-ar">تشغيل Drift Detection.</span><span class="lang-en">Run Drift Detection.</span>",
-          "<span class="lang-ar">إنشاء ChangeSet.</span><span class="lang-en">Create a ChangeSet.</span>",
-          "<span class="lang-ar">حذف Stack.</span><span class="lang-en">Delete the stack.</span>"
+          "<span class=\"lang-ar\">تشغيل cfn-init.<\/span><span class=\"lang-en\">Run cfn-init.<\/span>",
+          "<span class=\"lang-ar\">تشغيل Drift Detection.<\/span><span class=\"lang-en\">Run Drift Detection.<\/span>",
+          "<span class=\"lang-ar\">إنشاء ChangeSet.<\/span><span class=\"lang-en\">Create a ChangeSet.<\/span>",
+          "<span class=\"lang-ar\">حذف Stack.<\/span><span class=\"lang-en\">Delete the stack.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Drift Detection</strong> مخصّصة لهذا الغرض تماماً: تقارن الحالة الفعليّة لكل مورد مع الحالة المُعرَّفة في Stack Template. كل تعديل يدويّ يظهر كـ <span dir="ltr" class="font-mono">MODIFIED</span> أو <span dir="ltr" class="font-mono">DELETED</span>. ChangeSet يُعاين تحديثاً مستقبليّاً لا يكشف Drift.</span><span class="lang-en"><strong>Drift detection</strong> is purpose-built for this: it compares each resource's actual state with what's defined in the stack template. Manual edits show as <span dir="ltr" class="font-mono">MODIFIED</span> or <span dir="ltr" class="font-mono">DELETED</span>. A ChangeSet previews a future update — it doesn't detect drift.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Drift Detection<\/strong> مخصّصة لهذا الغرض تماماً: تقارن الحالة الفعليّة لكل مورد مع الحالة المُعرَّفة في Stack Template. كل تعديل يدويّ يظهر كـ <span dir=\"ltr\" class=\"font-mono\">MODIFIED<\/span> أو <span dir=\"ltr\" class=\"font-mono\">DELETED<\/span>. ChangeSet يُعاين تحديثاً مستقبليّاً لا يكشف Drift.<\/span><span class=\"lang-en\"><strong>Drift detection<\/strong> is purpose-built for this: it compares each resource's actual state with what's defined in the stack template. Manual edits show as <span dir=\"ltr\" class=\"font-mono\">MODIFIED<\/span> or <span dir=\"ltr\" class=\"font-mono\">DELETED<\/span>. A ChangeSet previews a future update — it doesn't detect drift.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

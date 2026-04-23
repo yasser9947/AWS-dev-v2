@@ -941,175 +941,175 @@ aws sns subscribe --topic-arn arn:aws:sns:us-east-1:111122223333:ops-alerts \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">فريق تطوير يريد مراقبة استخدام الـ RAM على خوادم EC2. ما الطريقة الصحيحة؟</span><span class="lang-en">A dev team wants to monitor RAM usage on EC2 instances. Correct approach?</span>",
+        question: "<span class=\"lang-ar\">فريق تطوير يريد مراقبة استخدام الـ RAM على خوادم EC2. ما الطريقة الصحيحة؟<\/span><span class=\"lang-en\">A dev team wants to monitor RAM usage on EC2 instances. Correct approach?<\/span>",
         options: [
-          "<span class="lang-ar">RAM مرسَل افتراضياً كمقياس EC2 قياسيّ.</span><span class="lang-en">RAM is auto-reported as a standard EC2 metric.</span>",
-          "<span class="lang-ar">تفعيل Detailed Monitoring.</span><span class="lang-en">Enable Detailed Monitoring.</span>",
-          "<span class="lang-ar">تثبيت CloudWatch Unified Agent ودفع <span dir="ltr" class="font-mono">mem_used_percent</span> كمقياس مخصّص.</span><span class="lang-en">Install the CloudWatch Unified Agent and push <span dir="ltr" class="font-mono">mem_used_percent</span> as a custom metric.</span>",
-          "<span class="lang-ar">استخدام CloudTrail لمراقبة الذاكرة.</span><span class="lang-en">Use CloudTrail to monitor memory.</span>"
+          "<span class=\"lang-ar\">RAM مرسَل افتراضياً كمقياس EC2 قياسيّ.<\/span><span class=\"lang-en\">RAM is auto-reported as a standard EC2 metric.<\/span>",
+          "<span class=\"lang-ar\">تفعيل Detailed Monitoring.<\/span><span class=\"lang-en\">Enable Detailed Monitoring.<\/span>",
+          "<span class=\"lang-ar\">تثبيت CloudWatch Unified Agent ودفع <span dir=\"ltr\" class=\"font-mono\">mem_used_percent<\/span> كمقياس مخصّص.<\/span><span class=\"lang-en\">Install the CloudWatch Unified Agent and push <span dir=\"ltr\" class=\"font-mono\">mem_used_percent<\/span> as a custom metric.<\/span>",
+          "<span class=\"lang-ar\">استخدام CloudTrail لمراقبة الذاكرة.<\/span><span class=\"lang-en\">Use CloudTrail to monitor memory.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">مقاييس EC2 الافتراضية تشمل CPU و Network و Disk — لكن ليس RAM. لجمع RAM يجب تثبيت Unified Agent داخل الخادم وإرساله كمقياس مخصّص. Detailed Monitoring يزيد التردّد فقط ولا يضيف مقاييس جديدة.</span><span class="lang-en">Default EC2 metrics cover CPU, Network, Disk — NOT RAM. To collect RAM, install the Unified Agent inside the instance and push it as a custom metric. Detailed Monitoring only changes frequency, not which metrics exist.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">RAM لا يُرسَل افتراضياً.</span><span class=\"lang-en\">RAM isn't pushed by default.</span>", "<span class=\"lang-ar\">يغيّر التردّد فقط إلى دقيقة، لا يضيف مقاييس جديدة.</span><span class=\"lang-en\">Only changes frequency, doesn't add new metrics.</span>", "", "<span class=\"lang-ar\">CloudTrail لتدقيق API لا لمراقبة أداء النظام.</span><span class=\"lang-en\">CloudTrail audits API calls, not system performance.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢ — Unified Agent</span><span class=\"lang-en\">Section 2 — Unified Agent</span>"
+        explanation: "<span class=\"lang-ar\">مقاييس EC2 الافتراضية تشمل CPU و Network و Disk — لكن ليس RAM. لجمع RAM يجب تثبيت Unified Agent داخل الخادم وإرساله كمقياس مخصّص. Detailed Monitoring يزيد التردّد فقط ولا يضيف مقاييس جديدة.<\/span><span class=\"lang-en\">Default EC2 metrics cover CPU, Network, Disk — NOT RAM. To collect RAM, install the Unified Agent inside the instance and push it as a custom metric. Detailed Monitoring only changes frequency, not which metrics exist.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">RAM لا يُرسَل افتراضياً.<\/span><span class=\"lang-en\">RAM isn't pushed by default.<\/span>", "<span class=\"lang-ar\">يغيّر التردّد فقط إلى دقيقة، لا يضيف مقاييس جديدة.<\/span><span class=\"lang-en\">Only changes frequency, doesn't add new metrics.<\/span>", "", "<span class=\"lang-ar\">CloudTrail لتدقيق API لا لمراقبة أداء النظام.<\/span><span class=\"lang-en\">CloudTrail audits API calls, not system performance.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — Unified Agent<\/span><span class=\"lang-en\">Section 2 — Unified Agent<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">يريد فريق الأمن إرسال السجلّات من CloudWatch Logs إلى Lambda لتحليلها في الوقت الفعليّ. ما الأداة؟</span><span class="lang-en">Security team wants to stream CloudWatch Logs to Lambda for real-time analysis. Which feature?</span>",
+        question: "<span class=\"lang-ar\">يريد فريق الأمن إرسال السجلّات من CloudWatch Logs إلى Lambda لتحليلها في الوقت الفعليّ. ما الأداة؟<\/span><span class=\"lang-en\">Security team wants to stream CloudWatch Logs to Lambda for real-time analysis. Which feature?<\/span>",
         options: [
-          "<span class="lang-ar">Metric Filter</span><span class="lang-en">Metric Filter</span>",
-          "<span class="lang-ar">Subscription Filter إلى Lambda</span><span class="lang-en">Subscription Filter to Lambda</span>",
-          "<span class="lang-ar">Logs Insights query</span><span class="lang-en">Logs Insights query</span>",
-          "<span class="lang-ar">S3 Export</span><span class="lang-en">S3 Export</span>"
+          "<span class=\"lang-ar\">Metric Filter<\/span><span class=\"lang-en\">Metric Filter<\/span>",
+          "<span class=\"lang-ar\">Subscription Filter إلى Lambda<\/span><span class=\"lang-en\">Subscription Filter to Lambda<\/span>",
+          "<span class=\"lang-ar\">Logs Insights query<\/span><span class=\"lang-en\">Logs Insights query<\/span>",
+          "<span class=\"lang-ar\">S3 Export<\/span><span class=\"lang-en\">S3 Export<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Subscription Filter يبثّ الأحداث للوجهة في الوقت الفعليّ — و Lambda هي الوجهة المناسبة للمعالجة الفوريّة. S3 Export ليس فوريّاً (حتى ١٢ ساعة). Metric Filter يصنع مقاييس لا يبثّ سجلّات.</span><span class="lang-en">Subscription Filter streams events in real time — Lambda is the right destination for instant processing. S3 Export isn't real-time (up to 12h). Metric Filter creates metrics, doesn't stream logs.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يصنع مقياساً من السجلّ، لا يبثّ المحتوى.</span><span class=\"lang-en\">Creates a metric from logs, doesn't stream content.</span>", "", "<span class=\"lang-ar\">محرّك استعلام، ليس بثّاً مستمرّاً.</span><span class=\"lang-en\">Query engine, not continuous streaming.</span>", "<span class=\"lang-ar\">غير فوريّ (حتى ١٢ ساعة).</span><span class=\"lang-en\">Not real-time (up to 12h).</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Subscription Filter يبثّ الأحداث للوجهة في الوقت الفعليّ — و Lambda هي الوجهة المناسبة للمعالجة الفوريّة. S3 Export ليس فوريّاً (حتى ١٢ ساعة). Metric Filter يصنع مقاييس لا يبثّ سجلّات.<\/span><span class=\"lang-en\">Subscription Filter streams events in real time — Lambda is the right destination for instant processing. S3 Export isn't real-time (up to 12h). Metric Filter creates metrics, doesn't stream logs.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يصنع مقياساً من السجلّ، لا يبثّ المحتوى.<\/span><span class=\"lang-en\">Creates a metric from logs, doesn't stream content.<\/span>", "", "<span class=\"lang-ar\">محرّك استعلام، ليس بثّاً مستمرّاً.<\/span><span class=\"lang-en\">Query engine, not continuous streaming.<\/span>", "<span class=\"lang-ar\">غير فوريّ (حتى ١٢ ساعة).<\/span><span class=\"lang-en\">Not real-time (up to 12h).<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">أنشأ مطوّر Metric Filter على Log Group موجود منذ أسبوع. متى تظهر المقاييس؟</span><span class="lang-en">A developer creates a Metric Filter on a Log Group that's been active for a week. When do metrics appear?</span>",
+        question: "<span class=\"lang-ar\">أنشأ مطوّر Metric Filter على Log Group موجود منذ أسبوع. متى تظهر المقاييس؟<\/span><span class=\"lang-en\">A developer creates a Metric Filter on a Log Group that's been active for a week. When do metrics appear?<\/span>",
         options: [
-          "<span class="lang-ar">للسجلّات السابقة والجديدة.</span><span class="lang-en">For past and future logs.</span>",
-          "<span class="lang-ar">للأحداث التي تصل <u>بعد</u> إنشاء الفلتر فقط.</span><span class="lang-en">Only for events arriving <u>after</u> the filter is created.</span>",
-          "<span class="lang-ar">خلال ٢٤ ساعة لكلّ السجلّات.</span><span class="lang-en">Within 24h for all logs.</span>",
-          "<span class="lang-ar">يجب إعادة بناء الـ Log Group.</span><span class="lang-en">Must recreate the Log Group.</span>"
+          "<span class=\"lang-ar\">للسجلّات السابقة والجديدة.<\/span><span class=\"lang-en\">For past and future logs.<\/span>",
+          "<span class=\"lang-ar\">للأحداث التي تصل <u>بعد<\/u> إنشاء الفلتر فقط.<\/span><span class=\"lang-en\">Only for events arriving <u>after<\/u> the filter is created.<\/span>",
+          "<span class=\"lang-ar\">خلال ٢٤ ساعة لكلّ السجلّات.<\/span><span class=\"lang-en\">Within 24h for all logs.<\/span>",
+          "<span class=\"lang-ar\">يجب إعادة بناء الـ Log Group.<\/span><span class=\"lang-en\">Must recreate the Log Group.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Metric Filters <strong>لا تعمل بأثر رجعيّ</strong>. تبدأ بحساب الأحداث من لحظة إنشاء الفلتر فقط. هذه نقطة يركّز عليها الامتحان.</span><span class="lang-en">Metric Filters do <strong>not</strong> retroactively process data. They only start counting events arriving after creation. Exam-favourite point.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Metric Filters <strong>لا تعمل بأثر رجعيّ<\/strong>. تبدأ بحساب الأحداث من لحظة إنشاء الفلتر فقط. هذه نقطة يركّز عليها الامتحان.<\/span><span class=\"lang-en\">Metric Filters do <strong>not<\/strong> retroactively process data. They only start counting events arriving after creation. Exam-favourite point.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q4",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من التالي صحيح حول Composite Alarms؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which statements are true about Composite Alarms? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي صحيح حول Composite Alarms؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which statements are true about Composite Alarms? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">تراقب حالة عدّة Alarms أخرى.</span><span class="lang-en">They monitor the state of multiple other alarms.</span>",
-          "<span class="lang-ar">تدعم شروط AND و OR.</span><span class="lang-en">Support AND and OR conditions.</span>",
-          "<span class="lang-ar">تقلّل ضجيج الإنذارات.</span><span class="lang-en">Help reduce alarm noise.</span>",
-          "<span class="lang-ar">تُستخدم للمقاييس High Resolution فقط.</span><span class="lang-en">Can only be used with high-resolution metrics.</span>"
+          "<span class=\"lang-ar\">تراقب حالة عدّة Alarms أخرى.<\/span><span class=\"lang-en\">They monitor the state of multiple other alarms.<\/span>",
+          "<span class=\"lang-ar\">تدعم شروط AND و OR.<\/span><span class=\"lang-en\">Support AND and OR conditions.<\/span>",
+          "<span class=\"lang-ar\">تقلّل ضجيج الإنذارات.<\/span><span class=\"lang-en\">Help reduce alarm noise.<\/span>",
+          "<span class=\"lang-ar\">تُستخدم للمقاييس High Resolution فقط.<\/span><span class=\"lang-en\">Can only be used with high-resolution metrics.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">Composite Alarm يبني على حالات Alarms أخرى بشروط AND/OR، ويمنع إغراق الفريق بعشرات الإنذارات المترابطة. لا علاقة له بدقّة المقياس.</span><span class="lang-en">Composite Alarm aggregates other alarm states with AND/OR conditions, preventing overwhelming alert storms. Resolution is irrelevant.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Composite Alarm يبني على حالات Alarms أخرى بشروط AND/OR، ويمنع إغراق الفريق بعشرات الإنذارات المترابطة. لا علاقة له بدقّة المقياس.<\/span><span class=\"lang-en\">Composite Alarm aggregates other alarm states with AND/OR conditions, preventing overwhelming alert storms. Resolution is irrelevant.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">Alarm يبقى في حالة <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span>. ماذا يعني ذلك؟</span><span class="lang-en">An alarm stays in <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span> state. What does this mean?</span>",
+        question: "<span class=\"lang-ar\">Alarm يبقى في حالة <span dir=\"ltr\" class=\"font-mono\">INSUFFICIENT_DATA<\/span>. ماذا يعني ذلك؟<\/span><span class=\"lang-en\">An alarm stays in <span dir=\"ltr\" class=\"font-mono\">INSUFFICIENT_DATA<\/span> state. What does this mean?<\/span>",
         options: [
-          "<span class="lang-ar">تجاوز العتبة ويحتاج تدخّل.</span><span class="lang-en">Threshold breached, needs intervention.</span>",
-          "<span class="lang-ar">المقياس سليم ولا مشكلة.</span><span class="lang-en">Metric is healthy.</span>",
-          "<span class="lang-ar">لا توجد بيانات كافية لتقييم حالة الـ Alarm.</span><span class="lang-en">Not enough data points to evaluate the alarm.</span>",
-          "<span class="lang-ar">الـ Alarm معطّل يدوياً.</span><span class="lang-en">Alarm was manually disabled.</span>"
+          "<span class=\"lang-ar\">تجاوز العتبة ويحتاج تدخّل.<\/span><span class=\"lang-en\">Threshold breached, needs intervention.<\/span>",
+          "<span class=\"lang-ar\">المقياس سليم ولا مشكلة.<\/span><span class=\"lang-en\">Metric is healthy.<\/span>",
+          "<span class=\"lang-ar\">لا توجد بيانات كافية لتقييم حالة الـ Alarm.<\/span><span class=\"lang-en\">Not enough data points to evaluate the alarm.<\/span>",
+          "<span class=\"lang-ar\">الـ Alarm معطّل يدوياً.<\/span><span class=\"lang-en\">Alarm was manually disabled.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">الحالات الثلاث: OK (سليم)، ALARM (عتبة تُجاوزت)، INSUFFICIENT_DATA (لا بيانات كافية — ربّما المقياس توقّف عن النشر).</span><span class="lang-en">Three states: OK (healthy), ALARM (breached), INSUFFICIENT_DATA (not enough datapoints — maybe the metric stopped being published).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">الحالات الثلاث: OK (سليم)، ALARM (عتبة تُجاوزت)، INSUFFICIENT_DATA (لا بيانات كافية — ربّما المقياس توقّف عن النشر).<\/span><span class=\"lang-en\">Three states: OK (healthy), ALARM (breached), INSUFFICIENT_DATA (not enough datapoints — maybe the metric stopped being published).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">مطوّر جافا يريد إرسال مقياس OrderLatency من Lambda بأقلّ تكلفة. ما الحلّ الأمثل؟</span><span class="lang-en">A Java dev wants to emit OrderLatency from Lambda at the lowest cost. Best option?</span>",
+        question: "<span class=\"lang-ar\">مطوّر جافا يريد إرسال مقياس OrderLatency من Lambda بأقلّ تكلفة. ما الحلّ الأمثل؟<\/span><span class=\"lang-en\">A Java dev wants to emit OrderLatency from Lambda at the lowest cost. Best option?<\/span>",
         options: [
-          "<span class="lang-ar">استدعاء <span dir="ltr" class="font-mono">PutMetricData</span> عند كلّ طلب.</span><span class="lang-en">Call <span dir="ltr" class="font-mono">PutMetricData</span> per request.</span>",
-          "<span class="lang-ar">طباعة سجلّ Embedded Metric Format (EMF) إلى stdout.</span><span class="lang-en">Log Embedded Metric Format (EMF) JSON to stdout.</span>",
-          "<span class="lang-ar">كتابة المقياس في DynamoDB ثمّ استيراده.</span><span class="lang-en">Write the metric to DynamoDB then import it.</span>",
-          "<span class="lang-ar">استخدام CloudTrail لتتبّع Latency.</span><span class="lang-en">Use CloudTrail to trace latency.</span>"
+          "<span class=\"lang-ar\">استدعاء <span dir=\"ltr\" class=\"font-mono\">PutMetricData<\/span> عند كلّ طلب.<\/span><span class=\"lang-en\">Call <span dir=\"ltr\" class=\"font-mono\">PutMetricData<\/span> per request.<\/span>",
+          "<span class=\"lang-ar\">طباعة سجلّ Embedded Metric Format (EMF) إلى stdout.<\/span><span class=\"lang-en\">Log Embedded Metric Format (EMF) JSON to stdout.<\/span>",
+          "<span class=\"lang-ar\">كتابة المقياس في DynamoDB ثمّ استيراده.<\/span><span class=\"lang-en\">Write the metric to DynamoDB then import it.<\/span>",
+          "<span class=\"lang-ar\">استخدام CloudTrail لتتبّع Latency.<\/span><span class=\"lang-en\">Use CloudTrail to trace latency.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">EMF يرسل سجلّ JSON منظّم يستخرج منه CloudWatch مقاييس مخصّصة دون تكلفة <span dir="ltr" class="font-mono">PutMetricData</span> إضافيّة. ممارسة الأفضل في Lambda ذات الحجم الكبير.</span><span class="lang-en">EMF logs a structured JSON from which CloudWatch extracts custom metrics with no extra <span dir="ltr" class="font-mono">PutMetricData</span> cost. Best practice for high-volume Lambda.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">تكلفة وزمن استجابة إضافيّ على كلّ طلب.</span><span class=\"lang-en\">Extra cost and latency per request.</span>", "", "<span class=\"lang-ar\">معقّد وليس لهذا الغرض.</span><span class=\"lang-en\">Overkill and wrong tool.</span>", "<span class=\"lang-ar\">CloudTrail للتدقيق، ليس للمقاييس.</span><span class=\"lang-en\">CloudTrail is audit, not metrics.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥ — EMF</span><span class=\"lang-en\">Section 5 — EMF</span>"
+        explanation: "<span class=\"lang-ar\">EMF يرسل سجلّ JSON منظّم يستخرج منه CloudWatch مقاييس مخصّصة دون تكلفة <span dir=\"ltr\" class=\"font-mono\">PutMetricData<\/span> إضافيّة. ممارسة الأفضل في Lambda ذات الحجم الكبير.<\/span><span class=\"lang-en\">EMF logs a structured JSON from which CloudWatch extracts custom metrics with no extra <span dir=\"ltr\" class=\"font-mono\">PutMetricData<\/span> cost. Best practice for high-volume Lambda.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكلفة وزمن استجابة إضافيّ على كلّ طلب.<\/span><span class=\"lang-en\">Extra cost and latency per request.<\/span>", "", "<span class=\"lang-ar\">معقّد وليس لهذا الغرض.<\/span><span class=\"lang-en\">Overkill and wrong tool.<\/span>", "<span class=\"lang-ar\">CloudTrail للتدقيق، ليس للمقاييس.<\/span><span class=\"lang-en\">CloudTrail is audit, not metrics.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥ — EMF<\/span><span class=\"lang-en\">Section 5 — EMF<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">ما المكوّن الذي يجب تثبيته على خادم On-Premises لإرسال سجلّاته إلى CloudWatch Logs؟</span><span class="lang-en">What must be installed on an on-premises server to send logs to CloudWatch Logs?</span>",
+        question: "<span class=\"lang-ar\">ما المكوّن الذي يجب تثبيته على خادم On-Premises لإرسال سجلّاته إلى CloudWatch Logs؟<\/span><span class=\"lang-en\">What must be installed on an on-premises server to send logs to CloudWatch Logs?<\/span>",
         options: [
-          "<span class="lang-ar">X-Ray Daemon</span><span class="lang-en">X-Ray Daemon</span>",
-          "<span class="lang-ar">CloudWatch Logs Agent أو Unified Agent (مع IAM creds).</span><span class="lang-en">CloudWatch Logs Agent or Unified Agent (with IAM creds).</span>",
-          "<span class="lang-ar">AWS CLI فقط.</span><span class="lang-en">Just the AWS CLI.</span>",
-          "<span class="lang-ar">CloudTrail trail.</span><span class="lang-en">A CloudTrail trail.</span>"
+          "<span class=\"lang-ar\">X-Ray Daemon<\/span><span class=\"lang-en\">X-Ray Daemon<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Logs Agent أو Unified Agent (مع IAM creds).<\/span><span class=\"lang-en\">CloudWatch Logs Agent or Unified Agent (with IAM creds).<\/span>",
+          "<span class=\"lang-ar\">AWS CLI فقط.<\/span><span class=\"lang-en\">Just the AWS CLI.<\/span>",
+          "<span class=\"lang-ar\">CloudTrail trail.<\/span><span class=\"lang-en\">A CloudTrail trail.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Unified Agent يعمل على EC2 وعلى On-Prem وعلى Windows/Linux، ويحتاج اعتمادات AWS (Access Key أو SSM Activation). X-Ray Daemon للتتبّع لا للسجلّات.</span><span class="lang-en">Unified Agent runs on EC2 and on-prem (Windows/Linux) with AWS creds (access key or SSM activation). X-Ray Daemon is tracing, not logs.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Unified Agent يعمل على EC2 وعلى On-Prem وعلى Windows/Linux، ويحتاج اعتمادات AWS (Access Key أو SSM Activation). X-Ray Daemon للتتبّع لا للسجلّات.<\/span><span class=\"lang-en\">Unified Agent runs on EC2 and on-prem (Windows/Linux) with AWS creds (access key or SSM activation). X-Ray Daemon is tracing, not logs.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">استعلام Logs Insights التالي ماذا يفعل؟<br><span dir="ltr" class="font-mono text-sm">filter @message like /Exception/ | stats count(*) by bin(5m)</span></span><span class="lang-en">What does this Logs Insights query do?<br><span dir="ltr" class="font-mono text-sm">filter @message like /Exception/ | stats count(*) by bin(5m)</span></span>",
+        question: "<span class=\"lang-ar\">استعلام Logs Insights التالي ماذا يفعل؟<br><span dir=\"ltr\" class=\"font-mono text-sm\">filter @message like /Exception/ | stats count(*) by bin(5m)<\/span><\/span><span class=\"lang-en\">What does this Logs Insights query do?<br><span dir=\"ltr\" class=\"font-mono text-sm\">filter @message like /Exception/ | stats count(*) by bin(5m)<\/span><\/span>",
         options: [
-          "<span class="lang-ar">يحذف سجلّات الأخطاء.</span><span class="lang-en">Deletes error logs.</span>",
-          "<span class="lang-ar">يعدّ عدد السجلّات المحتوية على كلمة Exception في كلّ نافذة ٥ دقائق.</span><span class="lang-en">Counts log events containing 'Exception' per 5-minute bucket.</span>",
-          "<span class="lang-ar">يرسل إنذار SNS لكلّ Exception.</span><span class="lang-en">Sends an SNS alert per Exception.</span>",
-          "<span class="lang-ar">يصدّر السجلّات إلى S3.</span><span class="lang-en">Exports logs to S3.</span>"
+          "<span class=\"lang-ar\">يحذف سجلّات الأخطاء.<\/span><span class=\"lang-en\">Deletes error logs.<\/span>",
+          "<span class=\"lang-ar\">يعدّ عدد السجلّات المحتوية على كلمة Exception في كلّ نافذة ٥ دقائق.<\/span><span class=\"lang-en\">Counts log events containing 'Exception' per 5-minute bucket.<\/span>",
+          "<span class=\"lang-ar\">يرسل إنذار SNS لكلّ Exception.<\/span><span class=\"lang-en\">Sends an SNS alert per Exception.<\/span>",
+          "<span class=\"lang-ar\">يصدّر السجلّات إلى S3.<\/span><span class=\"lang-en\">Exports logs to S3.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">filter</span> يحصر السجلّات، <span dir="ltr" class="font-mono">stats count(*) by bin(5m)</span> يعدّ ويجمّع في نوافذ ٥ دقائق. أساسيّ في تحليل أنماط الأخطاء.</span><span class="lang-en"><span dir="ltr" class="font-mono">filter</span> narrows logs, <span dir="ltr" class="font-mono">stats count(*) by bin(5m)</span> counts and buckets into 5-min windows. Core error-trend analysis.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">filter<\/span> يحصر السجلّات، <span dir=\"ltr\" class=\"font-mono\">stats count(*) by bin(5m)<\/span> يعدّ ويجمّع في نوافذ ٥ دقائق. أساسيّ في تحليل أنماط الأخطاء.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">filter<\/span> narrows logs, <span dir=\"ltr\" class=\"font-mono\">stats count(*) by bin(5m)<\/span> counts and buckets into 5-min windows. Core error-trend analysis.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">فريق يريد تشغيل Lambda كلّ ساعة تلقائياً. ما الحلّ؟</span><span class="lang-en">Team wants to trigger a Lambda automatically every hour. Solution?</span>",
+        question: "<span class=\"lang-ar\">فريق يريد تشغيل Lambda كلّ ساعة تلقائياً. ما الحلّ؟<\/span><span class=\"lang-en\">Team wants to trigger a Lambda automatically every hour. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">Metric Filter على CloudWatch Logs.</span><span class="lang-en">A Metric Filter on CloudWatch Logs.</span>",
-          "<span class="lang-ar">EventBridge Schedule (Cron) يستدعي Lambda.</span><span class="lang-en">EventBridge Schedule (Cron) invoking Lambda.</span>",
-          "<span class="lang-ar">SNS topic بتوقيت.</span><span class="lang-en">A timed SNS topic.</span>",
-          "<span class="lang-ar">CloudTrail Trail.</span><span class="lang-en">A CloudTrail trail.</span>"
+          "<span class=\"lang-ar\">Metric Filter على CloudWatch Logs.<\/span><span class=\"lang-en\">A Metric Filter on CloudWatch Logs.<\/span>",
+          "<span class=\"lang-ar\">EventBridge Schedule (Cron) يستدعي Lambda.<\/span><span class=\"lang-en\">EventBridge Schedule (Cron) invoking Lambda.<\/span>",
+          "<span class=\"lang-ar\">SNS topic بتوقيت.<\/span><span class=\"lang-en\">A timed SNS topic.<\/span>",
+          "<span class=\"lang-ar\">CloudTrail Trail.<\/span><span class=\"lang-en\">A CloudTrail trail.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">EventBridge (CloudWatch Events سابقاً) يدعم جداول Cron تطلق Lambda أو Step Functions أو غيرها. SNS لا يدعم الجدولة الذاتيّة. CloudTrail للتدقيق.</span><span class="lang-en">EventBridge (formerly CloudWatch Events) supports Cron schedules firing Lambda/Step Functions/etc. SNS has no self-schedule. CloudTrail is audit-only.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">EventBridge (CloudWatch Events سابقاً) يدعم جداول Cron تطلق Lambda أو Step Functions أو غيرها. SNS لا يدعم الجدولة الذاتيّة. CloudTrail للتدقيق.<\/span><span class=\"lang-en\">EventBridge (formerly CloudWatch Events) supports Cron schedules firing Lambda/Step Functions/etc. SNS has no self-schedule. CloudTrail is audit-only.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تجميع سجلّات CloudWatch من ٣ حسابات مختلفة في S3 bucket مركزيّ. الطريقة الأمثل؟</span><span class="lang-en">A company wants to aggregate CloudWatch Logs from 3 accounts into a central S3 bucket. Best way?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تجميع سجلّات CloudWatch من ٣ حسابات مختلفة في S3 bucket مركزيّ. الطريقة الأمثل؟<\/span><span class=\"lang-en\">A company wants to aggregate CloudWatch Logs from 3 accounts into a central S3 bucket. Best way?<\/span>",
         options: [
-          "<span class="lang-ar">S3 Export من كلّ حساب يوميّاً.</span><span class="lang-en">Daily S3 Export from each account.</span>",
-          "<span class="lang-ar">Subscription Filter Cross-Account → Kinesis Data Streams → Firehose → S3.</span><span class="lang-en">Cross-Account Subscription Filter → Kinesis Data Streams → Firehose → S3.</span>",
-          "<span class="lang-ar">نسخ السجلّات يدوياً.</span><span class="lang-en">Manual copy of logs.</span>",
-          "<span class="lang-ar">Lambda دوريّة تقرأ السجلّات.</span><span class="lang-en">A scheduled Lambda that reads logs.</span>"
+          "<span class=\"lang-ar\">S3 Export من كلّ حساب يوميّاً.<\/span><span class=\"lang-en\">Daily S3 Export from each account.<\/span>",
+          "<span class=\"lang-ar\">Subscription Filter Cross-Account → Kinesis Data Streams → Firehose → S3.<\/span><span class=\"lang-en\">Cross-Account Subscription Filter → Kinesis Data Streams → Firehose → S3.<\/span>",
+          "<span class=\"lang-ar\">نسخ السجلّات يدوياً.<\/span><span class=\"lang-en\">Manual copy of logs.<\/span>",
+          "<span class=\"lang-ar\">Lambda دوريّة تقرأ السجلّات.<\/span><span class=\"lang-en\">A scheduled Lambda that reads logs.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Cross-Account Subscription Filter هو النمط المعياريّ: كلّ حساب يبثّ سجلّاته عبر Subscription Destination في الحساب المركزيّ (IAM Role + Kinesis). الحلّ الأكثر كفاءة وقرب-فوري.</span><span class="lang-en">Cross-Account Subscription Filter is the standard pattern: each account streams via a Subscription Destination in the central account (IAM Role + Kinesis). Most efficient, near-real-time.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير فوريّ، وتعقيد إداريّ.</span><span class=\"lang-en\">Not real-time, ops overhead.</span>", "", "<span class=\"lang-ar\">لا يتوسّع.</span><span class=\"lang-en\">Doesn't scale.</span>", "<span class=\"lang-ar\">غير فوريّ وعرضة لفقد بيانات.</span><span class=\"lang-en\">Not real-time, risks data loss.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Cross-Account Subscription Filter هو النمط المعياريّ: كلّ حساب يبثّ سجلّاته عبر Subscription Destination في الحساب المركزيّ (IAM Role + Kinesis). الحلّ الأكثر كفاءة وقرب-فوري.<\/span><span class=\"lang-en\">Cross-Account Subscription Filter is the standard pattern: each account streams via a Subscription Destination in the central account (IAM Role + Kinesis). Most efficient, near-real-time.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير فوريّ، وتعقيد إداريّ.<\/span><span class=\"lang-en\">Not real-time, ops overhead.<\/span>", "", "<span class=\"lang-ar\">لا يتوسّع.<\/span><span class=\"lang-en\">Doesn't scale.<\/span>", "<span class=\"lang-ar\">غير فوريّ وعرضة لفقد بيانات.<\/span><span class=\"lang-en\">Not real-time, risks data loss.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">يريد فريق اكتشاف تعطّل صفحة الدفع قبل شكوى المستخدمين. ما الحلّ المناسب في CloudWatch؟</span><span class="lang-en">Team wants to detect checkout page outages before users complain. Right CloudWatch feature?</span>",
+        question: "<span class=\"lang-ar\">يريد فريق اكتشاف تعطّل صفحة الدفع قبل شكوى المستخدمين. ما الحلّ المناسب في CloudWatch؟<\/span><span class=\"lang-en\">Team wants to detect checkout page outages before users complain. Right CloudWatch feature?<\/span>",
         options: [
-          "<span class="lang-ar">CloudWatch Dashboards</span><span class="lang-en">CloudWatch Dashboards</span>",
-          "<span class="lang-ar">CloudWatch Synthetics Canary</span><span class="lang-en">CloudWatch Synthetics Canary</span>",
-          "<span class="lang-ar">CloudWatch Logs Insights</span><span class="lang-en">CloudWatch Logs Insights</span>",
-          "<span class="lang-ar">CloudWatch Metric Stream</span><span class="lang-en">CloudWatch Metric Stream</span>"
+          "<span class=\"lang-ar\">CloudWatch Dashboards<\/span><span class=\"lang-en\">CloudWatch Dashboards<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Synthetics Canary<\/span><span class=\"lang-en\">CloudWatch Synthetics Canary<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Logs Insights<\/span><span class=\"lang-en\">CloudWatch Logs Insights<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Metric Stream<\/span><span class=\"lang-en\">CloudWatch Metric Stream<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Synthetics Canary يشغّل سكربت دوريّ يحاكي المستخدم (تسجيل دخول، إضافة للسلّة، دفع) ويُنبّه عند الفشل. هو حلّ AWS المعياريّ للمراقبة الاستباقيّة.</span><span class="lang-en">Synthetics Canary runs a periodic script simulating a user (login, add-to-cart, checkout) and alerts on failure. AWS's standard synthetic monitoring answer.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Synthetics Canary يشغّل سكربت دوريّ يحاكي المستخدم (تسجيل دخول، إضافة للسلّة، دفع) ويُنبّه عند الفشل. هو حلّ AWS المعياريّ للمراقبة الاستباقيّة.<\/span><span class=\"lang-en\">Synthetics Canary runs a periodic script simulating a user (login, add-to-cart, checkout) and alerts on failure. AWS's standard synthetic monitoring answer.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot يعمل على EC2. السجلّات لا تصل إلى CloudWatch. الخطوة الأولى للتشخيص؟</span><span class="lang-en">A Spring Boot app on EC2 — logs aren't reaching CloudWatch. First troubleshooting step?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot يعمل على EC2. السجلّات لا تصل إلى CloudWatch. الخطوة الأولى للتشخيص؟<\/span><span class=\"lang-en\">A Spring Boot app on EC2 — logs aren't reaching CloudWatch. First troubleshooting step?<\/span>",
         options: [
-          "<span class="lang-ar">إعادة تشغيل الخادم.</span><span class="lang-en">Reboot the instance.</span>",
-          "<span class="lang-ar">التحقّق من تثبيت الـ CloudWatch Agent ومن IAM Role مع صلاحيات <span dir="ltr" class="font-mono">logs:PutLogEvents</span>.</span><span class="lang-en">Check the CloudWatch Agent is installed AND the IAM Role has <span dir="ltr" class="font-mono">logs:PutLogEvents</span>.</span>",
-          "<span class="lang-ar">تمكين Detailed Monitoring.</span><span class="lang-en">Enable Detailed Monitoring.</span>",
-          "<span class="lang-ar">تحويل السجلّات إلى S3 بدلاً من CloudWatch.</span><span class="lang-en">Route logs to S3 instead.</span>"
+          "<span class=\"lang-ar\">إعادة تشغيل الخادم.<\/span><span class=\"lang-en\">Reboot the instance.<\/span>",
+          "<span class=\"lang-ar\">التحقّق من تثبيت الـ CloudWatch Agent ومن IAM Role مع صلاحيات <span dir=\"ltr\" class=\"font-mono\">logs:PutLogEvents<\/span>.<\/span><span class=\"lang-en\">Check the CloudWatch Agent is installed AND the IAM Role has <span dir=\"ltr\" class=\"font-mono\">logs:PutLogEvents<\/span>.<\/span>",
+          "<span class=\"lang-ar\">تمكين Detailed Monitoring.<\/span><span class=\"lang-en\">Enable Detailed Monitoring.<\/span>",
+          "<span class=\"lang-ar\">تحويل السجلّات إلى S3 بدلاً من CloudWatch.<\/span><span class=\"lang-en\">Route logs to S3 instead.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">السببان الأكثر شيوعاً: الـ Agent غير مثبّت/متوقّف، أو الـ IAM Role ينقصه الإذن <span dir="ltr" class="font-mono">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring للمقاييس لا للسجلّات.</span><span class="lang-en">Two most common causes: agent not installed/running, or IAM Role missing <span dir="ltr" class="font-mono">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring is metrics, not logs.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ مشكلة الإعداد.</span><span class=\"lang-en\">Doesn't fix config issues.</span>", "", "<span class=\"lang-ar\">للمقاييس فقط.</span><span class=\"lang-en\">Metrics only.</span>", "<span class=\"lang-ar\">يُخفي المشكلة ولا يحلّها.</span><span class=\"lang-en\">Hides rather than fixes.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">السببان الأكثر شيوعاً: الـ Agent غير مثبّت/متوقّف، أو الـ IAM Role ينقصه الإذن <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream / PutLogEvents<\/span>. Detailed Monitoring للمقاييس لا للسجلّات.<\/span><span class=\"lang-en\">Two most common causes: agent not installed/running, or IAM Role missing <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream / PutLogEvents<\/span>. Detailed Monitoring is metrics, not logs.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ مشكلة الإعداد.<\/span><span class=\"lang-en\">Doesn't fix config issues.<\/span>", "", "<span class=\"lang-ar\">للمقاييس فقط.<\/span><span class=\"lang-en\">Metrics only.<\/span>", "<span class=\"lang-ar\">يُخفي المشكلة ولا يحلّها.<\/span><span class=\"lang-en\">Hides rather than fixes.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       }
     ];
 

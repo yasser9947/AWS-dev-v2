@@ -1009,220 +1009,220 @@ aws s3api put-bucket-notification-configuration --bucket acme-prod-data \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">أيّ نوع استدعاء يقوم به API Gateway عند تشغيل Lambda؟</span><span class="lang-en">Which invocation type does API Gateway use for Lambda?</span>",
+        question: "<span class=\"lang-ar\">أيّ نوع استدعاء يقوم به API Gateway عند تشغيل Lambda؟<\/span><span class=\"lang-en\">Which invocation type does API Gateway use for Lambda?<\/span>",
         options: [
-          "<span class="lang-ar">متزامن (synchronous) — الـ client ينتظر الرد.</span><span class="lang-en">Synchronous — client waits for response.</span>",
-          "<span class="lang-ar">غير متزامن (async) — الحدث يُوضَع في queue.</span><span class="lang-en">Async — event placed in queue.</span>",
-          "<span class="lang-ar">Event Source Mapping.</span><span class="lang-en">Event Source Mapping.</span>",
-          "<span class="lang-ar">Custom Runtime.</span><span class="lang-en">Custom Runtime.</span>"
+          "<span class=\"lang-ar\">متزامن (synchronous) — الـ client ينتظر الرد.<\/span><span class=\"lang-en\">Synchronous — client waits for response.<\/span>",
+          "<span class=\"lang-ar\">غير متزامن (async) — الحدث يُوضَع في queue.<\/span><span class=\"lang-en\">Async — event placed in queue.<\/span>",
+          "<span class=\"lang-ar\">Event Source Mapping.<\/span><span class=\"lang-en\">Event Source Mapping.<\/span>",
+          "<span class=\"lang-ar\">Custom Runtime.<\/span><span class=\"lang-en\">Custom Runtime.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">API Gateway، ALB، و CLI/SDK كلّها تستدعي Lambda <strong>متزامناً</strong> لأنّ الـ client يحتاج رداً فورياً (HTTP response). معالجة الأخطاء مسؤوليّة الـ client.</span><span class="lang-en">API Gateway, ALB, and CLI/SDK all invoke Lambda <strong>synchronously</strong> because the client needs an immediate response (HTTP). Error handling is on the client.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">async للـ S3، SNS، EventBridge.</span><span class=\"lang-en\">Async is for S3, SNS, EventBridge.</span>", "", "<span class=\"lang-ar\">ESM للـ Kinesis، SQS، DynamoDB Streams.</span><span class=\"lang-en\">ESM is for Kinesis, SQS, DynamoDB Streams.</span>", "<span class=\"lang-ar\">Custom Runtime وسيلة لتشغيل لغة غير مدعومة، وليس نوع استدعاء.</span><span class=\"lang-en\">Custom Runtime is a way to run unsupported languages, not an invocation type.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">API Gateway، ALB، و CLI/SDK كلّها تستدعي Lambda <strong>متزامناً<\/strong> لأنّ الـ client يحتاج رداً فورياً (HTTP response). معالجة الأخطاء مسؤوليّة الـ client.<\/span><span class=\"lang-en\">API Gateway, ALB, and CLI/SDK all invoke Lambda <strong>synchronously<\/strong> because the client needs an immediate response (HTTP). Error handling is on the client.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">async للـ S3، SNS، EventBridge.<\/span><span class=\"lang-en\">Async is for S3, SNS, EventBridge.<\/span>", "", "<span class=\"lang-ar\">ESM للـ Kinesis، SQS، DynamoDB Streams.<\/span><span class=\"lang-en\">ESM is for Kinesis, SQS, DynamoDB Streams.<\/span>", "<span class=\"lang-ar\">Custom Runtime وسيلة لتشغيل لغة غير مدعومة، وليس نوع استدعاء.<\/span><span class=\"lang-en\">Custom Runtime is a way to run unsupported languages, not an invocation type.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">دالة Lambda تُستدعى بشكل async من S3. فشلت المعالجة. كم مرّة يحاول Lambda قبل إرسال الحدث إلى DLQ؟</span><span class="lang-en">A Lambda invoked async by S3 fails. How many times does Lambda retry before sending to DLQ?</span>",
+        question: "<span class=\"lang-ar\">دالة Lambda تُستدعى بشكل async من S3. فشلت المعالجة. كم مرّة يحاول Lambda قبل إرسال الحدث إلى DLQ؟<\/span><span class=\"lang-en\">A Lambda invoked async by S3 fails. How many times does Lambda retry before sending to DLQ?<\/span>",
         options: [
-          "<span class="lang-ar">مرّة واحدة (الأصلية فقط).</span><span class="lang-en">Once (original only).</span>",
-          "<span class="lang-ar">٣ مرّات إجمالاً (الأصلية + ٢ محاولتان).</span><span class="lang-en">3 total (original + 2 retries).</span>",
-          "<span class="lang-ar">٥ مرّات.</span><span class="lang-en">5 times.</span>",
-          "<span class="lang-ar">لا يُعيد.</span><span class="lang-en">None.</span>"
+          "<span class=\"lang-ar\">مرّة واحدة (الأصلية فقط).<\/span><span class=\"lang-en\">Once (original only).<\/span>",
+          "<span class=\"lang-ar\">٣ مرّات إجمالاً (الأصلية + ٢ محاولتان).<\/span><span class=\"lang-en\">3 total (original + 2 retries).<\/span>",
+          "<span class=\"lang-ar\">٥ مرّات.<\/span><span class=\"lang-en\">5 times.<\/span>",
+          "<span class=\"lang-ar\">لا يُعيد.<\/span><span class=\"lang-en\">None.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الاستدعاء الأصلي + محاولتان إعادة (بعد ١ دقيقة ثم ٢ دقائق). بعدها يُرسَل إلى DLQ إذا كانت معرّفة. عدد المحاولات قابل للضبط (٠-٢).</span><span class="lang-en">Original + 2 retries (after 1 min, then 2 min). Then sent to DLQ if configured. Retry count is tunable (0-2).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">الاستدعاء الأصلي + محاولتان إعادة (بعد ١ دقيقة ثم ٢ دقائق). بعدها يُرسَل إلى DLQ إذا كانت معرّفة. عدد المحاولات قابل للضبط (٠-٢).<\/span><span class=\"lang-en\">Original + 2 retries (after 1 min, then 2 min). Then sent to DLQ if configured. Retry count is tunable (0-2).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">Lambda يقرأ من SQS عبر ESM. ما أفضل <span dir="ltr" class="font-mono">visibilityTimeout</span> للطابور إذا كان timeout الدالة ٣٠ ثانية؟</span><span class="lang-en">Lambda consumes from SQS via ESM. Best <span dir="ltr" class="font-mono">visibilityTimeout</span> if Lambda timeout is 30s?</span>",
+        question: "<span class=\"lang-ar\">Lambda يقرأ من SQS عبر ESM. ما أفضل <span dir=\"ltr\" class=\"font-mono\">visibilityTimeout<\/span> للطابور إذا كان timeout الدالة ٣٠ ثانية؟<\/span><span class=\"lang-en\">Lambda consumes from SQS via ESM. Best <span dir=\"ltr\" class=\"font-mono\">visibilityTimeout<\/span> if Lambda timeout is 30s?<\/span>",
         options: [
-          "<span class="lang-ar">٣٠ ثانية (نفس الـ timeout).</span><span class="lang-en">30s (same as timeout).</span>",
-          "<span class="lang-ar">١٨٠ ثانية (٦x timeout الدالة).</span><span class="lang-en">180s (6× function timeout).</span>",
-          "<span class="lang-ar">٥ ثواني.</span><span class="lang-en">5s.</span>",
-          "<span class="lang-ar">لا أهمية له.</span><span class="lang-en">Doesn't matter.</span>"
+          "<span class=\"lang-ar\">٣٠ ثانية (نفس الـ timeout).<\/span><span class=\"lang-en\">30s (same as timeout).<\/span>",
+          "<span class=\"lang-ar\">١٨٠ ثانية (٦x timeout الدالة).<\/span><span class=\"lang-en\">180s (6× function timeout).<\/span>",
+          "<span class=\"lang-ar\">٥ ثواني.<\/span><span class=\"lang-en\">5s.<\/span>",
+          "<span class=\"lang-ar\">لا أهمية له.<\/span><span class=\"lang-en\">Doesn't matter.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">التوصية الرسميّة: visibilityTimeout = ٦× Lambda timeout. يمنع إعادة ظهور الرسالة أثناء المعالجة ويعطي هامشاً للـ retries داخل الـ batch.</span><span class="lang-en">Official recommendation: visibilityTimeout = 6× Lambda timeout. Prevents redelivery during processing and leaves margin for in-batch retries.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">التوصية الرسميّة: visibilityTimeout = ٦× Lambda timeout. يمنع إعادة ظهور الرسالة أثناء المعالجة ويعطي هامشاً للـ retries داخل الـ batch.<\/span><span class=\"lang-en\">Official recommendation: visibilityTimeout = 6× Lambda timeout. Prevents redelivery during processing and leaves margin for in-batch retries.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">شركة لديها Lambda يكتب إلى DynamoDB عند كلّ S3 event. يلاحظون أنّ بعض الـ records تُكتَب مرّتين. ما الحلّ؟</span><span class="lang-en">A company has a Lambda that writes to DynamoDB on every S3 event. They notice some records written twice. Fix?</span>",
+        question: "<span class=\"lang-ar\">شركة لديها Lambda يكتب إلى DynamoDB عند كلّ S3 event. يلاحظون أنّ بعض الـ records تُكتَب مرّتين. ما الحلّ؟<\/span><span class=\"lang-en\">A company has a Lambda that writes to DynamoDB on every S3 event. They notice some records written twice. Fix?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة عدد الـ retries.</span><span class="lang-en">Increase retry count.</span>",
-          "<span class="lang-ar">جعل المعالجة idempotent (مثلاً استخدام event ID كـ primary key مع conditional put).</span><span class="lang-en">Make processing idempotent (use event ID as PK with conditional put).</span>",
-          "<span class="lang-ar">تعطيل DLQ.</span><span class="lang-en">Disable DLQ.</span>",
-          "<span class="lang-ar">التبديل إلى sync invocation.</span><span class="lang-en">Switch to sync invocation.</span>"
+          "<span class=\"lang-ar\">زيادة عدد الـ retries.<\/span><span class=\"lang-en\">Increase retry count.<\/span>",
+          "<span class=\"lang-ar\">جعل المعالجة idempotent (مثلاً استخدام event ID كـ primary key مع conditional put).<\/span><span class=\"lang-en\">Make processing idempotent (use event ID as PK with conditional put).<\/span>",
+          "<span class=\"lang-ar\">تعطيل DLQ.<\/span><span class=\"lang-en\">Disable DLQ.<\/span>",
+          "<span class=\"lang-ar\">التبديل إلى sync invocation.<\/span><span class=\"lang-en\">Switch to sync invocation.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Lambda async قد يسلّم نفس الحدث مرّتين (at-least-once delivery). الحلّ الصحيح: <strong>idempotency</strong> — حارس في كودك يتجاهل الحدث المكرّر. زيادة retries تزيد المشكلة.</span><span class="lang-en">Lambda async has at-least-once delivery. Proper fix: <strong>idempotency</strong> — a guard in your code ignoring duplicates. More retries makes it worse.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يزيد فرصة التكرار.</span><span class=\"lang-en\">Amplifies duplicates.</span>", "", "<span class=\"lang-ar\">DLQ للفشل لا للتكرار.</span><span class=\"lang-en\">DLQ is for failures, not duplicates.</span>", "<span class=\"lang-ar\">S3 لا يستدعي sync.</span><span class=\"lang-en\">S3 can't invoke sync.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Lambda async قد يسلّم نفس الحدث مرّتين (at-least-once delivery). الحلّ الصحيح: <strong>idempotency<\/strong> — حارس في كودك يتجاهل الحدث المكرّر. زيادة retries تزيد المشكلة.<\/span><span class=\"lang-en\">Lambda async has at-least-once delivery. Proper fix: <strong>idempotency<\/strong> — a guard in your code ignoring duplicates. More retries makes it worse.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يزيد فرصة التكرار.<\/span><span class=\"lang-en\">Amplifies duplicates.<\/span>", "", "<span class=\"lang-ar\">DLQ للفشل لا للتكرار.<\/span><span class=\"lang-en\">DLQ is for failures, not duplicates.<\/span>", "<span class=\"lang-ar\">S3 لا يستدعي sync.<\/span><span class=\"lang-en\">S3 can't invoke sync.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">أيّ managed policy يحتاجها Lambda لقراءة من DynamoDB Streams؟</span><span class="lang-en">Which managed policy lets Lambda read DynamoDB Streams?</span>",
+        question: "<span class=\"lang-ar\">أيّ managed policy يحتاجها Lambda لقراءة من DynamoDB Streams؟<\/span><span class=\"lang-en\">Which managed policy lets Lambda read DynamoDB Streams?<\/span>",
         options: [
-          "<span class="lang-ar">AWSLambdaBasicExecutionRole</span><span class="lang-en">AWSLambdaBasicExecutionRole</span>",
-          "<span class="lang-ar">AWSLambdaDynamoDBExecutionRole</span><span class="lang-en">AWSLambdaDynamoDBExecutionRole</span>",
-          "<span class="lang-ar">AWSLambdaKinesisExecutionRole</span><span class="lang-en">AWSLambdaKinesisExecutionRole</span>",
-          "<span class="lang-ar">AmazonDynamoDBFullAccess</span><span class="lang-en">AmazonDynamoDBFullAccess</span>"
+          "<span class=\"lang-ar\">AWSLambdaBasicExecutionRole<\/span><span class=\"lang-en\">AWSLambdaBasicExecutionRole<\/span>",
+          "<span class=\"lang-ar\">AWSLambdaDynamoDBExecutionRole<\/span><span class=\"lang-en\">AWSLambdaDynamoDBExecutionRole<\/span>",
+          "<span class=\"lang-ar\">AWSLambdaKinesisExecutionRole<\/span><span class=\"lang-en\">AWSLambdaKinesisExecutionRole<\/span>",
+          "<span class=\"lang-ar\">AmazonDynamoDBFullAccess<\/span><span class=\"lang-en\">AmazonDynamoDBFullAccess<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>AWSLambdaDynamoDBExecutionRole</strong> تضيف صلاحيّة قراءة DynamoDB Streams + الكتابة إلى CloudWatch Logs. الصلاحيّة الأساسية ضروريّة للـ logs لكن لا تسمح بالقراءة من Streams.</span><span class="lang-en"><strong>AWSLambdaDynamoDBExecutionRole</strong> adds DynamoDB Streams read + CloudWatch Logs write. Basic is needed but doesn't permit stream reads.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>AWSLambdaDynamoDBExecutionRole<\/strong> تضيف صلاحيّة قراءة DynamoDB Streams + الكتابة إلى CloudWatch Logs. الصلاحيّة الأساسية ضروريّة للـ logs لكن لا تسمح بالقراءة من Streams.<\/span><span class=\"lang-en\"><strong>AWSLambdaDynamoDBExecutionRole<\/strong> adds DynamoDB Streams read + CloudWatch Logs write. Basic is needed but doesn't permit stream reads.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q6",
         type: "multi",
-        question: "<span class="lang-ar">أيّ معلومة تستطيع الحصول عليها من Context object في Lambda؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which info is available via the Lambda Context object? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ معلومة تستطيع الحصول عليها من Context object في Lambda؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which info is available via the Lambda Context object? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">aws_request_id</span><span class="lang-en">aws_request_id</span>",
-          "<span class="lang-ar">function_name</span><span class="lang-en">function_name</span>",
-          "<span class="lang-ar">memory_limit_in_mb</span><span class="lang-en">memory_limit_in_mb</span>",
-          "<span class="lang-ar">get_remaining_time_in_millis</span><span class="lang-en">get_remaining_time_in_millis</span>",
-          "<span class="lang-ar">بيانات حمولة الطلب نفسها</span><span class="lang-en">Request payload itself</span>"
+          "<span class=\"lang-ar\">aws_request_id<\/span><span class=\"lang-en\">aws_request_id<\/span>",
+          "<span class=\"lang-ar\">function_name<\/span><span class=\"lang-en\">function_name<\/span>",
+          "<span class=\"lang-ar\">memory_limit_in_mb<\/span><span class=\"lang-en\">memory_limit_in_mb<\/span>",
+          "<span class=\"lang-ar\">get_remaining_time_in_millis<\/span><span class=\"lang-en\">get_remaining_time_in_millis<\/span>",
+          "<span class=\"lang-ar\">بيانات حمولة الطلب نفسها<\/span><span class=\"lang-en\">Request payload itself<\/span>"
         ],
         correct: [0,1,2,3],
-        explanation: "<span class="lang-ar">Context يوفّر معلومات التنفيذ فقط — request ID، اسم الدالة، حد الذاكرة، الوقت المتبقّي، log stream، identity (للـ Cognito). حمولة الطلب تأتي في الـ <strong>event</strong> لا context.</span><span class="lang-en">Context carries runtime info only — request ID, name, memory, remaining time, log stream, identity (Cognito). Payload is on the <strong>event</strong>, not context.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Context يوفّر معلومات التنفيذ فقط — request ID، اسم الدالة، حد الذاكرة، الوقت المتبقّي، log stream، identity (للـ Cognito). حمولة الطلب تأتي في الـ <strong>event<\/strong> لا context.<\/span><span class=\"lang-en\">Context carries runtime info only — request ID, name, memory, remaining time, log stream, identity (Cognito). Payload is on the <strong>event<\/strong>, not context.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">Kinesis stream بـ ٤ shards يستهلكه Lambda عبر ESM. ما الحد الأقصى من الـ batches المتزامنة؟</span><span class="lang-en">A Kinesis stream with 4 shards consumed by Lambda via ESM. Max parallel batches?</span>",
+        question: "<span class=\"lang-ar\">Kinesis stream بـ ٤ shards يستهلكه Lambda عبر ESM. ما الحد الأقصى من الـ batches المتزامنة؟<\/span><span class=\"lang-en\">A Kinesis stream with 4 shards consumed by Lambda via ESM. Max parallel batches?<\/span>",
         options: [
-          "<span class="lang-ar">٤ (shard واحد = invocation واحدة)</span><span class="lang-en">4 (one invocation per shard)</span>",
-          "<span class="lang-ar">٤٠ (١٠ batches متوازية لكلّ shard)</span><span class="lang-en">40 (10 parallel batches per shard)</span>",
-          "<span class="lang-ar">١٠٠٠</span><span class="lang-en">1000</span>",
-          "<span class="lang-ar">غير محدود</span><span class="lang-en">Unlimited</span>"
+          "<span class=\"lang-ar\">٤ (shard واحد = invocation واحدة)<\/span><span class=\"lang-en\">4 (one invocation per shard)<\/span>",
+          "<span class=\"lang-ar\">٤٠ (١٠ batches متوازية لكلّ shard)<\/span><span class=\"lang-en\">40 (10 parallel batches per shard)<\/span>",
+          "<span class=\"lang-ar\">١٠٠٠<\/span><span class=\"lang-en\">1000<\/span>",
+          "<span class=\"lang-ar\">غير محدود<\/span><span class=\"lang-en\">Unlimited<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">افتراضياً كلّ shard = invocation واحدة، لكن يمكن تفعيل <strong>parallelization factor</strong> حتى ١٠، فيصبح ٤ shards × ١٠ = ٤٠ batch متوازي. الترتيب يُحفَظ لكل partition key.</span><span class="lang-en">Default: 1 invocation per shard. With <strong>parallelization factor</strong> up to 10, you get 4 × 10 = 40 parallel batches. Order preserved per partition key.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">افتراضياً كلّ shard = invocation واحدة، لكن يمكن تفعيل <strong>parallelization factor<\/strong> حتى ١٠، فيصبح ٤ shards × ١٠ = ٤٠ batch متوازي. الترتيب يُحفَظ لكل partition key.<\/span><span class=\"lang-en\">Default: 1 invocation per shard. With <strong>parallelization factor<\/strong> up to 10, you get 4 × 10 = 40 parallel batches. Order preserved per partition key.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">فريق يحتاج تنفيذ مهام متسلسلة: Lambda A → Lambda B → Lambda C مع retry لكلّ خطوة وحالات شرطيّة. الأنسب؟</span><span class="lang-en">Team needs sequential: Lambda A → Lambda B → Lambda C with per-step retries and conditional branches. Best choice?</span>",
+        question: "<span class=\"lang-ar\">فريق يحتاج تنفيذ مهام متسلسلة: Lambda A → Lambda B → Lambda C مع retry لكلّ خطوة وحالات شرطيّة. الأنسب؟<\/span><span class=\"lang-en\">Team needs sequential: Lambda A → Lambda B → Lambda C with per-step retries and conditional branches. Best choice?<\/span>",
         options: [
-          "<span class="lang-ar">استدعاء مباشر من A إلى B ومن B إلى C عبر SDK.</span><span class="lang-en">Direct SDK invokes A→B→C.</span>",
-          "<span class="lang-ar">AWS Step Functions — state machine مع الـ retry و error handling مدمج.</span><span class="lang-en">AWS Step Functions — state machine with built-in retry and error handling.</span>",
-          "<span class="lang-ar">SQS بين كلّ دالتَين.</span><span class="lang-en">SQS between each pair.</span>",
-          "<span class="lang-ar">EventBridge scheduler.</span><span class="lang-en">EventBridge scheduler.</span>"
+          "<span class=\"lang-ar\">استدعاء مباشر من A إلى B ومن B إلى C عبر SDK.<\/span><span class=\"lang-en\">Direct SDK invokes A→B→C.<\/span>",
+          "<span class=\"lang-ar\">AWS Step Functions — state machine مع الـ retry و error handling مدمج.<\/span><span class=\"lang-en\">AWS Step Functions — state machine with built-in retry and error handling.<\/span>",
+          "<span class=\"lang-ar\">SQS بين كلّ دالتَين.<\/span><span class=\"lang-en\">SQS between each pair.<\/span>",
+          "<span class=\"lang-ar\">EventBridge scheduler.<\/span><span class=\"lang-en\">EventBridge scheduler.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Step Functions</strong> صُمِّم لهذا بالضبط: retry، catch، choice، parallel، map. يوفّر visibility كامل ويخفّض التكلفة (لا تدفع أثناء wait). الـ chain المباشر هشّ ويصعب تتبّعه.</span><span class="lang-en"><strong>Step Functions</strong> is built for this: retry, catch, choice, parallel, map. Full visibility and lower cost (waits are free). Direct chaining is fragile and hard to trace.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">بدائي، لا يتيح visibility.</span><span class=\"lang-en\">Primitive, no visibility.</span>", "", "<span class=\"lang-ar\">معقّد ومكلف لتنفيذ متسلسل بسيط.</span><span class=\"lang-en\">Complex and costly for simple chain.</span>", "<span class=\"lang-ar\">للجدولة الدوريّة، لا للـ orchestration.</span><span class=\"lang-en\">For periodic scheduling, not orchestration.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Step Functions<\/strong> صُمِّم لهذا بالضبط: retry، catch، choice، parallel، map. يوفّر visibility كامل ويخفّض التكلفة (لا تدفع أثناء wait). الـ chain المباشر هشّ ويصعب تتبّعه.<\/span><span class=\"lang-en\"><strong>Step Functions<\/strong> is built for this: retry, catch, choice, parallel, map. Full visibility and lower cost (waits are free). Direct chaining is fragile and hard to trace.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بدائي، لا يتيح visibility.<\/span><span class=\"lang-en\">Primitive, no visibility.<\/span>", "", "<span class=\"lang-ar\">معقّد ومكلف لتنفيذ متسلسل بسيط.<\/span><span class=\"lang-en\">Complex and costly for simple chain.<\/span>", "<span class=\"lang-ar\">للجدولة الدوريّة، لا للـ orchestration.<\/span><span class=\"lang-en\">For periodic scheduling, not orchestration.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تتبّع الـ downstream calls (إلى DynamoDB و S3) التي تقوم بها دالة Lambda. ما الإعداد المطلوب؟</span><span class="lang-en">A dev wants to trace downstream calls (to DynamoDB, S3) from a Lambda. What's needed?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تتبّع الـ downstream calls (إلى DynamoDB و S3) التي تقوم بها دالة Lambda. ما الإعداد المطلوب؟<\/span><span class=\"lang-en\">A dev wants to trace downstream calls (to DynamoDB, S3) from a Lambda. What's needed?<\/span>",
         options: [
-          "<span class="lang-ar">تمكين Active Tracing في الدالة + إضافة managed policy AWSXRayDaemonWriteAccess.</span><span class="lang-en">Enable Active Tracing on the function + attach AWSXRayDaemonWriteAccess.</span>",
-          "<span class="lang-ar">تثبيت X-Ray daemon على EC2.</span><span class="lang-en">Install X-Ray daemon on EC2.</span>",
-          "<span class="lang-ar">كتابة logs يدوياً إلى CloudWatch.</span><span class="lang-en">Write manual CloudWatch logs.</span>",
-          "<span class="lang-ar">تفعيل CloudTrail.</span><span class="lang-en">Enable CloudTrail.</span>"
+          "<span class=\"lang-ar\">تمكين Active Tracing في الدالة + إضافة managed policy AWSXRayDaemonWriteAccess.<\/span><span class=\"lang-en\">Enable Active Tracing on the function + attach AWSXRayDaemonWriteAccess.<\/span>",
+          "<span class=\"lang-ar\">تثبيت X-Ray daemon على EC2.<\/span><span class=\"lang-en\">Install X-Ray daemon on EC2.<\/span>",
+          "<span class=\"lang-ar\">كتابة logs يدوياً إلى CloudWatch.<\/span><span class=\"lang-en\">Write manual CloudWatch logs.<\/span>",
+          "<span class=\"lang-ar\">تفعيل CloudTrail.<\/span><span class=\"lang-en\">Enable CloudTrail.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>Active Tracing</strong> في إعدادات Lambda يشغّل X-Ray daemon ضمن بيئة التنفيذ. يحتاج IAM policy للكتابة لـ X-Ray. إن دمجت AWS X-Ray SDK في الكود، تحصل على trace كامل للـ downstream calls.</span><span class="lang-en"><strong>Active Tracing</strong> in Lambda config spins up the X-Ray daemon in the execution env. Needs an IAM policy to write to X-Ray. Integrate the X-Ray SDK in code for full downstream tracing.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Lambda يدير الـ daemon له.</span><span class=\"lang-en\">Lambda manages the daemon.</span>", "<span class=\"lang-ar\">Logs لا تعطي trace graph.</span><span class=\"lang-en\">Logs don't produce a trace graph.</span>", "<span class=\"lang-ar\">للـ API-level auditing لا للأداء.</span><span class=\"lang-en\">For API audit, not perf.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Active Tracing<\/strong> في إعدادات Lambda يشغّل X-Ray daemon ضمن بيئة التنفيذ. يحتاج IAM policy للكتابة لـ X-Ray. إن دمجت AWS X-Ray SDK في الكود، تحصل على trace كامل للـ downstream calls.<\/span><span class=\"lang-en\"><strong>Active Tracing<\/strong> in Lambda config spins up the X-Ray daemon in the execution env. Needs an IAM policy to write to X-Ray. Integrate the X-Ray SDK in code for full downstream tracing.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Lambda يدير الـ daemon له.<\/span><span class=\"lang-en\">Lambda manages the daemon.<\/span>", "<span class=\"lang-ar\">Logs لا تعطي trace graph.<\/span><span class=\"lang-en\">Logs don't produce a trace graph.<\/span>", "<span class=\"lang-ar\">للـ API-level auditing لا للأداء.<\/span><span class=\"lang-en\">For API audit, not perf.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تنفيذ كود خفيف جداً (مثل تعديل headers) على طلبات CloudFront. الأنسب؟</span><span class="lang-en">A company wants very lightweight code (e.g., header tweaks) on CloudFront requests. Best fit?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تنفيذ كود خفيف جداً (مثل تعديل headers) على طلبات CloudFront. الأنسب؟<\/span><span class=\"lang-en\">A company wants very lightweight code (e.g., header tweaks) on CloudFront requests. Best fit?<\/span>",
         options: [
-          "<span class="lang-ar">Lambda@Edge (قوي لكن أبطأ).</span><span class="lang-en">Lambda@Edge (powerful but slower).</span>",
-          "<span class="lang-ar">CloudFront Functions (JavaScript، sub-ms، ملايين req/sec).</span><span class="lang-en">CloudFront Functions (JavaScript, sub-ms, millions req/sec).</span>",
-          "<span class="lang-ar">API Gateway + Lambda.</span><span class="lang-en">API Gateway + Lambda.</span>",
-          "<span class="lang-ar">EC2 in a region.</span><span class="lang-en">EC2 in a region.</span>"
+          "<span class=\"lang-ar\">Lambda@Edge (قوي لكن أبطأ).<\/span><span class=\"lang-en\">Lambda@Edge (powerful but slower).<\/span>",
+          "<span class=\"lang-ar\">CloudFront Functions (JavaScript، sub-ms، ملايين req/sec).<\/span><span class=\"lang-en\">CloudFront Functions (JavaScript, sub-ms, millions req/sec).<\/span>",
+          "<span class=\"lang-ar\">API Gateway + Lambda.<\/span><span class=\"lang-en\">API Gateway + Lambda.<\/span>",
+          "<span class=\"lang-ar\">EC2 in a region.<\/span><span class=\"lang-en\">EC2 in a region.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>CloudFront Functions</strong> مصمَّم للتعديلات البسيطة على Viewer Request/Response: sub-ms، ملايين طلب/ثانية، ضمن CloudFront مباشرة. Lambda@Edge للمنطق الأثقل مع دعم مكتبات.</span><span class="lang-en"><strong>CloudFront Functions</strong> is built for simple Viewer Request/Response edits: sub-ms, millions req/sec, native to CloudFront. Lambda@Edge is for heavier logic with library support.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">للمنطق الأثقل مثل استدعاء APIs، أبطأ من Functions.</span><span class=\"lang-en\">For heavier logic like API calls, slower.</span>", "", "<span class=\"lang-ar\">يتطلّب round-trip إلى region.</span><span class=\"lang-en\">Round-trip to region required.</span>", "<span class=\"lang-ar\">ليس edge-based.</span><span class=\"lang-en\">Not edge-based.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CloudFront Functions<\/strong> مصمَّم للتعديلات البسيطة على Viewer Request/Response: sub-ms، ملايين طلب/ثانية، ضمن CloudFront مباشرة. Lambda@Edge للمنطق الأثقل مع دعم مكتبات.<\/span><span class=\"lang-en\"><strong>CloudFront Functions<\/strong> is built for simple Viewer Request/Response edits: sub-ms, millions req/sec, native to CloudFront. Lambda@Edge is for heavier logic with library support.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">للمنطق الأثقل مثل استدعاء APIs، أبطأ من Functions.<\/span><span class=\"lang-en\">For heavier logic like API calls, slower.<\/span>", "", "<span class=\"lang-ar\">يتطلّب round-trip إلى region.<\/span><span class=\"lang-en\">Round-trip to region required.<\/span>", "<span class=\"lang-ar\">ليس edge-based.<\/span><span class=\"lang-en\">Not edge-based.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">Lambda يفشل مع رسالة <span dir="ltr" class="font-mono">Task timed out after 3.00 seconds</span>. ماذا يحدث للحدث الأصليّ؟</span><span class="lang-en">Lambda fails with <span dir="ltr" class="font-mono">Task timed out after 3.00 seconds</span>. What happens to the original event?</span>",
+        question: "<span class=\"lang-ar\">Lambda يفشل مع رسالة <span dir=\"ltr\" class=\"font-mono\">Task timed out after 3.00 seconds<\/span>. ماذا يحدث للحدث الأصليّ؟<\/span><span class=\"lang-en\">Lambda fails with <span dir=\"ltr\" class=\"font-mono\">Task timed out after 3.00 seconds<\/span>. What happens to the original event?<\/span>",
         options: [
-          "<span class="lang-ar">يُحذَف فوراً.</span><span class="lang-en">Deleted immediately.</span>",
-          "<span class="lang-ar">يُعتبَر فشلاً — لو كان async يُعاد إلى الطابور للمحاولة، لو sync يُعاد الخطأ إلى الـ caller.</span><span class="lang-en">Treated as failure — if async, re-queued for retry; if sync, error returned to caller.</span>",
-          "<span class="lang-ar">يُنسى.</span><span class="lang-en">Forgotten.</span>",
-          "<span class="lang-ar">يُسجَّل كنجاح.</span><span class="lang-en">Marked as success.</span>"
+          "<span class=\"lang-ar\">يُحذَف فوراً.<\/span><span class=\"lang-en\">Deleted immediately.<\/span>",
+          "<span class=\"lang-ar\">يُعتبَر فشلاً — لو كان async يُعاد إلى الطابور للمحاولة، لو sync يُعاد الخطأ إلى الـ caller.<\/span><span class=\"lang-en\">Treated as failure — if async, re-queued for retry; if sync, error returned to caller.<\/span>",
+          "<span class=\"lang-ar\">يُنسى.<\/span><span class=\"lang-en\">Forgotten.<\/span>",
+          "<span class=\"lang-ar\">يُسجَّل كنجاح.<\/span><span class=\"lang-en\">Marked as success.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Timeout = فشل. السلوك يعتمد على نوع الاستدعاء: async يعيد المحاولة حتى ٣ مرّات ثم DLQ. sync يُرجِع خطأ للـ client الذي يجب أن يُعيد. الحلّ الجذريّ: زيادة timeout (حتى ١٥ دقيقة).</span><span class="lang-en">Timeout = failure. Behavior depends on invocation: async retries up to 3x then DLQ; sync returns error to caller who must retry. Root fix: increase timeout (up to 15 min).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢، ٣</span><span class=\"lang-en\">Sections 2, 3</span>"
+        explanation: "<span class=\"lang-ar\">Timeout = فشل. السلوك يعتمد على نوع الاستدعاء: async يعيد المحاولة حتى ٣ مرّات ثم DLQ. sync يُرجِع خطأ للـ client الذي يجب أن يُعيد. الحلّ الجذريّ: زيادة timeout (حتى ١٥ دقيقة).<\/span><span class=\"lang-en\">Timeout = failure. Behavior depends on invocation: async retries up to 3x then DLQ; sync returns error to caller who must retry. Root fix: increase timeout (up to 15 min).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢، ٣<\/span><span class=\"lang-en\">Sections 2, 3<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">Lambda يستدعي DynamoDB ويحصل على ThrottlingException بشكل متكرّر. أفضل حلّ؟</span><span class="lang-en">A Lambda calls DynamoDB and repeatedly gets ThrottlingException. Best fix?</span>",
+        question: "<span class=\"lang-ar\">Lambda يستدعي DynamoDB ويحصل على ThrottlingException بشكل متكرّر. أفضل حلّ؟<\/span><span class=\"lang-en\">A Lambda calls DynamoDB and repeatedly gets ThrottlingException. Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة RAM في الـ Lambda.</span><span class="lang-en">Increase Lambda RAM.</span>",
-          "<span class="lang-ar">زيادة read/write capacity في DynamoDB أو التبديل إلى On-Demand، مع الاعتماد على retries الافتراضية في الـ SDK.</span><span class="lang-en">Increase DynamoDB R/W capacity or switch to On-Demand; SDK retries handle transient throttles.</span>",
-          "<span class="lang-ar">تعطيل الـ logs.</span><span class="lang-en">Disable logs.</span>",
-          "<span class="lang-ar">التبديل إلى RDS.</span><span class="lang-en">Switch to RDS.</span>"
+          "<span class=\"lang-ar\">زيادة RAM في الـ Lambda.<\/span><span class=\"lang-en\">Increase Lambda RAM.<\/span>",
+          "<span class=\"lang-ar\">زيادة read/write capacity في DynamoDB أو التبديل إلى On-Demand، مع الاعتماد على retries الافتراضية في الـ SDK.<\/span><span class=\"lang-en\">Increase DynamoDB R/W capacity or switch to On-Demand; SDK retries handle transient throttles.<\/span>",
+          "<span class=\"lang-ar\">تعطيل الـ logs.<\/span><span class=\"lang-en\">Disable logs.<\/span>",
+          "<span class=\"lang-ar\">التبديل إلى RDS.<\/span><span class=\"lang-en\">Switch to RDS.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الـ throttling مصدره DynamoDB لا Lambda. الحلول: On-Demand mode، أو رفع Provisioned Capacity، أو Auto Scaling على DynamoDB. الـ SDK يُعيد تلقائياً على الـ throttling لكن إن كانت الحالة مستمرّة فالسعة هي الحل.</span><span class="lang-en">Throttling originates in DynamoDB, not Lambda. Fixes: On-Demand, raise Provisioned Capacity, or Auto Scaling. SDK retries handle transient throttles; persistent ones need more capacity.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦ + ch08</span><span class=\"lang-en\">Section 6 + ch08</span>"
+        explanation: "<span class=\"lang-ar\">الـ throttling مصدره DynamoDB لا Lambda. الحلول: On-Demand mode، أو رفع Provisioned Capacity، أو Auto Scaling على DynamoDB. الـ SDK يُعيد تلقائياً على الـ throttling لكن إن كانت الحالة مستمرّة فالسعة هي الحل.<\/span><span class=\"lang-en\">Throttling originates in DynamoDB, not Lambda. Fixes: On-Demand, raise Provisioned Capacity, or Auto Scaling. SDK retries handle transient throttles; persistent ones need more capacity.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦ + ch08<\/span><span class=\"lang-en\">Section 6 + ch08<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">ALB يستدعي Lambda. أيّ من الحقول التالية يجب أن تُرجِعها الدالة في الـ response JSON؟</span><span class="lang-en">ALB invokes Lambda. Which fields must the function return in its response JSON?</span>",
+        question: "<span class=\"lang-ar\">ALB يستدعي Lambda. أيّ من الحقول التالية يجب أن تُرجِعها الدالة في الـ response JSON؟<\/span><span class=\"lang-en\">ALB invokes Lambda. Which fields must the function return in its response JSON?<\/span>",
         options: [
-          "<span class="lang-ar">result و error.</span><span class="lang-en">result and error.</span>",
-          "<span class="lang-ar">statusCode، headers، body، isBase64Encoded.</span><span class="lang-en">statusCode, headers, body, isBase64Encoded.</span>",
-          "<span class="lang-ar">httpMethod و path.</span><span class="lang-en">httpMethod and path.</span>",
-          "<span class="lang-ar">requestId.</span><span class="lang-en">requestId.</span>"
+          "<span class=\"lang-ar\">result و error.<\/span><span class=\"lang-en\">result and error.<\/span>",
+          "<span class=\"lang-ar\">statusCode، headers، body، isBase64Encoded.<\/span><span class=\"lang-en\">statusCode, headers, body, isBase64Encoded.<\/span>",
+          "<span class=\"lang-ar\">httpMethod و path.<\/span><span class=\"lang-en\">httpMethod and path.<\/span>",
+          "<span class=\"lang-ar\">requestId.<\/span><span class=\"lang-en\">requestId.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">ALB يتوقّع response JSON بصيغة محدّدة: <span dir="ltr" class="font-mono">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. الحقول الأخرى في الـ request لا الـ response.</span><span class="lang-en">ALB expects a JSON response with <span dir="ltr" class="font-mono">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. Others belong to the request.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">ALB يتوقّع response JSON بصيغة محدّدة: <span dir=\"ltr\" class=\"font-mono\">{statusCode, statusDescription?, headers, body, isBase64Encoded}<\/span>. الحقول الأخرى في الـ request لا الـ response.<\/span><span class=\"lang-en\">ALB expects a JSON response with <span dir=\"ltr\" class=\"font-mono\">{statusCode, statusDescription?, headers, body, isBase64Encoded}<\/span>. Others belong to the request.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q14",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من هذه المصادر تستدعي Lambda بشكل <strong>async</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of these invoke Lambda <strong>async</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من هذه المصادر تستدعي Lambda بشكل <strong>async<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which of these invoke Lambda <strong>async<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">S3 Event Notifications</span><span class="lang-en">S3 Event Notifications</span>",
-          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
-          "<span class="lang-ar">EventBridge</span><span class="lang-en">EventBridge</span>",
-          "<span class="lang-ar">API Gateway</span><span class="lang-en">API Gateway</span>",
-          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>"
+          "<span class=\"lang-ar\">S3 Event Notifications<\/span><span class=\"lang-en\">S3 Event Notifications<\/span>",
+          "<span class=\"lang-ar\">SNS<\/span><span class=\"lang-en\">SNS<\/span>",
+          "<span class=\"lang-ar\">EventBridge<\/span><span class=\"lang-en\">EventBridge<\/span>",
+          "<span class=\"lang-ar\">API Gateway<\/span><span class=\"lang-en\">API Gateway<\/span>",
+          "<span class=\"lang-ar\">Kinesis Data Streams<\/span><span class=\"lang-en\">Kinesis Data Streams<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">S3، SNS، EventBridge كلّها async. API Gateway = sync. Kinesis = Event Source Mapping (نمط خاصّ — Lambda يسحب، ثم يستدعي sync داخلياً).</span><span class="lang-en">S3, SNS, EventBridge are async. API Gateway = sync. Kinesis = ESM (special — Lambda polls, then invokes sync internally).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">S3، SNS، EventBridge كلّها async. API Gateway = sync. Kinesis = Event Source Mapping (نمط خاصّ — Lambda يسحب، ثم يستدعي sync داخلياً).<\/span><span class=\"lang-en\">S3, SNS, EventBridge are async. API Gateway = sync. Kinesis = ESM (special — Lambda polls, then invokes sync internally).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد منع API Gateway من حساب آخر من استدعاء دالة Lambda الخاصّة به. ما الطبقة المناسبة للضبط؟</span><span class="lang-en">A dev wants to prevent a different account's API Gateway from invoking their Lambda. Where to enforce?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد منع API Gateway من حساب آخر من استدعاء دالة Lambda الخاصّة به. ما الطبقة المناسبة للضبط؟<\/span><span class=\"lang-en\">A dev wants to prevent a different account's API Gateway from invoking their Lambda. Where to enforce?<\/span>",
         options: [
-          "<span class="lang-ar">Execution Role.</span><span class="lang-en">Execution Role.</span>",
-          "<span class="lang-ar">Resource-based Policy (Lambda Policy) — تحديد SourceArn للـ account الصحيح.</span><span class="lang-en">Resource-based Policy (Lambda Policy) — set SourceArn to the correct account.</span>",
-          "<span class="lang-ar">Security Group.</span><span class="lang-en">Security Group.</span>",
-          "<span class="lang-ar">VPC Endpoint.</span><span class="lang-en">VPC Endpoint.</span>"
+          "<span class=\"lang-ar\">Execution Role.<\/span><span class=\"lang-en\">Execution Role.<\/span>",
+          "<span class=\"lang-ar\">Resource-based Policy (Lambda Policy) — تحديد SourceArn للـ account الصحيح.<\/span><span class=\"lang-en\">Resource-based Policy (Lambda Policy) — set SourceArn to the correct account.<\/span>",
+          "<span class=\"lang-ar\">Security Group.<\/span><span class=\"lang-en\">Security Group.<\/span>",
+          "<span class=\"lang-ar\">VPC Endpoint.<\/span><span class=\"lang-en\">VPC Endpoint.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الـ <strong>Resource Policy</strong> تتحكّم بمن <u>يستدعي</u> الدالة. شرط <span dir="ltr" class="font-mono">aws:SourceArn</span> أو <span dir="ltr" class="font-mono">aws:SourceAccount</span> يقصر الاستدعاء على مصادر محدّدة. Execution Role تضبط ما <u>تفعله</u> الدالة.</span><span class="lang-en"><strong>Resource Policy</strong> controls who <u>invokes</u> the function. <span dir="ltr" class="font-mono">aws:SourceArn</span> or <span dir="ltr" class="font-mono">aws:SourceAccount</span> conditions limit invokers. Execution Role controls what the function <u>does</u>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يضبط ما تفعله الدالة.</span><span class=\"lang-en\">Controls what function does.</span>", "", "<span class=\"lang-ar\">لا تتحكّم في استدعاء Lambda.</span><span class=\"lang-en\">Doesn't control Lambda invocations.</span>", "<span class=\"lang-ar\">مخصّصة للخصوصية الشبكيّة، لا للـ cross-account invoke.</span><span class=\"lang-en\">For network privacy, not cross-account invoke.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">الـ <strong>Resource Policy<\/strong> تتحكّم بمن <u>يستدعي<\/u> الدالة. شرط <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn<\/span> أو <span dir=\"ltr\" class=\"font-mono\">aws:SourceAccount<\/span> يقصر الاستدعاء على مصادر محدّدة. Execution Role تضبط ما <u>تفعله<\/u> الدالة.<\/span><span class=\"lang-en\"><strong>Resource Policy<\/strong> controls who <u>invokes<\/u> the function. <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn<\/span> or <span dir=\"ltr\" class=\"font-mono\">aws:SourceAccount<\/span> conditions limit invokers. Execution Role controls what the function <u>does<\/u>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يضبط ما تفعله الدالة.<\/span><span class=\"lang-en\">Controls what function does.<\/span>", "", "<span class=\"lang-ar\">لا تتحكّم في استدعاء Lambda.<\/span><span class=\"lang-en\">Doesn't control Lambda invocations.<\/span>", "<span class=\"lang-ar\">مخصّصة للخصوصية الشبكيّة، لا للـ cross-account invoke.<\/span><span class=\"lang-en\">For network privacy, not cross-account invoke.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       }
     ];
 

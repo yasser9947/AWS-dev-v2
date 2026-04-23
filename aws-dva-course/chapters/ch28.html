@@ -917,174 +917,174 @@ aws cloudtrail start-logging --name acme-audit</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مهندس يريد البحث في traces X-Ray عن كلّ الطلبات الخاصّة بمستخدم معيّن. أين يجب وضع <span dir="ltr" class="font-mono">userId</span>؟</span><span class="lang-en">An engineer wants to search X-Ray traces for all requests of a given user. Where should <span dir="ltr" class="font-mono">userId</span> go?</span>",
+        question: "<span class=\"lang-ar\">مهندس يريد البحث في traces X-Ray عن كلّ الطلبات الخاصّة بمستخدم معيّن. أين يجب وضع <span dir=\"ltr\" class=\"font-mono\">userId<\/span>؟<\/span><span class=\"lang-en\">An engineer wants to search X-Ray traces for all requests of a given user. Where should <span dir=\"ltr\" class=\"font-mono\">userId<\/span> go?<\/span>",
         options: [
-          "<span class="lang-ar">في <span dir="ltr" class="font-mono">metadata</span> (مفهرسة).</span><span class="lang-en">In <span dir="ltr" class="font-mono">metadata</span> (indexed).</span>",
-          "<span class="lang-ar">في <span dir="ltr" class="font-mono">annotations</span> (مفهرسة وقابلة للبحث).</span><span class="lang-en">In <span dir="ltr" class="font-mono">annotations</span> (indexed and searchable).</span>",
-          "<span class="lang-ar">في <span dir="ltr" class="font-mono">subsegment name</span>.</span><span class="lang-en">In the <span dir="ltr" class="font-mono">subsegment name</span>.</span>",
-          "<span class="lang-ar">في رسالة السجلّ في CloudWatch.</span><span class="lang-en">In a CloudWatch log message.</span>"
+          "<span class=\"lang-ar\">في <span dir=\"ltr\" class=\"font-mono\">metadata<\/span> (مفهرسة).<\/span><span class=\"lang-en\">In <span dir=\"ltr\" class=\"font-mono\">metadata<\/span> (indexed).<\/span>",
+          "<span class=\"lang-ar\">في <span dir=\"ltr\" class=\"font-mono\">annotations<\/span> (مفهرسة وقابلة للبحث).<\/span><span class=\"lang-en\">In <span dir=\"ltr\" class=\"font-mono\">annotations<\/span> (indexed and searchable).<\/span>",
+          "<span class=\"lang-ar\">في <span dir=\"ltr\" class=\"font-mono\">subsegment name<\/span>.<\/span><span class=\"lang-en\">In the <span dir=\"ltr\" class=\"font-mono\">subsegment name<\/span>.<\/span>",
+          "<span class=\"lang-ar\">في رسالة السجلّ في CloudWatch.<\/span><span class=\"lang-en\">In a CloudWatch log message.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Annotations = مفهرسة وقابلة للبحث</strong>. Metadata غير مفهرسة؛ تُعرض لكن لا يمكن الفلترة عليها. هذا تمييز مهمّ جداً للامتحان.</span><span class="lang-en"><strong>Annotations = indexed and searchable</strong>. Metadata is not indexed; it's displayed but can't filter. Critical exam distinction.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Metadata غير مفهرسة.</span><span class=\"lang-en\">Metadata isn't indexed.</span>", "", "<span class=\"lang-ar\">Subsegment name ليس لتحديد مستخدم.</span><span class=\"lang-en\">Subsegment name isn't for user identity.</span>", "<span class=\"lang-ar\">CloudWatch منفصلة عن فهرس X-Ray.</span><span class=\"lang-en\">CloudWatch is separate from X-Ray's index.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Annotations = مفهرسة وقابلة للبحث<\/strong>. Metadata غير مفهرسة؛ تُعرض لكن لا يمكن الفلترة عليها. هذا تمييز مهمّ جداً للامتحان.<\/span><span class=\"lang-en\"><strong>Annotations = indexed and searchable<\/strong>. Metadata is not indexed; it's displayed but can't filter. Critical exam distinction.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Metadata غير مفهرسة.<\/span><span class=\"lang-en\">Metadata isn't indexed.<\/span>", "", "<span class=\"lang-ar\">Subsegment name ليس لتحديد مستخدم.<\/span><span class=\"lang-en\">Subsegment name isn't for user identity.<\/span>", "<span class=\"lang-ar\">CloudWatch منفصلة عن فهرس X-Ray.<\/span><span class=\"lang-en\">CloudWatch is separate from X-Ray's index.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">X-Ray لا يعمل على Lambda مع أنّ الكود يحمل SDK. الخطوة الأكثر ترجيحاً؟</span><span class="lang-en">X-Ray isn't working on Lambda despite the SDK being imported. Most likely fix?</span>",
+        question: "<span class=\"lang-ar\">X-Ray لا يعمل على Lambda مع أنّ الكود يحمل SDK. الخطوة الأكثر ترجيحاً؟<\/span><span class=\"lang-en\">X-Ray isn't working on Lambda despite the SDK being imported. Most likely fix?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة حجم الذاكرة.</span><span class="lang-en">Increase memory.</span>",
-          "<span class="lang-ar">تفعيل <strong>Active Tracing</strong> في إعدادات الدالّة + منحها صلاحية <span dir="ltr" class="font-mono">AWSXRayWriteOnlyAccess</span>.</span><span class="lang-en">Enable <strong>Active Tracing</strong> in the function config + attach <span dir="ltr" class="font-mono">AWSXRayWriteOnlyAccess</span>.</span>",
-          "<span class="lang-ar">إعادة نشر الكود.</span><span class="lang-en">Redeploy the code.</span>",
-          "<span class="lang-ar">تشغيل X-Ray Daemon داخل Lambda.</span><span class="lang-en">Run the X-Ray Daemon inside Lambda.</span>"
+          "<span class=\"lang-ar\">زيادة حجم الذاكرة.<\/span><span class=\"lang-en\">Increase memory.<\/span>",
+          "<span class=\"lang-ar\">تفعيل <strong>Active Tracing<\/strong> في إعدادات الدالّة + منحها صلاحية <span dir=\"ltr\" class=\"font-mono\">AWSXRayWriteOnlyAccess<\/span>.<\/span><span class=\"lang-en\">Enable <strong>Active Tracing<\/strong> in the function config + attach <span dir=\"ltr\" class=\"font-mono\">AWSXRayWriteOnlyAccess<\/span>.<\/span>",
+          "<span class=\"lang-ar\">إعادة نشر الكود.<\/span><span class=\"lang-en\">Redeploy the code.<\/span>",
+          "<span class=\"lang-ar\">تشغيل X-Ray Daemon داخل Lambda.<\/span><span class=\"lang-en\">Run the X-Ray Daemon inside Lambda.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">على Lambda، X-Ray يشتغل فقط عند تمكين Active Tracing، مع execution role يسمح بالكتابة لـ X-Ray. الـ daemon مدارة من AWS تلقائياً.</span><span class="lang-en">On Lambda, X-Ray runs only when Active Tracing is enabled and the execution role allows writes. The daemon is managed by AWS automatically.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالذاكرة.</span><span class=\"lang-en\">Unrelated to memory.</span>", "", "<span class=\"lang-ar\">إعادة النشر دون تفعيل الإعداد لا تحلّ شيئاً.</span><span class=\"lang-en\">Redeploy without enabling won't help.</span>", "<span class=\"lang-ar\">Lambda لا تشغّل daemon في الكود.</span><span class=\"lang-en\">Lambda doesn't run an in-code daemon.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">على Lambda، X-Ray يشتغل فقط عند تمكين Active Tracing، مع execution role يسمح بالكتابة لـ X-Ray. الـ daemon مدارة من AWS تلقائياً.<\/span><span class=\"lang-en\">On Lambda, X-Ray runs only when Active Tracing is enabled and the execution role allows writes. The daemon is managed by AWS automatically.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالذاكرة.<\/span><span class=\"lang-en\">Unrelated to memory.<\/span>", "", "<span class=\"lang-ar\">إعادة النشر دون تفعيل الإعداد لا تحلّ شيئاً.<\/span><span class=\"lang-en\">Redeploy without enabling won't help.<\/span>", "<span class=\"lang-ar\">Lambda لا تشغّل daemon في الكود.<\/span><span class=\"lang-en\">Lambda doesn't run an in-code daemon.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تتبّع كلّ الطلبات على مسار <span dir="ltr" class="font-mono">/payments/*</span> في الإنتاج. ما الحلّ؟</span><span class="lang-en">A company wants to trace every request on <span dir="ltr" class="font-mono">/payments/*</span> in production. Solution?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تتبّع كلّ الطلبات على مسار <span dir=\"ltr\" class=\"font-mono\">/payments/*<\/span> في الإنتاج. ما الحلّ؟<\/span><span class=\"lang-en\">A company wants to trace every request on <span dir=\"ltr\" class=\"font-mono\">/payments/*<\/span> in production. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">رفع الـ Sampling Rate العامّة إلى ١٠٠٪.</span><span class="lang-en">Raise global Sampling Rate to 100%.</span>",
-          "<span class="lang-ar">إنشاء Sampling Rule بأولويّة عالية، Reservoir=1, Rate=1.0، مقصورة على <span dir="ltr" class="font-mono">URLPath=/payments/*</span>.</span><span class="lang-en">Create a high-priority Sampling Rule with Reservoir=1, Rate=1.0, scoped to <span dir="ltr" class="font-mono">URLPath=/payments/*</span>.</span>",
-          "<span class="lang-ar">تعطيل X-Ray خارج مسار الدفع.</span><span class="lang-en">Disable X-Ray for non-payment paths.</span>",
-          "<span class="lang-ar">إضافة annotation لكلّ طلب.</span><span class="lang-en">Add an annotation to every request.</span>"
+          "<span class=\"lang-ar\">رفع الـ Sampling Rate العامّة إلى ١٠٠٪.<\/span><span class=\"lang-en\">Raise global Sampling Rate to 100%.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Sampling Rule بأولويّة عالية، Reservoir=1, Rate=1.0، مقصورة على <span dir=\"ltr\" class=\"font-mono\">URLPath=/payments/*<\/span>.<\/span><span class=\"lang-en\">Create a high-priority Sampling Rule with Reservoir=1, Rate=1.0, scoped to <span dir=\"ltr\" class=\"font-mono\">URLPath=/payments/*<\/span>.<\/span>",
+          "<span class=\"lang-ar\">تعطيل X-Ray خارج مسار الدفع.<\/span><span class=\"lang-en\">Disable X-Ray for non-payment paths.<\/span>",
+          "<span class=\"lang-ar\">إضافة annotation لكلّ طلب.<\/span><span class=\"lang-en\">Add an annotation to every request.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Custom Sampling Rule بأولويّة أعلى تغطّي المسار المطلوب فقط. رفع الـ rate العامّ يرفع التكلفة بلا داعٍ. annotations لا علاقة لها بمعدّل أخذ العيّنات.</span><span class="lang-en">A custom high-priority Sampling Rule scoped to the path. Raising global rate balloons cost needlessly. Annotations don't affect sampling.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">تكلفة مرتفعة.</span><span class=\"lang-en\">High cost.</span>", "", "<span class=\"lang-ar\">لا يمكن تعطيل مسارات محدّدة بهذه الطريقة.</span><span class=\"lang-en\">Can't selectively disable paths that way.</span>", "<span class=\"lang-ar\">Annotations لا تتحكّم بالـ sampling.</span><span class=\"lang-en\">Annotations don't control sampling.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Custom Sampling Rule بأولويّة أعلى تغطّي المسار المطلوب فقط. رفع الـ rate العامّ يرفع التكلفة بلا داعٍ. annotations لا علاقة لها بمعدّل أخذ العيّنات.<\/span><span class=\"lang-en\">A custom high-priority Sampling Rule scoped to the path. Raising global rate balloons cost needlessly. Annotations don't affect sampling.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكلفة مرتفعة.<\/span><span class=\"lang-en\">High cost.<\/span>", "", "<span class=\"lang-ar\">لا يمكن تعطيل مسارات محدّدة بهذه الطريقة.<\/span><span class=\"lang-en\">Can't selectively disable paths that way.<\/span>", "<span class=\"lang-ar\">Annotations لا تتحكّم بالـ sampling.<\/span><span class=\"lang-en\">Annotations don't control sampling.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">مدير أمن يسأل: "من حذف جدول DynamoDB المسمّى <span dir="ltr" class="font-mono">orders</span>؟". أين نبحث؟</span><span class="lang-en">Security manager asks: "Who deleted the DynamoDB table <span dir="ltr" class="font-mono">orders</span>?". Where to look?</span>",
+        question: "<span class=\"lang-ar\">مدير أمن يسأل: \"من حذف جدول DynamoDB المسمّى <span dir=\"ltr\" class=\"font-mono\">orders<\/span>؟\". أين نبحث؟<\/span><span class=\"lang-en\">Security manager asks: \"Who deleted the DynamoDB table <span dir=\"ltr\" class=\"font-mono\">orders<\/span>?\". Where to look?<\/span>",
         options: [
-          "<span class="lang-ar">CloudWatch Metrics</span><span class="lang-en">CloudWatch Metrics</span>",
-          "<span class="lang-ar">X-Ray Service Map</span><span class="lang-en">X-Ray Service Map</span>",
-          "<span class="lang-ar">CloudTrail Event History</span><span class="lang-en">CloudTrail Event History</span>",
-          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>"
+          "<span class=\"lang-ar\">CloudWatch Metrics<\/span><span class=\"lang-en\">CloudWatch Metrics<\/span>",
+          "<span class=\"lang-ar\">X-Ray Service Map<\/span><span class=\"lang-en\">X-Ray Service Map<\/span>",
+          "<span class=\"lang-ar\">CloudTrail Event History<\/span><span class=\"lang-en\">CloudTrail Event History<\/span>",
+          "<span class=\"lang-ar\">AWS Config<\/span><span class=\"lang-en\">AWS Config<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">CloudTrail يسجّل كلّ API call مع الهويّة والوقت. <span dir="ltr" class="font-mono">DeleteTable</span> هو Management Event، مسجّل افتراضياً. X-Ray للأداء، Config لتاريخ التكوين وليس الفاعل.</span><span class="lang-en">CloudTrail records every API call with identity and time. <span dir="ltr" class="font-mono">DeleteTable</span> is a default Management Event. X-Ray is performance; Config tracks config history, not who.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">CloudTrail يسجّل كلّ API call مع الهويّة والوقت. <span dir=\"ltr\" class=\"font-mono\">DeleteTable<\/span> هو Management Event، مسجّل افتراضياً. X-Ray للأداء، Config لتاريخ التكوين وليس الفاعل.<\/span><span class=\"lang-en\">CloudTrail records every API call with identity and time. <span dir=\"ltr\" class=\"font-mono\">DeleteTable<\/span> is a default Management Event. X-Ray is performance; Config tracks config history, not who.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">فريق امتثال يحتاج الاحتفاظ بسجلّات API لـ٧ سنوات. أيّ الحلول الأمثل؟</span><span class="lang-en">Compliance team needs to retain API logs for 7 years. Best solution?</span>",
+        question: "<span class=\"lang-ar\">فريق امتثال يحتاج الاحتفاظ بسجلّات API لـ٧ سنوات. أيّ الحلول الأمثل؟<\/span><span class=\"lang-en\">Compliance team needs to retain API logs for 7 years. Best solution?<\/span>",
         options: [
-          "<span class="lang-ar">الاكتفاء بـ CloudTrail (٩٠ يوم كافٍ).</span><span class="lang-en">Rely on CloudTrail alone (90 days is enough).</span>",
-          "<span class="lang-ar">تسليم CloudTrail إلى S3 + تفعيل Lifecycle إلى Glacier + استعلام بـ Athena.</span><span class="lang-en">Deliver CloudTrail to S3 + Lifecycle to Glacier + query via Athena.</span>",
-          "<span class="lang-ar">CloudWatch Logs بفترة احتفاظ سنة واحدة.</span><span class="lang-en">CloudWatch Logs with 1-year retention.</span>",
-          "<span class="lang-ar">نسخ السجلّات يدوياً شهرياً.</span><span class="lang-en">Manual monthly copy.</span>"
+          "<span class=\"lang-ar\">الاكتفاء بـ CloudTrail (٩٠ يوم كافٍ).<\/span><span class=\"lang-en\">Rely on CloudTrail alone (90 days is enough).<\/span>",
+          "<span class=\"lang-ar\">تسليم CloudTrail إلى S3 + تفعيل Lifecycle إلى Glacier + استعلام بـ Athena.<\/span><span class=\"lang-en\">Deliver CloudTrail to S3 + Lifecycle to Glacier + query via Athena.<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Logs بفترة احتفاظ سنة واحدة.<\/span><span class=\"lang-en\">CloudWatch Logs with 1-year retention.<\/span>",
+          "<span class=\"lang-ar\">نسخ السجلّات يدوياً شهرياً.<\/span><span class=\"lang-en\">Manual monthly copy.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CloudTrail يحتفظ فقط ٩٠ يوماً. لتخزين طويل: S3 (مع Object Lock للامتثال) + Lifecycle إلى Glacier Deep Archive + Athena للاستعلام بـ SQL. النمط المعياريّ في الامتحان.</span><span class="lang-en">CloudTrail itself keeps only 90 days. Long-term: S3 (with Object Lock for compliance) + Lifecycle to Glacier Deep Archive + Athena for SQL queries. The textbook exam pattern.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">٩٠ يوم غير كافية.</span><span class=\"lang-en\">90 days isn't enough.</span>", "", "<span class=\"lang-ar\">سنة لا تكفي، والسجلّات غير مصمّمة لذلك.</span><span class=\"lang-en\">1 year isn't 7, and Logs aren't built for this.</span>", "<span class=\"lang-ar\">عمليّة يدويّة هشّة.</span><span class=\"lang-en\">Fragile manual process.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">CloudTrail يحتفظ فقط ٩٠ يوماً. لتخزين طويل: S3 (مع Object Lock للامتثال) + Lifecycle إلى Glacier Deep Archive + Athena للاستعلام بـ SQL. النمط المعياريّ في الامتحان.<\/span><span class=\"lang-en\">CloudTrail itself keeps only 90 days. Long-term: S3 (with Object Lock for compliance) + Lifecycle to Glacier Deep Archive + Athena for SQL queries. The textbook exam pattern.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">٩٠ يوم غير كافية.<\/span><span class=\"lang-en\">90 days isn't enough.<\/span>", "", "<span class=\"lang-ar\">سنة لا تكفي، والسجلّات غير مصمّمة لذلك.<\/span><span class=\"lang-en\">1 year isn't 7, and Logs aren't built for this.<\/span>", "<span class=\"lang-ar\">عمليّة يدويّة هشّة.<\/span><span class=\"lang-en\">Fragile manual process.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من التالي أمثلة على <strong>Data Events</strong> في CloudTrail (غير مسجّلة افتراضياً)؟</span><span class="lang-en">Which are examples of CloudTrail <strong>Data Events</strong> (not logged by default)?</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي أمثلة على <strong>Data Events<\/strong> في CloudTrail (غير مسجّلة افتراضياً)؟<\/span><span class=\"lang-en\">Which are examples of CloudTrail <strong>Data Events<\/strong> (not logged by default)?<\/span>",
         options: [
-          "<span class="lang-ar">S3 GetObject</span><span class="lang-en">S3 GetObject</span>",
-          "<span class="lang-ar">IAM CreateUser</span><span class="lang-en">IAM CreateUser</span>",
-          "<span class="lang-ar">Lambda Invoke</span><span class="lang-en">Lambda Invoke</span>",
-          "<span class="lang-ar">EC2 RunInstances</span><span class="lang-en">EC2 RunInstances</span>"
+          "<span class=\"lang-ar\">S3 GetObject<\/span><span class=\"lang-en\">S3 GetObject<\/span>",
+          "<span class=\"lang-ar\">IAM CreateUser<\/span><span class=\"lang-en\">IAM CreateUser<\/span>",
+          "<span class=\"lang-ar\">Lambda Invoke<\/span><span class=\"lang-en\">Lambda Invoke<\/span>",
+          "<span class=\"lang-ar\">EC2 RunInstances<\/span><span class=\"lang-en\">EC2 RunInstances<\/span>"
         ],
         correct: [0,2],
-        explanation: "<span class="lang-ar">Data Events = عمليّات على مستوى الكائنات: S3 object-level (GetObject/PutObject/DeleteObject) و Lambda Invoke. IAM CreateUser و EC2 RunInstances من Management Events (مسجّلة افتراضياً).</span><span class="lang-en">Data Events = object-level: S3 object-level (GetObject/PutObject/DeleteObject) and Lambda Invoke. IAM CreateUser and EC2 RunInstances are Management Events (default-logged).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Data Events = عمليّات على مستوى الكائنات: S3 object-level (GetObject/PutObject/DeleteObject) و Lambda Invoke. IAM CreateUser و EC2 RunInstances من Management Events (مسجّلة افتراضياً).<\/span><span class=\"lang-en\">Data Events = object-level: S3 object-level (GetObject/PutObject/DeleteObject) and Lambda Invoke. IAM CreateUser and EC2 RunInstances are Management Events (default-logged).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تنبيهاً فوريّاً عندما يسجّل Root User دخوله إلى AWS. أبسط حلّ؟</span><span class="lang-en">A company wants instant alerts when the Root user signs in. Simplest solution?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تنبيهاً فوريّاً عندما يسجّل Root User دخوله إلى AWS. أبسط حلّ؟<\/span><span class=\"lang-en\">A company wants instant alerts when the Root user signs in. Simplest solution?<\/span>",
         options: [
-          "<span class="lang-ar">مراجعة CloudTrail يدوياً كلّ يوم.</span><span class="lang-en">Manually review CloudTrail daily.</span>",
-          "<span class="lang-ar">EventBridge Rule يطابق <span dir="ltr" class="font-mono">AWS Console Sign In</span> بـ <span dir="ltr" class="font-mono">userIdentity.type=Root</span> → SNS.</span><span class="lang-en">EventBridge Rule matching <span dir="ltr" class="font-mono">AWS Console Sign In</span> with <span dir="ltr" class="font-mono">userIdentity.type=Root</span> → SNS.</span>",
-          "<span class="lang-ar">Metric Filter على سجلّات CloudWatch Agent.</span><span class="lang-en">Metric Filter on CloudWatch Agent logs.</span>",
-          "<span class="lang-ar">X-Ray sampling rule.</span><span class="lang-en">An X-Ray sampling rule.</span>"
+          "<span class=\"lang-ar\">مراجعة CloudTrail يدوياً كلّ يوم.<\/span><span class=\"lang-en\">Manually review CloudTrail daily.<\/span>",
+          "<span class=\"lang-ar\">EventBridge Rule يطابق <span dir=\"ltr\" class=\"font-mono\">AWS Console Sign In<\/span> بـ <span dir=\"ltr\" class=\"font-mono\">userIdentity.type=Root<\/span> → SNS.<\/span><span class=\"lang-en\">EventBridge Rule matching <span dir=\"ltr\" class=\"font-mono\">AWS Console Sign In<\/span> with <span dir=\"ltr\" class=\"font-mono\">userIdentity.type=Root<\/span> → SNS.<\/span>",
+          "<span class=\"lang-ar\">Metric Filter على سجلّات CloudWatch Agent.<\/span><span class=\"lang-en\">Metric Filter on CloudWatch Agent logs.<\/span>",
+          "<span class=\"lang-ar\">X-Ray sampling rule.<\/span><span class=\"lang-en\">An X-Ray sampling rule.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">EventBridge يدعم مصدر <span dir="ltr" class="font-mono">aws.signin</span> وشرط JSON مطابق. تنبيه فوريّ بدون قراءة سجلّات. Metric Filter ممكن لكن أكثر تعقيداً. X-Ray لا علاقة له.</span><span class="lang-en">EventBridge supports the <span dir="ltr" class="font-mono">aws.signin</span> source with a JSON match. Instant alert without reading logs. Metric Filter is possible but more complex. X-Ray is irrelevant.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">EventBridge يدعم مصدر <span dir=\"ltr\" class=\"font-mono\">aws.signin<\/span> وشرط JSON مطابق. تنبيه فوريّ بدون قراءة سجلّات. Metric Filter ممكن لكن أكثر تعقيداً. X-Ray لا علاقة له.<\/span><span class=\"lang-en\">EventBridge supports the <span dir=\"ltr\" class=\"font-mono\">aws.signin<\/span> source with a JSON match. Instant alert without reading logs. Metric Filter is possible but more complex. X-Ray is irrelevant.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">X-Ray Service Map يُظهر دوّارات حمراء على DynamoDB. ماذا يعني اللون الأحمر؟</span><span class="lang-en">X-Ray Service Map shows red rings on DynamoDB. What does red indicate?</span>",
+        question: "<span class=\"lang-ar\">X-Ray Service Map يُظهر دوّارات حمراء على DynamoDB. ماذا يعني اللون الأحمر؟<\/span><span class=\"lang-en\">X-Ray Service Map shows red rings on DynamoDB. What does red indicate?<\/span>",
         options: [
-          "<span class="lang-ar">استخدام عالي للـ CPU.</span><span class="lang-en">High CPU usage.</span>",
-          "<span class="lang-ar">نسبة عالية من الأخطاء (errors/faults).</span><span class="lang-en">High error/fault percentage.</span>",
-          "<span class="lang-ar">تكلفة عالية.</span><span class="lang-en">High cost.</span>",
-          "<span class="lang-ar">زمن استجابة عالٍ فقط.</span><span class="lang-en">High latency only.</span>"
+          "<span class=\"lang-ar\">استخدام عالي للـ CPU.<\/span><span class=\"lang-en\">High CPU usage.<\/span>",
+          "<span class=\"lang-ar\">نسبة عالية من الأخطاء (errors/faults).<\/span><span class=\"lang-en\">High error/fault percentage.<\/span>",
+          "<span class=\"lang-ar\">تكلفة عالية.<\/span><span class=\"lang-en\">High cost.<\/span>",
+          "<span class=\"lang-ar\">زمن استجابة عالٍ فقط.<\/span><span class=\"lang-en\">High latency only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Service Map يرمّز الحلقات: أخضر (سليم)، أصفر (throttling أو 4xx)، أحمر (أخطاء 5xx/faults). الأحمر يعني نسبة فشل مرتفعة — نقطة بدء للتحقيق.</span><span class="lang-en">Service Map color codes: green (healthy), yellow (throttling / 4xx), red (5xx faults). Red = high error rate — starting point to drill in.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Service Map يرمّز الحلقات: أخضر (سليم)، أصفر (throttling أو 4xx)، أحمر (أخطاء 5xx/faults). الأحمر يعني نسبة فشل مرتفعة — نقطة بدء للتحقيق.<\/span><span class=\"lang-en\">Service Map color codes: green (healthy), yellow (throttling / 4xx), red (5xx faults). Red = high error rate — starting point to drill in.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يستخدم ECS Fargate. كيف يشغّل X-Ray Daemon؟</span><span class="lang-en">A developer uses ECS Fargate. How to run the X-Ray Daemon?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يستخدم ECS Fargate. كيف يشغّل X-Ray Daemon؟<\/span><span class=\"lang-en\">A developer uses ECS Fargate. How to run the X-Ray Daemon?<\/span>",
         options: [
-          "<span class="lang-ar">كـ DaemonSet على كلّ عقدة (غير متاح في Fargate).</span><span class="lang-en">As a DaemonSet per node (unavailable in Fargate).</span>",
-          "<span class="lang-ar">كـ Sidecar Container في نفس Task Definition.</span><span class="lang-en">As a Sidecar container in the same Task Definition.</span>",
-          "<span class="lang-ar">لا حاجة — Fargate يشغّله تلقائياً.</span><span class="lang-en">Not needed — Fargate runs it automatically.</span>",
-          "<span class="lang-ar">تثبيته على EC2 مستضيف.</span><span class="lang-en">Install on the host EC2.</span>"
+          "<span class=\"lang-ar\">كـ DaemonSet على كلّ عقدة (غير متاح في Fargate).<\/span><span class=\"lang-en\">As a DaemonSet per node (unavailable in Fargate).<\/span>",
+          "<span class=\"lang-ar\">كـ Sidecar Container في نفس Task Definition.<\/span><span class=\"lang-en\">As a Sidecar container in the same Task Definition.<\/span>",
+          "<span class=\"lang-ar\">لا حاجة — Fargate يشغّله تلقائياً.<\/span><span class=\"lang-en\">Not needed — Fargate runs it automatically.<\/span>",
+          "<span class=\"lang-ar\">تثبيته على EC2 مستضيف.<\/span><span class=\"lang-en\">Install on the host EC2.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">في Fargate لا وصول لعقد EC2، فالخيار الوحيد هو Sidecar داخل نفس Task Definition (يتواصل عبر UDP 2000). Lambda وحدها التي تشغّله تلقائياً.</span><span class="lang-en">Fargate has no EC2 host access, so the only option is a Sidecar inside the same Task Definition (talks over UDP 2000). Only Lambda runs it automatically.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">في Fargate لا وصول لعقد EC2، فالخيار الوحيد هو Sidecar داخل نفس Task Definition (يتواصل عبر UDP 2000). Lambda وحدها التي تشغّله تلقائياً.<\/span><span class=\"lang-en\">Fargate has no EC2 host access, so the only option is a Sidecar inside the same Task Definition (talks over UDP 2000). Only Lambda runs it automatically.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">CloudTrail Insights Events — ما الذي يميّزها عن باقي الأحداث؟</span><span class="lang-en">CloudTrail Insights Events — what makes them different?</span>",
+        question: "<span class=\"lang-ar\">CloudTrail Insights Events — ما الذي يميّزها عن باقي الأحداث؟<\/span><span class=\"lang-en\">CloudTrail Insights Events — what makes them different?<\/span>",
         options: [
-          "<span class="lang-ar">تسجّل عمليّات Data Events فقط.</span><span class="lang-en">They log only Data Events.</span>",
-          "<span class="lang-ar">تستخدم تعلّم آليّ لاكتشاف أنماط غير عاديّة في Write Management Events.</span><span class="lang-en">They use ML to detect anomalous patterns in write Management Events.</span>",
-          "<span class="lang-ar">مجّانيّة بالكامل.</span><span class="lang-en">They're entirely free.</span>",
-          "<span class="lang-ar">تُخزَّن في CloudWatch Logs فقط.</span><span class="lang-en">Stored only in CloudWatch Logs.</span>"
+          "<span class=\"lang-ar\">تسجّل عمليّات Data Events فقط.<\/span><span class=\"lang-en\">They log only Data Events.<\/span>",
+          "<span class=\"lang-ar\">تستخدم تعلّم آليّ لاكتشاف أنماط غير عاديّة في Write Management Events.<\/span><span class=\"lang-en\">They use ML to detect anomalous patterns in write Management Events.<\/span>",
+          "<span class=\"lang-ar\">مجّانيّة بالكامل.<\/span><span class=\"lang-en\">They're entirely free.<\/span>",
+          "<span class=\"lang-ar\">تُخزَّن في CloudWatch Logs فقط.<\/span><span class=\"lang-en\">Stored only in CloudWatch Logs.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Insights Events تبني baseline للنشاط الطبيعيّ ثمّ تنبّه على الانحرافات (فورة IAM، تجاوز حدود)، وتُرسَل للـ S3 و EventBridge. مكلّفة لذلك غير مفعّلة افتراضياً.</span><span class="lang-en">Insights Events baseline normal activity then flag anomalies (IAM bursts, service-limit spikes), and can be sent to S3 and EventBridge. Paid — not enabled by default.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Insights Events تبني baseline للنشاط الطبيعيّ ثمّ تنبّه على الانحرافات (فورة IAM، تجاوز حدود)، وتُرسَل للـ S3 و EventBridge. مكلّفة لذلك غير مفعّلة افتراضياً.<\/span><span class=\"lang-en\">Insights Events baseline normal activity then flag anomalies (IAM bursts, service-limit spikes), and can be sent to S3 and EventBridge. Paid — not enabled by default.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">في AWS Organization، مدير حساب رئيسيّ يريد ضمان أنّ كلّ الحسابات الفرعيّة يسجّل نشاطها API. الحلّ الأمثل؟</span><span class="lang-en">In an AWS Organization, the management account wants to ensure every member account logs API activity. Best solution?</span>",
+        question: "<span class=\"lang-ar\">في AWS Organization، مدير حساب رئيسيّ يريد ضمان أنّ كلّ الحسابات الفرعيّة يسجّل نشاطها API. الحلّ الأمثل؟<\/span><span class=\"lang-en\">In an AWS Organization, the management account wants to ensure every member account logs API activity. Best solution?<\/span>",
         options: [
-          "<span class="lang-ar">طلب من كلّ فريق إنشاء trail يدوياً.</span><span class="lang-en">Ask each team to create a trail manually.</span>",
-          "<span class="lang-ar">إنشاء <strong>Organization Trail</strong> واحد مركزيّ — لا يمكن لحساب فرعي تعطيله.</span><span class="lang-en">Create one central <strong>Organization Trail</strong> — members cannot disable it.</span>",
-          "<span class="lang-ar">استخدام AWS Config بدلاً من CloudTrail.</span><span class="lang-en">Use AWS Config instead.</span>",
-          "<span class="lang-ar">مشاركة S3 bucket لكلّ الحسابات.</span><span class="lang-en">Share an S3 bucket across accounts.</span>"
+          "<span class=\"lang-ar\">طلب من كلّ فريق إنشاء trail يدوياً.<\/span><span class=\"lang-en\">Ask each team to create a trail manually.<\/span>",
+          "<span class=\"lang-ar\">إنشاء <strong>Organization Trail<\/strong> واحد مركزيّ — لا يمكن لحساب فرعي تعطيله.<\/span><span class=\"lang-en\">Create one central <strong>Organization Trail<\/strong> — members cannot disable it.<\/span>",
+          "<span class=\"lang-ar\">استخدام AWS Config بدلاً من CloudTrail.<\/span><span class=\"lang-en\">Use AWS Config instead.<\/span>",
+          "<span class=\"lang-ar\">مشاركة S3 bucket لكلّ الحسابات.<\/span><span class=\"lang-en\">Share an S3 bucket across accounts.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Organization Trail يُنشَأ من الحساب الرئيسي ويطبَّق تلقائياً على كلّ الحسابات مع منع التعطيل من الحسابات الفرعيّة. أفضل الممارسات للأمن.</span><span class="lang-en">An Organization Trail is created from the management account and auto-applies to all members with no member-side opt-out. Security best practice.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Organization Trail يُنشَأ من الحساب الرئيسي ويطبَّق تلقائياً على كلّ الحسابات مع منع التعطيل من الحسابات الفرعيّة. أفضل الممارسات للأمن.<\/span><span class=\"lang-en\">An Organization Trail is created from the management account and auto-applies to all members with no member-side opt-out. Security best practice.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">ما الخدمة التي تجيب عن: "خدمة A بطيئة. هل المشكلة في A أم في DynamoDB الذي تتصل به؟"</span><span class="lang-en">Which service answers: "Service A is slow. Is the issue A itself or the DynamoDB it calls?"</span>",
+        question: "<span class=\"lang-ar\">ما الخدمة التي تجيب عن: \"خدمة A بطيئة. هل المشكلة في A أم في DynamoDB الذي تتصل به؟\"<\/span><span class=\"lang-en\">Which service answers: \"Service A is slow. Is the issue A itself or the DynamoDB it calls?\"<\/span>",
         options: [
-          "<span class="lang-ar">CloudTrail</span><span class="lang-en">CloudTrail</span>",
-          "<span class="lang-ar">CloudWatch Alarms</span><span class="lang-en">CloudWatch Alarms</span>",
-          "<span class="lang-ar">AWS X-Ray</span><span class="lang-en">AWS X-Ray</span>",
-          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>"
+          "<span class=\"lang-ar\">CloudTrail<\/span><span class=\"lang-en\">CloudTrail<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Alarms<\/span><span class=\"lang-en\">CloudWatch Alarms<\/span>",
+          "<span class=\"lang-ar\">AWS X-Ray<\/span><span class=\"lang-en\">AWS X-Ray<\/span>",
+          "<span class=\"lang-ar\">AWS Config<\/span><span class=\"lang-en\">AWS Config<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">X-Ray يعرض الـ segment الخاصّ بالخدمة A مع subsegments لكلّ downstream call (بما فيها DynamoDB)، مع زمن كلّ منها. فوراً ترى أين يُضاع الوقت. CloudTrail للتدقيق، Config للتكوين.</span><span class="lang-en">X-Ray shows Service A's segment with subsegments for each downstream call (including DynamoDB) with per-call timing. You immediately see where time goes. CloudTrail is audit; Config is configuration state.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">X-Ray يعرض الـ segment الخاصّ بالخدمة A مع subsegments لكلّ downstream call (بما فيها DynamoDB)، مع زمن كلّ منها. فوراً ترى أين يُضاع الوقت. CloudTrail للتدقيق، Config للتكوين.<\/span><span class=\"lang-en\">X-Ray shows Service A's segment with subsegments for each downstream call (including DynamoDB) with per-call timing. You immediately see where time goes. CloudTrail is audit; Config is configuration state.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       }
     ];
 

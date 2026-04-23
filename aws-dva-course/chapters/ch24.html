@@ -898,171 +898,171 @@ eb deploy</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد نشر إصدار جديد في الإنتاج <strong>بدون Downtime</strong> وبأقل سعة ممكنة (سعة كاملة طوال الوقت) مع خيار Rollback سريع. أيّ سياسة؟</span><span class="lang-en">A company wants to deploy a new version in prod <strong>with zero downtime</strong>, full capacity throughout, and fast rollback. Which policy?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد نشر إصدار جديد في الإنتاج <strong>بدون Downtime<\/strong> وبأقل سعة ممكنة (سعة كاملة طوال الوقت) مع خيار Rollback سريع. أيّ سياسة؟<\/span><span class=\"lang-en\">A company wants to deploy a new version in prod <strong>with zero downtime<\/strong>, full capacity throughout, and fast rollback. Which policy?<\/span>",
         options: [
-          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>",
-          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
-          "<span class="lang-ar">Rolling with additional batches</span><span class="lang-en">Rolling with additional batches</span>",
-          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>"
+          "<span class=\"lang-ar\">All at once<\/span><span class=\"lang-en\">All at once<\/span>",
+          "<span class=\"lang-ar\">Rolling<\/span><span class=\"lang-en\">Rolling<\/span>",
+          "<span class=\"lang-ar\">Rolling with additional batches<\/span><span class=\"lang-en\">Rolling with additional batches<\/span>",
+          "<span class=\"lang-ar\">Immutable<\/span><span class=\"lang-en\">Immutable<\/span>"
         ],
         correct: 3,
-        explanation: "<span class="lang-ar"><strong>Immutable</strong> هو الأمثل: ينشئ ASG جديد بـ V2، يتحقّق من الصحّة، ثمّ يستبدل الـ ASG القديم. صفر Downtime، سعة كاملة، و Rollback سريع (حذف الـ ASG الجديد فقط). التكلفة أعلى لكن في الإنتاج الحرج تستحقّ.</span><span class="lang-en"><strong>Immutable</strong> is ideal: creates a new ASG with V2, health-checks, then swaps. Zero downtime, full capacity, fast rollback (kill the new ASG). Higher cost but worth it for critical prod.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Downtime.</span><span class=\"lang-en\">Has downtime.</span>", "<span class=\"lang-ar\">سعة مخفّضة مؤقّتاً.</span><span class=\"lang-en\">Temporarily reduced capacity.</span>", "<span class=\"lang-ar\">سعة كاملة لكنّ Rollback يدويّ أبطأ من Immutable.</span><span class=\"lang-en\">Full capacity but rollback is manually slower than Immutable.</span>", ""],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Immutable<\/strong> هو الأمثل: ينشئ ASG جديد بـ V2، يتحقّق من الصحّة، ثمّ يستبدل الـ ASG القديم. صفر Downtime، سعة كاملة، و Rollback سريع (حذف الـ ASG الجديد فقط). التكلفة أعلى لكن في الإنتاج الحرج تستحقّ.<\/span><span class=\"lang-en\"><strong>Immutable<\/strong> is ideal: creates a new ASG with V2, health-checks, then swaps. Zero downtime, full capacity, fast rollback (kill the new ASG). Higher cost but worth it for critical prod.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Downtime.<\/span><span class=\"lang-en\">Has downtime.<\/span>", "<span class=\"lang-ar\">سعة مخفّضة مؤقّتاً.<\/span><span class=\"lang-en\">Temporarily reduced capacity.<\/span>", "<span class=\"lang-ar\">سعة كاملة لكنّ Rollback يدويّ أبطأ من Immutable.<\/span><span class=\"lang-en\">Full capacity but rollback is manually slower than Immutable.<\/span>", ""],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">أيّ سياسة تُسبّب Downtime؟</span><span class="lang-en">Which policy causes downtime?</span>",
+        question: "<span class=\"lang-ar\">أيّ سياسة تُسبّب Downtime؟<\/span><span class=\"lang-en\">Which policy causes downtime?<\/span>",
         options: [
-          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>",
-          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
-          "<span class="lang-ar">Rolling with additional batches</span><span class="lang-en">Rolling with additional batches</span>",
-          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>"
+          "<span class=\"lang-ar\">All at once<\/span><span class=\"lang-en\">All at once<\/span>",
+          "<span class=\"lang-ar\">Rolling<\/span><span class=\"lang-en\">Rolling<\/span>",
+          "<span class=\"lang-ar\">Rolling with additional batches<\/span><span class=\"lang-en\">Rolling with additional batches<\/span>",
+          "<span class=\"lang-ar\">Immutable<\/span><span class=\"lang-en\">Immutable<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>All at once</strong> تُحدِّث كل Instances دفعة واحدة، فالتطبيق غير متاح خلال التحديث. مناسبة فقط للـ Dev أو عند قبول الانقطاع. Rolling (Reduced capacity) لا يسبّب Downtime بل سعة أقل مؤقّتاً.</span><span class="lang-en"><strong>All at once</strong> updates every instance in one batch — app is offline during the update. Suitable only for dev or when downtime is acceptable. Rolling (reduced capacity) causes no downtime, just less capacity temporarily.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>All at once<\/strong> تُحدِّث كل Instances دفعة واحدة، فالتطبيق غير متاح خلال التحديث. مناسبة فقط للـ Dev أو عند قبول الانقطاع. Rolling (Reduced capacity) لا يسبّب Downtime بل سعة أقل مؤقّتاً.<\/span><span class=\"lang-en\"><strong>All at once<\/strong> updates every instance in one batch — app is offline during the update. Suitable only for dev or when downtime is acceptable. Rolling (reduced capacity) causes no downtime, just less capacity temporarily.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد <strong>Blue/Green Deployment</strong> على Beanstalk. ما الطريقة الصحيحة؟</span><span class="lang-en">A developer wants a <strong>Blue/Green deployment</strong> on Beanstalk. Correct approach?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد <strong>Blue/Green Deployment<\/strong> على Beanstalk. ما الطريقة الصحيحة؟<\/span><span class=\"lang-en\">A developer wants a <strong>Blue/Green deployment<\/strong> on Beanstalk. Correct approach?<\/span>",
         options: [
-          "<span class="lang-ar">استخدام سياسة Blue/Green من Beanstalk مباشرة.</span><span class="lang-en">Use the Blue/Green policy directly in Beanstalk.</span>",
-          "<span class="lang-ar">إنشاء Environment ثانٍ، النشر عليه، ثم Swap URLs.</span><span class="lang-en">Create a second environment, deploy there, then Swap URLs.</span>",
-          "<span class="lang-ar">تعديل ELB يدوياً.</span><span class="lang-en">Manually edit the ELB.</span>",
-          "<span class="lang-ar">استخدام Rolling فقط.</span><span class="lang-en">Use Rolling only.</span>"
+          "<span class=\"lang-ar\">استخدام سياسة Blue/Green من Beanstalk مباشرة.<\/span><span class=\"lang-en\">Use the Blue/Green policy directly in Beanstalk.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Environment ثانٍ، النشر عليه، ثم Swap URLs.<\/span><span class=\"lang-en\">Create a second environment, deploy there, then Swap URLs.<\/span>",
+          "<span class=\"lang-ar\">تعديل ELB يدوياً.<\/span><span class=\"lang-en\">Manually edit the ELB.<\/span>",
+          "<span class=\"lang-ar\">استخدام Rolling فقط.<\/span><span class=\"lang-en\">Use Rolling only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Beanstalk لا يوفّر Blue/Green مباشرة. النمط: أنشئ Environment جديد (green)، انشر عليه V2، اختبر، ثم <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). صفر Downtime، Rollback بسيط بـ Swap مُعاكس.</span><span class="lang-en">Beanstalk doesn't provide Blue/Green directly. Pattern: create a new environment (green), deploy V2, test, then <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). Zero downtime, rollback is a reverse swap.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Beanstalk لا يوفّر Blue/Green مباشرة. النمط: أنشئ Environment جديد (green)، انشر عليه V2، اختبر، ثم <strong>Swap Environment URLs<\/strong> (Route 53 CNAMEs). صفر Downtime، Rollback بسيط بـ Swap مُعاكس.<\/span><span class=\"lang-en\">Beanstalk doesn't provide Blue/Green directly. Pattern: create a new environment (green), deploy V2, test, then <strong>Swap Environment URLs<\/strong> (Route 53 CNAMEs). Zero downtime, rollback is a reverse swap.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يستخدم <strong>.ebextensions</strong> لإنشاء RDS داخل Beanstalk environment للإنتاج. ما المشكلة؟</span><span class="lang-en">A developer uses <strong>.ebextensions</strong> to create an RDS inside a production Beanstalk environment. What's the issue?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يستخدم <strong>.ebextensions<\/strong> لإنشاء RDS داخل Beanstalk environment للإنتاج. ما المشكلة؟<\/span><span class=\"lang-en\">A developer uses <strong>.ebextensions<\/strong> to create an RDS inside a production Beanstalk environment. What's the issue?<\/span>",
         options: [
-          "<span class="lang-ar">لا توجد مشكلة، هذا الحلّ المُعتمَد.</span><span class="lang-en">No issue, this is the standard.</span>",
-          "<span class="lang-ar">عند حذف الـ Environment، RDS يُحذَف مع كل البيانات.</span><span class="lang-en">When the environment is deleted, RDS is deleted with all data.</span>",
-          "<span class="lang-ar">RDS لا يعمل مع .ebextensions.</span><span class="lang-en">RDS doesn't work with .ebextensions.</span>",
-          "<span class="lang-ar">RDS يتطلّب نسخة Beanstalk المدفوعة.</span><span class="lang-en">RDS requires a paid Beanstalk edition.</span>"
+          "<span class=\"lang-ar\">لا توجد مشكلة، هذا الحلّ المُعتمَد.<\/span><span class=\"lang-en\">No issue, this is the standard.<\/span>",
+          "<span class=\"lang-ar\">عند حذف الـ Environment، RDS يُحذَف مع كل البيانات.<\/span><span class=\"lang-en\">When the environment is deleted, RDS is deleted with all data.<\/span>",
+          "<span class=\"lang-ar\">RDS لا يعمل مع .ebextensions.<\/span><span class=\"lang-en\">RDS doesn't work with .ebextensions.<\/span>",
+          "<span class=\"lang-ar\">RDS يتطلّب نسخة Beanstalk المدفوعة.<\/span><span class=\"lang-en\">RDS requires a paid Beanstalk edition.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الموارد المُدارة بـ <span dir="ltr" class="font-mono">.ebextensions</span> جزء من Stack الـ Environment. حذف Environment (أو إعادة إنشاءه) يحذف RDS. لإنتاج، أنشئ RDS <strong>منفصلاً</strong> ومرّر Connection String عبر Environment Variables.</span><span class="lang-en">Resources managed by <span dir="ltr" class="font-mono">.ebextensions</span> are part of the environment's stack. Deleting (or recreating) the env deletes RDS. For prod, create a <strong>separate</strong> RDS and pass its connection string via env vars.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">الموارد المُدارة بـ <span dir=\"ltr\" class=\"font-mono\">.ebextensions<\/span> جزء من Stack الـ Environment. حذف Environment (أو إعادة إنشاءه) يحذف RDS. لإنتاج، أنشئ RDS <strong>منفصلاً<\/strong> ومرّر Connection String عبر Environment Variables.<\/span><span class=\"lang-en\">Resources managed by <span dir=\"ltr\" class=\"font-mono\">.ebextensions<\/span> are part of the environment's stack. Deleting (or recreating) the env deletes RDS. For prod, create a <strong>separate<\/strong> RDS and pass its connection string via env vars.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يستقبل طلبات HTTP سريعة لكنّ بعضها يتطلّب معالجة طويلة (مثل تصدير تقارير PDF). ما المعماريّة المناسبة؟</span><span class="lang-en">An app receives fast HTTP requests but some need long processing (e.g. PDF report export). Right architecture?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يستقبل طلبات HTTP سريعة لكنّ بعضها يتطلّب معالجة طويلة (مثل تصدير تقارير PDF). ما المعماريّة المناسبة؟<\/span><span class=\"lang-en\">An app receives fast HTTP requests but some need long processing (e.g. PDF report export). Right architecture?<\/span>",
         options: [
-          "<span class="lang-ar">Web Server Tier واحد فقط.</span><span class="lang-en">A single Web Server Tier.</span>",
-          "<span class="lang-ar">Web Server Tier لاستقبال الطلبات + Worker Tier مع SQS للمعالجة الطويلة.</span><span class="lang-en">Web Server Tier for requests + Worker Tier with SQS for long work.</span>",
-          "<span class="lang-ar">Worker Tier فقط.</span><span class="lang-en">Worker Tier only.</span>",
-          "<span class="lang-ar">Lambda فقط.</span><span class="lang-en">Lambda only.</span>"
+          "<span class=\"lang-ar\">Web Server Tier واحد فقط.<\/span><span class=\"lang-en\">A single Web Server Tier.<\/span>",
+          "<span class=\"lang-ar\">Web Server Tier لاستقبال الطلبات + Worker Tier مع SQS للمعالجة الطويلة.<\/span><span class=\"lang-en\">Web Server Tier for requests + Worker Tier with SQS for long work.<\/span>",
+          "<span class=\"lang-ar\">Worker Tier فقط.<\/span><span class=\"lang-en\">Worker Tier only.<\/span>",
+          "<span class=\"lang-ar\">Lambda فقط.<\/span><span class=\"lang-en\">Lambda only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">النمط المعياريّ: <strong>Web Tier</strong> يستقبل طلبات HTTP ويرسل رسائل SQS للمعالجة الثقيلة. <strong>Worker Tier</strong> يسحب الرسائل من SQS ويعالجها. Worker Tier يتسع تلقائياً بناءً على عمق Queue.</span><span class="lang-en">Canonical pattern: <strong>Web Tier</strong> accepts HTTP requests and pushes SQS messages for heavy work. <strong>Worker Tier</strong> polls SQS and processes. Worker Tier scales on queue depth.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">النمط المعياريّ: <strong>Web Tier<\/strong> يستقبل طلبات HTTP ويرسل رسائل SQS للمعالجة الثقيلة. <strong>Worker Tier<\/strong> يسحب الرسائل من SQS ويعالجها. Worker Tier يتسع تلقائياً بناءً على عمق Queue.<\/span><span class=\"lang-en\">Canonical pattern: <strong>Web Tier<\/strong> accepts HTTP requests and pushes SQS messages for heavy work. <strong>Worker Tier<\/strong> polls SQS and processes. Worker Tier scales on queue depth.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">فريق ينشر إصداراً جديداً بسياسة <strong>Rolling</strong>، batch size = ٢٥٪، ٤ خوادم. ما الذي يحدث؟</span><span class="lang-en">A team deploys with <strong>Rolling</strong>, batch size 25%, 4 instances. What happens?</span>",
+        question: "<span class=\"lang-ar\">فريق ينشر إصداراً جديداً بسياسة <strong>Rolling<\/strong>، batch size = ٢٥٪، ٤ خوادم. ما الذي يحدث؟<\/span><span class=\"lang-en\">A team deploys with <strong>Rolling<\/strong>, batch size 25%, 4 instances. What happens?<\/span>",
         options: [
-          "<span class="lang-ar">كل الخوادم تتوقف في آن.</span><span class="lang-en">All instances stop at once.</span>",
-          "<span class="lang-ar">الـ Beanstalk يحدّث خادماً واحداً (٢٥٪) في كل batch، السعة تتقلّص مؤقّتاً.</span><span class="lang-en">Beanstalk updates 1 instance (25%) per batch; capacity is temporarily reduced.</span>",
-          "<span class="lang-ar">يُنشئ ٤ خوادم جديدة أوّلاً.</span><span class="lang-en">Creates 4 new instances first.</span>",
-          "<span class="lang-ar">يتطلّب Downtime.</span><span class="lang-en">Requires downtime.</span>"
+          "<span class=\"lang-ar\">كل الخوادم تتوقف في آن.<\/span><span class=\"lang-en\">All instances stop at once.<\/span>",
+          "<span class=\"lang-ar\">الـ Beanstalk يحدّث خادماً واحداً (٢٥٪) في كل batch، السعة تتقلّص مؤقّتاً.<\/span><span class=\"lang-en\">Beanstalk updates 1 instance (25%) per batch; capacity is temporarily reduced.<\/span>",
+          "<span class=\"lang-ar\">يُنشئ ٤ خوادم جديدة أوّلاً.<\/span><span class=\"lang-en\">Creates 4 new instances first.<\/span>",
+          "<span class=\"lang-ar\">يتطلّب Downtime.<\/span><span class=\"lang-en\">Requires downtime.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Rolling</strong> لا يُنشئ Instances جديدة — يُحدّث القائمة batch by batch. في كل batch، Instances تلك الدفعة غير متاحة مؤقّتاً، فالسعة تنخفض من ٤ إلى ٣ (٧٥٪) حتى يكتمل الـ batch ثمّ ينتقل للتالية.</span><span class="lang-en"><strong>Rolling</strong> doesn't create new instances — it updates existing ones batch by batch. During each batch those instances are unavailable, so capacity drops from 4 to 3 (75%) until the batch completes, then moves on.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Rolling<\/strong> لا يُنشئ Instances جديدة — يُحدّث القائمة batch by batch. في كل batch، Instances تلك الدفعة غير متاحة مؤقّتاً، فالسعة تنخفض من ٤ إلى ٣ (٧٥٪) حتى يكتمل الـ batch ثمّ ينتقل للتالية.<\/span><span class=\"lang-en\"><strong>Rolling<\/strong> doesn't create new instances — it updates existing ones batch by batch. During each batch those instances are unavailable, so capacity drops from 4 to 3 (75%) until the batch completes, then moves on.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">أيّ امتداد ملفّ ومجلد مطلوبان لتخصيص Beanstalk عبر config files؟</span><span class="lang-en">Which folder + file extension is needed to customize Beanstalk via config files?</span>",
+        question: "<span class=\"lang-ar\">أيّ امتداد ملفّ ومجلد مطلوبان لتخصيص Beanstalk عبر config files؟<\/span><span class=\"lang-en\">Which folder + file extension is needed to customize Beanstalk via config files?<\/span>",
         options: [
-          "<span class="lang-ar">.elasticbeanstalk/ مع .yml</span><span class="lang-en">.elasticbeanstalk/ with .yml</span>",
-          "<span class="lang-ar">.ebextensions/ مع .config</span><span class="lang-en">.ebextensions/ with .config</span>",
-          "<span class="lang-ar">ebsettings/ مع .json</span><span class="lang-en">ebsettings/ with .json</span>",
-          "<span class="lang-ar">.eb/ مع .env</span><span class="lang-en">.eb/ with .env</span>"
+          "<span class=\"lang-ar\">.elasticbeanstalk/ مع .yml<\/span><span class=\"lang-en\">.elasticbeanstalk/ with .yml<\/span>",
+          "<span class=\"lang-ar\">.ebextensions/ مع .config<\/span><span class=\"lang-en\">.ebextensions/ with .config<\/span>",
+          "<span class=\"lang-ar\">ebsettings/ مع .json<\/span><span class=\"lang-en\">ebsettings/ with .json<\/span>",
+          "<span class=\"lang-ar\">.eb/ مع .env<\/span><span class=\"lang-en\">.eb/ with .env<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">المجلّد المطلوب هو <span dir="ltr" class="font-mono">.ebextensions/</span> في جذر ZIP، والملفات بامتداد <span dir="ltr" class="font-mono">.config</span> بصيغة YAML أو JSON. داخلها: <span dir="ltr" class="font-mono">option_settings</span> و <span dir="ltr" class="font-mono">Resources</span> و <span dir="ltr" class="font-mono">files</span> و <span dir="ltr" class="font-mono">commands</span>.</span><span class="lang-en">Folder: <span dir="ltr" class="font-mono">.ebextensions/</span> in the ZIP root; files end with <span dir="ltr" class="font-mono">.config</span> in YAML or JSON. Inside: <span dir="ltr" class="font-mono">option_settings</span>, <span dir="ltr" class="font-mono">Resources</span>, <span dir="ltr" class="font-mono">files</span>, <span dir="ltr" class="font-mono">commands</span>.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">المجلّد المطلوب هو <span dir=\"ltr\" class=\"font-mono\">.ebextensions/<\/span> في جذر ZIP، والملفات بامتداد <span dir=\"ltr\" class=\"font-mono\">.config<\/span> بصيغة YAML أو JSON. داخلها: <span dir=\"ltr\" class=\"font-mono\">option_settings<\/span> و <span dir=\"ltr\" class=\"font-mono\">Resources<\/span> و <span dir=\"ltr\" class=\"font-mono\">files<\/span> و <span dir=\"ltr\" class=\"font-mono\">commands<\/span>.<\/span><span class=\"lang-en\">Folder: <span dir=\"ltr\" class=\"font-mono\">.ebextensions/<\/span> in the ZIP root; files end with <span dir=\"ltr\" class=\"font-mono\">.config<\/span> in YAML or JSON. Inside: <span dir=\"ltr\" class=\"font-mono\">option_settings<\/span>, <span dir=\"ltr\" class=\"font-mono\">Resources<\/span>, <span dir=\"ltr\" class=\"font-mono\">files<\/span>, <span dir=\"ltr\" class=\"font-mono\">commands<\/span>.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تغيير نوع ELB من Classic إلى Application على Beanstalk environment قائم. ما الحل؟</span><span class="lang-en">A developer wants to change ELB type from Classic to Application on an existing Beanstalk env. Solution?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تغيير نوع ELB من Classic إلى Application على Beanstalk environment قائم. ما الحل؟<\/span><span class=\"lang-en\">A developer wants to change ELB type from Classic to Application on an existing Beanstalk env. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">تعديل الإعدادات من Console مباشرة.</span><span class="lang-en">Edit settings in Console directly.</span>",
-          "<span class="lang-ar">لا يمكن تغيير النوع. أنشئ Environment جديد ثمّ قم بـ CNAME Swap.</span><span class="lang-en">Cannot change type. Create a new env, then do a CNAME swap.</span>",
-          "<span class="lang-ar">تحديث .ebextensions.</span><span class="lang-en">Update .ebextensions.</span>",
-          "<span class="lang-ar">eb config set --lb=alb.</span><span class="lang-en">eb config set --lb=alb.</span>"
+          "<span class=\"lang-ar\">تعديل الإعدادات من Console مباشرة.<\/span><span class=\"lang-en\">Edit settings in Console directly.<\/span>",
+          "<span class=\"lang-ar\">لا يمكن تغيير النوع. أنشئ Environment جديد ثمّ قم بـ CNAME Swap.<\/span><span class=\"lang-en\">Cannot change type. Create a new env, then do a CNAME swap.<\/span>",
+          "<span class=\"lang-ar\">تحديث .ebextensions.<\/span><span class=\"lang-en\">Update .ebextensions.<\/span>",
+          "<span class=\"lang-ar\">eb config set --lb=alb.<\/span><span class=\"lang-en\">eb config set --lb=alb.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">نوع ELB (ALB، NLB، CLB) <strong>ثابت بعد إنشاء Environment</strong>. يمكن تعديل الإعدادات الداخليّة للـ ELB لكن ليس نوعه. الحل: Environment جديد بنوع ELB المطلوب، نشر التطبيق، ثمّ Swap.</span><span class="lang-en">ELB type (ALB, NLB, CLB) is <strong>locked at env creation</strong>. You can change ELB internals, not its type. Solution: new env with the desired ELB type, deploy, then swap.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">نوع ELB (ALB، NLB، CLB) <strong>ثابت بعد إنشاء Environment<\/strong>. يمكن تعديل الإعدادات الداخليّة للـ ELB لكن ليس نوعه. الحل: Environment جديد بنوع ELB المطلوب، نشر التطبيق، ثمّ Swap.<\/span><span class=\"lang-en\">ELB type (ALB, NLB, CLB) is <strong>locked at env creation<\/strong>. You can change ELB internals, not its type. Solution: new env with the desired ELB type, deploy, then swap.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q9",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الآتي صحيح عن Elastic Beanstalk؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about Elastic Beanstalk? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الآتي صحيح عن Elastic Beanstalk؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which are TRUE about Elastic Beanstalk? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">خدمة Beanstalk مجانيّة — تدفع فقط مقابل الموارد الأساسيّة.</span><span class="lang-en">Beanstalk service is free — you pay only for underlying resources.</span>",
-          "<span class="lang-ar">Beanstalk يستخدم CloudFormation خلف الكواليس.</span><span class="lang-en">Beanstalk uses CloudFormation under the hood.</span>",
-          "<span class="lang-ar">Beanstalk مخصّص لـ Lambda فقط.</span><span class="lang-en">Beanstalk is only for Lambda.</span>",
-          "<span class="lang-ar">Worker Tier يتسع بناءً على رسائل SQS.</span><span class="lang-en">Worker tier scales based on SQS messages.</span>"
+          "<span class=\"lang-ar\">خدمة Beanstalk مجانيّة — تدفع فقط مقابل الموارد الأساسيّة.<\/span><span class=\"lang-en\">Beanstalk service is free — you pay only for underlying resources.<\/span>",
+          "<span class=\"lang-ar\">Beanstalk يستخدم CloudFormation خلف الكواليس.<\/span><span class=\"lang-en\">Beanstalk uses CloudFormation under the hood.<\/span>",
+          "<span class=\"lang-ar\">Beanstalk مخصّص لـ Lambda فقط.<\/span><span class=\"lang-en\">Beanstalk is only for Lambda.<\/span>",
+          "<span class=\"lang-ar\">Worker Tier يتسع بناءً على رسائل SQS.<\/span><span class=\"lang-en\">Worker tier scales based on SQS messages.<\/span>"
         ],
         correct: [0,1,3],
-        explanation: "<span class="lang-ar">Beanstalk يعمل مع EC2 (ليس Lambda)، يدعم عدّة منصّات (Java، Node.js، Python، Docker...). مجانيّ (تدفع للموارد)، يبني CloudFormation Stack خلف الكواليس، و Worker Tier يتسع على عمق SQS Queue.</span><span class="lang-en">Beanstalk runs on EC2 (not Lambda), supports multiple platforms (Java, Node.js, Python, Docker...). Service itself is free (pay for resources), builds a CloudFormation stack, and Worker Tier scales on SQS queue depth.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Beanstalk يعمل مع EC2 (ليس Lambda)، يدعم عدّة منصّات (Java، Node.js، Python، Docker...). مجانيّ (تدفع للموارد)، يبني CloudFormation Stack خلف الكواليس، و Worker Tier يتسع على عمق SQS Queue.<\/span><span class=\"lang-en\">Beanstalk runs on EC2 (not Lambda), supports multiple platforms (Java, Node.js, Python, Docker...). Service itself is free (pay for resources), builds a CloudFormation stack, and Worker Tier scales on SQS queue depth.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">فريق يواجه خطأ <em>"No space left on application versions"</em> عند النشر. ما السبب والحل؟</span><span class="lang-en">A team gets <em>"No space left on application versions"</em> on deploy. Cause & fix?</span>",
+        question: "<span class=\"lang-ar\">فريق يواجه خطأ <em>\"No space left on application versions\"<\/em> عند النشر. ما السبب والحل؟<\/span><span class=\"lang-en\">A team gets <em>\"No space left on application versions\"<\/em> on deploy. Cause & fix?<\/span>",
         options: [
-          "<span class="lang-ar">EC2 disk full، وسّع EBS.</span><span class="lang-en">EC2 disk full; expand EBS.</span>",
-          "<span class="lang-ar">Beanstalk بلغ حد ١٠٠٠ Application Version؛ فعّل Lifecycle Policy.</span><span class="lang-en">Beanstalk hit the 1000 Application Version limit; enable a lifecycle policy.</span>",
-          "<span class="lang-ar">Environment في حالة خطأ، أعد إنشاءه.</span><span class="lang-en">Env is in error state; recreate.</span>",
-          "<span class="lang-ar">Region ممتلئة.</span><span class="lang-en">Region is full.</span>"
+          "<span class=\"lang-ar\">EC2 disk full، وسّع EBS.<\/span><span class=\"lang-en\">EC2 disk full; expand EBS.<\/span>",
+          "<span class=\"lang-ar\">Beanstalk بلغ حد ١٠٠٠ Application Version؛ فعّل Lifecycle Policy.<\/span><span class=\"lang-en\">Beanstalk hit the 1000 Application Version limit; enable a lifecycle policy.<\/span>",
+          "<span class=\"lang-ar\">Environment في حالة خطأ، أعد إنشاءه.<\/span><span class=\"lang-en\">Env is in error state; recreate.<\/span>",
+          "<span class=\"lang-ar\">Region ممتلئة.<\/span><span class=\"lang-en\">Region is full.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Beanstalk يخزّن حد أقصى <strong>١٠٠٠ Application Version</strong>. عند البلوغ، لا يمكن النشر. الحل: <strong>Lifecycle Policy</strong> لحذف النسخ القديمة بالوقت أو بالعدد (لا تُحذَف النسخة المستخدمة حاليّاً). اختياريّاً: احتفظ بـ Source Bundle في S3.</span><span class="lang-en">Beanstalk caps at <strong>1000 Application Versions</strong>. When reached, deploys fail. Fix: a <strong>lifecycle policy</strong> to phase out old versions by age or count (currently used versions aren't deleted). Optional: keep the source bundle in S3.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Beanstalk يخزّن حد أقصى <strong>١٠٠٠ Application Version<\/strong>. عند البلوغ، لا يمكن النشر. الحل: <strong>Lifecycle Policy<\/strong> لحذف النسخ القديمة بالوقت أو بالعدد (لا تُحذَف النسخة المستخدمة حاليّاً). اختياريّاً: احتفظ بـ Source Bundle في S3.<\/span><span class=\"lang-en\">Beanstalk caps at <strong>1000 Application Versions<\/strong>. When reached, deploys fail. Fix: a <strong>lifecycle policy<\/strong> to phase out old versions by age or count (currently used versions aren't deleted). Optional: keep the source bundle in S3.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">أيّ سياسة توفّر الـ <strong>Canary testing</strong> (إرسال ٪ صغير من الترافيك للنسخة الجديدة مع Rollback تلقائيّ)؟</span><span class="lang-en">Which Beanstalk policy provides <strong>Canary testing</strong> (small % traffic to new version with auto-rollback)?</span>",
+        question: "<span class=\"lang-ar\">أيّ سياسة توفّر الـ <strong>Canary testing<\/strong> (إرسال ٪ صغير من الترافيك للنسخة الجديدة مع Rollback تلقائيّ)؟<\/span><span class=\"lang-en\">Which Beanstalk policy provides <strong>Canary testing<\/strong> (small % traffic to new version with auto-rollback)?<\/span>",
         options: [
-          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>",
-          "<span class="lang-ar">Traffic Splitting</span><span class="lang-en">Traffic Splitting</span>",
-          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
-          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>"
+          "<span class=\"lang-ar\">Immutable<\/span><span class=\"lang-en\">Immutable<\/span>",
+          "<span class=\"lang-ar\">Traffic Splitting<\/span><span class=\"lang-en\">Traffic Splitting<\/span>",
+          "<span class=\"lang-ar\">Rolling<\/span><span class=\"lang-en\">Rolling<\/span>",
+          "<span class=\"lang-ar\">All at once<\/span><span class=\"lang-en\">All at once<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Traffic Splitting</strong> هو Canary Testing في Beanstalk: ينشر V2 على ASG مؤقّت ويُحوّل ٪ صغير من الترافيك (مثل ١٠٪). يراقب صحّة النشر، عند الفشل Rollback تلقائيّ سريع. Immutable ينشر بالكامل ثمّ يستبدل.</span><span class="lang-en"><strong>Traffic Splitting</strong> is Beanstalk's canary: deploys V2 to a temporary ASG and routes a small % (e.g. 10%) of traffic. Monitors health; on failure, fast auto-rollback. Immutable deploys fully, then swaps.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Traffic Splitting<\/strong> هو Canary Testing في Beanstalk: ينشر V2 على ASG مؤقّت ويُحوّل ٪ صغير من الترافيك (مثل ١٠٪). يراقب صحّة النشر، عند الفشل Rollback تلقائيّ سريع. Immutable ينشر بالكامل ثمّ يستبدل.<\/span><span class=\"lang-en\"><strong>Traffic Splitting<\/strong> is Beanstalk's canary: deploys V2 to a temporary ASG and routes a small % (e.g. 10%) of traffic. Monitors health; on failure, fast auto-rollback. Immutable deploys fully, then swaps.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد اختبار بيئة مطابقة للإنتاج قبل Rollout. ما الميزة المناسبة؟</span><span class="lang-en">A developer wants a production-identical test env before rollout. Best feature?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد اختبار بيئة مطابقة للإنتاج قبل Rollout. ما الميزة المناسبة؟<\/span><span class=\"lang-en\">A developer wants a production-identical test env before rollout. Best feature?<\/span>",
         options: [
-          "<span class="lang-ar">.ebextensions</span><span class="lang-en">.ebextensions</span>",
-          "<span class="lang-ar">Cloning</span><span class="lang-en">Cloning</span>",
-          "<span class="lang-ar">Lifecycle Policy</span><span class="lang-en">Lifecycle Policy</span>",
-          "<span class="lang-ar">Traffic Splitting</span><span class="lang-en">Traffic Splitting</span>"
+          "<span class=\"lang-ar\">.ebextensions<\/span><span class=\"lang-en\">.ebextensions<\/span>",
+          "<span class=\"lang-ar\">Cloning<\/span><span class=\"lang-en\">Cloning<\/span>",
+          "<span class=\"lang-ar\">Lifecycle Policy<\/span><span class=\"lang-en\">Lifecycle Policy<\/span>",
+          "<span class=\"lang-ar\">Traffic Splitting<\/span><span class=\"lang-en\">Traffic Splitting<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Cloning</strong> يُنشئ Environment جديد بنفس إعدادات الأصل (Load Balancer config، Environment Variables، ASG settings، نوع RDS — <u>لكن البيانات لا تُنسَخ</u>). مثاليّ لاختبار تغيير في بيئة مطابقة.</span><span class="lang-en"><strong>Cloning</strong> creates a new env with identical settings to the source (LB config, env vars, ASG settings, RDS type — <u>but data isn't copied</u>). Ideal for testing a change in a mirror env.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Cloning<\/strong> يُنشئ Environment جديد بنفس إعدادات الأصل (Load Balancer config، Environment Variables، ASG settings، نوع RDS — <u>لكن البيانات لا تُنسَخ<\/u>). مثاليّ لاختبار تغيير في بيئة مطابقة.<\/span><span class=\"lang-en\"><strong>Cloning<\/strong> creates a new env with identical settings to the source (LB config, env vars, ASG settings, RDS type — <u>but data isn't copied<\/u>). Ideal for testing a change in a mirror env.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

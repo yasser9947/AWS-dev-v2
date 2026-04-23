@@ -874,173 +874,173 @@ curl -H "X-aws-ec2-metadata-token: $TOKEN" \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java يعمل على EC2 مرفق به IAM Role يعطي صلاحية قراءة على bucket واحد. لكن التطبيق يقرأ من كلّ الـ buckets. ما السبب الأرجح؟</span><span class="lang-en">A Java app runs on EC2 with an IAM Role granting read on one bucket. Yet the app reads from all buckets. Most likely cause?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java يعمل على EC2 مرفق به IAM Role يعطي صلاحية قراءة على bucket واحد. لكن التطبيق يقرأ من كلّ الـ buckets. ما السبب الأرجح؟<\/span><span class=\"lang-en\">A Java app runs on EC2 with an IAM Role granting read on one bucket. Yet the app reads from all buckets. Most likely cause?<\/span>",
         options: [
-          "<span class="lang-ar">الـ IAM Role غير مفعّل.</span><span class="lang-en">The IAM Role is disabled.</span>",
-          "<span class="lang-ar">متغيّرات البيئة تحتوي على مفاتيح IAM User لها صلاحيات أوسع، وأولويّتها أعلى في سلسلة البحث.</span><span class="lang-en">Env vars hold IAM User keys with wider perms, higher in the credentials chain.</span>",
-          "<span class="lang-ar">IMDS معطّل على الخادم.</span><span class="lang-en">IMDS is disabled on the instance.</span>",
-          "<span class="lang-ar">S3 لا يحترم الـ IAM Roles.</span><span class="lang-en">S3 doesn't honor IAM Roles.</span>"
+          "<span class=\"lang-ar\">الـ IAM Role غير مفعّل.<\/span><span class=\"lang-en\">The IAM Role is disabled.<\/span>",
+          "<span class=\"lang-ar\">متغيّرات البيئة تحتوي على مفاتيح IAM User لها صلاحيات أوسع، وأولويّتها أعلى في سلسلة البحث.<\/span><span class=\"lang-en\">Env vars hold IAM User keys with wider perms, higher in the credentials chain.<\/span>",
+          "<span class=\"lang-ar\">IMDS معطّل على الخادم.<\/span><span class=\"lang-en\">IMDS is disabled on the instance.<\/span>",
+          "<span class=\"lang-ar\">S3 لا يحترم الـ IAM Roles.<\/span><span class=\"lang-en\">S3 doesn't honor IAM Roles.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">سلسلة البحث: System Properties → Env Vars → Profile File → ECS → Instance Profile. متغيّرات البيئة أعلى من Instance Profile، فتسبق الدور. الحلّ: حذف متغيّرات البيئة أو استخدام named profile.</span><span class="lang-en">Chain order: System Props → Env Vars → Profile → ECS → Instance Profile. Env vars outrank instance profile. Fix: remove env vars or use a named profile.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لو كان كذلك لفشل كلّ وصول.</span><span class=\"lang-en\">Then all access would fail.</span>", "", "<span class=\"lang-ar\">لو كان IMDS معطّلاً لما عمل التطبيق أصلاً لأنّه لن يحصل على أيّ صلاحيات.</span><span class=\"lang-en\">Without IMDS the app would get no credentials at all.</span>", "<span class=\"lang-ar\">S3 يحترم أيّ principal موقّع.</span><span class=\"lang-en\">S3 honors any signed principal.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">سلسلة البحث: System Properties → Env Vars → Profile File → ECS → Instance Profile. متغيّرات البيئة أعلى من Instance Profile، فتسبق الدور. الحلّ: حذف متغيّرات البيئة أو استخدام named profile.<\/span><span class=\"lang-en\">Chain order: System Props → Env Vars → Profile → ECS → Instance Profile. Env vars outrank instance profile. Fix: remove env vars or use a named profile.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لو كان كذلك لفشل كلّ وصول.<\/span><span class=\"lang-en\">Then all access would fail.<\/span>", "", "<span class=\"lang-ar\">لو كان IMDS معطّلاً لما عمل التطبيق أصلاً لأنّه لن يحصل على أيّ صلاحيات.<\/span><span class=\"lang-en\">Without IMDS the app would get no credentials at all.<\/span>", "<span class=\"lang-ar\">S3 يحترم أيّ principal موقّع.<\/span><span class=\"lang-en\">S3 honors any signed principal.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق الأمنيّ الأساسيّ بين IMDSv1 و IMDSv2؟</span><span class="lang-en">Main security difference between IMDSv1 and IMDSv2?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق الأمنيّ الأساسيّ بين IMDSv1 و IMDSv2؟<\/span><span class=\"lang-en\">Main security difference between IMDSv1 and IMDSv2?<\/span>",
         options: [
-          "<span class="lang-ar">IMDSv2 يدعم IPv6 فقط.</span><span class="lang-en">IMDSv2 supports only IPv6.</span>",
-          "<span class="lang-ar">IMDSv2 يتطلّب Session Token عبر PUT أوّلاً، ممّا يحظر هجمات SSRF.</span><span class="lang-en">IMDSv2 requires a session token via PUT first, blocking SSRF attacks.</span>",
-          "<span class="lang-ar">IMDSv1 أسرع.</span><span class="lang-en">IMDSv1 is faster.</span>",
-          "<span class="lang-ar">IMDSv2 يستخدم عنوان IP مختلف.</span><span class="lang-en">IMDSv2 uses a different IP.</span>"
+          "<span class=\"lang-ar\">IMDSv2 يدعم IPv6 فقط.<\/span><span class=\"lang-en\">IMDSv2 supports only IPv6.<\/span>",
+          "<span class=\"lang-ar\">IMDSv2 يتطلّب Session Token عبر PUT أوّلاً، ممّا يحظر هجمات SSRF.<\/span><span class=\"lang-en\">IMDSv2 requires a session token via PUT first, blocking SSRF attacks.<\/span>",
+          "<span class=\"lang-ar\">IMDSv1 أسرع.<\/span><span class=\"lang-en\">IMDSv1 is faster.<\/span>",
+          "<span class=\"lang-ar\">IMDSv2 يستخدم عنوان IP مختلف.<\/span><span class=\"lang-en\">IMDSv2 uses a different IP.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">IMDSv2 يضيف خطوة PUT للحصول على token صالحاً لمدّة محدودة، ثم يُرسَل في header مع GET. ثغرات SSRF عادة تدعم GET فقط، فلا يمكنها الحصول على الـ token ابتداءً. هذا يقضي على فئة كاملة من الهجمات.</span><span class="lang-en">IMDSv2 adds a PUT step for a time-limited token, then sent in a header with GET. SSRF vulns usually only allow GET, so they cannot get the token in the first place. Eliminates an entire attack class.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">IMDSv2 يضيف خطوة PUT للحصول على token صالحاً لمدّة محدودة، ثم يُرسَل في header مع GET. ثغرات SSRF عادة تدعم GET فقط، فلا يمكنها الحصول على الـ token ابتداءً. هذا يقضي على فئة كاملة من الهجمات.<\/span><span class=\"lang-en\">IMDSv2 adds a PUT step for a time-limited token, then sent in a header with GET. SSRF vulns usually only allow GET, so they cannot get the token in the first place. Eliminates an entire attack class.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "multi",
-        question: "<span class="lang-ar">متى يجب تطبيق Exponential Backoff؟ اختر كلّ ما ينطبق.</span><span class="lang-en">When should you apply exponential backoff? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">متى يجب تطبيق Exponential Backoff؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">When should you apply exponential backoff? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">على أخطاء ThrottlingException (429).</span><span class="lang-en">On ThrottlingException (429) errors.</span>",
-          "<span class="lang-ar">على أخطاء 5xx من الخادم.</span><span class="lang-en">On 5xx server errors.</span>",
-          "<span class="lang-ar">على أخطاء AccessDenied (403).</span><span class="lang-en">On AccessDenied (403) errors.</span>",
-          "<span class="lang-ar">على أخطاء ValidationException (400).</span><span class="lang-en">On ValidationException (400) errors.</span>"
+          "<span class=\"lang-ar\">على أخطاء ThrottlingException (429).<\/span><span class=\"lang-en\">On ThrottlingException (429) errors.<\/span>",
+          "<span class=\"lang-ar\">على أخطاء 5xx من الخادم.<\/span><span class=\"lang-en\">On 5xx server errors.<\/span>",
+          "<span class=\"lang-ar\">على أخطاء AccessDenied (403).<\/span><span class=\"lang-en\">On AccessDenied (403) errors.<\/span>",
+          "<span class=\"lang-ar\">على أخطاء ValidationException (400).<\/span><span class=\"lang-en\">On ValidationException (400) errors.<\/span>"
         ],
         correct: [0,1],
-        explanation: "<span class="lang-ar">backoff للأخطاء المؤقّتة: 429 (throttling) و 5xx (مشاكل خادم). أخطاء 4xx (403، 400) مشاكل في الطلب نفسه — إعادة المحاولة لن تغيّر شيئاً.</span><span class="lang-en">Backoff is for transient errors: 429 (throttling) and 5xx (server issues). 4xx (403, 400) are request-side issues — retries won't help.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">backoff للأخطاء المؤقّتة: 429 (throttling) و 5xx (مشاكل خادم). أخطاء 4xx (403، 400) مشاكل في الطلب نفسه — إعادة المحاولة لن تغيّر شيئاً.<\/span><span class=\"lang-en\">Backoff is for transient errors: 429 (throttling) and 5xx (server issues). 4xx (403, 400) are request-side issues — retries won't help.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">أفضل طريقة لتمرير صلاحيات AWS إلى حاوية ECS تعمل على Fargate؟</span><span class="lang-en">Best way to pass AWS credentials to an ECS container running on Fargate?</span>",
+        question: "<span class=\"lang-ar\">أفضل طريقة لتمرير صلاحيات AWS إلى حاوية ECS تعمل على Fargate؟<\/span><span class=\"lang-en\">Best way to pass AWS credentials to an ECS container running on Fargate?<\/span>",
         options: [
-          "<span class="lang-ar">متغيّرات بيئة في تعريف الحاوية (Task Definition).</span><span class="lang-en">Env vars in Task Definition.</span>",
-          "<span class="lang-ar">ملفّ مشفّر داخل الصورة.</span><span class="lang-en">Encrypted file in the image.</span>",
-          "<span class="lang-ar">Task Role (IAM Role مرفق بالـ Task)، والـ SDK يلتقطه من container credentials provider.</span><span class="lang-en">Task Role (IAM Role attached to the Task); SDK picks it via container credentials provider.</span>",
-          "<span class="lang-ar">مشاركة credentials file مع host machine.</span><span class="lang-en">Share credentials file with host machine.</span>"
+          "<span class=\"lang-ar\">متغيّرات بيئة في تعريف الحاوية (Task Definition).<\/span><span class=\"lang-en\">Env vars in Task Definition.<\/span>",
+          "<span class=\"lang-ar\">ملفّ مشفّر داخل الصورة.<\/span><span class=\"lang-en\">Encrypted file in the image.<\/span>",
+          "<span class=\"lang-ar\">Task Role (IAM Role مرفق بالـ Task)، والـ SDK يلتقطه من container credentials provider.<\/span><span class=\"lang-en\">Task Role (IAM Role attached to the Task); SDK picks it via container credentials provider.<\/span>",
+          "<span class=\"lang-ar\">مشاركة credentials file مع host machine.<\/span><span class=\"lang-en\">Share credentials file with host machine.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">Task Role هو المكافئ لـ Instance Profile لكن لمهام ECS. الـ SDK يقرأه من endpoint خاصّ بالحاوية <span dir="ltr" class="font-mono">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI</span>. صلاحياته مؤقّتة ومدارة تلقائياً.</span><span class="lang-en">Task Role is the ECS equivalent of an Instance Profile. The SDK reads it from <span dir="ltr" class="font-mono">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI</span>. Temporary, auto-managed.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ — أيّ من يرى التعريف يحصل على المفاتيح.</span><span class=\"lang-en\">Security risk — anyone viewing the definition sees the keys.</span>", "<span class=\"lang-ar\">الصلاحيات تُسرَّب عند مشاركة الصورة.</span><span class=\"lang-en\">Keys leak if the image is shared.</span>", "", "<span class=\"lang-ar\">Fargate لا يتيح الوصول للـ host.</span><span class=\"lang-en\">Fargate hides host access.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Task Role هو المكافئ لـ Instance Profile لكن لمهام ECS. الـ SDK يقرأه من endpoint خاصّ بالحاوية <span dir=\"ltr\" class=\"font-mono\">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI<\/span>. صلاحياته مؤقّتة ومدارة تلقائياً.<\/span><span class=\"lang-en\">Task Role is the ECS equivalent of an Instance Profile. The SDK reads it from <span dir=\"ltr\" class=\"font-mono\">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI<\/span>. Temporary, auto-managed.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ — أيّ من يرى التعريف يحصل على المفاتيح.<\/span><span class=\"lang-en\">Security risk — anyone viewing the definition sees the keys.<\/span>", "<span class=\"lang-ar\">الصلاحيات تُسرَّب عند مشاركة الصورة.<\/span><span class=\"lang-en\">Keys leak if the image is shared.<\/span>", "", "<span class=\"lang-ar\">Fargate لا يتيح الوصول للـ host.<\/span><span class=\"lang-en\">Fargate hides host access.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot يستدعي DynamoDB من خلال Java SDK v2 ويحصل على خطأ <span dir="ltr" class="font-mono">ThrottlingException</span> بشكل متقطّع. أفضل إجراء أوّل؟</span><span class="lang-en">A Spring Boot app hits DynamoDB via Java SDK v2 and intermittently gets <span dir="ltr" class="font-mono">ThrottlingException</span>. Best first action?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot يستدعي DynamoDB من خلال Java SDK v2 ويحصل على خطأ <span dir=\"ltr\" class=\"font-mono\">ThrottlingException<\/span> بشكل متقطّع. أفضل إجراء أوّل؟<\/span><span class=\"lang-en\">A Spring Boot app hits DynamoDB via Java SDK v2 and intermittently gets <span dir=\"ltr\" class=\"font-mono\">ThrottlingException<\/span>. Best first action?<\/span>",
         options: [
-          "<span class="lang-ar">فتح تذكرة دعم لرفع الحدّ مباشرة.</span><span class="lang-en">Open a support ticket to raise the limit immediately.</span>",
-          "<span class="lang-ar">التأكّد من أنّ السياسة الافتراضية للـ retry مع exponential backoff مفعّلة، وضبط numRetries إذا لزم.</span><span class="lang-en">Ensure the default retry policy with exponential backoff is active, tune numRetries if needed.</span>",
-          "<span class="lang-ar">التبديل إلى boto3.</span><span class="lang-en">Switch to boto3.</span>",
-          "<span class="lang-ar">تغيير الـ Region.</span><span class="lang-en">Change region.</span>"
+          "<span class=\"lang-ar\">فتح تذكرة دعم لرفع الحدّ مباشرة.<\/span><span class=\"lang-en\">Open a support ticket to raise the limit immediately.<\/span>",
+          "<span class=\"lang-ar\">التأكّد من أنّ السياسة الافتراضية للـ retry مع exponential backoff مفعّلة، وضبط numRetries إذا لزم.<\/span><span class=\"lang-en\">Ensure the default retry policy with exponential backoff is active, tune numRetries if needed.<\/span>",
+          "<span class=\"lang-ar\">التبديل إلى boto3.<\/span><span class=\"lang-en\">Switch to boto3.<\/span>",
+          "<span class=\"lang-ar\">تغيير الـ Region.<\/span><span class=\"lang-en\">Change region.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Java SDK v2 يطبّق exponential backoff افتراضياً. الأخطاء المتقطّعة تعالَج بها. رفع الحدّ يكون خياراً فقط إذا ثبت أنّ الاستهلاك حقيقةً يتجاوز السقف باستمرار.</span><span class="lang-en">Java SDK v2 applies exponential backoff by default. Intermittent errors are handled by it. Raising the limit is only needed if consumption truly exceeds capacity persistently.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Java SDK v2 يطبّق exponential backoff افتراضياً. الأخطاء المتقطّعة تعالَج بها. رفع الحدّ يكون خياراً فقط إذا ثبت أنّ الاستهلاك حقيقةً يتجاوز السقف باستمرار.<\/span><span class=\"lang-en\">Java SDK v2 applies exponential backoff by default. Intermittent errors are handled by it. Raising the limit is only needed if consumption truly exceeds capacity persistently.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">كم المدّة القصوى لصلاحية Session Token الذي يحصل عليه IMDSv2؟</span><span class="lang-en">Maximum validity of a session token from IMDSv2?</span>",
+        question: "<span class=\"lang-ar\">كم المدّة القصوى لصلاحية Session Token الذي يحصل عليه IMDSv2؟<\/span><span class=\"lang-en\">Maximum validity of a session token from IMDSv2?<\/span>",
         options: [
-          "<span class="lang-ar">15 دقيقة</span><span class="lang-en">15 minutes</span>",
-          "<span class="lang-ar">1 ساعة</span><span class="lang-en">1 hour</span>",
-          "<span class="lang-ar">6 ساعات</span><span class="lang-en">6 hours</span>",
-          "<span class="lang-ar">12 ساعة</span><span class="lang-en">12 hours</span>"
+          "<span class=\"lang-ar\">15 دقيقة<\/span><span class=\"lang-en\">15 minutes<\/span>",
+          "<span class=\"lang-ar\">1 ساعة<\/span><span class=\"lang-en\">1 hour<\/span>",
+          "<span class=\"lang-ar\">6 ساعات<\/span><span class=\"lang-en\">6 hours<\/span>",
+          "<span class=\"lang-ar\">12 ساعة<\/span><span class=\"lang-en\">12 hours<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">الحد الأقصى 21600 ثانية = 6 ساعات. يُرسَل في header <span dir="ltr" class="font-mono">X-aws-ec2-metadata-token-ttl-seconds</span> عند الـ PUT.</span><span class="lang-en">Max is 21600s = 6 hours, set via the <span dir="ltr" class="font-mono">X-aws-ec2-metadata-token-ttl-seconds</span> header during PUT.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">الحد الأقصى 21600 ثانية = 6 ساعات. يُرسَل في header <span dir=\"ltr\" class=\"font-mono\">X-aws-ec2-metadata-token-ttl-seconds<\/span> عند الـ PUT.<\/span><span class=\"lang-en\">Max is 21600s = 6 hours, set via the <span dir=\"ltr\" class=\"font-mono\">X-aws-ec2-metadata-token-ttl-seconds<\/span> header during PUT.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين API Rate Limits و Service Quotas في AWS؟</span><span class="lang-en">Difference between API Rate Limits and Service Quotas?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين API Rate Limits و Service Quotas في AWS؟<\/span><span class=\"lang-en\">Difference between API Rate Limits and Service Quotas?<\/span>",
         options: [
-          "<span class="lang-ar">لا يوجد فرق.</span><span class="lang-en">No difference.</span>",
-          "<span class="lang-ar">Rate Limits = استدعاءات لكلّ ثانية (throttling)، Service Quotas = حدّ أعلى للموارد (عدد الخوادم مثلاً). كلاهما قابل للزيادة عبر طرق مختلفة.</span><span class="lang-en">Rate Limits = calls/sec (throttling); Service Quotas = max resource count (e.g., instances). Both raisable via different paths.</span>",
-          "<span class="lang-ar">Rate Limits للخدمات الجديدة فقط.</span><span class="lang-en">Rate Limits apply only to new services.</span>",
-          "<span class="lang-ar">Service Quotas تنطبق على Lambda فقط.</span><span class="lang-en">Service Quotas apply only to Lambda.</span>"
+          "<span class=\"lang-ar\">لا يوجد فرق.<\/span><span class=\"lang-en\">No difference.<\/span>",
+          "<span class=\"lang-ar\">Rate Limits = استدعاءات لكلّ ثانية (throttling)، Service Quotas = حدّ أعلى للموارد (عدد الخوادم مثلاً). كلاهما قابل للزيادة عبر طرق مختلفة.<\/span><span class=\"lang-en\">Rate Limits = calls/sec (throttling); Service Quotas = max resource count (e.g., instances). Both raisable via different paths.<\/span>",
+          "<span class=\"lang-ar\">Rate Limits للخدمات الجديدة فقط.<\/span><span class=\"lang-en\">Rate Limits apply only to new services.<\/span>",
+          "<span class=\"lang-ar\">Service Quotas تنطبق على Lambda فقط.<\/span><span class=\"lang-en\">Service Quotas apply only to Lambda.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Rate Limits: DescribeInstances 100/ثانية مثلاً. Quotas: 1152 vCPU للحساب. الأولى تُعالَج بـ backoff، الثانية تُرفَع عبر Service Quotas API أو تذكرة.</span><span class="lang-en">Rate Limits: e.g., DescribeInstances 100/sec. Quotas: e.g., 1152 vCPU/account. Former handled by backoff, latter raised via Service Quotas API or ticket.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Rate Limits: DescribeInstances 100/ثانية مثلاً. Quotas: 1152 vCPU للحساب. الأولى تُعالَج بـ backoff، الثانية تُرفَع عبر Service Quotas API أو تذكرة.<\/span><span class=\"lang-en\">Rate Limits: e.g., DescribeInstances 100/sec. Quotas: e.g., 1152 vCPU/account. Former handled by backoff, latter raised via Service Quotas API or ticket.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">أيّ مصدر صلاحيات الأعلى أولويّةً في Java SDK v2؟</span><span class="lang-en">Highest-priority credentials source in Java SDK v2?</span>",
+        question: "<span class=\"lang-ar\">أيّ مصدر صلاحيات الأعلى أولويّةً في Java SDK v2؟<\/span><span class=\"lang-en\">Highest-priority credentials source in Java SDK v2?<\/span>",
         options: [
-          "<span class="lang-ar">Instance Profile</span><span class="lang-en">Instance Profile</span>",
-          "<span class="lang-ar">متغيّرات البيئة AWS_ACCESS_KEY_ID</span><span class="lang-en">Env vars AWS_ACCESS_KEY_ID</span>",
-          "<span class="lang-ar">خصائص نظام Java (aws.accessKeyId / aws.secretKey)</span><span class="lang-en">Java System Properties (aws.accessKeyId / aws.secretKey)</span>",
-          "<span class="lang-ar">ملفّ ~/.aws/credentials</span><span class="lang-en">~/.aws/credentials file</span>"
+          "<span class=\"lang-ar\">Instance Profile<\/span><span class=\"lang-en\">Instance Profile<\/span>",
+          "<span class=\"lang-ar\">متغيّرات البيئة AWS_ACCESS_KEY_ID<\/span><span class=\"lang-en\">Env vars AWS_ACCESS_KEY_ID<\/span>",
+          "<span class=\"lang-ar\">خصائص نظام Java (aws.accessKeyId / aws.secretKey)<\/span><span class=\"lang-en\">Java System Properties (aws.accessKeyId / aws.secretKey)<\/span>",
+          "<span class=\"lang-ar\">ملفّ ~/.aws/credentials<\/span><span class=\"lang-en\">~/.aws/credentials file<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">ترتيب Java SDK: System Properties أوّلاً، ثم Environment Variables، ثم Profile File، ثم ECS Container credentials، ثم Instance Profile.</span><span class="lang-en">Java SDK order: System Properties first, then Env Vars, then Profile File, then ECS Container, then Instance Profile.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">ترتيب Java SDK: System Properties أوّلاً، ثم Environment Variables، ثم Profile File، ثم ECS Container credentials، ثم Instance Profile.<\/span><span class=\"lang-en\">Java SDK order: System Properties first, then Env Vars, then Profile File, then ECS Container, then Instance Profile.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد منح مطوّر صلاحيّة مؤقّتة لرفع ملفّ إلى S3 مع MFA نشط، عبر CLI. أيّ أمر هو الأساسي؟</span><span class="lang-en">A company wants to grant a developer temporary access to upload to S3 with active MFA, via CLI. Which call is foundational?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد منح مطوّر صلاحيّة مؤقّتة لرفع ملفّ إلى S3 مع MFA نشط، عبر CLI. أيّ أمر هو الأساسي؟<\/span><span class=\"lang-en\">A company wants to grant a developer temporary access to upload to S3 with active MFA, via CLI. Which call is foundational?<\/span>",
         options: [
-          "<span class="lang-ar">aws configure</span><span class="lang-en">aws configure</span>",
-          "<span class="lang-ar">aws sts assume-role</span><span class="lang-en">aws sts assume-role</span>",
-          "<span class="lang-ar">aws sts get-session-token --serial-number ... --token-code ...</span><span class="lang-en">aws sts get-session-token --serial-number ... --token-code ...</span>",
-          "<span class="lang-ar">aws iam create-access-key</span><span class="lang-en">aws iam create-access-key</span>"
+          "<span class=\"lang-ar\">aws configure<\/span><span class=\"lang-en\">aws configure<\/span>",
+          "<span class=\"lang-ar\">aws sts assume-role<\/span><span class=\"lang-en\">aws sts assume-role<\/span>",
+          "<span class=\"lang-ar\">aws sts get-session-token --serial-number ... --token-code ...<\/span><span class=\"lang-en\">aws sts get-session-token --serial-number ... --token-code ...<\/span>",
+          "<span class=\"lang-ar\">aws iam create-access-key<\/span><span class=\"lang-en\">aws iam create-access-key<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">STS GetSessionToken</span> يُصدِر مفاتيح مؤقّتة مشروطة بـ MFA، لمدّة قابلة للضبط (افتراضي 12 ساعة، 1-36 ساعة). تُستخدَم مع CLI عبر named profile. AssumeRole يُستخدَم للوصول عبر حسابات.</span><span class="lang-en"><span dir="ltr" class="font-mono">STS GetSessionToken</span> issues MFA-bound temporary credentials (default 12h, range 1-36h). Used via named profile in CLI. AssumeRole is for cross-account.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يُعدّ الملفّ المحلّي فقط، لا ينتج tokens.</span><span class=\"lang-en\">Only configures local file, no tokens.</span>", "<span class=\"lang-ar\">لتولّي دور في حساب آخر، ليس هدف MFA للـ user نفسه.</span><span class=\"lang-en\">For cross-account role assumption, not self-MFA.</span>", "", "<span class=\"lang-ar\">ينشئ مفاتيح دائمة، عكس المطلوب.</span><span class=\"lang-en\">Creates permanent keys — opposite of what's needed.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">STS GetSessionToken<\/span> يُصدِر مفاتيح مؤقّتة مشروطة بـ MFA، لمدّة قابلة للضبط (افتراضي 12 ساعة، 1-36 ساعة). تُستخدَم مع CLI عبر named profile. AssumeRole يُستخدَم للوصول عبر حسابات.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">STS GetSessionToken<\/span> issues MFA-bound temporary credentials (default 12h, range 1-36h). Used via named profile in CLI. AssumeRole is for cross-account.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُعدّ الملفّ المحلّي فقط، لا ينتج tokens.<\/span><span class=\"lang-en\">Only configures local file, no tokens.<\/span>", "<span class=\"lang-ar\">لتولّي دور في حساب آخر، ليس هدف MFA للـ user نفسه.<\/span><span class=\"lang-en\">For cross-account role assumption, not self-MFA.<\/span>", "", "<span class=\"lang-ar\">ينشئ مفاتيح دائمة، عكس المطلوب.<\/span><span class=\"lang-en\">Creates permanent keys — opposite of what's needed.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من هذه الممارسات <strong>يجب تجنّبها</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of these practices should you <strong>avoid</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من هذه الممارسات <strong>يجب تجنّبها<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which of these practices should you <strong>avoid<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">كتابة AWS Access Keys في الكود المصدريّ.</span><span class="lang-en">Hardcoding AWS Access Keys in source code.</span>",
-          "<span class="lang-ar">استخدام IAM Role مع EC2 Instance Profile.</span><span class="lang-en">Using an IAM Role with EC2 Instance Profile.</span>",
-          "<span class="lang-ar">تخزين Secret Access Key في User Data للخادم.</span><span class="lang-en">Storing the Secret Access Key in EC2 User Data.</span>",
-          "<span class="lang-ar">استخدام DefaultCredentialsProvider في Lambda.</span><span class="lang-en">Using DefaultCredentialsProvider in Lambda.</span>"
+          "<span class=\"lang-ar\">كتابة AWS Access Keys في الكود المصدريّ.<\/span><span class=\"lang-en\">Hardcoding AWS Access Keys in source code.<\/span>",
+          "<span class=\"lang-ar\">استخدام IAM Role مع EC2 Instance Profile.<\/span><span class=\"lang-en\">Using an IAM Role with EC2 Instance Profile.<\/span>",
+          "<span class=\"lang-ar\">تخزين Secret Access Key في User Data للخادم.<\/span><span class=\"lang-en\">Storing the Secret Access Key in EC2 User Data.<\/span>",
+          "<span class=\"lang-ar\">استخدام DefaultCredentialsProvider في Lambda.<\/span><span class=\"lang-en\">Using DefaultCredentialsProvider in Lambda.<\/span>"
         ],
         correct: [0,2],
-        explanation: "<span class="lang-ar">لا تضع مفاتيح في الكود المصدريّ (قد تُنشَر على Git). لا تضعها في User Data (محفوظ بدون تشفير على <span dir="ltr" class="font-mono">/var/lib/cloud/instance/user-data.txt</span>). IAM Role و DefaultCredentialsProvider ممارسات صحيحة.</span><span class="lang-en">Never hardcode keys (may leak to Git). Never put them in User Data (stored plaintext at <span dir="ltr" class="font-mono">/var/lib/cloud/instance/user-data.txt</span>). IAM Role and DefaultCredentialsProvider are correct.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١ و ٢</span><span class=\"lang-en\">Sections 1 & 2</span>"
+        explanation: "<span class=\"lang-ar\">لا تضع مفاتيح في الكود المصدريّ (قد تُنشَر على Git). لا تضعها في User Data (محفوظ بدون تشفير على <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt<\/span>). IAM Role و DefaultCredentialsProvider ممارسات صحيحة.<\/span><span class=\"lang-en\">Never hardcode keys (may leak to Git). Never put them in User Data (stored plaintext at <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt<\/span>). IAM Role and DefaultCredentialsProvider are correct.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١ و ٢<\/span><span class=\"lang-en\">Sections 1 & 2<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">في أيّ من المواقف التالية يكون التوقيع بـ SigV4 في <strong>query string</strong> (لا header) الأنسب؟</span><span class="lang-en">In which case is SigV4 signing in the <strong>query string</strong> (not header) most appropriate?</span>",
+        question: "<span class=\"lang-ar\">في أيّ من المواقف التالية يكون التوقيع بـ SigV4 في <strong>query string<\/strong> (لا header) الأنسب؟<\/span><span class=\"lang-en\">In which case is SigV4 signing in the <strong>query string<\/strong> (not header) most appropriate?<\/span>",
         options: [
-          "<span class="lang-ar">استدعاء DynamoDB من Lambda.</span><span class="lang-en">Calling DynamoDB from Lambda.</span>",
-          "<span class="lang-ar">مشاركة رابط مؤقّت لتنزيل ملفّ S3 دون الحاجة إلى مفاتيح لدى المستلم (presigned URL).</span><span class="lang-en">Sharing a temporary link to download an S3 file without keys on the receiver's end (presigned URL).</span>",
-          "<span class="lang-ar">إرسال طلب POST لإنشاء خادم EC2.</span><span class="lang-en">POST request to create EC2 instance.</span>",
-          "<span class="lang-ar">الاتّصال بـ IAM.</span><span class="lang-en">Calling IAM.</span>"
+          "<span class=\"lang-ar\">استدعاء DynamoDB من Lambda.<\/span><span class=\"lang-en\">Calling DynamoDB from Lambda.<\/span>",
+          "<span class=\"lang-ar\">مشاركة رابط مؤقّت لتنزيل ملفّ S3 دون الحاجة إلى مفاتيح لدى المستلم (presigned URL).<\/span><span class=\"lang-en\">Sharing a temporary link to download an S3 file without keys on the receiver's end (presigned URL).<\/span>",
+          "<span class=\"lang-ar\">إرسال طلب POST لإنشاء خادم EC2.<\/span><span class=\"lang-en\">POST request to create EC2 instance.<\/span>",
+          "<span class=\"lang-ar\">الاتّصال بـ IAM.<\/span><span class=\"lang-en\">Calling IAM.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">presigned URLs هي المثال الكلاسيكيّ — التوقيع يدخل في query string (<span dir="ltr" class="font-mono">X-Amz-Signature</span>) مع صلاحية زمنيّة (<span dir="ltr" class="font-mono">X-Amz-Expires</span>)، فيمكن نقل الرابط في رسالة بريد دون كشف مفاتيحك.</span><span class="lang-en">Presigned URLs are the canonical case — signature sits in query string (<span dir="ltr" class="font-mono">X-Amz-Signature</span>) with expiry (<span dir="ltr" class="font-mono">X-Amz-Expires</span>), enabling email-sharable links without exposing keys.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">presigned URLs هي المثال الكلاسيكيّ — التوقيع يدخل في query string (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature<\/span>) مع صلاحية زمنيّة (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires<\/span>)، فيمكن نقل الرابط في رسالة بريد دون كشف مفاتيحك.<\/span><span class=\"lang-en\">Presigned URLs are the canonical case — signature sits in query string (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature<\/span>) with expiry (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires<\/span>), enabling email-sharable links without exposing keys.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">فريق يستقبل باستمرار خطأ 5xx من CloudWatch Logs عند إرسال logs من تطبيقاتهم. ما الحلّ المناسب <u>داخل الكود</u>؟</span><span class="lang-en">A team keeps receiving 5xx errors from CloudWatch Logs while shipping logs from their apps. Proper <u>in-code</u> fix?</span>",
+        question: "<span class=\"lang-ar\">فريق يستقبل باستمرار خطأ 5xx من CloudWatch Logs عند إرسال logs من تطبيقاتهم. ما الحلّ المناسب <u>داخل الكود<\/u>؟<\/span><span class=\"lang-en\">A team keeps receiving 5xx errors from CloudWatch Logs while shipping logs from their apps. Proper <u>in-code<\/u> fix?<\/span>",
         options: [
-          "<span class="lang-ar">التحويل إلى خدمة أخرى.</span><span class="lang-en">Switch to another service.</span>",
-          "<span class="lang-ar">تطبيق exponential backoff مع jitter على استدعاءات PutLogEvents (الـ SDK يفعل ذلك افتراضياً لكن يُنصح بضبط numRetries).</span><span class="lang-en">Apply exponential backoff + jitter on PutLogEvents (SDK does it by default, but tuning numRetries helps).</span>",
-          "<span class="lang-ar">رفع كلّ طلب كـ batch ضخم (100MB).</span><span class="lang-en">Send each request as a huge batch (100MB).</span>",
-          "<span class="lang-ar">إزالة IAM Role ومرور إلى مفاتيح ثابتة.</span><span class="lang-en">Remove IAM Role, use static keys.</span>"
+          "<span class=\"lang-ar\">التحويل إلى خدمة أخرى.<\/span><span class=\"lang-en\">Switch to another service.<\/span>",
+          "<span class=\"lang-ar\">تطبيق exponential backoff مع jitter على استدعاءات PutLogEvents (الـ SDK يفعل ذلك افتراضياً لكن يُنصح بضبط numRetries).<\/span><span class=\"lang-en\">Apply exponential backoff + jitter on PutLogEvents (SDK does it by default, but tuning numRetries helps).<\/span>",
+          "<span class=\"lang-ar\">رفع كلّ طلب كـ batch ضخم (100MB).<\/span><span class=\"lang-en\">Send each request as a huge batch (100MB).<\/span>",
+          "<span class=\"lang-ar\">إزالة IAM Role ومرور إلى مفاتيح ثابتة.<\/span><span class=\"lang-en\">Remove IAM Role, use static keys.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">أخطاء 5xx مؤقّتة — backoff هو الحلّ. الـ SDK يُطبّقها، ضبط numRetries يزيد الصبر. رفع الـ batches فوق الحدّ سيزيد الأخطاء.</span><span class="lang-en">5xx are transient — backoff fixes them. SDK applies it, tuning numRetries adds patience. Oversized batches will amplify errors.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">أخطاء 5xx مؤقّتة — backoff هو الحلّ. الـ SDK يُطبّقها، ضبط numRetries يزيد الصبر. رفع الـ batches فوق الحدّ سيزيد الأخطاء.<\/span><span class=\"lang-en\">5xx are transient — backoff fixes them. SDK applies it, tuning numRetries adds patience. Oversized batches will amplify errors.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

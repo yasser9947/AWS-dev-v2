@@ -837,182 +837,182 @@ r53.changeResourceRecordSets(ChangeResourceRecordSetsRequest.builder()
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">Acme تريد توجيه <span dir="ltr" class="font-mono">acme.com</span> (الـ root) إلى ALB. ما النوع الصحيح من السجلّات؟</span><span class="lang-en">Acme wants to point <span dir="ltr" class="font-mono">acme.com</span> (root) to an ALB. Correct record type?</span>",
+        question: "<span class=\"lang-ar\">Acme تريد توجيه <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> (الـ root) إلى ALB. ما النوع الصحيح من السجلّات؟<\/span><span class=\"lang-en\">Acme wants to point <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> (root) to an ALB. Correct record type?<\/span>",
         options: [
-          "<span class="lang-ar">CNAME</span><span class="lang-en">CNAME</span>",
-          "<span class="lang-ar">A record Alias</span><span class="lang-en">A record Alias</span>",
-          "<span class="lang-ar">TXT</span><span class="lang-en">TXT</span>",
-          "<span class="lang-ar">MX</span><span class="lang-en">MX</span>"
+          "<span class=\"lang-ar\">CNAME<\/span><span class=\"lang-en\">CNAME<\/span>",
+          "<span class=\"lang-ar\">A record Alias<\/span><span class=\"lang-en\">A record Alias<\/span>",
+          "<span class=\"lang-ar\">TXT<\/span><span class=\"lang-en\">TXT<\/span>",
+          "<span class=\"lang-ar\">MX<\/span><span class=\"lang-en\">MX<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>CNAME لا يعمل على الـ Zone Apex</strong> — لا يمكنك إنشاء CNAME لـ <span dir="ltr" class="font-mono">acme.com</span> نفسها. <strong>Alias record</strong> هو الحلّ: يعمل على الـ root و subdomains، ومجانيّ، ويكتشف تغيّر IP ALB تلقائياً.</span><span class="lang-en"><strong>CNAME can't be used at the Zone Apex</strong> — you can't CNAME <span dir="ltr" class="font-mono">acme.com</span> itself. <strong>Alias record</strong> solves this: works on apex and subdomains, free, auto-detects ALB IP changes.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ممنوع على الـ apex.</span><span class=\"lang-en\">Forbidden on apex.</span>", "", "<span class=\"lang-ar\">نصّ حرّ — لا يوجّه traffic.</span><span class=\"lang-en\">Free text — doesn't route traffic.</span>", "<span class=\"lang-ar\">لخوادم البريد.</span><span class=\"lang-en\">Mail servers.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CNAME لا يعمل على الـ Zone Apex<\/strong> — لا يمكنك إنشاء CNAME لـ <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> نفسها. <strong>Alias record<\/strong> هو الحلّ: يعمل على الـ root و subdomains، ومجانيّ، ويكتشف تغيّر IP ALB تلقائياً.<\/span><span class=\"lang-en\"><strong>CNAME can't be used at the Zone Apex<\/strong> — you can't CNAME <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> itself. <strong>Alias record<\/strong> solves this: works on apex and subdomains, free, auto-detects ALB IP changes.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ممنوع على الـ apex.<\/span><span class=\"lang-en\">Forbidden on apex.<\/span>", "", "<span class=\"lang-ar\">نصّ حرّ — لا يوجّه traffic.<\/span><span class=\"lang-en\">Free text — doesn't route traffic.<\/span>", "<span class=\"lang-ar\">لخوادم البريد.<\/span><span class=\"lang-en\">Mail servers.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">Acme تريد إصدار canary: ٩٠٪ من المستخدمين على v1 الحاليّة و ١٠٪ على v2 الجديدة. ما سياسة التوجيه؟</span><span class="lang-en">Acme wants a canary release: 90% of users on v1, 10% on new v2. Routing policy?</span>",
+        question: "<span class=\"lang-ar\">Acme تريد إصدار canary: ٩٠٪ من المستخدمين على v1 الحاليّة و ١٠٪ على v2 الجديدة. ما سياسة التوجيه؟<\/span><span class=\"lang-en\">Acme wants a canary release: 90% of users on v1, 10% on new v2. Routing policy?<\/span>",
         options: [
-          "<span class="lang-ar">Simple</span><span class="lang-en">Simple</span>",
-          "<span class="lang-ar">Weighted</span><span class="lang-en">Weighted</span>",
-          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
-          "<span class="lang-ar">Multi-Value</span><span class="lang-en">Multi-Value</span>"
+          "<span class=\"lang-ar\">Simple<\/span><span class=\"lang-en\">Simple<\/span>",
+          "<span class=\"lang-ar\">Weighted<\/span><span class=\"lang-en\">Weighted<\/span>",
+          "<span class=\"lang-ar\">Latency-based<\/span><span class=\"lang-en\">Latency-based<\/span>",
+          "<span class=\"lang-ar\">Multi-Value<\/span><span class=\"lang-en\">Multi-Value<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Weighted</strong> مصمَّمة بالضبط لهذا: تعيّن أوزاناً نسبيّة (٩٠ و ١٠) لسجلّين، ويوزّع Route 53 الاستعلامات وفقاً للنسبة. مثاليّة للـ canary releases و A/B testing. تدعم Health Checks لسحب v2 لو تعطّلت.</span><span class="lang-en"><strong>Weighted</strong> is designed for this: assign relative weights (90 and 10) to two records, Route 53 distributes queries by ratio. Perfect for canary and A/B testing. Supports health checks to pull v2 if it fails.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم التوزيع النسبيّ.</span><span class=\"lang-en\">No proportional split.</span>", "", "<span class=\"lang-ar\">حسب الـ region لا النسبة.</span><span class=\"lang-en\">By region, not ratio.</span>", "<span class=\"lang-ar\">يعيد حتى ٨ قيم — لا تحكّم نسبيّ.</span><span class=\"lang-en\">Returns up to 8 values — no proportional control.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Weighted<\/strong> مصمَّمة بالضبط لهذا: تعيّن أوزاناً نسبيّة (٩٠ و ١٠) لسجلّين، ويوزّع Route 53 الاستعلامات وفقاً للنسبة. مثاليّة للـ canary releases و A/B testing. تدعم Health Checks لسحب v2 لو تعطّلت.<\/span><span class=\"lang-en\"><strong>Weighted<\/strong> is designed for this: assign relative weights (90 and 10) to two records, Route 53 distributes queries by ratio. Perfect for canary and A/B testing. Supports health checks to pull v2 if it fails.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم التوزيع النسبيّ.<\/span><span class=\"lang-en\">No proportional split.<\/span>", "", "<span class=\"lang-ar\">حسب الـ region لا النسبة.<\/span><span class=\"lang-en\">By region, not ratio.<\/span>", "<span class=\"lang-ar\">يعيد حتى ٨ قيم — لا تحكّم نسبيّ.<\/span><span class=\"lang-en\">Returns up to 8 values — no proportional control.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">Acme لها ٣ regions حول العالم وتريد توجيه المستخدم إلى الـ region الأسرع. ما السياسة؟</span><span class="lang-en">Acme has 3 regions worldwide and wants to send each user to the fastest one. Policy?</span>",
+        question: "<span class=\"lang-ar\">Acme لها ٣ regions حول العالم وتريد توجيه المستخدم إلى الـ region الأسرع. ما السياسة؟<\/span><span class=\"lang-en\">Acme has 3 regions worldwide and wants to send each user to the fastest one. Policy?<\/span>",
         options: [
-          "<span class="lang-ar">Geolocation</span><span class="lang-en">Geolocation</span>",
-          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
-          "<span class="lang-ar">Geoproximity</span><span class="lang-en">Geoproximity</span>",
-          "<span class="lang-ar">Failover</span><span class="lang-en">Failover</span>"
+          "<span class=\"lang-ar\">Geolocation<\/span><span class=\"lang-en\">Geolocation<\/span>",
+          "<span class=\"lang-ar\">Latency-based<\/span><span class=\"lang-en\">Latency-based<\/span>",
+          "<span class=\"lang-ar\">Geoproximity<\/span><span class=\"lang-en\">Geoproximity<\/span>",
+          "<span class=\"lang-ar\">Failover<\/span><span class=\"lang-en\">Failover<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Latency-based</strong> يوجّه المستخدم للـ region الذي يعطيه أقلّ زمن استجابة (قياسات AWS الفعليّة). قد يختلف عن الـ Geolocation — مثلاً مستخدم ألمانيّ قد يصل للـ us-east-1 أسرع من eu-west-3 بسبب بنى الشبكة. <strong>Geolocation</strong> يقرّر حسب الموقع الجغرافيّ فقط، بصرف النظر عن السرعة.</span><span class="lang-en"><strong>Latency-based</strong> routes to the region with lowest measured latency (AWS's measurements). May differ from geolocation — a German user might hit us-east-1 faster than eu-west-3 due to network topology. <strong>Geolocation</strong> decides purely by user location, not speed.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يعتمد على الموقع لا السرعة.</span><span class=\"lang-en\">Based on location, not speed.</span>", "", "<span class=\"lang-ar\">للميل النسبيّ لا الأسرع.</span><span class=\"lang-en\">For relative bias, not fastest.</span>", "<span class=\"lang-ar\">لـ DR لا للأداء.</span><span class=\"lang-en\">For DR, not performance.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Latency-based<\/strong> يوجّه المستخدم للـ region الذي يعطيه أقلّ زمن استجابة (قياسات AWS الفعليّة). قد يختلف عن الـ Geolocation — مثلاً مستخدم ألمانيّ قد يصل للـ us-east-1 أسرع من eu-west-3 بسبب بنى الشبكة. <strong>Geolocation<\/strong> يقرّر حسب الموقع الجغرافيّ فقط، بصرف النظر عن السرعة.<\/span><span class=\"lang-en\"><strong>Latency-based<\/strong> routes to the region with lowest measured latency (AWS's measurements). May differ from geolocation — a German user might hit us-east-1 faster than eu-west-3 due to network topology. <strong>Geolocation<\/strong> decides purely by user location, not speed.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعتمد على الموقع لا السرعة.<\/span><span class=\"lang-en\">Based on location, not speed.<\/span>", "", "<span class=\"lang-ar\">للميل النسبيّ لا الأسرع.<\/span><span class=\"lang-en\">For relative bias, not fastest.<\/span>", "<span class=\"lang-ar\">لـ DR لا للأداء.<\/span><span class=\"lang-en\">For DR, not performance.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">بسبب قانون، Acme يجب أن تقدّم محتوى مختلفاً لمستخدمي فرنسا فقط. ما السياسة؟</span><span class="lang-en">Due to regulation, Acme must serve different content to French users only. Policy?</span>",
+        question: "<span class=\"lang-ar\">بسبب قانون، Acme يجب أن تقدّم محتوى مختلفاً لمستخدمي فرنسا فقط. ما السياسة؟<\/span><span class=\"lang-en\">Due to regulation, Acme must serve different content to French users only. Policy?<\/span>",
         options: [
-          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
-          "<span class="lang-ar">Weighted</span><span class="lang-en">Weighted</span>",
-          "<span class="lang-ar">Geolocation (country = France)</span><span class="lang-en">Geolocation (country = France)</span>",
-          "<span class="lang-ar">Multi-Value</span><span class="lang-en">Multi-Value</span>"
+          "<span class=\"lang-ar\">Latency-based<\/span><span class=\"lang-en\">Latency-based<\/span>",
+          "<span class=\"lang-ar\">Weighted<\/span><span class=\"lang-en\">Weighted<\/span>",
+          "<span class=\"lang-ar\">Geolocation (country = France)<\/span><span class=\"lang-en\">Geolocation (country = France)<\/span>",
+          "<span class=\"lang-ar\">Multi-Value<\/span><span class=\"lang-en\">Multi-Value<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Geolocation</strong> يسمح بالتوجيه حسب القارّة، الدولة، أو الولاية الأمريكية. مثاليّ للامتثال القانونيّ (GDPR، محتوى محجوب في الدولة، ...). يجب إنشاء سجلّ <strong>Default</strong> لمن لا يطابق أيّ موقع.</span><span class="lang-en"><strong>Geolocation</strong> routes by continent, country, or US state. Perfect for regulatory compliance (GDPR, geo-blocked content, ...). Must define a <strong>Default</strong> record for unmatched locations.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">حسب السرعة لا الدولة.</span><span class=\"lang-en\">By speed, not country.</span>", "<span class=\"lang-ar\">تقسيم نسبيّ، ليس حسب الموقع.</span><span class=\"lang-en\">Proportional split, not location.</span>", "", "<span class=\"lang-ar\">لا يميّز حسب الدولة.</span><span class=\"lang-en\">Doesn't discriminate by country.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Geolocation<\/strong> يسمح بالتوجيه حسب القارّة، الدولة، أو الولاية الأمريكية. مثاليّ للامتثال القانونيّ (GDPR، محتوى محجوب في الدولة، ...). يجب إنشاء سجلّ <strong>Default<\/strong> لمن لا يطابق أيّ موقع.<\/span><span class=\"lang-en\"><strong>Geolocation<\/strong> routes by continent, country, or US state. Perfect for regulatory compliance (GDPR, geo-blocked content, ...). Must define a <strong>Default<\/strong> record for unmatched locations.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">حسب السرعة لا الدولة.<\/span><span class=\"lang-en\">By speed, not country.<\/span>", "<span class=\"lang-ar\">تقسيم نسبيّ، ليس حسب الموقع.<\/span><span class=\"lang-en\">Proportional split, not location.<\/span>", "", "<span class=\"lang-ar\">لا يميّز حسب الدولة.<\/span><span class=\"lang-en\">Doesn't discriminate by country.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العبارات صحيحة عن Alias records؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which statements are true about Alias records? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العبارات صحيحة عن Alias records؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which statements are true about Alias records? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">تعمل على Zone Apex و subdomains.</span><span class="lang-en">Work at Zone Apex and subdomains.</span>",
-          "<span class="lang-ar">مجّانية (لا رسوم استعلامات).</span><span class="lang-en">Free (no query fees).</span>",
-          "<span class="lang-ar">يمكن الإشارة بها إلى EC2 instance DNS name مباشرة.</span><span class="lang-en">Can point directly to EC2 DNS name.</span>",
-          "<span class="lang-ar">تكتشف تغيّر IP الـ target تلقائياً.</span><span class="lang-en">Auto-detect target IP changes.</span>",
-          "<span class="lang-ar">يمكن ضبط TTL يدوياً.</span><span class="lang-en">Can set TTL manually.</span>"
+          "<span class=\"lang-ar\">تعمل على Zone Apex و subdomains.<\/span><span class=\"lang-en\">Work at Zone Apex and subdomains.<\/span>",
+          "<span class=\"lang-ar\">مجّانية (لا رسوم استعلامات).<\/span><span class=\"lang-en\">Free (no query fees).<\/span>",
+          "<span class=\"lang-ar\">يمكن الإشارة بها إلى EC2 instance DNS name مباشرة.<\/span><span class=\"lang-en\">Can point directly to EC2 DNS name.<\/span>",
+          "<span class=\"lang-ar\">تكتشف تغيّر IP الـ target تلقائياً.<\/span><span class=\"lang-en\">Auto-detect target IP changes.<\/span>",
+          "<span class=\"lang-ar\">يمكن ضبط TTL يدوياً.<\/span><span class=\"lang-en\">Can set TTL manually.<\/span>"
         ],
         correct: [0,1,3],
-        explanation: "<span class="lang-ar">Alias يعمل على الـ apex، مجّانيّ، ويكتشف تغيّر IP. <strong>لا يدعم EC2 DNS name</strong> (خدعة شائعة). TTL غير قابل للضبط — يُرثَ من الـ target.</span><span class="lang-en">Alias works on apex, is free, auto-detects IP changes. <strong>Doesn't support EC2 DNS name</strong> (common trap). TTL is inherited from target, not manually set.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Alias يعمل على الـ apex، مجّانيّ، ويكتشف تغيّر IP. <strong>لا يدعم EC2 DNS name<\/strong> (خدعة شائعة). TTL غير قابل للضبط — يُرثَ من الـ target.<\/span><span class=\"lang-en\">Alias works on apex, is free, auto-detects IP changes. <strong>Doesn't support EC2 DNS name<\/strong> (common trap). TTL is inherited from target, not manually set.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">Acme تحتاج DR passive: عند فشل us-east-1 ALB، يحوّل DNS تلقائياً إلى eu-west-1 ALB. ما السياسة؟</span><span class="lang-en">Acme needs passive DR: on us-east-1 ALB failure, DNS auto-shifts to eu-west-1 ALB. Policy?</span>",
+        question: "<span class=\"lang-ar\">Acme تحتاج DR passive: عند فشل us-east-1 ALB، يحوّل DNS تلقائياً إلى eu-west-1 ALB. ما السياسة؟<\/span><span class=\"lang-en\">Acme needs passive DR: on us-east-1 ALB failure, DNS auto-shifts to eu-west-1 ALB. Policy?<\/span>",
         options: [
-          "<span class="lang-ar">Simple مع سجلَّين.</span><span class="lang-en">Simple with two records.</span>",
-          "<span class="lang-ar">Failover (Active-Passive) + Health Check على الـ primary.</span><span class="lang-en">Failover (Active-Passive) + Health Check on primary.</span>",
-          "<span class="lang-ar">Weighted ٩٩/١.</span><span class="lang-en">Weighted 99/1.</span>",
-          "<span class="lang-ar">Latency-based.</span><span class="lang-en">Latency-based.</span>"
+          "<span class=\"lang-ar\">Simple مع سجلَّين.<\/span><span class=\"lang-en\">Simple with two records.<\/span>",
+          "<span class=\"lang-ar\">Failover (Active-Passive) + Health Check على الـ primary.<\/span><span class=\"lang-en\">Failover (Active-Passive) + Health Check on primary.<\/span>",
+          "<span class=\"lang-ar\">Weighted ٩٩/١.<\/span><span class=\"lang-en\">Weighted 99/1.<\/span>",
+          "<span class=\"lang-ar\">Latency-based.<\/span><span class=\"lang-en\">Latency-based.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Failover</strong> هي الـ policy الوحيدة المصمَّمة للـ DR التلقائيّ: Primary + Secondary، Health Check إلزاميّ على الـ Primary، وعند فشله يتوجّه الـ traffic تلقائياً للـ Secondary. Simple لا يدعم Health Checks، Weighted ليس للـ failover، Latency يعتمد على السرعة لا على الصحّة.</span><span class="lang-en"><strong>Failover</strong> is the only policy designed for automatic DR: Primary + Secondary, required Health Check on Primary, and traffic shifts automatically on failure. Simple lacks health checks, Weighted isn't for failover, Latency is speed-based not health-based.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.</span><span class=\"lang-en\">Doesn't support health checks.</span>", "", "<span class=\"lang-ar\">Weighted لا يدير الفشل.</span><span class=\"lang-en\">Weighted doesn't handle failure.</span>", "<span class=\"lang-ar\">يوجّه حسب السرعة لا الصحّة.</span><span class=\"lang-en\">Speed-based, not health-based.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Failover<\/strong> هي الـ policy الوحيدة المصمَّمة للـ DR التلقائيّ: Primary + Secondary، Health Check إلزاميّ على الـ Primary، وعند فشله يتوجّه الـ traffic تلقائياً للـ Secondary. Simple لا يدعم Health Checks، Weighted ليس للـ failover، Latency يعتمد على السرعة لا على الصحّة.<\/span><span class=\"lang-en\"><strong>Failover<\/strong> is the only policy designed for automatic DR: Primary + Secondary, required Health Check on Primary, and traffic shifts automatically on failure. Simple lacks health checks, Weighted isn't for failover, Latency is speed-based not health-based.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.<\/span><span class=\"lang-en\">Doesn't support health checks.<\/span>", "", "<span class=\"lang-ar\">Weighted لا يدير الفشل.<\/span><span class=\"lang-en\">Weighted doesn't handle failure.<\/span>", "<span class=\"lang-ar\">يوجّه حسب السرعة لا الصحّة.<\/span><span class=\"lang-en\">Speed-based, not health-based.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد Route 53 يرصد صحّة RDS في VPC خاصّة (ليس بينها عامّ endpoint). كيف؟</span><span class="lang-en">A dev wants Route 53 to monitor a private RDS (no public endpoint). How?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد Route 53 يرصد صحّة RDS في VPC خاصّة (ليس بينها عامّ endpoint). كيف؟<\/span><span class=\"lang-en\">A dev wants Route 53 to monitor a private RDS (no public endpoint). How?<\/span>",
         options: [
-          "<span class="lang-ar">Endpoint Health Check مباشر.</span><span class="lang-en">Direct Endpoint Health Check.</span>",
-          "<span class="lang-ar">لا يمكن — Route 53 لا يرصد الموارد الخاصّة.</span><span class="lang-en">Not possible — Route 53 can't monitor private resources.</span>",
-          "<span class="lang-ar"><strong>CloudWatch Alarm Health Check</strong> — أنشئ Alarm من CloudWatch metric للـ RDS، ثمّ اربطه بـ Route 53 Health Check.</span><span class="lang-en"><strong>CloudWatch Alarm Health Check</strong> — create a CloudWatch alarm from the RDS metric, link it to a Route 53 health check.</span>",
-          "<span class="lang-ar">Calculated Health Check مع Endpoint Health Check.</span><span class="lang-en">Calculated Health Check with Endpoint Health Check.</span>"
+          "<span class=\"lang-ar\">Endpoint Health Check مباشر.<\/span><span class=\"lang-en\">Direct Endpoint Health Check.<\/span>",
+          "<span class=\"lang-ar\">لا يمكن — Route 53 لا يرصد الموارد الخاصّة.<\/span><span class=\"lang-en\">Not possible — Route 53 can't monitor private resources.<\/span>",
+          "<span class=\"lang-ar\"><strong>CloudWatch Alarm Health Check<\/strong> — أنشئ Alarm من CloudWatch metric للـ RDS، ثمّ اربطه بـ Route 53 Health Check.<\/span><span class=\"lang-en\"><strong>CloudWatch Alarm Health Check<\/strong> — create a CloudWatch alarm from the RDS metric, link it to a Route 53 health check.<\/span>",
+          "<span class=\"lang-ar\">Calculated Health Check مع Endpoint Health Check.<\/span><span class=\"lang-en\">Calculated Health Check with Endpoint Health Check.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">Route 53 Health Checkers خارج VPC ولا يمكنها الوصول للـ private endpoints. <strong>الحلّ الوحيد: CloudWatch Alarm Health Check</strong> — ترصد metric يُنشَر من داخل VPC (بشكل طبيعيّ أو بـ Custom Metric)، ثمّ تربط Alarm بـ Route 53.</span><span class="lang-en">Route 53 Health Checkers are outside the VPC, can't reach private endpoints. <strong>Only fix: CloudWatch Alarm Health Check</strong> — monitor a metric published from inside the VPC (native or custom), link its Alarm to Route 53.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يصل لموارد خاصّة.</span><span class=\"lang-en\">Can't reach private resources.</span>", "<span class=\"lang-ar\">ممكن — عبر CW Alarm.</span><span class=\"lang-en\">It is possible — via CW Alarm.</span>", "", "<span class=\"lang-ar\">Endpoint لا يصل — فلا فائدة من calculated.</span><span class=\"lang-en\">Endpoint can't reach — calculated useless here.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Route 53 Health Checkers خارج VPC ولا يمكنها الوصول للـ private endpoints. <strong>الحلّ الوحيد: CloudWatch Alarm Health Check<\/strong> — ترصد metric يُنشَر من داخل VPC (بشكل طبيعيّ أو بـ Custom Metric)، ثمّ تربط Alarm بـ Route 53.<\/span><span class=\"lang-en\">Route 53 Health Checkers are outside the VPC, can't reach private endpoints. <strong>Only fix: CloudWatch Alarm Health Check<\/strong> — monitor a metric published from inside the VPC (native or custom), link its Alarm to Route 53.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يصل لموارد خاصّة.<\/span><span class=\"lang-en\">Can't reach private resources.<\/span>", "<span class=\"lang-ar\">ممكن — عبر CW Alarm.<\/span><span class=\"lang-en\">It is possible — via CW Alarm.<\/span>", "", "<span class=\"lang-ar\">Endpoint لا يصل — فلا فائدة من calculated.<\/span><span class=\"lang-en\">Endpoint can't reach — calculated useless here.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين Geolocation و Geoproximity في Route 53؟</span><span class="lang-en">What's the difference between Geolocation and Geoproximity in Route 53?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين Geolocation و Geoproximity في Route 53؟<\/span><span class=\"lang-en\">What's the difference between Geolocation and Geoproximity in Route 53?<\/span>",
         options: [
-          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
-          "<span class="lang-ar">Geolocation يحدّد بدقّة (قارّة/دولة/ولاية). Geoproximity يتيح <strong>bias</strong> لتوسيع أو تقليص منطقة معيّنة، ويتطلّب Traffic Flow.</span><span class="lang-en">Geolocation pins precisely (continent/country/state). Geoproximity allows <strong>bias</strong> to grow or shrink a region's reach, and requires Traffic Flow.</span>",
-          "<span class="lang-ar">Geolocation يعتمد على السرعة.</span><span class="lang-en">Geolocation is speed-based.</span>",
-          "<span class="lang-ar">Geoproximity ل Email فقط.</span><span class="lang-en">Geoproximity is for Email only.</span>"
+          "<span class=\"lang-ar\">كلاهما نفس الشيء.<\/span><span class=\"lang-en\">Same thing.<\/span>",
+          "<span class=\"lang-ar\">Geolocation يحدّد بدقّة (قارّة/دولة/ولاية). Geoproximity يتيح <strong>bias<\/strong> لتوسيع أو تقليص منطقة معيّنة، ويتطلّب Traffic Flow.<\/span><span class=\"lang-en\">Geolocation pins precisely (continent/country/state). Geoproximity allows <strong>bias<\/strong> to grow or shrink a region's reach, and requires Traffic Flow.<\/span>",
+          "<span class=\"lang-ar\">Geolocation يعتمد على السرعة.<\/span><span class=\"lang-en\">Geolocation is speed-based.<\/span>",
+          "<span class=\"lang-ar\">Geoproximity ل Email فقط.<\/span><span class=\"lang-en\">Geoproximity is for Email only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Geolocation</strong> توجيه ثابت حسب موقع المستخدم (دولة مثلاً). <strong>Geoproximity</strong> أكثر مرونة: يحدّد "سحب" (bias) من +١ إلى +٩٩ لتوسيع منطقة، أو من -١ إلى -٩٩ لتقليصها. يحتاج ميزة <strong>Route 53 Traffic Flow</strong> (محرّر مرئيّ).</span><span class="lang-en"><strong>Geolocation</strong> is static by user location (e.g., country). <strong>Geoproximity</strong> is more flexible: set a bias +1 to +99 to expand a region or -1 to -99 to shrink it. Requires <strong>Route 53 Traffic Flow</strong> (visual editor).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مختلفتان تماماً.</span><span class=\"lang-en\">Very different.</span>", "", "<span class=\"lang-ar\">Geolocation لا يعتمد على السرعة.</span><span class=\"lang-en\">Geolocation isn't speed-based.</span>", "<span class=\"lang-ar\">لا علاقة بالإيميل.</span><span class=\"lang-en\">No email relation.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Geolocation<\/strong> توجيه ثابت حسب موقع المستخدم (دولة مثلاً). <strong>Geoproximity<\/strong> أكثر مرونة: يحدّد \"سحب\" (bias) من +١ إلى +٩٩ لتوسيع منطقة، أو من -١ إلى -٩٩ لتقليصها. يحتاج ميزة <strong>Route 53 Traffic Flow<\/strong> (محرّر مرئيّ).<\/span><span class=\"lang-en\"><strong>Geolocation<\/strong> is static by user location (e.g., country). <strong>Geoproximity<\/strong> is more flexible: set a bias +1 to +99 to expand a region or -1 to -99 to shrink it. Requires <strong>Route 53 Traffic Flow<\/strong> (visual editor).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مختلفتان تماماً.<\/span><span class=\"lang-en\">Very different.<\/span>", "", "<span class=\"lang-ar\">Geolocation لا يعتمد على السرعة.<\/span><span class=\"lang-en\">Geolocation isn't speed-based.<\/span>", "<span class=\"lang-ar\">لا علاقة بالإيميل.<\/span><span class=\"lang-en\">No email relation.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">Acme تضع TTL = ٨٦٤٠٠ ثانية (٢٤ ساعة) لسجلّ A. ما النتيجة؟</span><span class="lang-en">Acme sets TTL = 86400s (24h) on an A record. Result?</span>",
+        question: "<span class=\"lang-ar\">Acme تضع TTL = ٨٦٤٠٠ ثانية (٢٤ ساعة) لسجلّ A. ما النتيجة؟<\/span><span class=\"lang-en\">Acme sets TTL = 86400s (24h) on an A record. Result?<\/span>",
         options: [
-          "<span class="lang-ar">توفير تكلفة استعلامات + عملاء قد يصلون إلى IP قديم لمدّة يوم كامل بعد التغيير.</span><span class="lang-en">Saves query cost + clients may use a stale IP for a full day after an update.</span>",
-          "<span class="lang-ar">لا فرق.</span><span class="lang-en">No difference.</span>",
-          "<span class="lang-ar">Route 53 يتجاهل الـ TTL أعلى من ٣٠٠.</span><span class="lang-en">Route 53 ignores TTLs above 300.</span>",
-          "<span class="lang-ar">DNS يتعطّل عند أيّ تغيير.</span><span class="lang-en">DNS breaks on any change.</span>"
+          "<span class=\"lang-ar\">توفير تكلفة استعلامات + عملاء قد يصلون إلى IP قديم لمدّة يوم كامل بعد التغيير.<\/span><span class=\"lang-en\">Saves query cost + clients may use a stale IP for a full day after an update.<\/span>",
+          "<span class=\"lang-ar\">لا فرق.<\/span><span class=\"lang-en\">No difference.<\/span>",
+          "<span class=\"lang-ar\">Route 53 يتجاهل الـ TTL أعلى من ٣٠٠.<\/span><span class=\"lang-en\">Route 53 ignores TTLs above 300.<\/span>",
+          "<span class=\"lang-ar\">DNS يتعطّل عند أيّ تغيير.<\/span><span class=\"lang-en\">DNS breaks on any change.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">TTL العالي يقلّل الاستعلامات (وبالتالي التكلفة والحِمل على Route 53)، لكنّه يعني أنّ تغييرات السجلّ تنتشر ببطء. العملاء يستخدمون القيمة المخزّنة مؤقّتاً حتى انتهاء TTL. <strong>قبل أيّ تغيير مخطّط له (نقل موقع مثلاً)، قلّل TTL إلى ٦٠ ثانية قبل ٢٤ ساعة</strong>، ثمّ طبّق التغيير.</span><span class="lang-en">High TTL reduces queries (cost and Route 53 load) but slows record change propagation. Clients use the cached value until TTL expires. <strong>Before a planned change (site migration), lower TTL to 60s 24h in advance</strong>, then apply the change.</span>",
-        wrongExplanations: ["", "<span class=\"lang-ar\">فرق كبير — ٢٤ ساعة تأخير.</span><span class=\"lang-en\">Big difference — 24h delay.</span>", "<span class=\"lang-ar\">Route 53 لا يتجاهل TTL.</span><span class=\"lang-en\">Route 53 doesn't ignore TTL.</span>", "<span class=\"lang-ar\">DNS لا يتعطّل — فقط بطء الانتشار.</span><span class=\"lang-en\">DNS doesn't break — just slow propagation.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">TTL العالي يقلّل الاستعلامات (وبالتالي التكلفة والحِمل على Route 53)، لكنّه يعني أنّ تغييرات السجلّ تنتشر ببطء. العملاء يستخدمون القيمة المخزّنة مؤقّتاً حتى انتهاء TTL. <strong>قبل أيّ تغيير مخطّط له (نقل موقع مثلاً)، قلّل TTL إلى ٦٠ ثانية قبل ٢٤ ساعة<\/strong>، ثمّ طبّق التغيير.<\/span><span class=\"lang-en\">High TTL reduces queries (cost and Route 53 load) but slows record change propagation. Clients use the cached value until TTL expires. <strong>Before a planned change (site migration), lower TTL to 60s 24h in advance<\/strong>, then apply the change.<\/span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">فرق كبير — ٢٤ ساعة تأخير.<\/span><span class=\"lang-en\">Big difference — 24h delay.<\/span>", "<span class=\"lang-ar\">Route 53 لا يتجاهل TTL.<\/span><span class=\"lang-en\">Route 53 doesn't ignore TTL.<\/span>", "<span class=\"lang-ar\">DNS لا يتعطّل — فقط بطء الانتشار.<\/span><span class=\"lang-en\">DNS doesn't break — just slow propagation.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">Acme اشترت النطاق <span dir="ltr" class="font-mono">acme.com</span> من GoDaddy وتريد استخدام Route 53 لإدارة السجلّات. ما الخطوة المطلوبة؟</span><span class="lang-en">Acme bought <span dir="ltr" class="font-mono">acme.com</span> on GoDaddy and wants Route 53 to manage records. Required step?</span>",
+        question: "<span class=\"lang-ar\">Acme اشترت النطاق <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> من GoDaddy وتريد استخدام Route 53 لإدارة السجلّات. ما الخطوة المطلوبة؟<\/span><span class=\"lang-en\">Acme bought <span dir=\"ltr\" class=\"font-mono\">acme.com<\/span> on GoDaddy and wants Route 53 to manage records. Required step?<\/span>",
         options: [
-          "<span class="lang-ar">نقل النطاق إلى Route 53 إلزامياً.</span><span class="lang-en">Must transfer the domain to Route 53.</span>",
-          "<span class="lang-ar">إنشاء Hosted Zone في Route 53، ثمّ تحديث <strong>Name Servers</strong> في GoDaddy لتشير إلى NS الخاصّة بـ Route 53.</span><span class="lang-en">Create a Hosted Zone in Route 53, then update <strong>Name Servers</strong> in GoDaddy to point to Route 53's NS.</span>",
-          "<span class="lang-ar">إلغاء النطاق وشراء جديد من Route 53.</span><span class="lang-en">Cancel and buy a new one via Route 53.</span>",
-          "<span class="lang-ar">غير ممكن — يجب تسجيل النطاق عبر Route 53.</span><span class="lang-en">Impossible — must register via Route 53.</span>"
+          "<span class=\"lang-ar\">نقل النطاق إلى Route 53 إلزامياً.<\/span><span class=\"lang-en\">Must transfer the domain to Route 53.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Hosted Zone في Route 53، ثمّ تحديث <strong>Name Servers<\/strong> في GoDaddy لتشير إلى NS الخاصّة بـ Route 53.<\/span><span class=\"lang-en\">Create a Hosted Zone in Route 53, then update <strong>Name Servers<\/strong> in GoDaddy to point to Route 53's NS.<\/span>",
+          "<span class=\"lang-ar\">إلغاء النطاق وشراء جديد من Route 53.<\/span><span class=\"lang-en\">Cancel and buy a new one via Route 53.<\/span>",
+          "<span class=\"lang-ar\">غير ممكن — يجب تسجيل النطاق عبر Route 53.<\/span><span class=\"lang-en\">Impossible — must register via Route 53.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">تسجيل النطاق (Registrar) مستقلّ عن إدارة DNS (DNS Service). يمكنك شراء النطاق من أيّ registrar واستخدام Route 53 للإدارة: أنشئ Public Hosted Zone، احصل على الـ ٤ Name Servers التي تقدّمها Route 53، ثمّ اذهب إلى GoDaddy وحدّث NS الخاصّة بالنطاق.</span><span class="lang-en">Registrar and DNS service are independent. You can buy from any registrar and use Route 53 to manage: create a Public Hosted Zone, get the 4 Name Servers Route 53 gives you, then in GoDaddy update the domain's NS.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير ضروريّ.</span><span class=\"lang-en\">Not required.</span>", "", "<span class=\"lang-ar\">إسراف كامل.</span><span class=\"lang-en\">Total waste.</span>", "<span class=\"lang-ar\">ممكن — Registrar و DNS منفصلان.</span><span class=\"lang-en\">Works fine — Registrar and DNS are separate.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">تسجيل النطاق (Registrar) مستقلّ عن إدارة DNS (DNS Service). يمكنك شراء النطاق من أيّ registrar واستخدام Route 53 للإدارة: أنشئ Public Hosted Zone، احصل على الـ ٤ Name Servers التي تقدّمها Route 53، ثمّ اذهب إلى GoDaddy وحدّث NS الخاصّة بالنطاق.<\/span><span class=\"lang-en\">Registrar and DNS service are independent. You can buy from any registrar and use Route 53 to manage: create a Public Hosted Zone, get the 4 Name Servers Route 53 gives you, then in GoDaddy update the domain's NS.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير ضروريّ.<\/span><span class=\"lang-en\">Not required.<\/span>", "", "<span class=\"lang-ar\">إسراف كامل.<\/span><span class=\"lang-en\">Total waste.<\/span>", "<span class=\"lang-ar\">ممكن — Registrar و DNS منفصلان.<\/span><span class=\"lang-en\">Works fine — Registrar and DNS are separate.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يحتاج فحصاً مركّباً: "النظام سليم فقط إذا كان ALB سليماً <strong>AND</strong> RDS سليمة". ما الأداة؟</span><span class="lang-en">A dev needs a composite check: "system is healthy only if ALB is healthy <strong>AND</strong> RDS is healthy". Tool?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يحتاج فحصاً مركّباً: \"النظام سليم فقط إذا كان ALB سليماً <strong>AND<\/strong> RDS سليمة\". ما الأداة؟<\/span><span class=\"lang-en\">A dev needs a composite check: \"system is healthy only if ALB is healthy <strong>AND<\/strong> RDS is healthy\". Tool?<\/span>",
         options: [
-          "<span class="lang-ar">إنشاء عدّة Endpoint Health Checks منفصلة.</span><span class="lang-en">Multiple separate endpoint health checks.</span>",
-          "<span class="lang-ar"><strong>Calculated Health Check</strong> مع AND بين فحوصات الأبناء.</span><span class="lang-en"><strong>Calculated Health Check</strong> with AND across child checks.</span>",
-          "<span class="lang-ar">Route 53 لا يدعم هذا.</span><span class="lang-en">Not supported in Route 53.</span>",
-          "<span class="lang-ar">Lambda function.</span><span class="lang-en">A Lambda function.</span>"
+          "<span class=\"lang-ar\">إنشاء عدّة Endpoint Health Checks منفصلة.<\/span><span class=\"lang-en\">Multiple separate endpoint health checks.<\/span>",
+          "<span class=\"lang-ar\"><strong>Calculated Health Check<\/strong> مع AND بين فحوصات الأبناء.<\/span><span class=\"lang-en\"><strong>Calculated Health Check<\/strong> with AND across child checks.<\/span>",
+          "<span class=\"lang-ar\">Route 53 لا يدعم هذا.<\/span><span class=\"lang-en\">Not supported in Route 53.<\/span>",
+          "<span class=\"lang-ar\">Lambda function.<\/span><span class=\"lang-en\">A Lambda function.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Calculated Health Check</strong> يدمج حتى ٢٥٦ فحصاً فرعياً بمنطق AND/OR/NOT. يحدّد كم فحصاً فرعياً يجب أن ينجح لكي يكون الأب healthy. يستخدم لصيانة مخطّطة دون تعطيل كلّ الفحوصات.</span><span class="lang-en"><strong>Calculated Health Check</strong> combines up to 256 child checks with AND/OR/NOT logic. Specify how many children must pass for parent to be healthy. Useful for scheduled maintenance without killing all checks.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا تنتج نتيجة مجمّعة.</span><span class=\"lang-en\">No combined result.</span>", "", "<span class=\"lang-ar\">Route 53 يدعم calculated.</span><span class=\"lang-en\">Route 53 does support calculated.</span>", "<span class=\"lang-ar\">Lambda غير ضروريّ — ميزة مدمجة.</span><span class=\"lang-en\">Lambda isn't needed — built-in feature.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Calculated Health Check<\/strong> يدمج حتى ٢٥٦ فحصاً فرعياً بمنطق AND/OR/NOT. يحدّد كم فحصاً فرعياً يجب أن ينجح لكي يكون الأب healthy. يستخدم لصيانة مخطّطة دون تعطيل كلّ الفحوصات.<\/span><span class=\"lang-en\"><strong>Calculated Health Check<\/strong> combines up to 256 child checks with AND/OR/NOT logic. Specify how many children must pass for parent to be healthy. Useful for scheduled maintenance without killing all checks.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تنتج نتيجة مجمّعة.<\/span><span class=\"lang-en\">No combined result.<\/span>", "", "<span class=\"lang-ar\">Route 53 يدعم calculated.<\/span><span class=\"lang-en\">Route 53 does support calculated.<\/span>", "<span class=\"lang-ar\">Lambda غير ضروريّ — ميزة مدمجة.<\/span><span class=\"lang-en\">Lambda isn't needed — built-in feature.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">Acme لديها ٥ خوادم بـ IPs عامّة ويريد العملاء التوزيع عليها بدون ELB. أبسط طريقة في Route 53؟</span><span class="lang-en">Acme has 5 servers with public IPs and wants clients to distribute across them without an ELB. Simplest Route 53 approach?</span>",
+        question: "<span class=\"lang-ar\">Acme لديها ٥ خوادم بـ IPs عامّة ويريد العملاء التوزيع عليها بدون ELB. أبسط طريقة في Route 53؟<\/span><span class=\"lang-en\">Acme has 5 servers with public IPs and wants clients to distribute across them without an ELB. Simplest Route 53 approach?<\/span>",
         options: [
-          "<span class="lang-ar">Simple routing policy بـ ٥ قيم.</span><span class="lang-en">Simple with 5 values.</span>",
-          "<span class="lang-ar"><strong>Multi-Value Answer</strong> مع Health Checks — يعيد حتى ٨ قيم صحّية فقط.</span><span class="lang-en"><strong>Multi-Value Answer</strong> with health checks — returns up to 8 healthy values only.</span>",
-          "<span class="lang-ar">Weighted بـ ٢٠٪ لكلّ واحد.</span><span class="lang-en">Weighted 20% each.</span>",
-          "<span class="lang-ar">٥ hosted zones منفصلة.</span><span class="lang-en">5 separate hosted zones.</span>"
+          "<span class=\"lang-ar\">Simple routing policy بـ ٥ قيم.<\/span><span class=\"lang-en\">Simple with 5 values.<\/span>",
+          "<span class=\"lang-ar\"><strong>Multi-Value Answer<\/strong> مع Health Checks — يعيد حتى ٨ قيم صحّية فقط.<\/span><span class=\"lang-en\"><strong>Multi-Value Answer<\/strong> with health checks — returns up to 8 healthy values only.<\/span>",
+          "<span class=\"lang-ar\">Weighted بـ ٢٠٪ لكلّ واحد.<\/span><span class=\"lang-en\">Weighted 20% each.<\/span>",
+          "<span class=\"lang-ar\">٥ hosted zones منفصلة.<\/span><span class=\"lang-en\">5 separate hosted zones.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Multi-Value</strong> أفضل من Simple لأنّه يدعم Health Checks — يعيد فقط القيم الصحّية. Simple لا يدعم Health Checks. Weighted ممكنة لكنّ Multi-Value أنظف لهذا السيناريو. <strong>ملاحظة</strong>: Multi-Value ليس بديلاً حقيقياً لـ ELB — لا يعالج stickiness، SSL termination، routing ذكي.</span><span class="lang-en"><strong>Multi-Value</strong> beats Simple because it supports health checks — only healthy values are returned. Simple lacks health checks. Weighted works but Multi-Value is cleaner for this scenario. <strong>Note</strong>: Multi-Value is not a real ELB replacement — no stickiness, SSL termination, or smart routing.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.</span><span class=\"lang-en\">Doesn't support health checks.</span>", "", "<span class=\"lang-ar\">ممكن لكنّ Multi-Value أبسط.</span><span class=\"lang-en\">Works but Multi-Value is simpler.</span>", "<span class=\"lang-ar\">تعقيد بلا جدوى.</span><span class=\"lang-en\">Pointless complexity.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Multi-Value<\/strong> أفضل من Simple لأنّه يدعم Health Checks — يعيد فقط القيم الصحّية. Simple لا يدعم Health Checks. Weighted ممكنة لكنّ Multi-Value أنظف لهذا السيناريو. <strong>ملاحظة<\/strong>: Multi-Value ليس بديلاً حقيقياً لـ ELB — لا يعالج stickiness، SSL termination، routing ذكي.<\/span><span class=\"lang-en\"><strong>Multi-Value<\/strong> beats Simple because it supports health checks — only healthy values are returned. Simple lacks health checks. Weighted works but Multi-Value is cleaner for this scenario. <strong>Note<\/strong>: Multi-Value is not a real ELB replacement — no stickiness, SSL termination, or smart routing.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.<\/span><span class=\"lang-en\">Doesn't support health checks.<\/span>", "", "<span class=\"lang-ar\">ممكن لكنّ Multi-Value أبسط.<\/span><span class=\"lang-en\">Works but Multi-Value is simpler.<\/span>", "<span class=\"lang-ar\">تعقيد بلا جدوى.<\/span><span class=\"lang-en\">Pointless complexity.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       }
     ];
 

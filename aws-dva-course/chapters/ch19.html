@@ -964,227 +964,227 @@ aws s3api put-bucket-encryption --bucket acme-prod-reports \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد منع أيّ طلب غير مشفّر (HTTP) إلى Bucket. ما الشرط الصحيح في Bucket Policy؟</span><span class="lang-en">A developer wants to block any unencrypted (HTTP) request to a bucket. Correct condition in Bucket Policy?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد منع أيّ طلب غير مشفّر (HTTP) إلى Bucket. ما الشرط الصحيح في Bucket Policy؟<\/span><span class=\"lang-en\">A developer wants to block any unencrypted (HTTP) request to a bucket. Correct condition in Bucket Policy?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"Bool": {"aws:SecureTransport": "false"}</span> مع Effect Deny.</span><span class="lang-en"><span dir="ltr" class="font-mono">"Bool": {"aws:SecureTransport": "false"}</span> with Deny.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"StringEquals": {"s3:protocol": "https"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"StringEquals": {"s3:protocol": "https"}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"NumericLessThan": {"aws:port": 443}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"NumericLessThan": {"aws:port": 443}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "https://*"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "https://*"}</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"Bool\": {\"aws:SecureTransport\": \"false\"}<\/span> مع Effect Deny.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"Bool\": {\"aws:SecureTransport\": \"false\"}<\/span> with Deny.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"StringEquals\": {\"s3:protocol\": \"https\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"StringEquals\": {\"s3:protocol\": \"https\"}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"NumericLessThan\": {\"aws:port\": 443}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"NumericLessThan\": {\"aws:port\": 443}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"IpAddress\": {\"aws:SourceIp\": \"https://*\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"IpAddress\": {\"aws:SourceIp\": \"https://*\"}<\/span>.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">المفتاح القياسيّ هو <span dir="ltr" class="font-mono">aws:SecureTransport</span> (Boolean). نستخدم <span dir="ltr" class="font-mono">Deny</span> عندما يكون <span dir="ltr" class="font-mono">false</span> (أي الطلب ليس HTTPS). الصيغ الأخرى غير موجودة في AWS.</span><span class="lang-en">The standard key is <span dir="ltr" class="font-mono">aws:SecureTransport</span> (Boolean). Use <span dir="ltr" class="font-mono">Deny</span> when it's <span dir="ltr" class="font-mono">false</span> (not HTTPS). Other syntaxes don't exist in AWS.</span>",
-        wrongExplanations: ["", "<span class=\"lang-ar\">لا يوجد مفتاح بهذا الاسم.</span><span class=\"lang-en\">No such key.</span>", "<span class=\"lang-ar\">مفتاح غير موجود في S3.</span><span class=\"lang-en\">Not a real condition.</span>", "<span class=\"lang-ar\">SourceIp للـ IPs لا للبروتوكول.</span><span class=\"lang-en\">SourceIp is for IPs, not protocols.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">المفتاح القياسيّ هو <span dir=\"ltr\" class=\"font-mono\">aws:SecureTransport<\/span> (Boolean). نستخدم <span dir=\"ltr\" class=\"font-mono\">Deny<\/span> عندما يكون <span dir=\"ltr\" class=\"font-mono\">false<\/span> (أي الطلب ليس HTTPS). الصيغ الأخرى غير موجودة في AWS.<\/span><span class=\"lang-en\">The standard key is <span dir=\"ltr\" class=\"font-mono\">aws:SecureTransport<\/span> (Boolean). Use <span dir=\"ltr\" class=\"font-mono\">Deny<\/span> when it's <span dir=\"ltr\" class=\"font-mono\">false<\/span> (not HTTPS). Other syntaxes don't exist in AWS.<\/span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">لا يوجد مفتاح بهذا الاسم.<\/span><span class=\"lang-en\">No such key.<\/span>", "<span class=\"lang-ar\">مفتاح غير موجود في S3.<\/span><span class=\"lang-en\">Not a real condition.<\/span>", "<span class=\"lang-ar\">SourceIp للـ IPs لا للبروتوكول.<\/span><span class=\"lang-en\">SourceIp is for IPs, not protocols.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تشفير S3 مع تدقيق كامل في CloudTrail لكلّ عمليّة استخدام للمفتاح. أيّ نوع تشفير؟</span><span class="lang-en">A company wants S3 encryption with full CloudTrail audit of every key use. Which encryption type?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تشفير S3 مع تدقيق كامل في CloudTrail لكلّ عمليّة استخدام للمفتاح. أيّ نوع تشفير؟<\/span><span class=\"lang-en\">A company wants S3 encryption with full CloudTrail audit of every key use. Which encryption type?<\/span>",
         options: [
-          "<span class="lang-ar">SSE-S3.</span><span class="lang-en">SSE-S3.</span>",
-          "<span class="lang-ar">SSE-KMS.</span><span class="lang-en">SSE-KMS.</span>",
-          "<span class="lang-ar">SSE-C.</span><span class="lang-en">SSE-C.</span>",
-          "<span class="lang-ar">Client-Side بدون أيّ خدمة AWS.</span><span class="lang-en">Client-Side with no AWS service.</span>"
+          "<span class=\"lang-ar\">SSE-S3.<\/span><span class=\"lang-en\">SSE-S3.<\/span>",
+          "<span class=\"lang-ar\">SSE-KMS.<\/span><span class=\"lang-en\">SSE-KMS.<\/span>",
+          "<span class=\"lang-ar\">SSE-C.<\/span><span class=\"lang-en\">SSE-C.<\/span>",
+          "<span class=\"lang-ar\">Client-Side بدون أيّ خدمة AWS.<\/span><span class=\"lang-en\">Client-Side with no AWS service.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">SSE-KMS يُسجّل كلّ عمليّات <span dir="ltr" class="font-mono">GenerateDataKey</span> و <span dir="ltr" class="font-mono">Decrypt</span> في CloudTrail مع Principal والـ Request ID. SSE-S3 لا يعطي تدقيقاً دقيقاً. SSE-C العميل يدير المفتاح خارج AWS، فلا تدقيق داخل AWS.</span><span class="lang-en">SSE-KMS logs every <span dir="ltr" class="font-mono">GenerateDataKey</span> and <span dir="ltr" class="font-mono">Decrypt</span> in CloudTrail with principal and request ID. SSE-S3 gives no fine-grained audit. SSE-C: customer manages key outside AWS, so no AWS audit.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا تدقيق تفصيليّ للمفاتيح.</span><span class=\"lang-en\">No fine-grained key audit.</span>", "", "<span class=\"lang-ar\">المفتاح خارج AWS.</span><span class=\"lang-en\">Key outside AWS.</span>", "<span class=\"lang-ar\">لا تدقيق من AWS.</span><span class=\"lang-en\">No AWS audit.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">SSE-KMS يُسجّل كلّ عمليّات <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> و <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> في CloudTrail مع Principal والـ Request ID. SSE-S3 لا يعطي تدقيقاً دقيقاً. SSE-C العميل يدير المفتاح خارج AWS، فلا تدقيق داخل AWS.<\/span><span class=\"lang-en\">SSE-KMS logs every <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> and <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> in CloudTrail with principal and request ID. SSE-S3 gives no fine-grained audit. SSE-C: customer manages key outside AWS, so no AWS audit.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تدقيق تفصيليّ للمفاتيح.<\/span><span class=\"lang-en\">No fine-grained key audit.<\/span>", "", "<span class=\"lang-ar\">المفتاح خارج AWS.<\/span><span class=\"lang-en\">Key outside AWS.<\/span>", "<span class=\"lang-ar\">لا تدقيق من AWS.<\/span><span class=\"lang-en\">No AWS audit.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">مستخدم يحاول رفع ملف عبر Presigned URL صالح، لكن يفشل بخطأ <em>SignatureDoesNotMatch</em>. ما السبب الأرجح؟</span><span class="lang-en">A user tries to upload via a valid Presigned URL but fails with <em>SignatureDoesNotMatch</em>. Most likely cause?</span>",
+        question: "<span class=\"lang-ar\">مستخدم يحاول رفع ملف عبر Presigned URL صالح، لكن يفشل بخطأ <em>SignatureDoesNotMatch<\/em>. ما السبب الأرجح؟<\/span><span class=\"lang-en\">A user tries to upload via a valid Presigned URL but fails with <em>SignatureDoesNotMatch<\/em>. Most likely cause?<\/span>",
         options: [
-          "<span class="lang-ar">انتهاء صلاحيّة الرابط.</span><span class="lang-en">URL expired.</span>",
-          "<span class="lang-ar">اختلاف Header أو Content-Type عند الرفع عن الذي وُقِّع له الرابط.</span><span class="lang-en">Mismatched header or Content-Type at upload vs what was signed.</span>",
-          "<span class="lang-ar">الـ Bucket غير موجود.</span><span class="lang-en">Bucket doesn't exist.</span>",
-          "<span class="lang-ar">MFA مطلوبة.</span><span class="lang-en">MFA required.</span>"
+          "<span class=\"lang-ar\">انتهاء صلاحيّة الرابط.<\/span><span class=\"lang-en\">URL expired.<\/span>",
+          "<span class=\"lang-ar\">اختلاف Header أو Content-Type عند الرفع عن الذي وُقِّع له الرابط.<\/span><span class=\"lang-en\">Mismatched header or Content-Type at upload vs what was signed.<\/span>",
+          "<span class=\"lang-ar\">الـ Bucket غير موجود.<\/span><span class=\"lang-en\">Bucket doesn't exist.<\/span>",
+          "<span class=\"lang-ar\">MFA مطلوبة.<\/span><span class=\"lang-en\">MFA required.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">التوقيع يشمل الـ Headers (خاصّة <span dir="ltr" class="font-mono">Content-Type</span> و <span dir="ltr" class="font-mono">x-amz-*</span>). أيّ اختلاف عند الطلب الفعليّ يُبطل التوقيع. الانتهاء يُعطي <em>RequestExpired</em>. المفقود يُعطي <em>NoSuchBucket</em>.</span><span class="lang-en">The signature includes headers (notably <span dir="ltr" class="font-mono">Content-Type</span> and <span dir="ltr" class="font-mono">x-amz-*</span>). Any mismatch at actual request invalidates it. Expiry → <em>RequestExpired</em>. Missing → <em>NoSuchBucket</em>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الخطأ حينها <em>RequestExpired</em>.</span><span class=\"lang-en\">That would be <em>RequestExpired</em>.</span>", "", "<span class=\"lang-ar\">الخطأ <em>NoSuchBucket</em>.</span><span class=\"lang-en\">That would be <em>NoSuchBucket</em>.</span>", "<span class=\"lang-ar\">S3 لا يدعم MFA على الرفع العادي.</span><span class=\"lang-en\">S3 doesn't require MFA for plain uploads.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">التوقيع يشمل الـ Headers (خاصّة <span dir=\"ltr\" class=\"font-mono\">Content-Type<\/span> و <span dir=\"ltr\" class=\"font-mono\">x-amz-*<\/span>). أيّ اختلاف عند الطلب الفعليّ يُبطل التوقيع. الانتهاء يُعطي <em>RequestExpired<\/em>. المفقود يُعطي <em>NoSuchBucket<\/em>.<\/span><span class=\"lang-en\">The signature includes headers (notably <span dir=\"ltr\" class=\"font-mono\">Content-Type<\/span> and <span dir=\"ltr\" class=\"font-mono\">x-amz-*<\/span>). Any mismatch at actual request invalidates it. Expiry → <em>RequestExpired<\/em>. Missing → <em>NoSuchBucket<\/em>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الخطأ حينها <em>RequestExpired<\/em>.<\/span><span class=\"lang-en\">That would be <em>RequestExpired<\/em>.<\/span>", "", "<span class=\"lang-ar\">الخطأ <em>NoSuchBucket<\/em>.<\/span><span class=\"lang-en\">That would be <em>NoSuchBucket<\/em>.<\/span>", "<span class=\"lang-ar\">S3 لا يدعم MFA على الرفع العادي.<\/span><span class=\"lang-en\">S3 doesn't require MFA for plain uploads.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين Block Public Access على مستوى الحساب والـ Bucket؟</span><span class="lang-en">Difference between account-level and bucket-level Block Public Access?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين Block Public Access على مستوى الحساب والـ Bucket؟<\/span><span class=\"lang-en\">Difference between account-level and bucket-level Block Public Access?<\/span>",
         options: [
-          "<span class="lang-ar">الحساب أضعف من الـ Bucket.</span><span class="lang-en">Account is weaker than Bucket.</span>",
-          "<span class="lang-ar">الحساب يعلو على الـ Bucket — أيّ إعداد على الحساب لا يمكن للـ Bucket تجاوزه.</span><span class="lang-en">Account overrides Bucket — nothing at the bucket level can override an account setting.</span>",
-          "<span class="lang-ar">لا فرق.</span><span class="lang-en">No difference.</span>",
-          "<span class="lang-ar">Bucket فقط يمكن تعطيله.</span><span class="lang-en">Only Bucket can be disabled.</span>"
+          "<span class=\"lang-ar\">الحساب أضعف من الـ Bucket.<\/span><span class=\"lang-en\">Account is weaker than Bucket.<\/span>",
+          "<span class=\"lang-ar\">الحساب يعلو على الـ Bucket — أيّ إعداد على الحساب لا يمكن للـ Bucket تجاوزه.<\/span><span class=\"lang-en\">Account overrides Bucket — nothing at the bucket level can override an account setting.<\/span>",
+          "<span class=\"lang-ar\">لا فرق.<\/span><span class=\"lang-en\">No difference.<\/span>",
+          "<span class=\"lang-ar\">Bucket فقط يمكن تعطيله.<\/span><span class=\"lang-en\">Only Bucket can be disabled.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">BPA على الحساب يُطبَّق على <em>كلّ</em> الـ Buckets الموجودة والقادمة. إذا فعّلت <span dir="ltr" class="font-mono">BlockPublicPolicy=true</span> على الحساب، لن يستطيع أيّ Bucket فتح سياسة عامّة حتى لو أراد المالك ذلك. شبكة أمان رائعة — فعّل الأربعة افتراضياً.</span><span class="lang-en">Account-level BPA applies to <em>every</em> existing and future bucket. With <span dir="ltr" class="font-mono">BlockPublicPolicy=true</span> at account, no bucket can open a public policy even if the owner wants to. Great safety net — enable all 4 by default.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">العكس.</span><span class=\"lang-en\">Opposite.</span>", "", "<span class=\"lang-ar\">فرق أساسيّ.</span><span class=\"lang-en\">Fundamental difference.</span>", "<span class=\"lang-ar\">كلاهما قابل للتعطيل لكنّ الحساب أولوية.</span><span class=\"lang-en\">Both can be disabled but account takes precedence.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">BPA على الحساب يُطبَّق على <em>كلّ<\/em> الـ Buckets الموجودة والقادمة. إذا فعّلت <span dir=\"ltr\" class=\"font-mono\">BlockPublicPolicy=true<\/span> على الحساب، لن يستطيع أيّ Bucket فتح سياسة عامّة حتى لو أراد المالك ذلك. شبكة أمان رائعة — فعّل الأربعة افتراضياً.<\/span><span class=\"lang-en\">Account-level BPA applies to <em>every<\/em> existing and future bucket. With <span dir=\"ltr\" class=\"font-mono\">BlockPublicPolicy=true<\/span> at account, no bucket can open a public policy even if the owner wants to. Great safety net — enable all 4 by default.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">العكس.<\/span><span class=\"lang-en\">Opposite.<\/span>", "", "<span class=\"lang-ar\">فرق أساسيّ.<\/span><span class=\"lang-en\">Fundamental difference.<\/span>", "<span class=\"lang-ar\">كلاهما قابل للتعطيل لكنّ الحساب أولوية.<\/span><span class=\"lang-en\">Both can be disabled but account takes precedence.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q5",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من التالي <strong>يتطلّب</strong> HTTPS إلزامياً؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of the following <strong>require</strong> HTTPS? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي <strong>يتطلّب<\/strong> HTTPS إلزامياً؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which of the following <strong>require<\/strong> HTTPS? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">SSE-S3.</span><span class="lang-en">SSE-S3.</span>",
-          "<span class="lang-ar">SSE-KMS.</span><span class="lang-en">SSE-KMS.</span>",
-          "<span class="lang-ar">SSE-C (العميل يرسل المفتاح).</span><span class="lang-en">SSE-C (client sends the key).</span>",
-          "<span class="lang-ar">Presigned URL بسيطة.</span><span class="lang-en">Simple presigned URL.</span>",
-          "<span class="lang-ar">CORS request.</span><span class="lang-en">CORS request.</span>"
+          "<span class=\"lang-ar\">SSE-S3.<\/span><span class=\"lang-en\">SSE-S3.<\/span>",
+          "<span class=\"lang-ar\">SSE-KMS.<\/span><span class=\"lang-en\">SSE-KMS.<\/span>",
+          "<span class=\"lang-ar\">SSE-C (العميل يرسل المفتاح).<\/span><span class=\"lang-en\">SSE-C (client sends the key).<\/span>",
+          "<span class=\"lang-ar\">Presigned URL بسيطة.<\/span><span class=\"lang-en\">Simple presigned URL.<\/span>",
+          "<span class=\"lang-ar\">CORS request.<\/span><span class=\"lang-en\">CORS request.<\/span>"
         ],
         correct: [2],
-        explanation: "<span class="lang-ar">SSE-C <strong>فقط</strong> يفرض HTTPS لأنّ المفتاح يسافر في Header — بدون HTTPS يُفضح. الباقون يدعمون HTTP و HTTPS (رغم أنّ HTTPS هو الافتراضيّ والموصى به). لفرض HTTPS على كلّ الطلبات استخدم <span dir="ltr" class="font-mono">aws:SecureTransport</span> في Bucket Policy.</span><span class="lang-en">SSE-C <strong>only</strong> forces HTTPS because the key travels in a header — over HTTP it'd be exposed. Others support both (HTTPS is default and recommended). To force HTTPS on everything use <span dir="ltr" class="font-mono">aws:SecureTransport</span> in Bucket Policy.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">SSE-C <strong>فقط<\/strong> يفرض HTTPS لأنّ المفتاح يسافر في Header — بدون HTTPS يُفضح. الباقون يدعمون HTTP و HTTPS (رغم أنّ HTTPS هو الافتراضيّ والموصى به). لفرض HTTPS على كلّ الطلبات استخدم <span dir=\"ltr\" class=\"font-mono\">aws:SecureTransport<\/span> في Bucket Policy.<\/span><span class=\"lang-en\">SSE-C <strong>only<\/strong> forces HTTPS because the key travels in a header — over HTTP it'd be exposed. Others support both (HTTPS is default and recommended). To force HTTPS on everything use <span dir=\"ltr\" class=\"font-mono\">aws:SecureTransport<\/span> in Bucket Policy.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">خادم EC2 داخل VPC خاصّ (بدون Internet Gateway) يحتاج الوصول إلى S3. ما الحلّ الأمثل؟</span><span class="lang-en">An EC2 in a private VPC (no Internet Gateway) needs S3 access. Best solution?</span>",
+        question: "<span class=\"lang-ar\">خادم EC2 داخل VPC خاصّ (بدون Internet Gateway) يحتاج الوصول إلى S3. ما الحلّ الأمثل؟<\/span><span class=\"lang-en\">An EC2 in a private VPC (no Internet Gateway) needs S3 access. Best solution?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة NAT Gateway.</span><span class="lang-en">Add a NAT Gateway.</span>",
-          "<span class="lang-ar">VPC Gateway Endpoint لـ S3 (مجانيّ، حركة داخل AWS).</span><span class="lang-en">VPC Gateway Endpoint for S3 (free, AWS internal).</span>",
-          "<span class="lang-ar">تخصيص Public IP للخادم.</span><span class="lang-en">Give the instance a public IP.</span>",
-          "<span class="lang-ar">استخدام VPN.</span><span class="lang-en">Use a VPN.</span>"
+          "<span class=\"lang-ar\">إضافة NAT Gateway.<\/span><span class=\"lang-en\">Add a NAT Gateway.<\/span>",
+          "<span class=\"lang-ar\">VPC Gateway Endpoint لـ S3 (مجانيّ، حركة داخل AWS).<\/span><span class=\"lang-en\">VPC Gateway Endpoint for S3 (free, AWS internal).<\/span>",
+          "<span class=\"lang-ar\">تخصيص Public IP للخادم.<\/span><span class=\"lang-en\">Give the instance a public IP.<\/span>",
+          "<span class=\"lang-ar\">استخدام VPN.<\/span><span class=\"lang-en\">Use a VPN.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Gateway Endpoint هو الخيار الأمثل لـ S3 و DynamoDB: مجانيّ، الحركة لا تغادر AWS، ويُضاف كمدخل في الـ Route Table. NAT Gateway أغلى ويُعرّض الحركة للإنترنت العامّ. Public IP على خادم خاصّ مخالفة لفكرة الشبكة الخاصّة.</span><span class="lang-en">Gateway Endpoint is the optimal choice for S3 and DynamoDB: free, traffic never leaves AWS, added as a route-table entry. NAT Gateway is expensive and puts traffic on the public internet. Public IP on a private instance defeats the design.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">أغلى، يحتاج Internet Gateway، حركة عبر الإنترنت.</span><span class=\"lang-en\">More expensive, needs IGW, public internet.</span>", "", "<span class=\"lang-ar\">يخالف كون الخادم "private".</span><span class=\"lang-en\">Defeats "private" subnet design.</span>", "<span class=\"lang-ar\">VPN للوصول من On-Premise، لا للوصول لـ S3.</span><span class=\"lang-en\">VPN is for on-prem access, not S3.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Gateway Endpoint هو الخيار الأمثل لـ S3 و DynamoDB: مجانيّ، الحركة لا تغادر AWS، ويُضاف كمدخل في الـ Route Table. NAT Gateway أغلى ويُعرّض الحركة للإنترنت العامّ. Public IP على خادم خاصّ مخالفة لفكرة الشبكة الخاصّة.<\/span><span class=\"lang-en\">Gateway Endpoint is the optimal choice for S3 and DynamoDB: free, traffic never leaves AWS, added as a route-table entry. NAT Gateway is expensive and puts traffic on the public internet. Public IP on a private instance defeats the design.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أغلى، يحتاج Internet Gateway، حركة عبر الإنترنت.<\/span><span class=\"lang-en\">More expensive, needs IGW, public internet.<\/span>", "", "<span class=\"lang-ar\">يخالف كون الخادم \"private\".<\/span><span class=\"lang-en\">Defeats \"private\" subnet design.<\/span>", "<span class=\"lang-ar\">VPN للوصول من On-Premise، لا للوصول لـ S3.<\/span><span class=\"lang-en\">VPN is for on-prem access, not S3.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">سياسة Bucket تسمح لـ <span dir="ltr" class="font-mono">Principal: "*"</span> بالقراءة. ماذا يحدث إذا فعّلت Block Public Access على الحساب؟</span><span class="lang-en">A bucket policy allows <span dir="ltr" class="font-mono">Principal: "*"</span> read. What happens if account-level Block Public Access is enabled?</span>",
+        question: "<span class=\"lang-ar\">سياسة Bucket تسمح لـ <span dir=\"ltr\" class=\"font-mono\">Principal: \"*\"<\/span> بالقراءة. ماذا يحدث إذا فعّلت Block Public Access على الحساب؟<\/span><span class=\"lang-en\">A bucket policy allows <span dir=\"ltr\" class=\"font-mono\">Principal: \"*\"<\/span> read. What happens if account-level Block Public Access is enabled?<\/span>",
         options: [
-          "<span class="lang-ar">لا يتغيّر شيء — Bucket Policy تعلو على BPA.</span><span class="lang-en">Nothing changes — Bucket Policy overrides BPA.</span>",
-          "<span class="lang-ar">BPA يمنع تلك السياسة من التأثير — الطلبات العامّة مرفوضة.</span><span class="lang-en">BPA blocks that policy from taking effect — public requests are denied.</span>",
-          "<span class="lang-ar">الـ Bucket يُحذَف تلقائياً.</span><span class="lang-en">Bucket auto-deletes.</span>",
-          "<span class="lang-ar">يظهر خطأ كتابيّ.</span><span class="lang-en">A syntax error appears.</span>"
+          "<span class=\"lang-ar\">لا يتغيّر شيء — Bucket Policy تعلو على BPA.<\/span><span class=\"lang-en\">Nothing changes — Bucket Policy overrides BPA.<\/span>",
+          "<span class=\"lang-ar\">BPA يمنع تلك السياسة من التأثير — الطلبات العامّة مرفوضة.<\/span><span class=\"lang-en\">BPA blocks that policy from taking effect — public requests are denied.<\/span>",
+          "<span class=\"lang-ar\">الـ Bucket يُحذَف تلقائياً.<\/span><span class=\"lang-en\">Bucket auto-deletes.<\/span>",
+          "<span class=\"lang-ar\">يظهر خطأ كتابيّ.<\/span><span class=\"lang-en\">A syntax error appears.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Block Public Access هو الطبقة العليا: إذا فعّل <span dir="ltr" class="font-mono">RestrictPublicBuckets</span>، كلّ الطلبات الخارجيّة العامّة تُرفَض حتى لو سمحت Bucket Policy. مصمّم خصّيصاً كشبكة أمان ضدّ تسرّب عرضيّ.</span><span class="lang-en">Block Public Access is the top layer: with <span dir="ltr" class="font-mono">RestrictPublicBuckets</span>, all external public requests are denied even if bucket policy allows. Designed as a safety net against accidental exposure.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">BPA هو الأقوى.</span><span class=\"lang-en\">BPA wins.</span>", "", "<span class=\"lang-ar\">AWS لا تحذف الـ Buckets.</span><span class=\"lang-en\">AWS doesn't delete buckets.</span>", "<span class=\"lang-ar\">BPA لا يُحدث أخطاء كتابيّة.</span><span class=\"lang-en\">BPA doesn't cause syntax errors.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Block Public Access هو الطبقة العليا: إذا فعّل <span dir=\"ltr\" class=\"font-mono\">RestrictPublicBuckets<\/span>، كلّ الطلبات الخارجيّة العامّة تُرفَض حتى لو سمحت Bucket Policy. مصمّم خصّيصاً كشبكة أمان ضدّ تسرّب عرضيّ.<\/span><span class=\"lang-en\">Block Public Access is the top layer: with <span dir=\"ltr\" class=\"font-mono\">RestrictPublicBuckets<\/span>, all external public requests are denied even if bucket policy allows. Designed as a safety net against accidental exposure.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">BPA هو الأقوى.<\/span><span class=\"lang-en\">BPA wins.<\/span>", "", "<span class=\"lang-ar\">AWS لا تحذف الـ Buckets.<\/span><span class=\"lang-en\">AWS doesn't delete buckets.<\/span>", "<span class=\"lang-ar\">BPA لا يُحدث أخطاء كتابيّة.<\/span><span class=\"lang-en\">BPA doesn't cause syntax errors.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تطبيق ويب (https://app.acme.com) يحاول جلب صور من <span dir="ltr" class="font-mono">s3://acme-cdn</span> عبر JavaScript ويفشل بخطأ CORS. ما الحلّ؟</span><span class="lang-en">A web app (https://app.acme.com) fetches images from <span dir="ltr" class="font-mono">s3://acme-cdn</span> via JavaScript and fails with a CORS error. Solution?</span>",
+        question: "<span class=\"lang-ar\">تطبيق ويب (https://app.acme.com) يحاول جلب صور من <span dir=\"ltr\" class=\"font-mono\">s3://acme-cdn<\/span> عبر JavaScript ويفشل بخطأ CORS. ما الحلّ؟<\/span><span class=\"lang-en\">A web app (https://app.acme.com) fetches images from <span dir=\"ltr\" class=\"font-mono\">s3://acme-cdn<\/span> via JavaScript and fails with a CORS error. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة <span dir="ltr" class="font-mono">Access-Control-Allow-Origin: https://app.acme.com</span> في إعدادات CORS للـ Bucket.</span><span class="lang-en">Add <span dir="ltr" class="font-mono">Access-Control-Allow-Origin: https://app.acme.com</span> in bucket CORS configuration.</span>",
-          "<span class="lang-ar">تعطيل HTTPS على التطبيق.</span><span class="lang-en">Disable HTTPS on the app.</span>",
-          "<span class="lang-ar">تغيير Bucket Policy إلى عامّة.</span><span class="lang-en">Make the bucket policy public.</span>",
-          "<span class="lang-ar">تفعيل CloudFront بدلاً من S3.</span><span class="lang-en">Use CloudFront instead of S3.</span>"
+          "<span class=\"lang-ar\">إضافة <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin: https://app.acme.com<\/span> في إعدادات CORS للـ Bucket.<\/span><span class=\"lang-en\">Add <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin: https://app.acme.com<\/span> in bucket CORS configuration.<\/span>",
+          "<span class=\"lang-ar\">تعطيل HTTPS على التطبيق.<\/span><span class=\"lang-en\">Disable HTTPS on the app.<\/span>",
+          "<span class=\"lang-ar\">تغيير Bucket Policy إلى عامّة.<\/span><span class=\"lang-en\">Make the bucket policy public.<\/span>",
+          "<span class=\"lang-ar\">تفعيل CloudFront بدلاً من S3.<\/span><span class=\"lang-en\">Use CloudFront instead of S3.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">CORS مسؤوليّة <em>الخادم</em> الذي يستقبل الطلب (S3 هنا). تُكتَب إعدادات CORS في الـ Bucket بصيغة JSON وتحدّد <span dir="ltr" class="font-mono">AllowedOrigins</span>. فتح الـ Bucket عامّاً لا يحلّ CORS — هما طبقتان مختلفتان.</span><span class="lang-en">CORS is the responsibility of the <em>server</em> receiving the request (S3). Write bucket CORS as JSON specifying <span dir="ltr" class="font-mono">AllowedOrigins</span>. Making the bucket public doesn't fix CORS — they're independent layers.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ CORS وخطر أمنيّ.</span><span class=\"lang-en\">Doesn't fix CORS and is insecure.</span>", "", "<span class=\"lang-ar\">لا يحلّ CORS، ومخاطرة كبيرة.</span><span class=\"lang-en\">Doesn't fix CORS and is insecure.</span>", "<span class=\"lang-ar\">CloudFront يضيف طبقة لكن لا يبدّل الحاجة لـ CORS.</span><span class=\"lang-en\">CloudFront adds a layer but doesn't replace CORS config.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">CORS مسؤوليّة <em>الخادم<\/em> الذي يستقبل الطلب (S3 هنا). تُكتَب إعدادات CORS في الـ Bucket بصيغة JSON وتحدّد <span dir=\"ltr\" class=\"font-mono\">AllowedOrigins<\/span>. فتح الـ Bucket عامّاً لا يحلّ CORS — هما طبقتان مختلفتان.<\/span><span class=\"lang-en\">CORS is the responsibility of the <em>server<\/em> receiving the request (S3). Write bucket CORS as JSON specifying <span dir=\"ltr\" class=\"font-mono\">AllowedOrigins<\/span>. Making the bucket public doesn't fix CORS — they're independent layers.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ CORS وخطر أمنيّ.<\/span><span class=\"lang-en\">Doesn't fix CORS and is insecure.<\/span>", "", "<span class=\"lang-ar\">لا يحلّ CORS، ومخاطرة كبيرة.<\/span><span class=\"lang-en\">Doesn't fix CORS and is insecure.<\/span>", "<span class=\"lang-ar\">CloudFront يضيف طبقة لكن لا يبدّل الحاجة لـ CORS.<\/span><span class=\"lang-en\">CloudFront adds a layer but doesn't replace CORS config.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">ما ميزة <strong>S3 Bucket Key</strong> مع SSE-KMS؟</span><span class="lang-en">What does <strong>S3 Bucket Key</strong> give you with SSE-KMS?</span>",
+        question: "<span class=\"lang-ar\">ما ميزة <strong>S3 Bucket Key<\/strong> مع SSE-KMS؟<\/span><span class=\"lang-en\">What does <strong>S3 Bucket Key<\/strong> give you with SSE-KMS?<\/span>",
         options: [
-          "<span class="lang-ar">تشفير أقوى.</span><span class="lang-en">Stronger encryption.</span>",
-          "<span class="lang-ar">تقليل عدد استدعاءات KMS وتكاليفها بنسبة تصل إلى ٩٩٪.</span><span class="lang-en">Reduces KMS API calls and cost by up to 99%.</span>",
-          "<span class="lang-ar">تسريع الـ Upload.</span><span class="lang-en">Speeds up uploads.</span>",
-          "<span class="lang-ar">لا حاجة لـ IAM.</span><span class="lang-en">No IAM needed.</span>"
+          "<span class=\"lang-ar\">تشفير أقوى.<\/span><span class=\"lang-en\">Stronger encryption.<\/span>",
+          "<span class=\"lang-ar\">تقليل عدد استدعاءات KMS وتكاليفها بنسبة تصل إلى ٩٩٪.<\/span><span class=\"lang-en\">Reduces KMS API calls and cost by up to 99%.<\/span>",
+          "<span class=\"lang-ar\">تسريع الـ Upload.<\/span><span class=\"lang-en\">Speeds up uploads.<\/span>",
+          "<span class=\"lang-ar\">لا حاجة لـ IAM.<\/span><span class=\"lang-en\">No IAM needed.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">S3 Bucket Key مفتاح بيانات وسيط (DEK) يُنشَأ مرّة ويُستخدم لتشفير كثير من الكائنات بدلاً من استدعاء KMS لكلّ كائن. التشفير الفعليّ لا يختلف، لكنّ عدد الطلبات على KMS يقلّ ≈ ٩٩٪ مع وفر مالي واضح وتقليل احتكاك حصّة KMS.</span><span class="lang-en">S3 Bucket Key is an intermediate DEK created once and used to encrypt many objects instead of calling KMS per object. Encryption strength is the same, but KMS calls drop ≈99% with clear cost savings and less KMS quota pressure.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">القوّة ذاتها (AES-256).</span><span class=\"lang-en\">Same strength (AES-256).</span>", "", "<span class=\"lang-ar\">الأداء مشابه.</span><span class=\"lang-en\">Perf similar.</span>", "<span class=\"lang-ar\">IAM مطلوب.</span><span class=\"lang-en\">IAM still required.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">S3 Bucket Key مفتاح بيانات وسيط (DEK) يُنشَأ مرّة ويُستخدم لتشفير كثير من الكائنات بدلاً من استدعاء KMS لكلّ كائن. التشفير الفعليّ لا يختلف، لكنّ عدد الطلبات على KMS يقلّ ≈ ٩٩٪ مع وفر مالي واضح وتقليل احتكاك حصّة KMS.<\/span><span class=\"lang-en\">S3 Bucket Key is an intermediate DEK created once and used to encrypt many objects instead of calling KMS per object. Encryption strength is the same, but KMS calls drop ≈99% with clear cost savings and less KMS quota pressure.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">القوّة ذاتها (AES-256).<\/span><span class=\"lang-en\">Same strength (AES-256).<\/span>", "", "<span class=\"lang-ar\">الأداء مشابه.<\/span><span class=\"lang-en\">Perf similar.<\/span>", "<span class=\"lang-ar\">IAM مطلوب.<\/span><span class=\"lang-en\">IAM still required.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">تريد السماح لحساب آخر بالقراءة من Bucket لديك. ما الآليّة المعياريّة؟</span><span class="lang-en">You want to allow another AWS account to read from your bucket. Standard mechanism?</span>",
+        question: "<span class=\"lang-ar\">تريد السماح لحساب آخر بالقراءة من Bucket لديك. ما الآليّة المعياريّة؟<\/span><span class=\"lang-en\">You want to allow another AWS account to read from your bucket. Standard mechanism?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة حساب آخر كـ IAM User.</span><span class="lang-en">Create the other account as an IAM User.</span>",
-          "<span class="lang-ar">Bucket Policy تحدّد <span dir="ltr" class="font-mono">Principal: "arn:aws:iam::OTHER_ACCT:root"</span> مع صلاحيّات قراءة.</span><span class="lang-en">Bucket Policy with <span dir="ltr" class="font-mono">Principal: "arn:aws:iam::OTHER_ACCT:root"</span> and read perms.</span>",
-          "<span class="lang-ar">تغيير ownership.</span><span class="lang-en">Change ownership.</span>",
-          "<span class="lang-ar">تفعيل S3 Replication فقط.</span><span class="lang-en">Enable S3 Replication only.</span>"
+          "<span class=\"lang-ar\">إضافة حساب آخر كـ IAM User.<\/span><span class=\"lang-en\">Create the other account as an IAM User.<\/span>",
+          "<span class=\"lang-ar\">Bucket Policy تحدّد <span dir=\"ltr\" class=\"font-mono\">Principal: \"arn:aws:iam::OTHER_ACCT:root\"<\/span> مع صلاحيّات قراءة.<\/span><span class=\"lang-en\">Bucket Policy with <span dir=\"ltr\" class=\"font-mono\">Principal: \"arn:aws:iam::OTHER_ACCT:root\"<\/span> and read perms.<\/span>",
+          "<span class=\"lang-ar\">تغيير ownership.<\/span><span class=\"lang-en\">Change ownership.<\/span>",
+          "<span class=\"lang-ar\">تفعيل S3 Replication فقط.<\/span><span class=\"lang-en\">Enable S3 Replication only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Bucket Policy تدعم Cross-Account بتحديد <span dir="ltr" class="font-mono">Principal</span> صريحاً (الحساب الآخر أو Role فيه). الحساب الآخر يحتاج IAM policy أيضاً تسمح للمستخدمين/الأدوار الوصول. لا تُنشِئ مستخدمين في حساب لست مالكاً له.</span><span class="lang-en">Bucket Policy supports cross-account with an explicit <span dir="ltr" class="font-mono">Principal</span> (the other account or a role within it). The other account also needs an IAM policy allowing its users/roles. You never create users in an account you don't own.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا تنشئ مستخدمين في حساب الغير.</span><span class=\"lang-en\">Don't create users in another account.</span>", "", "<span class=\"lang-ar\">Ownership غير مطلوب.</span><span class=\"lang-en\">Ownership change isn't needed.</span>", "<span class=\"lang-ar\">Replication للنسخ، لا للقراءة.</span><span class=\"lang-en\">Replication is for copying, not reading.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Bucket Policy تدعم Cross-Account بتحديد <span dir=\"ltr\" class=\"font-mono\">Principal<\/span> صريحاً (الحساب الآخر أو Role فيه). الحساب الآخر يحتاج IAM policy أيضاً تسمح للمستخدمين/الأدوار الوصول. لا تُنشِئ مستخدمين في حساب لست مالكاً له.<\/span><span class=\"lang-en\">Bucket Policy supports cross-account with an explicit <span dir=\"ltr\" class=\"font-mono\">Principal<\/span> (the other account or a role within it). The other account also needs an IAM policy allowing its users/roles. You never create users in an account you don't own.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تنشئ مستخدمين في حساب الغير.<\/span><span class=\"lang-en\">Don't create users in another account.<\/span>", "", "<span class=\"lang-ar\">Ownership غير مطلوب.<\/span><span class=\"lang-en\">Ownership change isn't needed.<\/span>", "<span class=\"lang-ar\">Replication للنسخ، لا للقراءة.<\/span><span class=\"lang-en\">Replication is for copying, not reading.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">كيف تضمن أنّ كلّ كائن جديد في Bucket يُرفع مشفّراً بـ SSE-KMS مفتاح محدّد؟</span><span class="lang-en">How do you ensure every new object is uploaded with SSE-KMS using a specific key?</span>",
+        question: "<span class=\"lang-ar\">كيف تضمن أنّ كلّ كائن جديد في Bucket يُرفع مشفّراً بـ SSE-KMS مفتاح محدّد؟<\/span><span class=\"lang-en\">How do you ensure every new object is uploaded with SSE-KMS using a specific key?<\/span>",
         options: [
-          "<span class="lang-ar">الاعتماد على التشفير الافتراضيّ فقط.</span><span class="lang-en">Rely solely on default encryption.</span>",
-          "<span class="lang-ar">Bucket Policy بـ Deny على PutObject دون <span dir="ltr" class="font-mono">x-amz-server-side-encryption: aws:kms</span> و <span dir="ltr" class="font-mono">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;</span>.</span><span class="lang-en">Bucket Policy with Deny on PutObject missing <span dir="ltr" class="font-mono">x-amz-server-side-encryption: aws:kms</span> and <span dir="ltr" class="font-mono">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;</span>.</span>",
-          "<span class="lang-ar">MFA على كلّ رفع.</span><span class="lang-en">MFA on every upload.</span>",
-          "<span class="lang-ar">Versioning.</span><span class="lang-en">Versioning.</span>"
+          "<span class=\"lang-ar\">الاعتماد على التشفير الافتراضيّ فقط.<\/span><span class=\"lang-en\">Rely solely on default encryption.<\/span>",
+          "<span class=\"lang-ar\">Bucket Policy بـ Deny على PutObject دون <span dir=\"ltr\" class=\"font-mono\">x-amz-server-side-encryption: aws:kms<\/span> و <span dir=\"ltr\" class=\"font-mono\">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;<\/span>.<\/span><span class=\"lang-en\">Bucket Policy with Deny on PutObject missing <span dir=\"ltr\" class=\"font-mono\">x-amz-server-side-encryption: aws:kms<\/span> and <span dir=\"ltr\" class=\"font-mono\">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;<\/span>.<\/span>",
+          "<span class=\"lang-ar\">MFA على كلّ رفع.<\/span><span class=\"lang-en\">MFA on every upload.<\/span>",
+          "<span class=\"lang-ar\">Versioning.<\/span><span class=\"lang-en\">Versioning.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">التشفير الافتراضيّ في الـ Bucket يشفّر الكائنات بدون تحديد المفتاح إن لم يُرسَل Header. لفرض مفتاح محدّد، أضف Bucket Policy تُفشل أيّ Put بدون الـ Headers الصحيحة. هذا النمط أساسيّ لأيّ compliance (SOC 2, PCI).</span><span class="lang-en">Default bucket encryption encrypts objects without specifying a key if no header is sent. To force a specific key, add a Bucket Policy that fails any Put lacking correct headers. Essential pattern for compliance (SOC 2, PCI).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يضمن استخدام مفتاح محدّد.</span><span class=\"lang-en\">Doesn't guarantee specific key.</span>", "", "<span class=\"lang-ar\">MFA لا علاقة لها.</span><span class=\"lang-en\">MFA irrelevant.</span>", "<span class=\"lang-ar\">Versioning للإصدارات، لا للتشفير.</span><span class=\"lang-en\">Versioning is for versions, not encryption.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">التشفير الافتراضيّ في الـ Bucket يشفّر الكائنات بدون تحديد المفتاح إن لم يُرسَل Header. لفرض مفتاح محدّد، أضف Bucket Policy تُفشل أيّ Put بدون الـ Headers الصحيحة. هذا النمط أساسيّ لأيّ compliance (SOC 2, PCI).<\/span><span class=\"lang-en\">Default bucket encryption encrypts objects without specifying a key if no header is sent. To force a specific key, add a Bucket Policy that fails any Put lacking correct headers. Essential pattern for compliance (SOC 2, PCI).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يضمن استخدام مفتاح محدّد.<\/span><span class=\"lang-en\">Doesn't guarantee specific key.<\/span>", "", "<span class=\"lang-ar\">MFA لا علاقة لها.<\/span><span class=\"lang-en\">MFA irrelevant.<\/span>", "<span class=\"lang-ar\">Versioning للإصدارات، لا للتشفير.<\/span><span class=\"lang-en\">Versioning is for versions, not encryption.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">Presigned URL يُصدر بواسطة مستخدم IAM <span dir="ltr" class="font-mono">alice</span> لديها <span dir="ltr" class="font-mono">s3:PutObject</span>. بعد مشاركة الرابط، أُلغيت صلاحيّات <span dir="ltr" class="font-mono">alice</span>. هل يبقى الرابط صالحاً؟</span><span class="lang-en">A Presigned URL is generated by IAM user <span dir="ltr" class="font-mono">alice</span> with <span dir="ltr" class="font-mono">s3:PutObject</span>. After sharing, alice's permissions are revoked. Does the URL still work?</span>",
+        question: "<span class=\"lang-ar\">Presigned URL يُصدر بواسطة مستخدم IAM <span dir=\"ltr\" class=\"font-mono\">alice<\/span> لديها <span dir=\"ltr\" class=\"font-mono\">s3:PutObject<\/span>. بعد مشاركة الرابط، أُلغيت صلاحيّات <span dir=\"ltr\" class=\"font-mono\">alice<\/span>. هل يبقى الرابط صالحاً؟<\/span><span class=\"lang-en\">A Presigned URL is generated by IAM user <span dir=\"ltr\" class=\"font-mono\">alice<\/span> with <span dir=\"ltr\" class=\"font-mono\">s3:PutObject<\/span>. After sharing, alice's permissions are revoked. Does the URL still work?<\/span>",
         options: [
-          "<span class="lang-ar">نعم — الرابط يعيش ما لم تنتهِ مدّته.</span><span class="lang-en">Yes — the URL lives until its expiry.</span>",
-          "<span class="lang-ar">لا — الرابط يُصبح غير صالح فوراً لأنّه يعتمد على صلاحيّات الموقِّع في لحظة الاستخدام.</span><span class="lang-en">No — the URL is invalidated instantly; it relies on the signer's current permissions at request time.</span>",
-          "<span class="lang-ar">يصبح للقراءة فقط.</span><span class="lang-en">Becomes read-only.</span>",
-          "<span class="lang-ar">يعمل لكن ببطء.</span><span class="lang-en">Works but slowly.</span>"
+          "<span class=\"lang-ar\">نعم — الرابط يعيش ما لم تنتهِ مدّته.<\/span><span class=\"lang-en\">Yes — the URL lives until its expiry.<\/span>",
+          "<span class=\"lang-ar\">لا — الرابط يُصبح غير صالح فوراً لأنّه يعتمد على صلاحيّات الموقِّع في لحظة الاستخدام.<\/span><span class=\"lang-en\">No — the URL is invalidated instantly; it relies on the signer's current permissions at request time.<\/span>",
+          "<span class=\"lang-ar\">يصبح للقراءة فقط.<\/span><span class=\"lang-en\">Becomes read-only.<\/span>",
+          "<span class=\"lang-ar\">يعمل لكن ببطء.<\/span><span class=\"lang-en\">Works but slowly.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Presigned URL يوقَّع بمفاتيح الموقِّع لكن عند الاستخدام يتحقّق S3 من صلاحيّات الموقِّع <em>في لحظة الطلب</em>. إلغاء الصلاحيّات أو حذف المستخدم يُفشل الرابط فوراً. لا يعتمد على <em>دائمية</em> الصلاحيّات وقت التوقيع.</span><span class="lang-en">A Presigned URL is signed with the signer's keys, but on use S3 verifies the signer's <em>current</em> permissions at request time. Revoking perms or deleting the user invalidates the URL instantly. It doesn't rely on permissions being <em>permanent</em> at sign time.</span>",
-        wrongExplanations: ["", "", "<span class=\"lang-ar\">لا يتغيّر إلى قراءة فقط.</span><span class=\"lang-en\">Doesn't become read-only.</span>", "<span class=\"lang-ar\">الأداء لا يتأثّر.</span><span class=\"lang-en\">Performance unaffected.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Presigned URL يوقَّع بمفاتيح الموقِّع لكن عند الاستخدام يتحقّق S3 من صلاحيّات الموقِّع <em>في لحظة الطلب<\/em>. إلغاء الصلاحيّات أو حذف المستخدم يُفشل الرابط فوراً. لا يعتمد على <em>دائمية<\/em> الصلاحيّات وقت التوقيع.<\/span><span class=\"lang-en\">A Presigned URL is signed with the signer's keys, but on use S3 verifies the signer's <em>current<\/em> permissions at request time. Revoking perms or deleting the user invalidates the URL instantly. It doesn't rely on permissions being <em>permanent<\/em> at sign time.<\/span>",
+        wrongExplanations: ["", "", "<span class=\"lang-ar\">لا يتغيّر إلى قراءة فقط.<\/span><span class=\"lang-en\">Doesn't become read-only.<\/span>", "<span class=\"lang-ar\">الأداء لا يتأثّر.<\/span><span class=\"lang-en\">Performance unaffected.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">أيّ سياسة نوع SCP (Service Control Policy) على Organization يمكن أن تمنع إنشاء Buckets عامّة في كلّ الحسابات؟</span><span class="lang-en">Which Organization SCP (Service Control Policy) can prevent public bucket creation across all accounts?</span>",
+        question: "<span class=\"lang-ar\">أيّ سياسة نوع SCP (Service Control Policy) على Organization يمكن أن تمنع إنشاء Buckets عامّة في كلّ الحسابات؟<\/span><span class=\"lang-en\">Which Organization SCP (Service Control Policy) can prevent public bucket creation across all accounts?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Allow</span> للـ Admins فقط.</span><span class="lang-en"><span dir="ltr" class="font-mono">Allow</span> only admins.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Deny</span> على <span dir="ltr" class="font-mono">s3:PutBucketPublicAccessBlock</span> عند محاولة تعطيل BPA.</span><span class="lang-en"><span dir="ltr" class="font-mono">Deny</span> on <span dir="ltr" class="font-mono">s3:PutBucketPublicAccessBlock</span> attempts to disable BPA.</span>",
-          "<span class="lang-ar">لا حاجة — BPA يكفي.</span><span class="lang-en">Not needed — BPA is enough.</span>",
-          "<span class="lang-ar">تفعيل MFA.</span><span class="lang-en">Enable MFA.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Allow<\/span> للـ Admins فقط.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Allow<\/span> only admins.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Deny<\/span> على <span dir=\"ltr\" class=\"font-mono\">s3:PutBucketPublicAccessBlock<\/span> عند محاولة تعطيل BPA.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Deny<\/span> on <span dir=\"ltr\" class=\"font-mono\">s3:PutBucketPublicAccessBlock<\/span> attempts to disable BPA.<\/span>",
+          "<span class=\"lang-ar\">لا حاجة — BPA يكفي.<\/span><span class=\"lang-en\">Not needed — BPA is enough.<\/span>",
+          "<span class=\"lang-ar\">تفعيل MFA.<\/span><span class=\"lang-en\">Enable MFA.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">SCP مثاليّة لفرض حواجز على مستوى المنظّمة: منع تعطيل BPA، منع فتح Buckets للعموم، منع حذف CloudTrail، إلخ. الـ SCP لا تمنح صلاحيّات (تقيّد ما هو مسموح فقط). مفعّلة مع Organizations.</span><span class="lang-en">SCPs are ideal for org-wide guardrails: prevent BPA disabling, prevent public-bucket policies, prevent CloudTrail deletion, etc. SCPs don't grant — they only cap what's allowed. Work with AWS Organizations.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا تقيّد العمليّة نفسها.</span><span class=\"lang-en\">Doesn't cap the action itself.</span>", "", "<span class=\"lang-ar\">يكفي محليّاً لكن SCP يفرض ذلك تنظيمياً.</span><span class=\"lang-en\">BPA helps locally; SCP enforces org-wide.</span>", "<span class=\"lang-ar\">MFA لا تمنع الإنشاء.</span><span class=\"lang-en\">MFA doesn't block creation.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">SCP مثاليّة لفرض حواجز على مستوى المنظّمة: منع تعطيل BPA، منع فتح Buckets للعموم، منع حذف CloudTrail، إلخ. الـ SCP لا تمنح صلاحيّات (تقيّد ما هو مسموح فقط). مفعّلة مع Organizations.<\/span><span class=\"lang-en\">SCPs are ideal for org-wide guardrails: prevent BPA disabling, prevent public-bucket policies, prevent CloudTrail deletion, etc. SCPs don't grant — they only cap what's allowed. Work with AWS Organizations.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تقيّد العمليّة نفسها.<\/span><span class=\"lang-en\">Doesn't cap the action itself.<\/span>", "", "<span class=\"lang-ar\">يكفي محليّاً لكن SCP يفرض ذلك تنظيمياً.<\/span><span class=\"lang-en\">BPA helps locally; SCP enforces org-wide.<\/span>", "<span class=\"lang-ar\">MFA لا تمنع الإنشاء.<\/span><span class=\"lang-en\">MFA doesn't block creation.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد أن يُقيّد الوصول إلى Bucket بحيث يأتي <strong>فقط</strong> من VPC Endpoint محدّد. ما الشرط؟</span><span class="lang-en">A developer wants to restrict access so the bucket is reachable <strong>only</strong> through a specific VPC Endpoint. Condition?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد أن يُقيّد الوصول إلى Bucket بحيث يأتي <strong>فقط<\/strong> من VPC Endpoint محدّد. ما الشرط؟<\/span><span class=\"lang-en\">A developer wants to restrict access so the bucket is reachable <strong>only<\/strong> through a specific VPC Endpoint. Condition?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceIp</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceIp</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceVpce</span> مع ID الـ Endpoint.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceVpce</span> with the Endpoint ID.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:PrincipalArn</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:PrincipalArn</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:UserAgent</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:UserAgent</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceIp<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceIp<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceVpce<\/span> مع ID الـ Endpoint.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceVpce<\/span> with the Endpoint ID.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">aws:PrincipalArn<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">aws:PrincipalArn<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">aws:UserAgent<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">aws:UserAgent<\/span>.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceVpce</span> يحتوي ID الـ VPC Endpoint الذي مرّ به الطلب. باستخدامه في Bucket Policy مع Deny، يمكن رفض كلّ طلب لا يمرّ عبر endpoint مسجّل — ممارسة أمنيّة لمنع exfiltration من الإنترنت.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceVpce</span> holds the VPC Endpoint ID through which the request arrived. With Deny in Bucket Policy, you can reject requests not coming through a whitelisted endpoint — security practice to block exfil over the internet.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يحدّد VPC Endpoint.</span><span class=\"lang-en\">Doesn't identify a VPC Endpoint.</span>", "", "<span class=\"lang-ar\">للهويّات لا للشبكة.</span><span class=\"lang-en\">For identities, not network.</span>", "<span class=\"lang-ar\">يمكن تزويره — غير آمن.</span><span class=\"lang-en\">User-Agent is spoofable — insecure.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceVpce<\/span> يحتوي ID الـ VPC Endpoint الذي مرّ به الطلب. باستخدامه في Bucket Policy مع Deny، يمكن رفض كلّ طلب لا يمرّ عبر endpoint مسجّل — ممارسة أمنيّة لمنع exfiltration من الإنترنت.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">aws:SourceVpce<\/span> holds the VPC Endpoint ID through which the request arrived. With Deny in Bucket Policy, you can reject requests not coming through a whitelisted endpoint — security practice to block exfil over the internet.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحدّد VPC Endpoint.<\/span><span class=\"lang-en\">Doesn't identify a VPC Endpoint.<\/span>", "", "<span class=\"lang-ar\">للهويّات لا للشبكة.<\/span><span class=\"lang-en\">For identities, not network.<\/span>", "<span class=\"lang-ar\">يمكن تزويره — غير آمن.<\/span><span class=\"lang-en\">User-Agent is spoofable — insecure.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java Spring Boot يرفع ملفات كبيرة (5GB) إلى S3. أيّ طريقة تمنع الاستهلاك الكبير لـ KMS مع SSE-KMS؟</span><span class="lang-en">A Java Spring Boot app uploads large (5GB) files to S3. Which prevents heavy KMS consumption with SSE-KMS?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java Spring Boot يرفع ملفات كبيرة (5GB) إلى S3. أيّ طريقة تمنع الاستهلاك الكبير لـ KMS مع SSE-KMS؟<\/span><span class=\"lang-en\">A Java Spring Boot app uploads large (5GB) files to S3. Which prevents heavy KMS consumption with SSE-KMS?<\/span>",
         options: [
-          "<span class="lang-ar">استخدام SSE-C مع مفتاح محلّي.</span><span class="lang-en">Use SSE-C with a local key.</span>",
-          "<span class="lang-ar">تفعيل <strong>S3 Bucket Key</strong> على الـ Bucket.</span><span class="lang-en">Enable <strong>S3 Bucket Key</strong> on the bucket.</span>",
-          "<span class="lang-ar">تعطيل التشفير.</span><span class="lang-en">Disable encryption.</span>",
-          "<span class="lang-ar">استخدام Multipart Upload فقط.</span><span class="lang-en">Use only Multipart Upload.</span>"
+          "<span class=\"lang-ar\">استخدام SSE-C مع مفتاح محلّي.<\/span><span class=\"lang-en\">Use SSE-C with a local key.<\/span>",
+          "<span class=\"lang-ar\">تفعيل <strong>S3 Bucket Key<\/strong> على الـ Bucket.<\/span><span class=\"lang-en\">Enable <strong>S3 Bucket Key<\/strong> on the bucket.<\/span>",
+          "<span class=\"lang-ar\">تعطيل التشفير.<\/span><span class=\"lang-en\">Disable encryption.<\/span>",
+          "<span class=\"lang-ar\">استخدام Multipart Upload فقط.<\/span><span class=\"lang-en\">Use only Multipart Upload.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">S3 Bucket Key يحلّ مشكلة الضغط على KMS تحديداً: بدلاً من استدعاء KMS لكلّ part أو كائن، يُنشَأ مفتاح وسيط يشفّر عدّة كائنات. مع Multipart Upload وملفات كبيرة، الوفر يصل إلى ٩٩٪ من طلبات KMS.</span><span class="lang-en">S3 Bucket Key solves exactly the KMS pressure issue: instead of calling KMS per part/object, an intermediate key encrypts many objects. With Multipart Upload on large files, 99% KMS call reduction is typical.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يحلّ مشكلة KMS لكن يتطلّب إدارة مفاتيح يدويّة.</span><span class=\"lang-en\">Solves KMS but needs manual key management.</span>", "", "<span class=\"lang-ar\">مخالف للامتثال.</span><span class=\"lang-en\">Violates compliance.</span>", "<span class=\"lang-ar\">Multipart لا يغيّر عدد استدعاءات KMS.</span><span class=\"lang-en\">Multipart doesn't reduce KMS calls.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">S3 Bucket Key يحلّ مشكلة الضغط على KMS تحديداً: بدلاً من استدعاء KMS لكلّ part أو كائن، يُنشَأ مفتاح وسيط يشفّر عدّة كائنات. مع Multipart Upload وملفات كبيرة، الوفر يصل إلى ٩٩٪ من طلبات KMS.<\/span><span class=\"lang-en\">S3 Bucket Key solves exactly the KMS pressure issue: instead of calling KMS per part/object, an intermediate key encrypts many objects. With Multipart Upload on large files, 99% KMS call reduction is typical.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يحلّ مشكلة KMS لكن يتطلّب إدارة مفاتيح يدويّة.<\/span><span class=\"lang-en\">Solves KMS but needs manual key management.<\/span>", "", "<span class=\"lang-ar\">مخالف للامتثال.<\/span><span class=\"lang-en\">Violates compliance.<\/span>", "<span class=\"lang-ar\">Multipart لا يغيّر عدد استدعاءات KMS.<\/span><span class=\"lang-en\">Multipart doesn't reduce KMS calls.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       }
     ];
 

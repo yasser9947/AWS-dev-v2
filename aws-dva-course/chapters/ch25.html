@@ -881,213 +881,213 @@ aws ecr delete-repository --repository-name acme-api --force</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java Spring Boot داخل ECS Task يحتاج الوصول إلى DynamoDB Table. أيّ Role المناسب؟</span><span class="lang-en">A Java Spring Boot app inside an ECS task needs DynamoDB access. Which role is appropriate?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java Spring Boot داخل ECS Task يحتاج الوصول إلى DynamoDB Table. أيّ Role المناسب؟<\/span><span class=\"lang-en\">A Java Spring Boot app inside an ECS task needs DynamoDB access. Which role is appropriate?<\/span>",
         options: [
-          "<span class="lang-ar">executionRoleArn</span><span class="lang-en">executionRoleArn</span>",
-          "<span class="lang-ar">taskRoleArn</span><span class="lang-en">taskRoleArn</span>",
-          "<span class="lang-ar">EC2 Instance Profile</span><span class="lang-en">EC2 Instance Profile</span>",
-          "<span class="lang-ar">ECS Cluster Role</span><span class="lang-en">ECS Cluster Role</span>"
+          "<span class=\"lang-ar\">executionRoleArn<\/span><span class=\"lang-en\">executionRoleArn<\/span>",
+          "<span class=\"lang-ar\">taskRoleArn<\/span><span class=\"lang-en\">taskRoleArn<\/span>",
+          "<span class=\"lang-ar\">EC2 Instance Profile<\/span><span class=\"lang-en\">EC2 Instance Profile<\/span>",
+          "<span class=\"lang-ar\">ECS Cluster Role<\/span><span class=\"lang-en\">ECS Cluster Role<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>taskRoleArn</strong> هو المخصّص لصلاحيات كود التطبيق داخل Container. الـ SDK يأخذها تلقائياً. <strong>executionRoleArn</strong> لـ ECS Agent / Fargate infrastructure (سحب الصورة، إرسال Logs).</span><span class="lang-en"><strong>taskRoleArn</strong> is for the app code inside the container. The SDK picks it up automatically. <strong>executionRoleArn</strong> is for ECS Agent / Fargate infra (pulling images, sending logs).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">هذا لـ Fargate/ECS infrastructure.</span><span class=\"lang-en\">That's for Fargate/ECS infra.</span>", "", "<span class=\"lang-ar\">لـ EC2 لا للـ Container.</span><span class=\"lang-en\">For the EC2 instance, not the container.</span>", "<span class=\"lang-ar\">لا يوجد دور بهذا الاسم.</span><span class=\"lang-en\">No such role.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>taskRoleArn<\/strong> هو المخصّص لصلاحيات كود التطبيق داخل Container. الـ SDK يأخذها تلقائياً. <strong>executionRoleArn<\/strong> لـ ECS Agent / Fargate infrastructure (سحب الصورة، إرسال Logs).<\/span><span class=\"lang-en\"><strong>taskRoleArn<\/strong> is for the app code inside the container. The SDK picks it up automatically. <strong>executionRoleArn<\/strong> is for ECS Agent / Fargate infra (pulling images, sending logs).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذا لـ Fargate/ECS infrastructure.<\/span><span class=\"lang-en\">That's for Fargate/ECS infra.<\/span>", "", "<span class=\"lang-ar\">لـ EC2 لا للـ Container.<\/span><span class=\"lang-en\">For the EC2 instance, not the container.<\/span>", "<span class=\"lang-ar\">لا يوجد دور بهذا الاسم.<\/span><span class=\"lang-en\">No such role.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">Task يفشل عند البدء مع خطأ <em>"CannotPullContainerError"</em> من ECR. ما السبب الأرجح؟</span><span class="lang-en">A task fails on start with <em>"CannotPullContainerError"</em> from ECR. Most likely cause?</span>",
+        question: "<span class=\"lang-ar\">Task يفشل عند البدء مع خطأ <em>\"CannotPullContainerError\"<\/em> من ECR. ما السبب الأرجح؟<\/span><span class=\"lang-en\">A task fails on start with <em>\"CannotPullContainerError\"<\/em> from ECR. Most likely cause?<\/span>",
         options: [
-          "<span class="lang-ar">كود التطبيق خاطئ.</span><span class="lang-en">App code is buggy.</span>",
-          "<span class="lang-ar">executionRoleArn ناقصه أذونات ECR و CloudWatch Logs.</span><span class="lang-en">executionRoleArn missing ECR + CloudWatch Logs permissions.</span>",
-          "<span class="lang-ar">Security Group يمنع الخروج.</span><span class="lang-en">Security Group blocks egress.</span>",
-          "<span class="lang-ar">ECR Repository محذوف.</span><span class="lang-en">ECR repository deleted.</span>"
+          "<span class=\"lang-ar\">كود التطبيق خاطئ.<\/span><span class=\"lang-en\">App code is buggy.<\/span>",
+          "<span class=\"lang-ar\">executionRoleArn ناقصه أذونات ECR و CloudWatch Logs.<\/span><span class=\"lang-en\">executionRoleArn missing ECR + CloudWatch Logs permissions.<\/span>",
+          "<span class=\"lang-ar\">Security Group يمنع الخروج.<\/span><span class=\"lang-en\">Security Group blocks egress.<\/span>",
+          "<span class=\"lang-ar\">ECR Repository محذوف.<\/span><span class=\"lang-en\">ECR repository deleted.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">سحب الصورة من ECR عمليّة <strong>infrastructure</strong> لا <strong>application</strong>. يحتاج <span dir="ltr" class="font-mono">executionRoleArn</span> أن يحوي <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span>. الخطأ شائع جداً عند نسيانه.</span><span class="lang-en">Pulling from ECR is an <strong>infrastructure</strong> operation, not application. <span dir="ltr" class="font-mono">executionRoleArn</span> needs <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span>. Very common oversight.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">سحب الصورة من ECR عمليّة <strong>infrastructure<\/strong> لا <strong>application<\/strong>. يحتاج <span dir=\"ltr\" class=\"font-mono\">executionRoleArn<\/span> أن يحوي <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy<\/span>. الخطأ شائع جداً عند نسيانه.<\/span><span class=\"lang-en\">Pulling from ECR is an <strong>infrastructure<\/strong> operation, not application. <span dir=\"ltr\" class=\"font-mono\">executionRoleArn<\/span> needs <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy<\/span>. Very common oversight.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تشغيل ECS بدون إدارة EC2 Instances أو تحديثات OS. ما اللانش تايب؟</span><span class="lang-en">A company wants to run ECS without managing EC2 or OS patches. Which launch type?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تشغيل ECS بدون إدارة EC2 Instances أو تحديثات OS. ما اللانش تايب؟<\/span><span class=\"lang-en\">A company wants to run ECS without managing EC2 or OS patches. Which launch type?<\/span>",
         options: [
-          "<span class="lang-ar">EC2 Launch Type</span><span class="lang-en">EC2 Launch Type</span>",
-          "<span class="lang-ar">Fargate</span><span class="lang-en">Fargate</span>",
-          "<span class="lang-ar">EKS</span><span class="lang-en">EKS</span>",
-          "<span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span>"
+          "<span class=\"lang-ar\">EC2 Launch Type<\/span><span class=\"lang-en\">EC2 Launch Type<\/span>",
+          "<span class=\"lang-ar\">Fargate<\/span><span class=\"lang-en\">Fargate<\/span>",
+          "<span class=\"lang-ar\">EKS<\/span><span class=\"lang-en\">EKS<\/span>",
+          "<span class=\"lang-ar\">Lambda<\/span><span class=\"lang-en\">Lambda<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Fargate</strong> هو Serverless: تُعرّف Task Definition فقط، AWS تُدير كل شيء. لا EC2، لا OS patches. الفوترة بالـ vCPU/memory بالثانية. أغلى من EC2 للوحدة لكنّ zero-ops.</span><span class="lang-en"><strong>Fargate</strong> is serverless: you only define a task definition, AWS runs everything. No EC2, no patches. Billed per vCPU/memory per second. More expensive per unit than EC2 but zero-ops.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Fargate<\/strong> هو Serverless: تُعرّف Task Definition فقط، AWS تُدير كل شيء. لا EC2، لا OS patches. الفوترة بالـ vCPU/memory بالثانية. أغلى من EC2 للوحدة لكنّ zero-ops.<\/span><span class=\"lang-en\"><strong>Fargate<\/strong> is serverless: you only define a task definition, AWS runs everything. No EC2, no patches. Billed per vCPU/memory per second. More expensive per unit than EC2 but zero-ops.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">شركة تملك ECS Cluster (EC2 Launch Type) وتريد تقليل عدد EC2 Instances قدر الإمكان (ضغط Tasks على أقلّ Instances). ما الـ Placement Strategy؟</span><span class="lang-en">A company has an ECS cluster (EC2 Launch Type) and wants to minimize EC2 instance count (pack tasks tightly). Which placement strategy?</span>",
+        question: "<span class=\"lang-ar\">شركة تملك ECS Cluster (EC2 Launch Type) وتريد تقليل عدد EC2 Instances قدر الإمكان (ضغط Tasks على أقلّ Instances). ما الـ Placement Strategy؟<\/span><span class=\"lang-en\">A company has an ECS cluster (EC2 Launch Type) and wants to minimize EC2 instance count (pack tasks tightly). Which placement strategy?<\/span>",
         options: [
-          "<span class="lang-ar">random</span><span class="lang-en">random</span>",
-          "<span class="lang-ar">spread</span><span class="lang-en">spread</span>",
-          "<span class="lang-ar">binpack</span><span class="lang-en">binpack</span>",
-          "<span class="lang-ar">distinctInstance</span><span class="lang-en">distinctInstance</span>"
+          "<span class=\"lang-ar\">random<\/span><span class=\"lang-en\">random<\/span>",
+          "<span class=\"lang-ar\">spread<\/span><span class=\"lang-en\">spread<\/span>",
+          "<span class=\"lang-ar\">binpack<\/span><span class=\"lang-en\">binpack<\/span>",
+          "<span class=\"lang-ar\">distinctInstance<\/span><span class=\"lang-en\">distinctInstance<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>binpack</strong> يضغط Tasks على أقلّ Instances ممكنة حتى تمتلئ. يُقلّل تكلفة EC2. <strong>spread</strong> على العكس يُوزّع للعالي التوفّر. <strong>distinctInstance</strong> Constraint ليست Strategy.</span><span class="lang-en"><strong>binpack</strong> compacts tasks onto the fewest instances until full. Minimizes EC2 cost. <strong>spread</strong> does the opposite for HA. <strong>distinctInstance</strong> is a constraint, not a strategy.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>binpack<\/strong> يضغط Tasks على أقلّ Instances ممكنة حتى تمتلئ. يُقلّل تكلفة EC2. <strong>spread<\/strong> على العكس يُوزّع للعالي التوفّر. <strong>distinctInstance<\/strong> Constraint ليست Strategy.<\/span><span class=\"lang-en\"><strong>binpack<\/strong> compacts tasks onto the fewest instances until full. Minimizes EC2 cost. <strong>spread<\/strong> does the opposite for HA. <strong>distinctInstance<\/strong> is a constraint, not a strategy.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">تطبيق microservices يحتاج عالي توفّر بتوزيع Tasks عبر كل AZs. ما الإعداد؟</span><span class="lang-en">A microservices app needs HA by spreading tasks across all AZs. Configuration?</span>",
+        question: "<span class=\"lang-ar\">تطبيق microservices يحتاج عالي توفّر بتوزيع Tasks عبر كل AZs. ما الإعداد؟<\/span><span class=\"lang-en\">A microservices app needs HA by spreading tasks across all AZs. Configuration?<\/span>",
         options: [
-          "<span class="lang-ar">placementStrategy: binpack</span><span class="lang-en">placementStrategy: binpack</span>",
-          "<span class="lang-ar">placementStrategy: spread, field: availability-zone</span><span class="lang-en">placementStrategy: spread, field: availability-zone</span>",
-          "<span class="lang-ar">placementStrategy: random</span><span class="lang-en">placementStrategy: random</span>",
-          "<span class="lang-ar">placementConstraints: distinctInstance</span><span class="lang-en">placementConstraints: distinctInstance</span>"
+          "<span class=\"lang-ar\">placementStrategy: binpack<\/span><span class=\"lang-en\">placementStrategy: binpack<\/span>",
+          "<span class=\"lang-ar\">placementStrategy: spread, field: availability-zone<\/span><span class=\"lang-en\">placementStrategy: spread, field: availability-zone<\/span>",
+          "<span class=\"lang-ar\">placementStrategy: random<\/span><span class=\"lang-en\">placementStrategy: random<\/span>",
+          "<span class=\"lang-ar\">placementConstraints: distinctInstance<\/span><span class=\"lang-en\">placementConstraints: distinctInstance<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">spread</span> مع <span dir="ltr" class="font-mono">attribute:ecs.availability-zone</span> يوزّع Tasks بالتساوي عبر AZs. <span dir="ltr" class="font-mono">distinctInstance</span> constraint يمنع وضع أكثر من Task على نفس EC2 (حالة مختلفة).</span><span class="lang-en"><span dir="ltr" class="font-mono">spread</span> with <span dir="ltr" class="font-mono">attribute:ecs.availability-zone</span> distributes tasks evenly across AZs. <span dir="ltr" class="font-mono">distinctInstance</span> prevents more than one task on the same EC2 (different case).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">spread<\/span> مع <span dir=\"ltr\" class=\"font-mono\">attribute:ecs.availability-zone<\/span> يوزّع Tasks بالتساوي عبر AZs. <span dir=\"ltr\" class=\"font-mono\">distinctInstance<\/span> constraint يمنع وضع أكثر من Task على نفس EC2 (حالة مختلفة).<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">spread<\/span> with <span dir=\"ltr\" class=\"font-mono\">attribute:ecs.availability-zone<\/span> distributes tasks evenly across AZs. <span dir=\"ltr\" class=\"font-mono\">distinctInstance<\/span> prevents more than one task on the same EC2 (different case).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">شركة Acme تستخدم Kubernetes على premises وتريد الترحيل إلى AWS مع أقلّ تغيير في الكود. ما الخيار المناسب؟</span><span class="lang-en">Acme uses Kubernetes on-premises and wants to migrate to AWS with minimal code change. Best fit?</span>",
+        question: "<span class=\"lang-ar\">شركة Acme تستخدم Kubernetes على premises وتريد الترحيل إلى AWS مع أقلّ تغيير في الكود. ما الخيار المناسب؟<\/span><span class=\"lang-en\">Acme uses Kubernetes on-premises and wants to migrate to AWS with minimal code change. Best fit?<\/span>",
         options: [
-          "<span class="lang-ar">ECS EC2 Launch Type</span><span class="lang-en">ECS EC2 Launch Type</span>",
-          "<span class="lang-ar">ECS Fargate</span><span class="lang-en">ECS Fargate</span>",
-          "<span class="lang-ar">EKS</span><span class="lang-en">EKS</span>",
-          "<span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span>"
+          "<span class=\"lang-ar\">ECS EC2 Launch Type<\/span><span class=\"lang-en\">ECS EC2 Launch Type<\/span>",
+          "<span class=\"lang-ar\">ECS Fargate<\/span><span class=\"lang-en\">ECS Fargate<\/span>",
+          "<span class=\"lang-ar\">EKS<\/span><span class=\"lang-en\">EKS<\/span>",
+          "<span class=\"lang-ar\">Lambda<\/span><span class=\"lang-en\">Lambda<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>EKS</strong> هو Kubernetes مُدار في AWS. كل YAML manifests الحاليّة تعمل كما هي. ECS مختلف تماماً — API خاصّ بـ AWS. EKS <em>cloud-agnostic</em> لذلك يمكن تشغيل نفس التطبيق عبر clouds.</span><span class="lang-en"><strong>EKS</strong> is managed Kubernetes on AWS. All existing YAML manifests work as-is. ECS is totally different — an AWS-specific API. EKS is <em>cloud-agnostic</em>, so the same app runs across clouds.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>EKS<\/strong> هو Kubernetes مُدار في AWS. كل YAML manifests الحاليّة تعمل كما هي. ECS مختلف تماماً — API خاصّ بـ AWS. EKS <em>cloud-agnostic<\/em> لذلك يمكن تشغيل نفس التطبيق عبر clouds.<\/span><span class=\"lang-en\"><strong>EKS<\/strong> is managed Kubernetes on AWS. All existing YAML manifests work as-is. ECS is totally different — an AWS-specific API. EKS is <em>cloud-agnostic<\/em>, so the same app runs across clouds.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">تطبيق ECS يحتاج تخزين مشترك بين عدّة Tasks عبر AZs. ما الخيار؟</span><span class="lang-en">An ECS app needs shared storage across multiple tasks in different AZs. Option?</span>",
+        question: "<span class=\"lang-ar\">تطبيق ECS يحتاج تخزين مشترك بين عدّة Tasks عبر AZs. ما الخيار؟<\/span><span class=\"lang-en\">An ECS app needs shared storage across multiple tasks in different AZs. Option?<\/span>",
         options: [
-          "<span class="lang-ar">EBS Volume</span><span class="lang-en">EBS Volume</span>",
-          "<span class="lang-ar">EFS File System mounted on tasks</span><span class="lang-en">EFS File System mounted on tasks</span>",
-          "<span class="lang-ar">Instance Store</span><span class="lang-en">Instance Store</span>",
-          "<span class="lang-ar">S3 mounted as file system</span><span class="lang-en">S3 mounted as file system</span>"
+          "<span class=\"lang-ar\">EBS Volume<\/span><span class=\"lang-en\">EBS Volume<\/span>",
+          "<span class=\"lang-ar\">EFS File System mounted on tasks<\/span><span class=\"lang-en\">EFS File System mounted on tasks<\/span>",
+          "<span class=\"lang-ar\">Instance Store<\/span><span class=\"lang-en\">Instance Store<\/span>",
+          "<span class=\"lang-ar\">S3 mounted as file system<\/span><span class=\"lang-en\">S3 mounted as file system<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>EFS</strong> هو نظام ملفات مُدار متعدّد AZ، يمكن ربطه بـ Tasks (EC2 و Fargate). <strong>EBS</strong> مرتبط بـ AZ واحدة فقط. <strong>S3</strong> لا يُركَّب كنظام ملفّات (object store).</span><span class="lang-en"><strong>EFS</strong> is a managed multi-AZ file system mountable on tasks (EC2 and Fargate). <strong>EBS</strong> is single-AZ. <strong>S3</strong> isn't mountable as a filesystem (object store).</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>EFS<\/strong> هو نظام ملفات مُدار متعدّد AZ، يمكن ربطه بـ Tasks (EC2 و Fargate). <strong>EBS<\/strong> مرتبط بـ AZ واحدة فقط. <strong>S3<\/strong> لا يُركَّب كنظام ملفّات (object store).<\/span><span class=\"lang-en\"><strong>EFS<\/strong> is a managed multi-AZ file system mountable on tasks (EC2 and Fargate). <strong>EBS<\/strong> is single-AZ. <strong>S3<\/strong> isn't mountable as a filesystem (object store).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q8",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الآتي صحيح عن ECR؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about ECR? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الآتي صحيح عن ECR؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which are TRUE about ECR? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">ECR يدعم Private و Public repositories.</span><span class="lang-en">ECR supports Private and Public repositories.</span>",
-          "<span class="lang-ar">ECR يفحص الصور للكشف عن ثغرات أمنيّة.</span><span class="lang-en">ECR scans images for vulnerabilities.</span>",
-          "<span class="lang-ar">الوصول إلى ECR يُتحكَّم فيه بـ IAM.</span><span class="lang-en">ECR access is IAM-controlled.</span>",
-          "<span class="lang-ar">ECR يدعم Docker فقط، ليس OCI.</span><span class="lang-en">ECR supports Docker only, not OCI.</span>"
+          "<span class=\"lang-ar\">ECR يدعم Private و Public repositories.<\/span><span class=\"lang-en\">ECR supports Private and Public repositories.<\/span>",
+          "<span class=\"lang-ar\">ECR يفحص الصور للكشف عن ثغرات أمنيّة.<\/span><span class=\"lang-en\">ECR scans images for vulnerabilities.<\/span>",
+          "<span class=\"lang-ar\">الوصول إلى ECR يُتحكَّم فيه بـ IAM.<\/span><span class=\"lang-en\">ECR access is IAM-controlled.<\/span>",
+          "<span class=\"lang-ar\">ECR يدعم Docker فقط، ليس OCI.<\/span><span class=\"lang-en\">ECR supports Docker only, not OCI.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">ECR يدعم Private و Public (Amazon ECR Public Gallery). يقدّم Vulnerability Scanning. الوصول يُتحكَّم فيه بـ IAM. ويدعم أيضاً OCI (Open Container Initiative) standards، لا Docker فقط.</span><span class="lang-en">ECR supports Private and Public (Amazon ECR Public Gallery). Provides vulnerability scanning. Access is IAM-controlled. Also supports OCI (Open Container Initiative) standards, not just Docker.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">ECR يدعم Private و Public (Amazon ECR Public Gallery). يقدّم Vulnerability Scanning. الوصول يُتحكَّم فيه بـ IAM. ويدعم أيضاً OCI (Open Container Initiative) standards، لا Docker فقط.<\/span><span class=\"lang-en\">ECR supports Private and Public (Amazon ECR Public Gallery). Provides vulnerability scanning. Access is IAM-controlled. Also supports OCI (Open Container Initiative) standards, not just Docker.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">Service ECS تحتاج التوسّع التلقائيّ بناءً على عدد الطلبات على ALB. ما المقياس؟</span><span class="lang-en">An ECS service needs auto-scaling based on ALB request count. Which metric?</span>",
+        question: "<span class=\"lang-ar\">Service ECS تحتاج التوسّع التلقائيّ بناءً على عدد الطلبات على ALB. ما المقياس؟<\/span><span class=\"lang-en\">An ECS service needs auto-scaling based on ALB request count. Which metric?<\/span>",
         options: [
-          "<span class="lang-ar">CPUUtilization</span><span class="lang-en">CPUUtilization</span>",
-          "<span class="lang-ar">MemoryUtilization</span><span class="lang-en">MemoryUtilization</span>",
-          "<span class="lang-ar">ALBRequestCountPerTarget</span><span class="lang-en">ALBRequestCountPerTarget</span>",
-          "<span class="lang-ar">NetworkIn</span><span class="lang-en">NetworkIn</span>"
+          "<span class=\"lang-ar\">CPUUtilization<\/span><span class=\"lang-en\">CPUUtilization<\/span>",
+          "<span class=\"lang-ar\">MemoryUtilization<\/span><span class=\"lang-en\">MemoryUtilization<\/span>",
+          "<span class=\"lang-ar\">ALBRequestCountPerTarget<\/span><span class=\"lang-en\">ALBRequestCountPerTarget<\/span>",
+          "<span class=\"lang-ar\">NetworkIn<\/span><span class=\"lang-en\">NetworkIn<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>ALBRequestCountPerTarget</strong> هو مقياس مخصّص للتوسّع على حمل الطلبات لكل Target. ECS Service Auto Scaling يدعم: CPU، Memory، ALB Request Count Per Target. الأخير أدقّ لتطبيقات REST.</span><span class="lang-en"><strong>ALBRequestCountPerTarget</strong> is the right metric for request-volume scaling. ECS Service Auto Scaling supports: CPU, Memory, ALBRequestCountPerTarget. The last one is most accurate for REST apps.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>ALBRequestCountPerTarget<\/strong> هو مقياس مخصّص للتوسّع على حمل الطلبات لكل Target. ECS Service Auto Scaling يدعم: CPU، Memory، ALB Request Count Per Target. الأخير أدقّ لتطبيقات REST.<\/span><span class=\"lang-en\"><strong>ALBRequestCountPerTarget<\/strong> is the right metric for request-volume scaling. ECS Service Auto Scaling supports: CPU, Memory, ALBRequestCountPerTarget. The last one is most accurate for REST apps.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">Task Definition يحتوي حاويتين: أوّل للتطبيق، والثاني (sidecar) لإرسال metrics. كيف يتشاركان البيانات؟</span><span class="lang-en">A task has two containers: main app and a metrics sidecar. How do they share data?</span>",
+        question: "<span class=\"lang-ar\">Task Definition يحتوي حاويتين: أوّل للتطبيق، والثاني (sidecar) لإرسال metrics. كيف يتشاركان البيانات؟<\/span><span class=\"lang-en\">A task has two containers: main app and a metrics sidecar. How do they share data?<\/span>",
         options: [
-          "<span class="lang-ar">EFS mount</span><span class="lang-en">EFS mount</span>",
-          "<span class="lang-ar">Bind Mount (shared volume داخل Task)</span><span class="lang-en">Bind mount (shared volume inside task)</span>",
-          "<span class="lang-ar">S3 bucket</span><span class="lang-en">S3 bucket</span>",
-          "<span class="lang-ar">API calls</span><span class="lang-en">API calls</span>"
+          "<span class=\"lang-ar\">EFS mount<\/span><span class=\"lang-en\">EFS mount<\/span>",
+          "<span class=\"lang-ar\">Bind Mount (shared volume داخل Task)<\/span><span class=\"lang-en\">Bind mount (shared volume inside task)<\/span>",
+          "<span class=\"lang-ar\">S3 bucket<\/span><span class=\"lang-en\">S3 bucket<\/span>",
+          "<span class=\"lang-ar\">API calls<\/span><span class=\"lang-en\">API calls<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Bind Mount</strong> يُنشئ حجم تخزين مشترك داخل Task، مرئي لكل الحاويات. مناسب للـ <em>sidecar pattern</em>: التطبيق يكتب logs في <span dir="ltr" class="font-mono">/var/log/</span> و sidecar يقرأها ويرسلها إلى CloudWatch/Datadog.</span><span class="lang-en"><strong>Bind Mount</strong> creates a shared volume inside a task, visible to all its containers. Fits the <em>sidecar pattern</em>: app writes logs to <span dir="ltr" class="font-mono">/var/log/</span> and the sidecar reads and ships them to CloudWatch/Datadog.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Bind Mount<\/strong> يُنشئ حجم تخزين مشترك داخل Task، مرئي لكل الحاويات. مناسب للـ <em>sidecar pattern<\/em>: التطبيق يكتب logs في <span dir=\"ltr\" class=\"font-mono\">/var/log/<\/span> و sidecar يقرأها ويرسلها إلى CloudWatch/Datadog.<\/span><span class=\"lang-en\"><strong>Bind Mount<\/strong> creates a shared volume inside a task, visible to all its containers. Fits the <em>sidecar pattern<\/em>: app writes logs to <span dir=\"ltr\" class=\"font-mono\">/var/log/<\/span> and the sidecar reads and ships them to CloudWatch/Datadog.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">عند تشغيل Service على Fargate مع ALB، كيف يتمّ توجيه الترافيك إلى كل Task؟</span><span class="lang-en">On Fargate with ALB, how is traffic routed to each task?</span>",
+        question: "<span class=\"lang-ar\">عند تشغيل Service على Fargate مع ALB، كيف يتمّ توجيه الترافيك إلى كل Task؟<\/span><span class=\"lang-en\">On Fargate with ALB, how is traffic routed to each task?<\/span>",
         options: [
-          "<span class="lang-ar">Dynamic Host Port Mapping (كما EC2 Launch Type).</span><span class="lang-en">Dynamic host port mapping (like EC2 Launch Type).</span>",
-          "<span class="lang-ar">كل Task لها private IP فريد، ALB يستخدم port الـ container مباشرةً.</span><span class="lang-en">Each task has a unique private IP; ALB uses the container port directly.</span>",
-          "<span class="lang-ar">NAT Gateway.</span><span class="lang-en">NAT Gateway.</span>",
-          "<span class="lang-ar">لا يدعم ALB.</span><span class="lang-en">ALB not supported.</span>"
+          "<span class=\"lang-ar\">Dynamic Host Port Mapping (كما EC2 Launch Type).<\/span><span class=\"lang-en\">Dynamic host port mapping (like EC2 Launch Type).<\/span>",
+          "<span class=\"lang-ar\">كل Task لها private IP فريد، ALB يستخدم port الـ container مباشرةً.<\/span><span class=\"lang-en\">Each task has a unique private IP; ALB uses the container port directly.<\/span>",
+          "<span class=\"lang-ar\">NAT Gateway.<\/span><span class=\"lang-en\">NAT Gateway.<\/span>",
+          "<span class=\"lang-ar\">لا يدعم ALB.<\/span><span class=\"lang-en\">ALB not supported.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Fargate يعطي كل Task <strong>ENI مستقلاً مع private IP فريد</strong>. ALB يستخدم Container Port مباشرةً (مثل 8080). لا Dynamic Host Port Mapping (تلك ميزة EC2 Launch Type حيث عدّة Tasks تتشارك نفس EC2).</span><span class="lang-en">Fargate gives each task its own <strong>ENI with a unique private IP</strong>. ALB uses the container port directly (e.g. 8080). No dynamic host port mapping (that's EC2 Launch Type, where multiple tasks share the same EC2).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Fargate يعطي كل Task <strong>ENI مستقلاً مع private IP فريد<\/strong>. ALB يستخدم Container Port مباشرةً (مثل 8080). لا Dynamic Host Port Mapping (تلك ميزة EC2 Launch Type حيث عدّة Tasks تتشارك نفس EC2).<\/span><span class=\"lang-en\">Fargate gives each task its own <strong>ENI with a unique private IP<\/strong>. ALB uses the container port directly (e.g. 8080). No dynamic host port mapping (that's EC2 Launch Type, where multiple tasks share the same EC2).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تشغيل ECS Task كل ساعة لمعالجة ملفات S3 (Batch Job). ما الطريقة الأنظف؟</span><span class="lang-en">A company wants an ECS task run every hour to process S3 files (batch job). Cleanest approach?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تشغيل ECS Task كل ساعة لمعالجة ملفات S3 (Batch Job). ما الطريقة الأنظف؟<\/span><span class=\"lang-en\">A company wants an ECS task run every hour to process S3 files (batch job). Cleanest approach?<\/span>",
         options: [
-          "<span class="lang-ar">Service مع Auto Scaling.</span><span class="lang-en">Service with Auto Scaling.</span>",
-          "<span class="lang-ar">EventBridge Schedule مع Rule: Run ECS Task.</span><span class="lang-en">EventBridge Schedule with Rule: Run ECS Task.</span>",
-          "<span class="lang-ar">Lambda يُطلق ECS Task.</span><span class="lang-en">Lambda triggering ECS Task.</span>",
-          "<span class="lang-ar">Cron job على EC2.</span><span class="lang-en">Cron job on EC2.</span>"
+          "<span class=\"lang-ar\">Service مع Auto Scaling.<\/span><span class=\"lang-en\">Service with Auto Scaling.<\/span>",
+          "<span class=\"lang-ar\">EventBridge Schedule مع Rule: Run ECS Task.<\/span><span class=\"lang-en\">EventBridge Schedule with Rule: Run ECS Task.<\/span>",
+          "<span class=\"lang-ar\">Lambda يُطلق ECS Task.<\/span><span class=\"lang-en\">Lambda triggering ECS Task.<\/span>",
+          "<span class=\"lang-ar\">Cron job على EC2.<\/span><span class=\"lang-en\">Cron job on EC2.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>EventBridge Schedule</strong> يدعم رفع ECS Task مباشرةً بجدول زمنيّ (Cron expression) دون كود إضافيّ. Service للأحمال الدائمة لا المهامّ المؤقّتة. Lambda حلّ ممكن لكنّه يضيف طبقة.</span><span class="lang-en"><strong>EventBridge Schedule</strong> can directly launch an ECS task on a cron, no extra code. Service is for persistent workloads, not one-shot jobs. Lambda works but adds a layer.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>EventBridge Schedule<\/strong> يدعم رفع ECS Task مباشرةً بجدول زمنيّ (Cron expression) دون كود إضافيّ. Service للأحمال الدائمة لا المهامّ المؤقّتة. Lambda حلّ ممكن لكنّه يضيف طبقة.<\/span><span class=\"lang-en\"><strong>EventBridge Schedule<\/strong> can directly launch an ECS task on a cron, no extra code. Service is for persistent workloads, not one-shot jobs. Lambda works but adds a layer.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">أيّ عبارة صحيحة عن <span dir="ltr" class="font-mono">networkMode: awsvpc</span> في Task Definition؟</span><span class="lang-en">Which statement is TRUE about <span dir="ltr" class="font-mono">networkMode: awsvpc</span> in a task definition?</span>",
+        question: "<span class=\"lang-ar\">أيّ عبارة صحيحة عن <span dir=\"ltr\" class=\"font-mono\">networkMode: awsvpc<\/span> في Task Definition؟<\/span><span class=\"lang-en\">Which statement is TRUE about <span dir=\"ltr\" class=\"font-mono\">networkMode: awsvpc<\/span> in a task definition?<\/span>",
         options: [
-          "<span class="lang-ar">كل Task تتشارك شبكة EC2.</span><span class="lang-en">All tasks share the EC2 network.</span>",
-          "<span class="lang-ar">كل Task تحصل على ENI مستقل مع private IP فريد. هذا هو الوضع الإلزاميّ لـ Fargate.</span><span class="lang-en">Each task gets its own ENI and unique private IP. This is the required mode for Fargate.</span>",
-          "<span class="lang-ar">متاح فقط لـ EC2 Launch Type.</span><span class="lang-en">Only available for EC2 Launch Type.</span>",
-          "<span class="lang-ar">يمنع استخدام Security Groups.</span><span class="lang-en">Prevents Security Group usage.</span>"
+          "<span class=\"lang-ar\">كل Task تتشارك شبكة EC2.<\/span><span class=\"lang-en\">All tasks share the EC2 network.<\/span>",
+          "<span class=\"lang-ar\">كل Task تحصل على ENI مستقل مع private IP فريد. هذا هو الوضع الإلزاميّ لـ Fargate.<\/span><span class=\"lang-en\">Each task gets its own ENI and unique private IP. This is the required mode for Fargate.<\/span>",
+          "<span class=\"lang-ar\">متاح فقط لـ EC2 Launch Type.<\/span><span class=\"lang-en\">Only available for EC2 Launch Type.<\/span>",
+          "<span class=\"lang-ar\">يمنع استخدام Security Groups.<\/span><span class=\"lang-en\">Prevents Security Group usage.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">awsvpc</span> يمنح كل Task شبكتها المستقلّة (ENI + private IP). إلزاميّ لـ Fargate، ومتاح اختيارياً لـ EC2 Launch Type. يُسمَح بـ Security Groups و Service Mesh.</span><span class="lang-en"><span dir="ltr" class="font-mono">awsvpc</span> gives each task its own network (ENI + private IP). Required for Fargate, optional for EC2 Launch Type. Security Groups and Service Mesh are supported.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">awsvpc<\/span> يمنح كل Task شبكتها المستقلّة (ENI + private IP). إلزاميّ لـ Fargate، ومتاح اختيارياً لـ EC2 Launch Type. يُسمَح بـ Security Groups و Service Mesh.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">awsvpc<\/span> gives each task its own network (ENI + private IP). Required for Fargate, optional for EC2 Launch Type. Security Groups and Service Mesh are supported.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">أين تُخزَّن الأسرار (DB password) في Task Definition بطريقة آمنة؟</span><span class="lang-en">Where should secrets (DB password) be stored in a task definition securely?</span>",
+        question: "<span class=\"lang-ar\">أين تُخزَّن الأسرار (DB password) في Task Definition بطريقة آمنة؟<\/span><span class=\"lang-en\">Where should secrets (DB password) be stored in a task definition securely?<\/span>",
         options: [
-          "<span class="lang-ar">في environment مباشرة.</span><span class="lang-en">Directly in environment.</span>",
-          "<span class="lang-ar">في secrets مع valueFrom يشير إلى Secrets Manager أو SSM Parameter Store.</span><span class="lang-en">In secrets with valueFrom pointing to Secrets Manager or SSM Parameter Store.</span>",
-          "<span class="lang-ar">في Docker image.</span><span class="lang-en">In the Docker image.</span>",
-          "<span class="lang-ar">في EFS.</span><span class="lang-en">In EFS.</span>"
+          "<span class=\"lang-ar\">في environment مباشرة.<\/span><span class=\"lang-en\">Directly in environment.<\/span>",
+          "<span class=\"lang-ar\">في secrets مع valueFrom يشير إلى Secrets Manager أو SSM Parameter Store.<\/span><span class=\"lang-en\">In secrets with valueFrom pointing to Secrets Manager or SSM Parameter Store.<\/span>",
+          "<span class=\"lang-ar\">في Docker image.<\/span><span class=\"lang-en\">In the Docker image.<\/span>",
+          "<span class=\"lang-ar\">في EFS.<\/span><span class=\"lang-en\">In EFS.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">قسم <span dir="ltr" class="font-mono">secrets</span> في Task Definition يسمح بمرجع إلى Secrets Manager أو SSM Parameter Store. ECS/Fargate تسحب القيمة عند البدء وتحقنها كـ environment variable. يتطلّب executionRoleArn أن يمتلك صلاحيّة قراءة.</span><span class="lang-en">The <span dir="ltr" class="font-mono">secrets</span> block in a task definition references Secrets Manager or SSM Parameter Store. ECS/Fargate fetches the value on startup and injects it as an env var. Requires executionRoleArn to have read permission.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">قسم <span dir=\"ltr\" class=\"font-mono\">secrets<\/span> في Task Definition يسمح بمرجع إلى Secrets Manager أو SSM Parameter Store. ECS/Fargate تسحب القيمة عند البدء وتحقنها كـ environment variable. يتطلّب executionRoleArn أن يمتلك صلاحيّة قراءة.<\/span><span class=\"lang-en\">The <span dir=\"ltr\" class=\"font-mono\">secrets<\/span> block in a task definition references Secrets Manager or SSM Parameter Store. ECS/Fargate fetches the value on startup and injects it as an env var. Requires executionRoleArn to have read permission.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">عمليّة ECS Rolling Update بإعدادات Min 50%، Max 100%. خدمة بها ٤ Tasks. ما السلوك؟</span><span class="lang-en">ECS rolling update with Min 50%, Max 100%. Service has 4 tasks. Behavior?</span>",
+        question: "<span class=\"lang-ar\">عمليّة ECS Rolling Update بإعدادات Min 50%، Max 100%. خدمة بها ٤ Tasks. ما السلوك؟<\/span><span class=\"lang-en\">ECS rolling update with Min 50%, Max 100%. Service has 4 tasks. Behavior?<\/span>",
         options: [
-          "<span class="lang-ar">كل الـ ٤ تُحدَّث في آن.</span><span class="lang-en">All 4 update at once.</span>",
-          "<span class="lang-ar">٢ Tasks تتوقف (تبقى ٢ = 50%) ثمّ تُستبدَل بـ V2، ثمّ الـ ٢ الأخرى. لا يمكن تجاوز ٤ (Max 100%).</span><span class="lang-en">2 tasks stop (2 remain = 50%) then are replaced with V2, then the other 2. Never exceeds 4 (Max 100%).</span>",
-          "<span class="lang-ar">٨ Tasks يعملان معاً.</span><span class="lang-en">8 tasks run together.</span>",
-          "<span class="lang-ar">Downtime دائماً.</span><span class="lang-en">Always downtime.</span>"
+          "<span class=\"lang-ar\">كل الـ ٤ تُحدَّث في آن.<\/span><span class=\"lang-en\">All 4 update at once.<\/span>",
+          "<span class=\"lang-ar\">٢ Tasks تتوقف (تبقى ٢ = 50%) ثمّ تُستبدَل بـ V2، ثمّ الـ ٢ الأخرى. لا يمكن تجاوز ٤ (Max 100%).<\/span><span class=\"lang-en\">2 tasks stop (2 remain = 50%) then are replaced with V2, then the other 2. Never exceeds 4 (Max 100%).<\/span>",
+          "<span class=\"lang-ar\">٨ Tasks يعملان معاً.<\/span><span class=\"lang-en\">8 tasks run together.<\/span>",
+          "<span class=\"lang-ar\">Downtime دائماً.<\/span><span class=\"lang-en\">Always downtime.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Min 50% يعني ألّا تقلّ السعة عن ٥٠٪ (٢ Tasks). Max 100% يعني عدم تجاوز السعة الأساسيّة (٤). النتيجة: يُنهي ٢ V1 (تبقى ٢ V1)، يُشغّل ٢ V2، ثم يُنهي ٢ V1 الأخرى ويُشغّل ٢ V2. لا Downtime.</span><span class="lang-en">Min 50% = capacity never below 50% (2 tasks). Max 100% = never exceed base capacity (4). Flow: kill 2 V1 (2 V1 left), start 2 V2; then kill the other 2 V1 and start 2 V2. No downtime.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Min 50% يعني ألّا تقلّ السعة عن ٥٠٪ (٢ Tasks). Max 100% يعني عدم تجاوز السعة الأساسيّة (٤). النتيجة: يُنهي ٢ V1 (تبقى ٢ V1)، يُشغّل ٢ V2، ثم يُنهي ٢ V1 الأخرى ويُشغّل ٢ V2. لا Downtime.<\/span><span class=\"lang-en\">Min 50% = capacity never below 50% (2 tasks). Max 100% = never exceed base capacity (4). Flow: kill 2 V1 (2 V1 left), start 2 V2; then kill the other 2 V1 and start 2 V2. No downtime.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       }
     ];
 

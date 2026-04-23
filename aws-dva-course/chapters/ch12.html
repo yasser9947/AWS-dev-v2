@@ -933,270 +933,270 @@ ddb.transactWriteItems(tx);  // atomic — both succeed or both fail</code></pre
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يصمّم جدول DynamoDB لتطبيق أفلام. أيّ الحقول التالية أفضل كـ Partition Key لتوزيع البيانات بشكل متساوٍ؟</span><span class="lang-en">A developer designs a DynamoDB table for a movies app. Which field makes the best Partition Key for even data distribution?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يصمّم جدول DynamoDB لتطبيق أفلام. أيّ الحقول التالية أفضل كـ Partition Key لتوزيع البيانات بشكل متساوٍ؟<\/span><span class=\"lang-en\">A developer designs a DynamoDB table for a movies app. Which field makes the best Partition Key for even data distribution?<\/span>",
         options: [
-          "<span class="lang-ar"><span class="font-mono">movie_language</span></span><span class="lang-en"><span class="font-mono">movie_language</span></span>",
-          "<span class="lang-ar"><span class="font-mono">producer_name</span></span><span class="lang-en"><span class="font-mono">producer_name</span></span>",
-          "<span class="lang-ar"><span class="font-mono">movie_id (UUID)</span></span><span class="lang-en"><span class="font-mono">movie_id (UUID)</span></span>",
-          "<span class="lang-ar"><span class="font-mono">release_year</span></span><span class="lang-en"><span class="font-mono">release_year</span></span>"
+          "<span class=\"lang-ar\"><span class=\"font-mono\">movie_language<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">movie_language<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">producer_name<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">producer_name<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">movie_id (UUID)<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">movie_id (UUID)<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">release_year<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">release_year<\/span><\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">أفضل Partition Key هو الذي له <strong>cardinality عالية</strong> وتوزيع متساوٍ. <span class="font-mono">movie_id</span> (UUID) يضمن مفاتيح فريدة وتوزيع مثالي. الـ language منحاز للإنجليزية، والـ year يُركّز الأحمال على السنة الحالية، و <span class="font-mono">producer_name</span> له منتجين مشهورين أكثر من غيرهم.</span><span class="lang-en">Best Partition Key = <strong>high cardinality</strong> and even distribution. <span class="font-mono">movie_id</span> (UUID) guarantees uniqueness and perfect spread. Language is skewed to English, year concentrates current-year load, and <span class="font-mono">producer_name</span> has popular producers dominating.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">قيم قليلة ومنحازة للإنجليزية — hot partition.</span><span class=\"lang-en\">Few values, skewed to English — hot partition.</span>", "<span class=\"lang-ar\">منتجون مشهورون يستقطبون معظم الطلبات.</span><span class=\"lang-en\">Popular producers dominate traffic.</span>", "", "<span class=\"lang-ar\">الأحمال تتركّز على آخر سنة.</span><span class=\"lang-en\">Latest year captures most load.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢ — Partition Keys و Hot Keys</span><span class=\"lang-en\">Section 2 — Partition Keys & Hot Keys</span>"
+        explanation: "<span class=\"lang-ar\">أفضل Partition Key هو الذي له <strong>cardinality عالية<\/strong> وتوزيع متساوٍ. <span class=\"font-mono\">movie_id<\/span> (UUID) يضمن مفاتيح فريدة وتوزيع مثالي. الـ language منحاز للإنجليزية، والـ year يُركّز الأحمال على السنة الحالية، و <span class=\"font-mono\">producer_name<\/span> له منتجين مشهورين أكثر من غيرهم.<\/span><span class=\"lang-en\">Best Partition Key = <strong>high cardinality<\/strong> and even distribution. <span class=\"font-mono\">movie_id<\/span> (UUID) guarantees uniqueness and perfect spread. Language is skewed to English, year concentrates current-year load, and <span class=\"font-mono\">producer_name<\/span> has popular producers dominating.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قيم قليلة ومنحازة للإنجليزية — hot partition.<\/span><span class=\"lang-en\">Few values, skewed to English — hot partition.<\/span>", "<span class=\"lang-ar\">منتجون مشهورون يستقطبون معظم الطلبات.<\/span><span class=\"lang-en\">Popular producers dominate traffic.<\/span>", "", "<span class=\"lang-ar\">الأحمال تتركّز على آخر سنة.<\/span><span class=\"lang-en\">Latest year captures most load.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — Partition Keys و Hot Keys<\/span><span class=\"lang-en\">Section 2 — Partition Keys & Hot Keys<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يقرأ نفس عنصر DynamoDB ملايين المرّات في الثانية (Hot Key) ويواجه <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. ما الحلّ الأمثل <u>دون تغيير كود التطبيق</u>؟</span><span class="lang-en">An app reads the same DynamoDB item millions of times/sec (Hot Key) and hits <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. Best fix <u>without code changes</u>?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يقرأ نفس عنصر DynamoDB ملايين المرّات في الثانية (Hot Key) ويواجه <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException<\/span>. ما الحلّ الأمثل <u>دون تغيير كود التطبيق<\/u>؟<\/span><span class=\"lang-en\">An app reads the same DynamoDB item millions of times/sec (Hot Key) and hits <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException<\/span>. Best fix <u>without code changes<\/u>?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة DAX أمام الجدول.</span><span class="lang-en">Add DAX in front of the table.</span>",
-          "<span class="lang-ar">رفع RCU بشكل كبير.</span><span class="lang-en">Massively increase RCU.</span>",
-          "<span class="lang-ar">تحويل الجدول إلى Scan بدل Query.</span><span class="lang-en">Switch from Query to Scan.</span>",
-          "<span class="lang-ar">تقليل حجم العنصر.</span><span class="lang-en">Reduce item size.</span>"
+          "<span class=\"lang-ar\">إضافة DAX أمام الجدول.<\/span><span class=\"lang-en\">Add DAX in front of the table.<\/span>",
+          "<span class=\"lang-ar\">رفع RCU بشكل كبير.<\/span><span class=\"lang-en\">Massively increase RCU.<\/span>",
+          "<span class=\"lang-ar\">تحويل الجدول إلى Scan بدل Query.<\/span><span class=\"lang-en\">Switch from Query to Scan.<\/span>",
+          "<span class=\"lang-ar\">تقليل حجم العنصر.<\/span><span class=\"lang-en\">Reduce item size.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>DAX</strong> (DynamoDB Accelerator) هو in-memory cache متوافق ١٠٠٪ مع DynamoDB API — يعمل دون تغيير الكود ويحلّ Hot Keys مباشرة بـ microseconds latency. رفع RCU لن يحلّ مشكلة الـ hot partition لأنّ الـ capacity موزّعة بين الـ partitions. Scan أسوأ في هذا السيناريو.</span><span class="lang-en"><strong>DAX</strong> is an in-memory cache 100% API-compatible with DynamoDB — no code changes, fixes Hot Keys with microsecond latency. Raising RCU won't help since capacity is per-partition. Scan is worse here.</span>",
-        wrongExplanations: ["", "<span class=\"lang-ar\">الـ capacity موزّعة على الـ partitions، وزيادتها لا تحلّ hot partition.</span><span class=\"lang-en\">Capacity is per-partition; scaling RCU doesn't fix hot partition.</span>", "<span class=\"lang-ar\">Scan يضاعف المشكلة (يقرأ الجدول كله).</span><span class=\"lang-en\">Scan makes it worse (reads whole table).</span>", "<span class=\"lang-ar\">حجم العنصر ليس السبب الرئيسي للـ hot key.</span><span class=\"lang-en\">Item size isn't the root cause.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦ — DAX</span><span class=\"lang-en\">Section 6 — DAX</span>"
+        explanation: "<span class=\"lang-ar\"><strong>DAX<\/strong> (DynamoDB Accelerator) هو in-memory cache متوافق ١٠٠٪ مع DynamoDB API — يعمل دون تغيير الكود ويحلّ Hot Keys مباشرة بـ microseconds latency. رفع RCU لن يحلّ مشكلة الـ hot partition لأنّ الـ capacity موزّعة بين الـ partitions. Scan أسوأ في هذا السيناريو.<\/span><span class=\"lang-en\"><strong>DAX<\/strong> is an in-memory cache 100% API-compatible with DynamoDB — no code changes, fixes Hot Keys with microsecond latency. Raising RCU won't help since capacity is per-partition. Scan is worse here.<\/span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">الـ capacity موزّعة على الـ partitions، وزيادتها لا تحلّ hot partition.<\/span><span class=\"lang-en\">Capacity is per-partition; scaling RCU doesn't fix hot partition.<\/span>", "<span class=\"lang-ar\">Scan يضاعف المشكلة (يقرأ الجدول كله).<\/span><span class=\"lang-en\">Scan makes it worse (reads whole table).<\/span>", "<span class=\"lang-ar\">حجم العنصر ليس السبب الرئيسي للـ hot key.<\/span><span class=\"lang-en\">Item size isn't the root cause.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — DAX<\/span><span class=\"lang-en\">Section 6 — DAX<\/span>"
       },
       {
         id: "q3",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العبارات التالية صحيحة عن <strong>GSI</strong> (Global Secondary Index)؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about <strong>GSI</strong> (Global Secondary Index)? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العبارات التالية صحيحة عن <strong>GSI<\/strong> (Global Secondary Index)؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are true about <strong>GSI<\/strong> (Global Secondary Index)? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">يمكن إضافته/تعديله بعد إنشاء الجدول.</span><span class="lang-en">Can be added/modified after table creation.</span>",
-          "<span class="lang-ar">يدعم Strongly Consistent Reads.</span><span class="lang-en">Supports Strongly Consistent Reads.</span>",
-          "<span class="lang-ar">له RCU/WCU مستقلّة عن الجدول.</span><span class="lang-en">Has independent RCU/WCU from the table.</span>",
-          "<span class="lang-ar">إذا اختنقت كتابة GSI، يختنق الجدول الرئيسي معه.</span><span class="lang-en">If GSI writes throttle, main table throttles too.</span>",
-          "<span class="lang-ar">يستخدم نفس Partition Key للجدول الأصلي.</span><span class="lang-en">Uses the same Partition Key as the base table.</span>"
+          "<span class=\"lang-ar\">يمكن إضافته/تعديله بعد إنشاء الجدول.<\/span><span class=\"lang-en\">Can be added/modified after table creation.<\/span>",
+          "<span class=\"lang-ar\">يدعم Strongly Consistent Reads.<\/span><span class=\"lang-en\">Supports Strongly Consistent Reads.<\/span>",
+          "<span class=\"lang-ar\">له RCU/WCU مستقلّة عن الجدول.<\/span><span class=\"lang-en\">Has independent RCU/WCU from the table.<\/span>",
+          "<span class=\"lang-ar\">إذا اختنقت كتابة GSI، يختنق الجدول الرئيسي معه.<\/span><span class=\"lang-en\">If GSI writes throttle, main table throttles too.<\/span>",
+          "<span class=\"lang-ar\">يستخدم نفس Partition Key للجدول الأصلي.<\/span><span class=\"lang-en\">Uses the same Partition Key as the base table.<\/span>"
         ],
         correct: [0,2,3],
-        explanation: "<span class="lang-ar">GSI يمكن إنشاؤه في أيّ وقت ويملك capacity مستقلّة. <strong>الاختناق في الـ GSI يُسبّب اختناق الجدول الرئيسي</strong> — فخّ مشهور في الامتحان. GSI يدعم <strong>Eventually Consistent Reads فقط</strong>. Partition Key يمكن أن يكون أيّ attribute (على عكس LSI).</span><span class="lang-en">GSI can be created anytime and has independent capacity. <strong>GSI write throttling cascades to the main table</strong> — common exam trap. GSI supports <strong>Eventually Consistent Reads only</strong>. Its Partition Key can be any attribute (unlike LSI).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">GSI يمكن إنشاؤه في أيّ وقت ويملك capacity مستقلّة. <strong>الاختناق في الـ GSI يُسبّب اختناق الجدول الرئيسي<\/strong> — فخّ مشهور في الامتحان. GSI يدعم <strong>Eventually Consistent Reads فقط<\/strong>. Partition Key يمكن أن يكون أيّ attribute (على عكس LSI).<\/span><span class=\"lang-en\">GSI can be created anytime and has independent capacity. <strong>GSI write throttling cascades to the main table<\/strong> — common exam trap. GSI supports <strong>Eventually Consistent Reads only<\/strong>. Its Partition Key can be any attribute (unlike LSI).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين <span dir="ltr" class="font-mono">FilterExpression</span> و <span dir="ltr" class="font-mono">ConditionExpression</span> في DynamoDB؟</span><span class="lang-en">What's the difference between <span dir="ltr" class="font-mono">FilterExpression</span> and <span dir="ltr" class="font-mono">ConditionExpression</span>?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين <span dir=\"ltr\" class=\"font-mono\">FilterExpression<\/span> و <span dir=\"ltr\" class=\"font-mono\">ConditionExpression<\/span> في DynamoDB؟<\/span><span class=\"lang-en\">What's the difference between <span dir=\"ltr\" class=\"font-mono\">FilterExpression<\/span> and <span dir=\"ltr\" class=\"font-mono\">ConditionExpression<\/span>?<\/span>",
         options: [
-          "<span class="lang-ar">FilterExpression للـ reads (Query/Scan)؛ ConditionExpression للـ writes (Put/Update/Delete).</span><span class="lang-en">FilterExpression is for reads (Query/Scan); ConditionExpression is for writes (Put/Update/Delete).</span>",
-          "<span class="lang-ar">كلاهما يعمل على writes فقط.</span><span class="lang-en">Both are for writes only.</span>",
-          "<span class="lang-ar">FilterExpression أسرع من ConditionExpression.</span><span class="lang-en">FilterExpression is faster.</span>",
-          "<span class="lang-ar">ConditionExpression يُستخدم في Scan فقط.</span><span class="lang-en">ConditionExpression is for Scan only.</span>"
+          "<span class=\"lang-ar\">FilterExpression للـ reads (Query/Scan)؛ ConditionExpression للـ writes (Put/Update/Delete).<\/span><span class=\"lang-en\">FilterExpression is for reads (Query/Scan); ConditionExpression is for writes (Put/Update/Delete).<\/span>",
+          "<span class=\"lang-ar\">كلاهما يعمل على writes فقط.<\/span><span class=\"lang-en\">Both are for writes only.<\/span>",
+          "<span class=\"lang-ar\">FilterExpression أسرع من ConditionExpression.<\/span><span class=\"lang-en\">FilterExpression is faster.<\/span>",
+          "<span class=\"lang-ar\">ConditionExpression يُستخدم في Scan فقط.<\/span><span class=\"lang-en\">ConditionExpression is for Scan only.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>FilterExpression</strong> يفلتر نتائج القراءة <u>بعد</u> جلبها من الجدول (لا يوفّر RCU — يُطبَّق على البيانات القادمة). <strong>ConditionExpression</strong> يمنع عمليات الكتابة (Put/Update/Delete/BatchWriteItem) من الحدوث إذا لم يتحقّق الشرط — يُستخدم للـ Optimistic Locking.</span><span class="lang-en"><strong>FilterExpression</strong> filters read results <u>after</u> fetching (saves no RCU — applied post-retrieval). <strong>ConditionExpression</strong> prevents write ops (Put/Update/Delete/BatchWriteItem) when the condition fails — used for Optimistic Locking.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>FilterExpression<\/strong> يفلتر نتائج القراءة <u>بعد<\/u> جلبها من الجدول (لا يوفّر RCU — يُطبَّق على البيانات القادمة). <strong>ConditionExpression<\/strong> يمنع عمليات الكتابة (Put/Update/Delete/BatchWriteItem) من الحدوث إذا لم يتحقّق الشرط — يُستخدم للـ Optimistic Locking.<\/span><span class=\"lang-en\"><strong>FilterExpression<\/strong> filters read results <u>after<\/u> fetching (saves no RCU — applied post-retrieval). <strong>ConditionExpression<\/strong> prevents write ops (Put/Update/Delete/BatchWriteItem) when the condition fails — used for Optimistic Locking.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">شركة فنتك تريد تنفيذ تحويل نقود بين حسابين في جدولين مختلفين. العملية يجب أن تكون all-or-nothing. ما الخيار الأمثل؟</span><span class="lang-en">A fintech needs to transfer money between two accounts in two tables atomically (all-or-nothing). Best option?</span>",
+        question: "<span class=\"lang-ar\">شركة فنتك تريد تنفيذ تحويل نقود بين حسابين في جدولين مختلفين. العملية يجب أن تكون all-or-nothing. ما الخيار الأمثل؟<\/span><span class=\"lang-en\">A fintech needs to transfer money between two accounts in two tables atomically (all-or-nothing). Best option?<\/span>",
         options: [
-          "<span class="lang-ar">PutItem مرّتين متتاليتين.</span><span class="lang-en">Two sequential PutItems.</span>",
-          "<span class="lang-ar">BatchWriteItem.</span><span class="lang-en">BatchWriteItem.</span>",
-          "<span class="lang-ar">TransactWriteItems.</span><span class="lang-en">TransactWriteItems.</span>",
-          "<span class="lang-ar">Optimistic Locking باستخدام Conditional Writes على كل عنصر منفصلاً.</span><span class="lang-en">Optimistic Locking with separate Conditional Writes per item.</span>"
+          "<span class=\"lang-ar\">PutItem مرّتين متتاليتين.<\/span><span class=\"lang-en\">Two sequential PutItems.<\/span>",
+          "<span class=\"lang-ar\">BatchWriteItem.<\/span><span class=\"lang-en\">BatchWriteItem.<\/span>",
+          "<span class=\"lang-ar\">TransactWriteItems.<\/span><span class=\"lang-en\">TransactWriteItems.<\/span>",
+          "<span class=\"lang-ar\">Optimistic Locking باستخدام Conditional Writes على كل عنصر منفصلاً.<\/span><span class=\"lang-en\">Optimistic Locking with separate Conditional Writes per item.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>TransactWriteItems</strong> يوفّر ACID عبر جداول متعدّدة: إمّا تنجح كل العمليات أو لا شيء. BatchWriteItem ليس atomic — كل عنصر مستقلّ وقد ينجح بعضها ويفشل الآخر. العمليات المتتابعة ليست atomic وتترك البيانات في حالة غير متّسقة عند الفشل. ملاحظة: Transactions تستهلك ٢× WCU.</span><span class="lang-en"><strong>TransactWriteItems</strong> gives ACID across multiple tables: all succeed or all fail. BatchWriteItem isn't atomic — items are independent. Sequential ops aren't atomic either. Note: transactions cost 2× WCU.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ليس atomic — أحدهما قد يفشل.</span><span class=\"lang-en\">Not atomic — one can fail.</span>", "<span class=\"lang-ar\">كل عنصر مستقلّ؛ ليس transactional.</span><span class=\"lang-en\">Each item independent; not transactional.</span>", "", "<span class=\"lang-ar\">معقّد ولا يوفّر atomicity عبر العنصرين.</span><span class=\"lang-en\">Complex; not atomic across both items.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>TransactWriteItems<\/strong> يوفّر ACID عبر جداول متعدّدة: إمّا تنجح كل العمليات أو لا شيء. BatchWriteItem ليس atomic — كل عنصر مستقلّ وقد ينجح بعضها ويفشل الآخر. العمليات المتتابعة ليست atomic وتترك البيانات في حالة غير متّسقة عند الفشل. ملاحظة: Transactions تستهلك ٢× WCU.<\/span><span class=\"lang-en\"><strong>TransactWriteItems<\/strong> gives ACID across multiple tables: all succeed or all fail. BatchWriteItem isn't atomic — items are independent. Sequential ops aren't atomic either. Note: transactions cost 2× WCU.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس atomic — أحدهما قد يفشل.<\/span><span class=\"lang-en\">Not atomic — one can fail.<\/span>", "<span class=\"lang-ar\">كل عنصر مستقلّ؛ ليس transactional.<\/span><span class=\"lang-en\">Each item independent; not transactional.<\/span>", "", "<span class=\"lang-ar\">معقّد ولا يوفّر atomicity عبر العنصرين.<\/span><span class=\"lang-en\">Complex; not atomic across both items.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يحتاج ١٠ Strongly Consistent Reads بالثانية لعناصر حجم ٦ KB. ما عدد الـ RCU المطلوب؟</span><span class="lang-en">An app needs 10 Strongly Consistent Reads/sec for 6 KB items. How many RCU?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يحتاج ١٠ Strongly Consistent Reads بالثانية لعناصر حجم ٦ KB. ما عدد الـ RCU المطلوب؟<\/span><span class=\"lang-en\">An app needs 10 Strongly Consistent Reads/sec for 6 KB items. How many RCU?<\/span>",
         options: [
-          "<span class="lang-ar">١٠</span><span class="lang-en">10</span>",
-          "<span class="lang-ar">٢٠</span><span class="lang-en">20</span>",
-          "<span class="lang-ar">٤٠</span><span class="lang-en">40</span>",
-          "<span class="lang-ar">٥</span><span class="lang-en">5</span>"
+          "<span class=\"lang-ar\">١٠<\/span><span class=\"lang-en\">10<\/span>",
+          "<span class=\"lang-ar\">٢٠<\/span><span class=\"lang-en\">20<\/span>",
+          "<span class=\"lang-ar\">٤٠<\/span><span class=\"lang-en\">40<\/span>",
+          "<span class=\"lang-ar\">٥<\/span><span class=\"lang-en\">5<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">١ RCU = Strongly Consistent Read واحدة لعنصر حتى ٤ KB. عنصر ٦ KB يُقرّب لـ ٨ KB، فيحتاج ٢ RCU لكل قراءة. إذن: <strong>١٠ × ٢ = ٢٠ RCU</strong>. لو كانت Eventually Consistent لكانت النتيجة ١٠.</span><span class="lang-en">1 RCU = 1 Strongly Consistent Read up to 4 KB. A 6 KB item rounds to 8 KB = 2 RCU per read. So <strong>10 × 2 = 20 RCU</strong>. Eventually Consistent would be 10.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">هذا حساب Eventually Consistent (ضعف سرعة Strong).</span><span class=\"lang-en\">That's Eventually Consistent math (2× Strong's rate).</span>", "", "<span class=\"lang-ar\">محسوب على أساس ٤× بدل ٢×.</span><span class=\"lang-en\">Computed as 4× instead of 2×.</span>", "<span class=\"lang-ar\">غير كافٍ لـ Strong Consistency.</span><span class=\"lang-en\">Insufficient for Strong Consistency.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">١ RCU = Strongly Consistent Read واحدة لعنصر حتى ٤ KB. عنصر ٦ KB يُقرّب لـ ٨ KB، فيحتاج ٢ RCU لكل قراءة. إذن: <strong>١٠ × ٢ = ٢٠ RCU<\/strong>. لو كانت Eventually Consistent لكانت النتيجة ١٠.<\/span><span class=\"lang-en\">1 RCU = 1 Strongly Consistent Read up to 4 KB. A 6 KB item rounds to 8 KB = 2 RCU per read. So <strong>10 × 2 = 20 RCU<\/strong>. Eventually Consistent would be 10.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذا حساب Eventually Consistent (ضعف سرعة Strong).<\/span><span class=\"lang-en\">That's Eventually Consistent math (2× Strong's rate).<\/span>", "", "<span class=\"lang-ar\">محسوب على أساس ٤× بدل ٢×.<\/span><span class=\"lang-en\">Computed as 4× instead of 2×.<\/span>", "<span class=\"lang-ar\">غير كافٍ لـ Strong Consistency.<\/span><span class=\"lang-en\">Insufficient for Strong Consistency.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد حذف جلسات المستخدمين تلقائياً بعد ٣٠ يوماً بدون استهلاك WCU. ما الحلّ؟</span><span class="lang-en">A developer needs to auto-delete user sessions after 30 days without consuming WCU. Solution?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد حذف جلسات المستخدمين تلقائياً بعد ٣٠ يوماً بدون استهلاك WCU. ما الحلّ؟<\/span><span class=\"lang-en\">A developer needs to auto-delete user sessions after 30 days without consuming WCU. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">تشغيل Lambda مجدولة بـ EventBridge لحذف الجلسات.</span><span class="lang-en">Schedule a Lambda via EventBridge to delete sessions.</span>",
-          "<span class="lang-ar">استخدام DynamoDB TTL مع attribute Unix epoch.</span><span class="lang-en">Use DynamoDB TTL with a Unix epoch attribute.</span>",
-          "<span class="lang-ar">Scan + DeleteItem يومياً.</span><span class="lang-en">Daily Scan + DeleteItem.</span>",
-          "<span class="lang-ar">تعيين <span class="font-mono">expiresAt</span> في Conditional Expression.</span><span class="lang-en">Set <span class="font-mono">expiresAt</span> in a Conditional Expression.</span>"
+          "<span class=\"lang-ar\">تشغيل Lambda مجدولة بـ EventBridge لحذف الجلسات.<\/span><span class=\"lang-en\">Schedule a Lambda via EventBridge to delete sessions.<\/span>",
+          "<span class=\"lang-ar\">استخدام DynamoDB TTL مع attribute Unix epoch.<\/span><span class=\"lang-en\">Use DynamoDB TTL with a Unix epoch attribute.<\/span>",
+          "<span class=\"lang-ar\">Scan + DeleteItem يومياً.<\/span><span class=\"lang-en\">Daily Scan + DeleteItem.<\/span>",
+          "<span class=\"lang-ar\">تعيين <span class=\"font-mono\">expiresAt<\/span> في Conditional Expression.<\/span><span class=\"lang-en\">Set <span class=\"font-mono\">expiresAt<\/span> in a Conditional Expression.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>DynamoDB TTL</strong> مصمّم بالضبط لهذا الغرض: سمة من نوع Number بصيغة Unix epoch seconds، وتُحذَف العناصر تلقائياً خلال بضعة أيام بعد الـ timestamp — <u>بدون استهلاك WCU</u>. الحذف يمرّ عبر Streams أيضاً. Scan + DeleteItem مكلف جداً.</span><span class="lang-en"><strong>DynamoDB TTL</strong> is designed exactly for this: a Number attribute in Unix epoch seconds, items auto-delete within a few days of the timestamp — <u>without consuming WCU</u>. Deletes also flow through Streams. Scan + DeleteItem is very expensive.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يعمل لكنّه يستهلك WCU ويكلّف أكثر.</span><span class=\"lang-en\">Works but consumes WCU and costs more.</span>", "", "<span class=\"lang-ar\">مكلف جداً (Scan يقرأ كل الجدول).</span><span class=\"lang-en\">Very expensive (Scan reads everything).</span>", "<span class=\"lang-ar\">Conditional Expression لا يحذف — يمنع فقط.</span><span class=\"lang-en\">Condition Expressions don't delete — just gate.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦ — TTL</span><span class=\"lang-en\">Section 6 — TTL</span>"
+        explanation: "<span class=\"lang-ar\"><strong>DynamoDB TTL<\/strong> مصمّم بالضبط لهذا الغرض: سمة من نوع Number بصيغة Unix epoch seconds، وتُحذَف العناصر تلقائياً خلال بضعة أيام بعد الـ timestamp — <u>بدون استهلاك WCU<\/u>. الحذف يمرّ عبر Streams أيضاً. Scan + DeleteItem مكلف جداً.<\/span><span class=\"lang-en\"><strong>DynamoDB TTL<\/strong> is designed exactly for this: a Number attribute in Unix epoch seconds, items auto-delete within a few days of the timestamp — <u>without consuming WCU<\/u>. Deletes also flow through Streams. Scan + DeleteItem is very expensive.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعمل لكنّه يستهلك WCU ويكلّف أكثر.<\/span><span class=\"lang-en\">Works but consumes WCU and costs more.<\/span>", "", "<span class=\"lang-ar\">مكلف جداً (Scan يقرأ كل الجدول).<\/span><span class=\"lang-en\">Very expensive (Scan reads everything).<\/span>", "<span class=\"lang-ar\">Conditional Expression لا يحذف — يمنع فقط.<\/span><span class=\"lang-en\">Condition Expressions don't delete — just gate.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — TTL<\/span><span class=\"lang-en\">Section 6 — TTL<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">أيّ العبارات صحيحة عن DynamoDB Streams؟</span><span class="lang-en">Which is true about DynamoDB Streams?</span>",
+        question: "<span class=\"lang-ar\">أيّ العبارات صحيحة عن DynamoDB Streams؟<\/span><span class=\"lang-en\">Which is true about DynamoDB Streams?<\/span>",
         options: [
-          "<span class="lang-ar">Streams يحتفظ بالبيانات لمدّة ٧ أيام.</span><span class="lang-en">Streams retains data for 7 days.</span>",
-          "<span class="lang-ar">يمكن قراءته عبر Lambda Event Source Mapping و KCL.</span><span class="lang-en">Can be read via Lambda Event Source Mapping or KCL.</span>",
-          "<span class="lang-ar">يملأ نفسه تلقائياً بالبيانات القديمة عند التفعيل.</span><span class="lang-en">Backfills with old data on enable.</span>",
-          "<span class="lang-ar">يُرسل بيانات مضغوطة فقط.</span><span class="lang-en">Only sends compressed data.</span>"
+          "<span class=\"lang-ar\">Streams يحتفظ بالبيانات لمدّة ٧ أيام.<\/span><span class=\"lang-en\">Streams retains data for 7 days.<\/span>",
+          "<span class=\"lang-ar\">يمكن قراءته عبر Lambda Event Source Mapping و KCL.<\/span><span class=\"lang-en\">Can be read via Lambda Event Source Mapping or KCL.<\/span>",
+          "<span class=\"lang-ar\">يملأ نفسه تلقائياً بالبيانات القديمة عند التفعيل.<\/span><span class=\"lang-en\">Backfills with old data on enable.<\/span>",
+          "<span class=\"lang-ar\">يُرسل بيانات مضغوطة فقط.<\/span><span class=\"lang-en\">Only sends compressed data.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">DynamoDB Streams يُقرَأ بواسطة: Lambda (عبر Event Source Mapping — synchronous)، KCL apps، أو يمكن إرساله لـ Kinesis Data Streams. الاحتفاظ <strong>٢٤ ساعة فقط</strong>. لا يملأ نفسه بالبيانات السابقة عند التفعيل — فقط التغييرات الجديدة.</span><span class="lang-en">DynamoDB Streams is consumed by: Lambda (via Event Source Mapping — synchronous), KCL apps, or piped to Kinesis Data Streams. Retention is <strong>24 hours only</strong>. No backfill — only new changes after enable.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">٢٤ ساعة فقط وليس ٧ أيام.</span><span class=\"lang-en\">24 hours only, not 7 days.</span>", "", "<span class=\"lang-ar\">التغييرات السابقة لا تظهر عند التفعيل.</span><span class=\"lang-en\">Prior changes don't appear after enable.</span>", "<span class=\"lang-ar\">لا توجد صيغة مضغوطة خاصة.</span><span class=\"lang-en\">No special compressed mode.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">DynamoDB Streams يُقرَأ بواسطة: Lambda (عبر Event Source Mapping — synchronous)، KCL apps، أو يمكن إرساله لـ Kinesis Data Streams. الاحتفاظ <strong>٢٤ ساعة فقط<\/strong>. لا يملأ نفسه بالبيانات السابقة عند التفعيل — فقط التغييرات الجديدة.<\/span><span class=\"lang-en\">DynamoDB Streams is consumed by: Lambda (via Event Source Mapping — synchronous), KCL apps, or piped to Kinesis Data Streams. Retention is <strong>24 hours only<\/strong>. No backfill — only new changes after enable.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">٢٤ ساعة فقط وليس ٧ أيام.<\/span><span class=\"lang-en\">24 hours only, not 7 days.<\/span>", "", "<span class=\"lang-ar\">التغييرات السابقة لا تظهر عند التفعيل.<\/span><span class=\"lang-en\">Prior changes don't appear after enable.<\/span>", "<span class=\"lang-ar\">لا توجد صيغة مضغوطة خاصة.<\/span><span class=\"lang-en\">No special compressed mode.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">شركة Acme تطوّر تطبيق Spring Boot على Lambda يحتاج استعلام المستخدمين <u>حسب البريد الإلكتروني</u>، لكن الـ Primary Key هو userId. ما الحلّ الأمثل؟</span><span class="lang-en">Acme's Spring Boot Lambda needs to query users <u>by email</u>, but Primary Key is userId. Best solution?</span>",
+        question: "<span class=\"lang-ar\">شركة Acme تطوّر تطبيق Spring Boot على Lambda يحتاج استعلام المستخدمين <u>حسب البريد الإلكتروني<\/u>، لكن الـ Primary Key هو userId. ما الحلّ الأمثل؟<\/span><span class=\"lang-en\">Acme's Spring Boot Lambda needs to query users <u>by email<\/u>, but Primary Key is userId. Best solution?<\/span>",
         options: [
-          "<span class="lang-ar">Scan مع FilterExpression على email.</span><span class="lang-en">Scan with FilterExpression on email.</span>",
-          "<span class="lang-ar">إنشاء GSI على email كـ Partition Key.</span><span class="lang-en">Create a GSI with email as Partition Key.</span>",
-          "<span class="lang-ar">إنشاء LSI على email.</span><span class="lang-en">Create an LSI on email.</span>",
-          "<span class="lang-ar">تغيير الـ Primary Key ليصبح email.</span><span class="lang-en">Change Primary Key to email.</span>"
+          "<span class=\"lang-ar\">Scan مع FilterExpression على email.<\/span><span class=\"lang-en\">Scan with FilterExpression on email.<\/span>",
+          "<span class=\"lang-ar\">إنشاء GSI على email كـ Partition Key.<\/span><span class=\"lang-en\">Create a GSI with email as Partition Key.<\/span>",
+          "<span class=\"lang-ar\">إنشاء LSI على email.<\/span><span class=\"lang-en\">Create an LSI on email.<\/span>",
+          "<span class=\"lang-ar\">تغيير الـ Primary Key ليصبح email.<\/span><span class=\"lang-en\">Change Primary Key to email.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>GSI</strong> هو الحلّ المعياري لإضافة نمط استعلام جديد بعد إنشاء الجدول. email سيصبح Partition Key للـ GSI. LSI يتطلّب نفس Partition Key للجدول الأصلي (userId) لذا لا يناسب. تغيير Primary Key يتطلّب إعادة بناء الجدول كاملاً. Scan مكلف جداً.</span><span class="lang-en"><strong>GSI</strong> is the canonical way to add a new query pattern after table creation. Email becomes the GSI Partition Key. LSI requires the same partition key as the table (userId), so it doesn't apply. Changing Primary Key requires rebuilding the table. Scan is very expensive.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مكلف — يقرأ الجدول كلّه.</span><span class=\"lang-en\">Expensive — reads whole table.</span>", "", "<span class=\"lang-ar\">LSI يشترط نفس Partition Key للجدول.</span><span class=\"lang-en\">LSI needs the same partition key as the table.</span>", "<span class=\"lang-ar\">يتطلّب إعادة بناء الجدول كاملاً.</span><span class=\"lang-en\">Requires full table rebuild.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>GSI<\/strong> هو الحلّ المعياري لإضافة نمط استعلام جديد بعد إنشاء الجدول. email سيصبح Partition Key للـ GSI. LSI يتطلّب نفس Partition Key للجدول الأصلي (userId) لذا لا يناسب. تغيير Primary Key يتطلّب إعادة بناء الجدول كاملاً. Scan مكلف جداً.<\/span><span class=\"lang-en\"><strong>GSI<\/strong> is the canonical way to add a new query pattern after table creation. Email becomes the GSI Partition Key. LSI requires the same partition key as the table (userId), so it doesn't apply. Changing Primary Key requires rebuilding the table. Scan is very expensive.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف — يقرأ الجدول كلّه.<\/span><span class=\"lang-en\">Expensive — reads whole table.<\/span>", "", "<span class=\"lang-ar\">LSI يشترط نفس Partition Key للجدول.<\/span><span class=\"lang-en\">LSI needs the same partition key as the table.<\/span>", "<span class=\"lang-ar\">يتطلّب إعادة بناء الجدول كاملاً.<\/span><span class=\"lang-en\">Requires full table rebuild.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">متى يجب استخدام <strong>On-Demand</strong> capacity mode بدل Provisioned؟</span><span class="lang-en">When should you pick <strong>On-Demand</strong> over Provisioned capacity?</span>",
+        question: "<span class=\"lang-ar\">متى يجب استخدام <strong>On-Demand<\/strong> capacity mode بدل Provisioned؟<\/span><span class=\"lang-en\">When should you pick <strong>On-Demand<\/strong> over Provisioned capacity?<\/span>",
         options: [
-          "<span class="lang-ar">دائماً — أرخص.</span><span class="lang-en">Always — cheaper.</span>",
-          "<span class="lang-ar">أحمال مُتوقَّعة مستقرّة ٢٤/٧.</span><span class="lang-en">Predictable, steady 24/7 workloads.</span>",
-          "<span class="lang-ar">أحمال جديدة غير معلومة أو متقلّبة بشدّة.</span><span class="lang-en">New/unknown or highly spiky workloads.</span>",
-          "<span class="lang-ar">جداول بأقلّ من ١ GB حجم.</span><span class="lang-en">Tables under 1 GB.</span>"
+          "<span class=\"lang-ar\">دائماً — أرخص.<\/span><span class=\"lang-en\">Always — cheaper.<\/span>",
+          "<span class=\"lang-ar\">أحمال مُتوقَّعة مستقرّة ٢٤/٧.<\/span><span class=\"lang-en\">Predictable, steady 24/7 workloads.<\/span>",
+          "<span class=\"lang-ar\">أحمال جديدة غير معلومة أو متقلّبة بشدّة.<\/span><span class=\"lang-en\">New/unknown or highly spiky workloads.<\/span>",
+          "<span class=\"lang-ar\">جداول بأقلّ من ١ GB حجم.<\/span><span class=\"lang-en\">Tables under 1 GB.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">On-Demand مناسب لـ: أحمال غير متوقّعة، تطبيقات جديدة، اختبار/dev، ذروات مفاجئة. الثمن ٢.٥× Provisioned لكل وحدة، لكنّه يُلغي خطر الـ throttling ويوفّر تكاليف التخطيط. Provisioned أرخص للأحمال الثابتة ٢٤/٧.</span><span class="lang-en">On-Demand suits: unpredictable workloads, new apps, dev/test, sudden spikes. It's 2.5× per-unit price but eliminates throttling risk and planning overhead. Provisioned is cheaper for steady 24/7 load.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">أغلى ٢.٥× للوحدة.</span><span class=\"lang-en\">2.5× more per unit.</span>", "<span class=\"lang-ar\">استخدم Provisioned + RI هنا.</span><span class=\"lang-en\">Use Provisioned + RI here.</span>", "", "<span class=\"lang-ar\">الحجم ليس المعيار.</span><span class=\"lang-en\">Size isn't the criterion.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">On-Demand مناسب لـ: أحمال غير متوقّعة، تطبيقات جديدة، اختبار/dev، ذروات مفاجئة. الثمن ٢.٥× Provisioned لكل وحدة، لكنّه يُلغي خطر الـ throttling ويوفّر تكاليف التخطيط. Provisioned أرخص للأحمال الثابتة ٢٤/٧.<\/span><span class=\"lang-en\">On-Demand suits: unpredictable workloads, new apps, dev/test, sudden spikes. It's 2.5× per-unit price but eliminates throttling risk and planning overhead. Provisioned is cheaper for steady 24/7 load.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أغلى ٢.٥× للوحدة.<\/span><span class=\"lang-en\">2.5× more per unit.<\/span>", "<span class=\"lang-ar\">استخدم Provisioned + RI هنا.<\/span><span class=\"lang-en\">Use Provisioned + RI here.<\/span>", "", "<span class=\"lang-ar\">الحجم ليس المعيار.<\/span><span class=\"lang-en\">Size isn't the criterion.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q11",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العمليات التالية تُعدّ <strong>Conditional Writes</strong> في DynamoDB؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which operations can be <strong>Conditional Writes</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العمليات التالية تُعدّ <strong>Conditional Writes<\/strong> في DynamoDB؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which operations can be <strong>Conditional Writes<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">PutItem</span><span class="lang-en">PutItem</span>",
-          "<span class="lang-ar">GetItem</span><span class="lang-en">GetItem</span>",
-          "<span class="lang-ar">UpdateItem</span><span class="lang-en">UpdateItem</span>",
-          "<span class="lang-ar">DeleteItem</span><span class="lang-en">DeleteItem</span>",
-          "<span class="lang-ar">BatchWriteItem</span><span class="lang-en">BatchWriteItem</span>",
-          "<span class="lang-ar">Scan</span><span class="lang-en">Scan</span>"
+          "<span class=\"lang-ar\">PutItem<\/span><span class=\"lang-en\">PutItem<\/span>",
+          "<span class=\"lang-ar\">GetItem<\/span><span class=\"lang-en\">GetItem<\/span>",
+          "<span class=\"lang-ar\">UpdateItem<\/span><span class=\"lang-en\">UpdateItem<\/span>",
+          "<span class=\"lang-ar\">DeleteItem<\/span><span class=\"lang-en\">DeleteItem<\/span>",
+          "<span class=\"lang-ar\">BatchWriteItem<\/span><span class=\"lang-en\">BatchWriteItem<\/span>",
+          "<span class=\"lang-ar\">Scan<\/span><span class=\"lang-en\">Scan<\/span>"
         ],
         correct: [0,2,3,4],
-        explanation: "<span class="lang-ar">Conditional Writes تنطبق على عمليات <u>الكتابة</u>: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> و <strong>Scan</strong> عمليات قراءة — تستخدم FilterExpression بدل ConditionExpression.</span><span class="lang-en">Conditional Writes apply to <u>write</u> ops: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> and <strong>Scan</strong> are reads — use FilterExpression instead.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Conditional Writes تنطبق على عمليات <u>الكتابة<\/u>: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem<\/strong> و <strong>Scan<\/strong> عمليات قراءة — تستخدم FilterExpression بدل ConditionExpression.<\/span><span class=\"lang-en\">Conditional Writes apply to <u>write<\/u> ops: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem<\/strong> and <strong>Scan<\/strong> are reads — use FilterExpression instead.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">حجم عنصر DynamoDB <strong>الأقصى</strong>؟</span><span class="lang-en">What's the <strong>maximum</strong> DynamoDB item size?</span>",
+        question: "<span class=\"lang-ar\">حجم عنصر DynamoDB <strong>الأقصى<\/strong>؟<\/span><span class=\"lang-en\">What's the <strong>maximum<\/strong> DynamoDB item size?<\/span>",
         options: [
-          "<span class="lang-ar">٦٤ KB</span><span class="lang-en">64 KB</span>",
-          "<span class="lang-ar">٢٥٦ KB</span><span class="lang-en">256 KB</span>",
-          "<span class="lang-ar">٤٠٠ KB</span><span class="lang-en">400 KB</span>",
-          "<span class="lang-ar">١ MB</span><span class="lang-en">1 MB</span>"
+          "<span class=\"lang-ar\">٦٤ KB<\/span><span class=\"lang-en\">64 KB<\/span>",
+          "<span class=\"lang-ar\">٢٥٦ KB<\/span><span class=\"lang-en\">256 KB<\/span>",
+          "<span class=\"lang-ar\">٤٠٠ KB<\/span><span class=\"lang-en\">400 KB<\/span>",
+          "<span class=\"lang-ar\">١ MB<\/span><span class=\"lang-en\">1 MB<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">الحدّ الأقصى <strong>٤٠٠ KB</strong> لكل عنصر. للبيانات الأكبر (صور/فيديوهات) استخدم pattern <strong>S3 + DynamoDB</strong>: خزّن الـ blob في S3 واحفظ الـ URL والـ metadata في DynamoDB.</span><span class="lang-en">Max is <strong>400 KB</strong> per item. For larger data (images/videos), use the <strong>S3 + DynamoDB</strong> pattern: store the blob in S3, keep URL and metadata in DynamoDB.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">الحدّ الأقصى <strong>٤٠٠ KB<\/strong> لكل عنصر. للبيانات الأكبر (صور/فيديوهات) استخدم pattern <strong>S3 + DynamoDB<\/strong>: خزّن الـ blob في S3 واحفظ الـ URL والـ metadata في DynamoDB.<\/span><span class=\"lang-en\">Max is <strong>400 KB<\/strong> per item. For larger data (images/videos), use the <strong>S3 + DynamoDB<\/strong> pattern: store the blob in S3, keep URL and metadata in DynamoDB.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">اثنان من العملاء يحاولان تحديث نفس العنصر في نفس الوقت. كيف تضمن أنّ التحديث الأحدث لا يدمر تحديث الأقدم (Optimistic Locking)؟</span><span class="lang-en">Two clients update the same item concurrently. How do you ensure the later write doesn't clobber the earlier one (Optimistic Locking)?</span>",
+        question: "<span class=\"lang-ar\">اثنان من العملاء يحاولان تحديث نفس العنصر في نفس الوقت. كيف تضمن أنّ التحديث الأحدث لا يدمر تحديث الأقدم (Optimistic Locking)؟<\/span><span class=\"lang-en\">Two clients update the same item concurrently. How do you ensure the later write doesn't clobber the earlier one (Optimistic Locking)?<\/span>",
         options: [
-          "<span class="lang-ar">استخدام Strongly Consistent Reads فقط.</span><span class="lang-en">Use Strongly Consistent Reads only.</span>",
-          "<span class="lang-ar">استخدام ConditionExpression على حقل <span class="font-mono">version</span> يُزاد مع كل تحديث.</span><span class="lang-en">ConditionExpression on a <span class="font-mono">version</span> attribute that increments with each update.</span>",
-          "<span class="lang-ar">رفع RCU.</span><span class="lang-en">Increase RCU.</span>",
-          "<span class="lang-ar">استخدام DAX.</span><span class="lang-en">Use DAX.</span>"
+          "<span class=\"lang-ar\">استخدام Strongly Consistent Reads فقط.<\/span><span class=\"lang-en\">Use Strongly Consistent Reads only.<\/span>",
+          "<span class=\"lang-ar\">استخدام ConditionExpression على حقل <span class=\"font-mono\">version<\/span> يُزاد مع كل تحديث.<\/span><span class=\"lang-en\">ConditionExpression on a <span class=\"font-mono\">version<\/span> attribute that increments with each update.<\/span>",
+          "<span class=\"lang-ar\">رفع RCU.<\/span><span class=\"lang-en\">Increase RCU.<\/span>",
+          "<span class=\"lang-ar\">استخدام DAX.<\/span><span class=\"lang-en\">Use DAX.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Optimistic Locking</strong> في DynamoDB يُنفَّذ عبر <strong>Conditional Writes</strong>: اقرأ العنصر مع الـ version، ثم حدّث مع <span class="font-mono">conditionExpression: 'version = :oldVersion'</span> وزد الـ version في الـ update. إن تغيّرت النسخة بين القراءة والكتابة، العملية تفشل ويعيد التطبيق المحاولة.</span><span class="lang-en"><strong>Optimistic Locking</strong> in DynamoDB uses <strong>Conditional Writes</strong>: read the item with its version, then update with <span class="font-mono">conditionExpression: 'version = :oldVersion'</span> and increment version. If the version changed between read/write, the op fails and the app retries.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يمنع السباق إذا قرأ الاثنان قبل الكتابة.</span><span class=\"lang-en\">Doesn't prevent the race if both read first.</span>", "", "<span class=\"lang-ar\">RCU لا يحلّ قضايا التزامن.</span><span class=\"lang-en\">RCU doesn't solve concurrency.</span>", "<span class=\"lang-ar\">DAX للقراءة فقط.</span><span class=\"lang-en\">DAX is read-only.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Optimistic Locking<\/strong> في DynamoDB يُنفَّذ عبر <strong>Conditional Writes<\/strong>: اقرأ العنصر مع الـ version، ثم حدّث مع <span class=\"font-mono\">conditionExpression: 'version = :oldVersion'<\/span> وزد الـ version في الـ update. إن تغيّرت النسخة بين القراءة والكتابة، العملية تفشل ويعيد التطبيق المحاولة.<\/span><span class=\"lang-en\"><strong>Optimistic Locking<\/strong> in DynamoDB uses <strong>Conditional Writes<\/strong>: read the item with its version, then update with <span class=\"font-mono\">conditionExpression: 'version = :oldVersion'<\/span> and increment version. If the version changed between read/write, the op fails and the app retries.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يمنع السباق إذا قرأ الاثنان قبل الكتابة.<\/span><span class=\"lang-en\">Doesn't prevent the race if both read first.<\/span>", "", "<span class=\"lang-ar\">RCU لا يحلّ قضايا التزامن.<\/span><span class=\"lang-en\">RCU doesn't solve concurrency.<\/span>", "<span class=\"lang-ar\">DAX للقراءة فقط.<\/span><span class=\"lang-en\">DAX is read-only.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">ما حدّ BatchGetItem؟</span><span class="lang-en">What's BatchGetItem's limit?</span>",
+        question: "<span class=\"lang-ar\">ما حدّ BatchGetItem؟<\/span><span class=\"lang-en\">What's BatchGetItem's limit?<\/span>",
         options: [
-          "<span class="lang-ar">٢٥ عنصر، ١٦ MB</span><span class="lang-en">25 items, 16 MB</span>",
-          "<span class="lang-ar">١٠٠ عنصر، ١٦ MB</span><span class="lang-en">100 items, 16 MB</span>",
-          "<span class="lang-ar">٥٠٠ عنصر، ٤٠٠ KB</span><span class="lang-en">500 items, 400 KB</span>",
-          "<span class="lang-ar">١٠٠٠ عنصر، ١ MB</span><span class="lang-en">1000 items, 1 MB</span>"
+          "<span class=\"lang-ar\">٢٥ عنصر، ١٦ MB<\/span><span class=\"lang-en\">25 items, 16 MB<\/span>",
+          "<span class=\"lang-ar\">١٠٠ عنصر، ١٦ MB<\/span><span class=\"lang-en\">100 items, 16 MB<\/span>",
+          "<span class=\"lang-ar\">٥٠٠ عنصر، ٤٠٠ KB<\/span><span class=\"lang-en\">500 items, 400 KB<\/span>",
+          "<span class=\"lang-ar\">١٠٠٠ عنصر، ١ MB<\/span><span class=\"lang-en\">1000 items, 1 MB<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>BatchGetItem</strong>: حتى ١٠٠ عنصر أو ١٦ MB إجمالي. <strong>BatchWriteItem</strong>: حتى ٢٥ عنصر (PutItem/DeleteItem) أو ١٦ MB. البطء/الفشل يعود في <span class="font-mono">UnprocessedKeys</span> — استخدم exponential backoff.</span><span class="lang-en"><strong>BatchGetItem</strong>: up to 100 items or 16 MB total. <strong>BatchWriteItem</strong>: up to 25 items (PutItem/DeleteItem) or 16 MB. Failures return in <span class="font-mono">UnprocessedKeys</span> — apply exponential backoff.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>BatchGetItem<\/strong>: حتى ١٠٠ عنصر أو ١٦ MB إجمالي. <strong>BatchWriteItem<\/strong>: حتى ٢٥ عنصر (PutItem/DeleteItem) أو ١٦ MB. البطء/الفشل يعود في <span class=\"font-mono\">UnprocessedKeys<\/span> — استخدم exponential backoff.<\/span><span class=\"lang-en\"><strong>BatchGetItem<\/strong>: up to 100 items or 16 MB total. <strong>BatchWriteItem<\/strong>: up to 25 items (PutItem/DeleteItem) or 16 MB. Failures return in <span class=\"font-mono\">UnprocessedKeys<\/span> — apply exponential backoff.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يصوّت على مرشحَين فقط (A و B)، ويستخدم <span dir="ltr" class="font-mono">candidateId</span> كـ Partition Key. النتيجة hot partition. ما الحلّ الأنسب للكتابة؟</span><span class="lang-en">A voting app has only two candidates (A, B) using <span dir="ltr" class="font-mono">candidateId</span> as Partition Key — hot partition. Best write-side fix?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يصوّت على مرشحَين فقط (A و B)، ويستخدم <span dir=\"ltr\" class=\"font-mono\">candidateId<\/span> كـ Partition Key. النتيجة hot partition. ما الحلّ الأنسب للكتابة؟<\/span><span class=\"lang-en\">A voting app has only two candidates (A, B) using <span dir=\"ltr\" class=\"font-mono\">candidateId<\/span> as Partition Key — hot partition. Best write-side fix?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة DAX.</span><span class="lang-en">Add DAX.</span>",
-          "<span class="lang-ar">تحويل إلى On-Demand mode.</span><span class="lang-en">Switch to On-Demand mode.</span>",
-          "<span class="lang-ar">Write Sharding: إضافة suffix عشوائي للـ Partition Key (<span class="font-mono">A_1, A_2, ...</span>).</span><span class="lang-en">Write Sharding: add random suffix to Partition Key (<span class="font-mono">A_1, A_2, ...</span>).</span>",
-          "<span class="lang-ar">رفع عدد الـ partitions يدوياً.</span><span class="lang-en">Manually raise partition count.</span>"
+          "<span class=\"lang-ar\">إضافة DAX.<\/span><span class=\"lang-en\">Add DAX.<\/span>",
+          "<span class=\"lang-ar\">تحويل إلى On-Demand mode.<\/span><span class=\"lang-en\">Switch to On-Demand mode.<\/span>",
+          "<span class=\"lang-ar\">Write Sharding: إضافة suffix عشوائي للـ Partition Key (<span class=\"font-mono\">A_1, A_2, ...<\/span>).<\/span><span class=\"lang-en\">Write Sharding: add random suffix to Partition Key (<span class=\"font-mono\">A_1, A_2, ...<\/span>).<\/span>",
+          "<span class=\"lang-ar\">رفع عدد الـ partitions يدوياً.<\/span><span class=\"lang-en\">Manually raise partition count.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Write Sharding</strong> هو الحلّ المعياري لـ hot partition في الكتابة: أضف suffix (عشوائي أو محسوب) لتحويل Partition Key واحد إلى عشرات الـ partitions. DAX للـ reads فقط. On-Demand يساعد لكنّه لا يحلّ hot partition في الأساس. عدد الـ partitions تديره AWS تلقائياً.</span><span class="lang-en"><strong>Write Sharding</strong> is the standard write-hot-partition fix: append a suffix (random or calculated) to turn one Partition Key into many. DAX is read-only. On-Demand helps but doesn't fundamentally fix hot partitions. Partition count is auto-managed by AWS.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">DAX للقراءة فقط.</span><span class=\"lang-en\">DAX is read-only.</span>", "<span class=\"lang-ar\">يساعد لكن لا يحلّ جذر المشكلة.</span><span class=\"lang-en\">Helps but doesn't fix the root cause.</span>", "", "<span class=\"lang-ar\">لا يمكن التحكّم اليدوي.</span><span class=\"lang-en\">Can't manually control count.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Write Sharding<\/strong> هو الحلّ المعياري لـ hot partition في الكتابة: أضف suffix (عشوائي أو محسوب) لتحويل Partition Key واحد إلى عشرات الـ partitions. DAX للـ reads فقط. On-Demand يساعد لكنّه لا يحلّ hot partition في الأساس. عدد الـ partitions تديره AWS تلقائياً.<\/span><span class=\"lang-en\"><strong>Write Sharding<\/strong> is the standard write-hot-partition fix: append a suffix (random or calculated) to turn one Partition Key into many. DAX is read-only. On-Demand helps but doesn't fundamentally fix hot partitions. Partition count is auto-managed by AWS.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">DAX للقراءة فقط.<\/span><span class=\"lang-en\">DAX is read-only.<\/span>", "<span class=\"lang-ar\">يساعد لكن لا يحلّ جذر المشكلة.<\/span><span class=\"lang-en\">Helps but doesn't fix the root cause.<\/span>", "", "<span class=\"lang-ar\">لا يمكن التحكّم اليدوي.<\/span><span class=\"lang-en\">Can't manually control count.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q16",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد حفظ ملفات صور للمنتجات تصل إلى ٢ MB لكل صورة مع بياناتها. ما النمط الأمثل؟</span><span class="lang-en">A developer needs to store product images up to 2 MB each with metadata. Best pattern?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد حفظ ملفات صور للمنتجات تصل إلى ٢ MB لكل صورة مع بياناتها. ما النمط الأمثل؟<\/span><span class=\"lang-en\">A developer needs to store product images up to 2 MB each with metadata. Best pattern?<\/span>",
         options: [
-          "<span class="lang-ar">حفظ الصورة كـ Binary attribute في DynamoDB.</span><span class="lang-en">Store image as a Binary attribute in DynamoDB.</span>",
-          "<span class="lang-ar">تقسيم الصورة لعدّة عناصر.</span><span class="lang-en">Split across multiple items.</span>",
-          "<span class="lang-ar">حفظ الصورة في S3 والـ metadata والرابط في DynamoDB.</span><span class="lang-en">Store image in S3, metadata & URL in DynamoDB.</span>",
-          "<span class="lang-ar">استخدام Instance Store.</span><span class="lang-en">Use Instance Store.</span>"
+          "<span class=\"lang-ar\">حفظ الصورة كـ Binary attribute في DynamoDB.<\/span><span class=\"lang-en\">Store image as a Binary attribute in DynamoDB.<\/span>",
+          "<span class=\"lang-ar\">تقسيم الصورة لعدّة عناصر.<\/span><span class=\"lang-en\">Split across multiple items.<\/span>",
+          "<span class=\"lang-ar\">حفظ الصورة في S3 والـ metadata والرابط في DynamoDB.<\/span><span class=\"lang-en\">Store image in S3, metadata & URL in DynamoDB.<\/span>",
+          "<span class=\"lang-ar\">استخدام Instance Store.<\/span><span class=\"lang-en\">Use Instance Store.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">نمط <strong>Large Objects</strong>: S3 للـ blobs (أرخص، لا قيود حجم عمليّة)، DynamoDB للـ metadata والـ URL. حدّ عنصر DynamoDB ٤٠٠ KB، فصورة ٢ MB لا تدخل. تقسيمها يُعقّد التطبيق.</span><span class="lang-en"><strong>Large Objects</strong> pattern: S3 for blobs (cheaper, no practical size limit), DynamoDB for metadata and URL. DynamoDB item max is 400 KB — 2 MB won't fit. Splitting adds complexity.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حدّ ٤٠٠ KB للعنصر.</span><span class=\"lang-en\">Exceeds 400 KB item limit.</span>", "<span class=\"lang-ar\">يُعقّد الكود بدون فائدة.</span><span class=\"lang-en\">Unnecessary complexity.</span>", "", "<span class=\"lang-ar\">ليس مخصّصاً للتخزين المشترك.</span><span class=\"lang-en\">Not for shared storage.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">نمط <strong>Large Objects<\/strong>: S3 للـ blobs (أرخص، لا قيود حجم عمليّة)، DynamoDB للـ metadata والـ URL. حدّ عنصر DynamoDB ٤٠٠ KB، فصورة ٢ MB لا تدخل. تقسيمها يُعقّد التطبيق.<\/span><span class=\"lang-en\"><strong>Large Objects<\/strong> pattern: S3 for blobs (cheaper, no practical size limit), DynamoDB for metadata and URL. DynamoDB item max is 400 KB — 2 MB won't fit. Splitting adds complexity.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حدّ ٤٠٠ KB للعنصر.<\/span><span class=\"lang-en\">Exceeds 400 KB item limit.<\/span>", "<span class=\"lang-ar\">يُعقّد الكود بدون فائدة.<\/span><span class=\"lang-en\">Unnecessary complexity.<\/span>", "", "<span class=\"lang-ar\">ليس مخصّصاً للتخزين المشترك.<\/span><span class=\"lang-en\">Not for shared storage.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q17",
         type: "single",
-        question: "<span class="lang-ar">كم تستهلك عملية Transactional Write لعنصر حجم ٥ KB من الـ WCU؟</span><span class="lang-en">How many WCU does a Transactional Write for a 5 KB item consume?</span>",
+        question: "<span class=\"lang-ar\">كم تستهلك عملية Transactional Write لعنصر حجم ٥ KB من الـ WCU؟<\/span><span class=\"lang-en\">How many WCU does a Transactional Write for a 5 KB item consume?<\/span>",
         options: [
-          "<span class="lang-ar">٥ WCU</span><span class="lang-en">5 WCU</span>",
-          "<span class="lang-ar">٦ WCU</span><span class="lang-en">6 WCU</span>",
-          "<span class="lang-ar">١٠ WCU</span><span class="lang-en">10 WCU</span>",
-          "<span class="lang-ar">١٢ WCU</span><span class="lang-en">12 WCU</span>"
+          "<span class=\"lang-ar\">٥ WCU<\/span><span class=\"lang-en\">5 WCU<\/span>",
+          "<span class=\"lang-ar\">٦ WCU<\/span><span class=\"lang-en\">6 WCU<\/span>",
+          "<span class=\"lang-ar\">١٠ WCU<\/span><span class=\"lang-en\">10 WCU<\/span>",
+          "<span class=\"lang-ar\">١٢ WCU<\/span><span class=\"lang-en\">12 WCU<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">Transactional Writes تستهلك <strong>ضعف</strong> الـ WCU العادية (prepare + commit). عنصر ٥ KB يحتاج ٥ WCU عادية (١ WCU لكل KB) فيصبح <strong>٥ × ٢ = ١٠ WCU</strong> للـ Transactional Write. نفس المبدأ للـ RCU.</span><span class="lang-en">Transactional Writes cost <strong>2×</strong> regular WCU (prepare + commit). A 5 KB item needs 5 WCU regular (1 WCU/KB) → <strong>5 × 2 = 10 WCU</strong> transactional. Same logic for RCU.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">هذه تكلفة الكتابة العادية.</span><span class=\"lang-en\">That's the non-transactional cost.</span>", "<span class=\"lang-ar\">حسبة خاطئة.</span><span class=\"lang-en\">Wrong math.</span>", "", "<span class=\"lang-ar\">أكثر من اللازم.</span><span class=\"lang-en\">Too high.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Transactional Writes تستهلك <strong>ضعف<\/strong> الـ WCU العادية (prepare + commit). عنصر ٥ KB يحتاج ٥ WCU عادية (١ WCU لكل KB) فيصبح <strong>٥ × ٢ = ١٠ WCU<\/strong> للـ Transactional Write. نفس المبدأ للـ RCU.<\/span><span class=\"lang-en\">Transactional Writes cost <strong>2×<\/strong> regular WCU (prepare + commit). A 5 KB item needs 5 WCU regular (1 WCU/KB) → <strong>5 × 2 = 10 WCU<\/strong> transactional. Same logic for RCU.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذه تكلفة الكتابة العادية.<\/span><span class=\"lang-en\">That's the non-transactional cost.<\/span>", "<span class=\"lang-ar\">حسبة خاطئة.<\/span><span class=\"lang-en\">Wrong math.<\/span>", "", "<span class=\"lang-ar\">أكثر من اللازم.<\/span><span class=\"lang-en\">Too high.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q18",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يحتاج قراءة ميزانية مستخدم فوراً بعد الكتابة (لا تأخير). ما الإعداد الصحيح في DynamoDB؟</span><span class="lang-en">An app needs to read a user's balance immediately after a write — no lag tolerated. Correct DynamoDB setting?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يحتاج قراءة ميزانية مستخدم فوراً بعد الكتابة (لا تأخير). ما الإعداد الصحيح في DynamoDB؟<\/span><span class=\"lang-en\">An app needs to read a user's balance immediately after a write — no lag tolerated. Correct DynamoDB setting?<\/span>",
         options: [
-          "<span class="lang-ar">الإعداد الافتراضي (Eventually Consistent).</span><span class="lang-en">Default (Eventually Consistent).</span>",
-          "<span class="lang-ar">ConsistentRead = true (Strongly Consistent).</span><span class="lang-en">ConsistentRead = true (Strongly Consistent).</span>",
-          "<span class="lang-ar">إضافة DAX.</span><span class="lang-en">Add DAX.</span>",
-          "<span class="lang-ar">استخدام Scan بدل GetItem.</span><span class="lang-en">Use Scan instead of GetItem.</span>"
+          "<span class=\"lang-ar\">الإعداد الافتراضي (Eventually Consistent).<\/span><span class=\"lang-en\">Default (Eventually Consistent).<\/span>",
+          "<span class=\"lang-ar\">ConsistentRead = true (Strongly Consistent).<\/span><span class=\"lang-en\">ConsistentRead = true (Strongly Consistent).<\/span>",
+          "<span class=\"lang-ar\">إضافة DAX.<\/span><span class=\"lang-en\">Add DAX.<\/span>",
+          "<span class=\"lang-ar\">استخدام Scan بدل GetItem.<\/span><span class=\"lang-en\">Use Scan instead of GetItem.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Strongly Consistent Read</strong> يعيد دائماً آخر قيمة مكتوبة (بعد تأكيد كل الـ replicas). اضبط <span class="font-mono">ConsistentRead=true</span> في GetItem/BatchGetItem/Query/Scan. التكلفة: ٢× RCU. الـ Eventually Consistent قد يعطي بيانات قديمة بسبب الـ replication. DAX قد يخفي الكتابة الأحدث.</span><span class="lang-en"><strong>Strongly Consistent Read</strong> always returns the latest committed value (after all replicas ack). Set <span class="font-mono">ConsistentRead=true</span> on GetItem/BatchGetItem/Query/Scan. Cost: 2× RCU. Eventually Consistent may return stale data due to replication. DAX can hide newer writes.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">قد يعطي بيانات قديمة.</span><span class=\"lang-en\">May return stale data.</span>", "", "<span class=\"lang-ar\">قد يخفي آخر كتابة (cache lag).</span><span class=\"lang-en\">May hide latest write (cache lag).</span>", "<span class=\"lang-ar\">Scan مكلف ولا يضمن consistency أكثر.</span><span class=\"lang-en\">Scan is expensive; doesn't help consistency.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Strongly Consistent Read<\/strong> يعيد دائماً آخر قيمة مكتوبة (بعد تأكيد كل الـ replicas). اضبط <span class=\"font-mono\">ConsistentRead=true<\/span> في GetItem/BatchGetItem/Query/Scan. التكلفة: ٢× RCU. الـ Eventually Consistent قد يعطي بيانات قديمة بسبب الـ replication. DAX قد يخفي الكتابة الأحدث.<\/span><span class=\"lang-en\"><strong>Strongly Consistent Read<\/strong> always returns the latest committed value (after all replicas ack). Set <span class=\"font-mono\">ConsistentRead=true<\/span> on GetItem/BatchGetItem/Query/Scan. Cost: 2× RCU. Eventually Consistent may return stale data due to replication. DAX can hide newer writes.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قد يعطي بيانات قديمة.<\/span><span class=\"lang-en\">May return stale data.<\/span>", "", "<span class=\"lang-ar\">قد يخفي آخر كتابة (cache lag).<\/span><span class=\"lang-en\">May hide latest write (cache lag).<\/span>", "<span class=\"lang-ar\">Scan مكلف ولا يضمن consistency أكثر.<\/span><span class=\"lang-en\">Scan is expensive; doesn't help consistency.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       }
     ];
 

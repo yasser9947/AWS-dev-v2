@@ -998,212 +998,212 @@ git commit -am 'trigger' && git push</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">في ملف <span dir="ltr" class="font-mono">buildspec.yml</span>، أين توضع أوامر Docker login إلى ECR قبل البناء؟</span><span class="lang-en">In <span dir="ltr" class="font-mono">buildspec.yml</span>, where do you put Docker login commands for ECR before building?</span>",
+        question: "<span class=\"lang-ar\">في ملف <span dir=\"ltr\" class=\"font-mono\">buildspec.yml<\/span>، أين توضع أوامر Docker login إلى ECR قبل البناء؟<\/span><span class=\"lang-en\">In <span dir=\"ltr\" class=\"font-mono\">buildspec.yml<\/span>, where do you put Docker login commands for ECR before building?<\/span>",
         options: [
-          "<span class="lang-ar">install</span><span class="lang-en">install</span>",
-          "<span class="lang-ar">pre_build</span><span class="lang-en">pre_build</span>",
-          "<span class="lang-ar">build</span><span class="lang-en">build</span>",
-          "<span class="lang-ar">post_build</span><span class="lang-en">post_build</span>"
+          "<span class=\"lang-ar\">install<\/span><span class=\"lang-en\">install<\/span>",
+          "<span class=\"lang-ar\">pre_build<\/span><span class=\"lang-en\">pre_build<\/span>",
+          "<span class=\"lang-ar\">build<\/span><span class=\"lang-en\">build<\/span>",
+          "<span class=\"lang-ar\">post_build<\/span><span class=\"lang-en\">post_build<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>pre_build</strong> للأوامر التي تُنفَّذ قبل البناء مباشرةً (Docker login، تحضير المتغيّرات الديناميكيّة، تحميل deps). <strong>install</strong> لتثبيت runtime/packages، <strong>post_build</strong> لما بعد البناء (push).</span><span class="lang-en"><strong>pre_build</strong> is for commands run immediately before build (Docker login, dynamic var prep, deps download). <strong>install</strong> installs runtime/packages, <strong>post_build</strong> happens after build (push).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>pre_build<\/strong> للأوامر التي تُنفَّذ قبل البناء مباشرةً (Docker login، تحضير المتغيّرات الديناميكيّة، تحميل deps). <strong>install<\/strong> لتثبيت runtime/packages، <strong>post_build<\/strong> لما بعد البناء (push).<\/span><span class=\"lang-en\"><strong>pre_build<\/strong> is for commands run immediately before build (Docker login, dynamic var prep, deps download). <strong>install<\/strong> installs runtime/packages, <strong>post_build<\/strong> happens after build (push).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">CodeDeploy EC2 In-place: ما الـ Hook الذي يعمل <strong>قبل</strong> إيقاف التطبيق القديم؟</span><span class="lang-en">CodeDeploy EC2 In-place: which hook runs <strong>before</strong> stopping the old app?</span>",
+        question: "<span class=\"lang-ar\">CodeDeploy EC2 In-place: ما الـ Hook الذي يعمل <strong>قبل<\/strong> إيقاف التطبيق القديم؟<\/span><span class=\"lang-en\">CodeDeploy EC2 In-place: which hook runs <strong>before<\/strong> stopping the old app?<\/span>",
         options: [
-          "<span class="lang-ar">BeforeInstall</span><span class="lang-en">BeforeInstall</span>",
-          "<span class="lang-ar">ApplicationStop</span><span class="lang-en">ApplicationStop</span>",
-          "<span class="lang-ar">ApplicationStart</span><span class="lang-en">ApplicationStart</span>",
-          "<span class="lang-ar">ValidateService</span><span class="lang-en">ValidateService</span>"
+          "<span class=\"lang-ar\">BeforeInstall<\/span><span class=\"lang-en\">BeforeInstall<\/span>",
+          "<span class=\"lang-ar\">ApplicationStop<\/span><span class=\"lang-en\">ApplicationStop<\/span>",
+          "<span class=\"lang-ar\">ApplicationStart<\/span><span class=\"lang-en\">ApplicationStart<\/span>",
+          "<span class=\"lang-ar\">ValidateService<\/span><span class=\"lang-en\">ValidateService<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">ترتيب EC2 Hooks: <strong>ApplicationStop</strong> (قبل إيقاف التطبيق) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop أوّل Hook يُنفَّذ. Script هنا يعالج connections draining.</span><span class="lang-en">EC2 hooks order: <strong>ApplicationStop</strong> (before stopping the app) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop is the first hook. Script here handles connection draining.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">ترتيب EC2 Hooks: <strong>ApplicationStop<\/strong> (قبل إيقاف التطبيق) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop أوّل Hook يُنفَّذ. Script هنا يعالج connections draining.<\/span><span class=\"lang-en\">EC2 hooks order: <strong>ApplicationStop<\/strong> (before stopping the app) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop is the first hook. Script here handles connection draining.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">في CodeDeploy لـ Lambda، ما الـ Hook الذي يعمل <strong>قبل</strong> تحويل الترافيك؟</span><span class="lang-en">In CodeDeploy for Lambda, which hook runs <strong>before</strong> traffic shift?</span>",
+        question: "<span class=\"lang-ar\">في CodeDeploy لـ Lambda، ما الـ Hook الذي يعمل <strong>قبل<\/strong> تحويل الترافيك؟<\/span><span class=\"lang-en\">In CodeDeploy for Lambda, which hook runs <strong>before<\/strong> traffic shift?<\/span>",
         options: [
-          "<span class="lang-ar">BeforeInstall</span><span class="lang-en">BeforeInstall</span>",
-          "<span class="lang-ar">BeforeAllowTraffic</span><span class="lang-en">BeforeAllowTraffic</span>",
-          "<span class="lang-ar">AfterAllowTraffic</span><span class="lang-en">AfterAllowTraffic</span>",
-          "<span class="lang-ar">ValidateService</span><span class="lang-en">ValidateService</span>"
+          "<span class=\"lang-ar\">BeforeInstall<\/span><span class=\"lang-en\">BeforeInstall<\/span>",
+          "<span class=\"lang-ar\">BeforeAllowTraffic<\/span><span class=\"lang-en\">BeforeAllowTraffic<\/span>",
+          "<span class=\"lang-ar\">AfterAllowTraffic<\/span><span class=\"lang-en\">AfterAllowTraffic<\/span>",
+          "<span class=\"lang-ar\">ValidateService<\/span><span class=\"lang-en\">ValidateService<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Lambda hooks اثنان فقط: <strong>BeforeAllowTraffic</strong> (قبل تحويل الترافيك — للتحقّق من الإصدار الجديد) و <strong>AfterAllowTraffic</strong> (بعد التحويل — للـ smoke tests). BeforeInstall و ValidateService لـ EC2 لا Lambda.</span><span class="lang-en">Lambda has only two hooks: <strong>BeforeAllowTraffic</strong> (before traffic shift — validate the new version) and <strong>AfterAllowTraffic</strong> (after shift — smoke tests). BeforeInstall and ValidateService are EC2, not Lambda.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Lambda hooks اثنان فقط: <strong>BeforeAllowTraffic<\/strong> (قبل تحويل الترافيك — للتحقّق من الإصدار الجديد) و <strong>AfterAllowTraffic<\/strong> (بعد التحويل — للـ smoke tests). BeforeInstall و ValidateService لـ EC2 لا Lambda.<\/span><span class=\"lang-en\">Lambda has only two hooks: <strong>BeforeAllowTraffic<\/strong> (before traffic shift — validate the new version) and <strong>AfterAllowTraffic<\/strong> (after shift — smoke tests). BeforeInstall and ValidateService are EC2, not Lambda.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد نشر Lambda بـ ١٠٪ ترافيك فوراً ثمّ الباقي بعد ٣٠ دقيقة. ما الـ Deployment Configuration؟</span><span class="lang-en">A developer wants Lambda deploy with 10% traffic immediately, then the rest after 30 minutes. Configuration?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد نشر Lambda بـ ١٠٪ ترافيك فوراً ثمّ الباقي بعد ٣٠ دقيقة. ما الـ Deployment Configuration؟<\/span><span class=\"lang-en\">A developer wants Lambda deploy with 10% traffic immediately, then the rest after 30 minutes. Configuration?<\/span>",
         options: [
-          "<span class="lang-ar">LambdaAllAtOnce</span><span class="lang-en">LambdaAllAtOnce</span>",
-          "<span class="lang-ar">LambdaCanary10Percent30Minutes</span><span class="lang-en">LambdaCanary10Percent30Minutes</span>",
-          "<span class="lang-ar">LambdaLinear10PercentEvery30Minutes</span><span class="lang-en">LambdaLinear10PercentEvery30Minutes</span>",
-          "<span class="lang-ar">LambdaCanary10Percent5Minutes</span><span class="lang-en">LambdaCanary10Percent5Minutes</span>"
+          "<span class=\"lang-ar\">LambdaAllAtOnce<\/span><span class=\"lang-en\">LambdaAllAtOnce<\/span>",
+          "<span class=\"lang-ar\">LambdaCanary10Percent30Minutes<\/span><span class=\"lang-en\">LambdaCanary10Percent30Minutes<\/span>",
+          "<span class=\"lang-ar\">LambdaLinear10PercentEvery30Minutes<\/span><span class=\"lang-en\">LambdaLinear10PercentEvery30Minutes<\/span>",
+          "<span class=\"lang-ar\">LambdaCanary10Percent5Minutes<\/span><span class=\"lang-en\">LambdaCanary10Percent5Minutes<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Canary</strong> = ١٠٪ فوراً ثمّ قفزة للـ ٩٠٪ الباقية. <strong>Linear</strong> = زيادة تدريجيّة متساوية. <span dir="ltr" class="font-mono">Canary10Percent30Minutes</span> يطابق الطلب بالضبط: ١٠٪ فوراً، الانتظار ٣٠ دقيقة، ثمّ التحويل الكامل.</span><span class="lang-en"><strong>Canary</strong> = 10% immediately then jump to remaining 90%. <strong>Linear</strong> = equal gradual steps. <span dir="ltr" class="font-mono">Canary10Percent30Minutes</span> matches exactly: 10% now, wait 30 min, full shift.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Canary<\/strong> = ١٠٪ فوراً ثمّ قفزة للـ ٩٠٪ الباقية. <strong>Linear<\/strong> = زيادة تدريجيّة متساوية. <span dir=\"ltr\" class=\"font-mono\">Canary10Percent30Minutes<\/span> يطابق الطلب بالضبط: ١٠٪ فوراً، الانتظار ٣٠ دقيقة، ثمّ التحويل الكامل.<\/span><span class=\"lang-en\"><strong>Canary<\/strong> = 10% immediately then jump to remaining 90%. <strong>Linear<\/strong> = equal gradual steps. <span dir=\"ltr\" class=\"font-mono\">Canary10Percent30Minutes<\/span> matches exactly: 10% now, wait 30 min, full shift.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">عند فشل مرحلة في CodePipeline، كيف يُشعَر الفريق تلقائياً؟</span><span class="lang-en">When a CodePipeline stage fails, how is the team notified automatically?</span>",
+        question: "<span class=\"lang-ar\">عند فشل مرحلة في CodePipeline، كيف يُشعَر الفريق تلقائياً؟<\/span><span class=\"lang-en\">When a CodePipeline stage fails, how is the team notified automatically?<\/span>",
         options: [
-          "<span class="lang-ar">CodePipeline يُرسل إيميل تلقائيّ.</span><span class="lang-en">CodePipeline auto-emails.</span>",
-          "<span class="lang-ar">EventBridge Rule على CodePipeline events → SNS.</span><span class="lang-en">EventBridge rule on CodePipeline events → SNS.</span>",
-          "<span class="lang-ar">Manual refresh من Console.</span><span class="lang-en">Manual refresh in Console.</span>",
-          "<span class="lang-ar">CloudTrail فقط.</span><span class="lang-en">CloudTrail only.</span>"
+          "<span class=\"lang-ar\">CodePipeline يُرسل إيميل تلقائيّ.<\/span><span class=\"lang-en\">CodePipeline auto-emails.<\/span>",
+          "<span class=\"lang-ar\">EventBridge Rule على CodePipeline events → SNS.<\/span><span class=\"lang-en\">EventBridge rule on CodePipeline events → SNS.<\/span>",
+          "<span class=\"lang-ar\">Manual refresh من Console.<\/span><span class=\"lang-en\">Manual refresh in Console.<\/span>",
+          "<span class=\"lang-ar\">CloudTrail فقط.<\/span><span class=\"lang-en\">CloudTrail only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CodePipeline لا يُرسل إشعارات تلقائياً. النمط المعياريّ: <strong>EventBridge Rule</strong> يراقب events من CodePipeline (Failed State Change) → SNS Topic → الفريق. يمكن نفس النمط للـ CodeBuild و CodeDeploy.</span><span class="lang-en">CodePipeline doesn't email by itself. Standard pattern: <strong>EventBridge rule</strong> watches CodePipeline events (Failed State Change) → SNS topic → team. Same pattern applies to CodeBuild and CodeDeploy.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">CodePipeline لا يُرسل إشعارات تلقائياً. النمط المعياريّ: <strong>EventBridge Rule<\/strong> يراقب events من CodePipeline (Failed State Change) → SNS Topic → الفريق. يمكن نفس النمط للـ CodeBuild و CodeDeploy.<\/span><span class=\"lang-en\">CodePipeline doesn't email by itself. Standard pattern: <strong>EventBridge rule<\/strong> watches CodePipeline events (Failed State Change) → SNS topic → team. Same pattern applies to CodeBuild and CodeDeploy.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">مطوّر Java يحتاج لتخزين حزم Maven خاصّة بالشركة (Proxy لـ Maven Central). ما الخدمة؟</span><span class="lang-en">A Java developer needs a company-private Maven package store (proxying Maven Central). Which service?</span>",
+        question: "<span class=\"lang-ar\">مطوّر Java يحتاج لتخزين حزم Maven خاصّة بالشركة (Proxy لـ Maven Central). ما الخدمة؟<\/span><span class=\"lang-en\">A Java developer needs a company-private Maven package store (proxying Maven Central). Which service?<\/span>",
         options: [
-          "<span class="lang-ar">CodeCommit</span><span class="lang-en">CodeCommit</span>",
-          "<span class="lang-ar">CodeArtifact</span><span class="lang-en">CodeArtifact</span>",
-          "<span class="lang-ar">CodeBuild Cache</span><span class="lang-en">CodeBuild Cache</span>",
-          "<span class="lang-ar">S3</span><span class="lang-en">S3</span>"
+          "<span class=\"lang-ar\">CodeCommit<\/span><span class=\"lang-en\">CodeCommit<\/span>",
+          "<span class=\"lang-ar\">CodeArtifact<\/span><span class=\"lang-en\">CodeArtifact<\/span>",
+          "<span class=\"lang-ar\">CodeBuild Cache<\/span><span class=\"lang-en\">CodeBuild Cache<\/span>",
+          "<span class=\"lang-ar\">S3<\/span><span class=\"lang-en\">S3<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>CodeArtifact</strong> هو حلّ AWS لإدارة الحزم: Maven، npm، pip، NuGet، twine. يعمل كـ Proxy لـ Maven Central ويخزّن نسخة محليّة (يُسرّع builds). متكامل مع IAM و Resource Policies.</span><span class="lang-en"><strong>CodeArtifact</strong> is AWS's package management: Maven, npm, pip, NuGet, twine. Proxies Maven Central and caches locally (speeds up builds). IAM and resource-policy integrated.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CodeArtifact<\/strong> هو حلّ AWS لإدارة الحزم: Maven، npm، pip، NuGet، twine. يعمل كـ Proxy لـ Maven Central ويخزّن نسخة محليّة (يُسرّع builds). متكامل مع IAM و Resource Policies.<\/span><span class=\"lang-en\"><strong>CodeArtifact<\/strong> is AWS's package management: Maven, npm, pip, NuGet, twine. Proxies Maven Central and caches locally (speeds up builds). IAM and resource-policy integrated.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">أيّ عبارة صحيحة عن CodeBuild Source options؟</span><span class="lang-en">Which is TRUE about CodeBuild source options?</span>",
+        question: "<span class=\"lang-ar\">أيّ عبارة صحيحة عن CodeBuild Source options؟<\/span><span class=\"lang-en\">Which is TRUE about CodeBuild source options?<\/span>",
         options: [
-          "<span class="lang-ar">يدعم CodeCommit فقط.</span><span class="lang-en">Supports CodeCommit only.</span>",
-          "<span class="lang-ar">يدعم CodeCommit، S3، Bitbucket، GitHub، GitHub Enterprise.</span><span class="lang-en">Supports CodeCommit, S3, Bitbucket, GitHub, GitHub Enterprise.</span>",
-          "<span class="lang-ar">يحتاج VPC دائماً.</span><span class="lang-en">Always needs VPC.</span>",
-          "<span class="lang-ar">لا يدعم webhooks.</span><span class="lang-en">No webhook support.</span>"
+          "<span class=\"lang-ar\">يدعم CodeCommit فقط.<\/span><span class=\"lang-en\">Supports CodeCommit only.<\/span>",
+          "<span class=\"lang-ar\">يدعم CodeCommit، S3، Bitbucket، GitHub، GitHub Enterprise.<\/span><span class=\"lang-en\">Supports CodeCommit, S3, Bitbucket, GitHub, GitHub Enterprise.<\/span>",
+          "<span class=\"lang-ar\">يحتاج VPC دائماً.<\/span><span class=\"lang-en\">Always needs VPC.<\/span>",
+          "<span class=\"lang-ar\">لا يدعم webhooks.<\/span><span class=\"lang-en\">No webhook support.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CodeBuild يدعم مصادر متعدّدة. يمكن الـ webhook من GitHub/Bitbucket لتشغيل builds تلقائياً. VPC اختياريّ (للوصول إلى موارد خاصّة كـ RDS).</span><span class="lang-en">CodeBuild supports multiple sources. Can webhook from GitHub/Bitbucket to auto-trigger builds. VPC is optional (for private resource access like RDS).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">CodeBuild يدعم مصادر متعدّدة. يمكن الـ webhook من GitHub/Bitbucket لتشغيل builds تلقائياً. VPC اختياريّ (للوصول إلى موارد خاصّة كـ RDS).<\/span><span class=\"lang-en\">CodeBuild supports multiple sources. Can webhook from GitHub/Bitbucket to auto-trigger builds. VPC is optional (for private resource access like RDS).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">عند نشر إلى EC2 مع CodeDeploy، يفشل الـ Task بخطأ <em>"Downloading app bundle failed"</em>. ما الأسباب الأرجح؟</span><span class="lang-en">Deploying to EC2 via CodeDeploy fails with <em>"Downloading app bundle failed"</em>. Most likely causes?</span>",
+        question: "<span class=\"lang-ar\">عند نشر إلى EC2 مع CodeDeploy، يفشل الـ Task بخطأ <em>\"Downloading app bundle failed\"<\/em>. ما الأسباب الأرجح؟<\/span><span class=\"lang-en\">Deploying to EC2 via CodeDeploy fails with <em>\"Downloading app bundle failed\"<\/em>. Most likely causes?<\/span>",
         options: [
-          "<span class="lang-ar">كود التطبيق خاطئ.</span><span class="lang-en">App code has bugs.</span>",
-          "<span class="lang-ar">CodeDeploy Agent غير مثبّت على EC2، أو IAM Role لـ EC2 لا يمتلك صلاحيات S3.</span><span class="lang-en">CodeDeploy Agent not installed on EC2, or EC2 IAM role lacks S3 permissions.</span>",
-          "<span class="lang-ar">EC2 stopped.</span><span class="lang-en">EC2 stopped.</span>",
-          "<span class="lang-ar">Security Group لا يسمح HTTP.</span><span class="lang-en">Security Group blocks HTTP.</span>"
+          "<span class=\"lang-ar\">كود التطبيق خاطئ.<\/span><span class=\"lang-en\">App code has bugs.<\/span>",
+          "<span class=\"lang-ar\">CodeDeploy Agent غير مثبّت على EC2، أو IAM Role لـ EC2 لا يمتلك صلاحيات S3.<\/span><span class=\"lang-en\">CodeDeploy Agent not installed on EC2, or EC2 IAM role lacks S3 permissions.<\/span>",
+          "<span class=\"lang-ar\">EC2 stopped.<\/span><span class=\"lang-en\">EC2 stopped.<\/span>",
+          "<span class=\"lang-ar\">Security Group لا يسمح HTTP.<\/span><span class=\"lang-en\">Security Group blocks HTTP.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الأسباب المعياريّة: ١) CodeDeploy Agent غير موجود أو غير مُحدَّث (ثبّته عبر Systems Manager)، ٢) IAM Role المرفق بـ EC2 ناقصه <span dir="ltr" class="font-mono">s3:Get*</span> لتحميل الـ bundle من S3 الذي وضعه CodePipeline.</span><span class="lang-en">Canonical causes: 1) CodeDeploy Agent missing or outdated (install via Systems Manager), 2) EC2's IAM role missing <span dir="ltr" class="font-mono">s3:Get*</span> to pull the bundle from S3 where CodePipeline placed it.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">الأسباب المعياريّة: ١) CodeDeploy Agent غير موجود أو غير مُحدَّث (ثبّته عبر Systems Manager)، ٢) IAM Role المرفق بـ EC2 ناقصه <span dir=\"ltr\" class=\"font-mono\">s3:Get*<\/span> لتحميل الـ bundle من S3 الذي وضعه CodePipeline.<\/span><span class=\"lang-en\">Canonical causes: 1) CodeDeploy Agent missing or outdated (install via Systems Manager), 2) EC2's IAM role missing <span dir=\"ltr\" class=\"font-mono\">s3:Get*<\/span> to pull the bundle from S3 where CodePipeline placed it.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">لتمرير إصدار محدّد من Lambda إلى CodeDeploy في <span dir="ltr" class="font-mono">appspec.yml</span>، أي مفاتيح مطلوبة؟</span><span class="lang-en">To pass a specific Lambda version to CodeDeploy in <span dir="ltr" class="font-mono">appspec.yml</span>, which keys are required?</span>",
+        question: "<span class=\"lang-ar\">لتمرير إصدار محدّد من Lambda إلى CodeDeploy في <span dir=\"ltr\" class=\"font-mono\">appspec.yml<\/span>، أي مفاتيح مطلوبة؟<\/span><span class=\"lang-en\">To pass a specific Lambda version to CodeDeploy in <span dir=\"ltr\" class=\"font-mono\">appspec.yml<\/span>, which keys are required?<\/span>",
         options: [
-          "<span class="lang-ar">Name و Alias فقط.</span><span class="lang-en">Name and Alias only.</span>",
-          "<span class="lang-ar">Name، Alias، CurrentVersion، TargetVersion.</span><span class="lang-en">Name, Alias, CurrentVersion, TargetVersion.</span>",
-          "<span class="lang-ar">FunctionArn فقط.</span><span class="lang-en">FunctionArn only.</span>",
-          "<span class="lang-ar">Runtime و Handler.</span><span class="lang-en">Runtime and Handler.</span>"
+          "<span class=\"lang-ar\">Name و Alias فقط.<\/span><span class=\"lang-en\">Name and Alias only.<\/span>",
+          "<span class=\"lang-ar\">Name، Alias، CurrentVersion، TargetVersion.<\/span><span class=\"lang-en\">Name, Alias, CurrentVersion, TargetVersion.<\/span>",
+          "<span class=\"lang-ar\">FunctionArn فقط.<\/span><span class=\"lang-en\">FunctionArn only.<\/span>",
+          "<span class=\"lang-ar\">Runtime و Handler.<\/span><span class=\"lang-en\">Runtime and Handler.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">appspec.yml</span> لـ Lambda يحتاج: <strong>Name</strong> (اسم الدالّة)، <strong>Alias</strong> (مثل live)، <strong>CurrentVersion</strong> (الإصدار الحاليّ)، <strong>TargetVersion</strong> (الإصدار الجديد). CodeDeploy يُحوّل الـ Alias من Current إلى Target تدريجياً.</span><span class="lang-en">Lambda <span dir="ltr" class="font-mono">appspec.yml</span> needs: <strong>Name</strong> (function name), <strong>Alias</strong> (e.g. live), <strong>CurrentVersion</strong>, <strong>TargetVersion</strong>. CodeDeploy shifts the alias from Current to Target gradually.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">appspec.yml<\/span> لـ Lambda يحتاج: <strong>Name<\/strong> (اسم الدالّة)، <strong>Alias<\/strong> (مثل live)، <strong>CurrentVersion<\/strong> (الإصدار الحاليّ)، <strong>TargetVersion<\/strong> (الإصدار الجديد). CodeDeploy يُحوّل الـ Alias من Current إلى Target تدريجياً.<\/span><span class=\"lang-en\">Lambda <span dir=\"ltr\" class=\"font-mono\">appspec.yml<\/span> needs: <strong>Name<\/strong> (function name), <strong>Alias<\/strong> (e.g. live), <strong>CurrentVersion<\/strong>, <strong>TargetVersion<\/strong>. CodeDeploy shifts the alias from Current to Target gradually.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الآتي صحيح عن CodePipeline؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about CodePipeline? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الآتي صحيح عن CodePipeline؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which are TRUE about CodePipeline? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">Stages متسلسلة، Actions داخل Stage يمكن أن تكون متوازية.</span><span class="lang-en">Stages are sequential; actions within a stage can be parallel.</span>",
-          "<span class="lang-ar">Artifacts تُخزَّن في S3 وتنتقل بين Stages.</span><span class="lang-en">Artifacts live in S3 and flow between stages.</span>",
-          "<span class="lang-ar">Manual Approval Action يُوقف Pipeline حتى تتمّ الموافقة.</span><span class="lang-en">A manual-approval action pauses the pipeline until approved.</span>",
-          "<span class="lang-ar">CodePipeline لا يدعم GitHub.</span><span class="lang-en">CodePipeline doesn't support GitHub.</span>"
+          "<span class=\"lang-ar\">Stages متسلسلة، Actions داخل Stage يمكن أن تكون متوازية.<\/span><span class=\"lang-en\">Stages are sequential; actions within a stage can be parallel.<\/span>",
+          "<span class=\"lang-ar\">Artifacts تُخزَّن في S3 وتنتقل بين Stages.<\/span><span class=\"lang-en\">Artifacts live in S3 and flow between stages.<\/span>",
+          "<span class=\"lang-ar\">Manual Approval Action يُوقف Pipeline حتى تتمّ الموافقة.<\/span><span class=\"lang-en\">A manual-approval action pauses the pipeline until approved.<\/span>",
+          "<span class=\"lang-ar\">CodePipeline لا يدعم GitHub.<\/span><span class=\"lang-en\">CodePipeline doesn't support GitHub.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">CodePipeline يدعم GitHub و Bitbucket و CodeCommit و S3 و ECR كمصادر. Stages متسلسلة، Actions في كل Stage قد تكون متوازية. Artifacts في S3 Bucket خاصّ بالـ Pipeline. Manual Approval Action هو ميزة قياسيّة.</span><span class="lang-en">CodePipeline supports GitHub, Bitbucket, CodeCommit, S3, ECR as sources. Stages are sequential, actions inside a stage can be parallel. Artifacts live in a pipeline-specific S3 bucket. Manual approval is a standard action type.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">CodePipeline يدعم GitHub و Bitbucket و CodeCommit و S3 و ECR كمصادر. Stages متسلسلة، Actions في كل Stage قد تكون متوازية. Artifacts في S3 Bucket خاصّ بالـ Pipeline. Manual Approval Action هو ميزة قياسيّة.<\/span><span class=\"lang-en\">CodePipeline supports GitHub, Bitbucket, CodeCommit, S3, ECR as sources. Stages are sequential, actions inside a stage can be parallel. Artifacts live in a pipeline-specific S3 bucket. Manual approval is a standard action type.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">CodeBuild يحتاج الوصول إلى RDS خاصّة في VPC للتحقّق من Schema. ما الإعداد؟</span><span class="lang-en">CodeBuild needs access to a private RDS in VPC to validate schema. Configuration?</span>",
+        question: "<span class=\"lang-ar\">CodeBuild يحتاج الوصول إلى RDS خاصّة في VPC للتحقّق من Schema. ما الإعداد؟<\/span><span class=\"lang-en\">CodeBuild needs access to a private RDS in VPC to validate schema. Configuration?<\/span>",
         options: [
-          "<span class="lang-ar">إضافة RDS إلى Public Subnet.</span><span class="lang-en">Move RDS to a public subnet.</span>",
-          "<span class="lang-ar">تشغيل CodeBuild داخل VPC (VPC ID + Subnet + Security Group).</span><span class="lang-en">Run CodeBuild inside the VPC (VPC ID + Subnet + Security Group).</span>",
-          "<span class="lang-ar">تعطيل RDS.</span><span class="lang-en">Disable RDS.</span>",
-          "<span class="lang-ar">استخدام Lambda بدلاً منه.</span><span class="lang-en">Use Lambda instead.</span>"
+          "<span class=\"lang-ar\">إضافة RDS إلى Public Subnet.<\/span><span class=\"lang-en\">Move RDS to a public subnet.<\/span>",
+          "<span class=\"lang-ar\">تشغيل CodeBuild داخل VPC (VPC ID + Subnet + Security Group).<\/span><span class=\"lang-en\">Run CodeBuild inside the VPC (VPC ID + Subnet + Security Group).<\/span>",
+          "<span class=\"lang-ar\">تعطيل RDS.<\/span><span class=\"lang-en\">Disable RDS.<\/span>",
+          "<span class=\"lang-ar\">استخدام Lambda بدلاً منه.<\/span><span class=\"lang-en\">Use Lambda instead.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CodeBuild يمكن تشغيله داخل VPC بتحديد VPC ID و Subnets و Security Groups في Project config. حينها يحصل Container CodeBuild على ENI داخل VPC ويمكنه الوصول إلى RDS الخاصّة. بدون VPC، يعمل في شبكة AWS العامّة.</span><span class="lang-en">CodeBuild can run inside a VPC by specifying VPC ID, subnets, and SGs in the project config. The CodeBuild container then gets an ENI in the VPC and can reach private RDS. Without VPC, it runs in AWS's public network.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">CodeBuild يمكن تشغيله داخل VPC بتحديد VPC ID و Subnets و Security Groups في Project config. حينها يحصل Container CodeBuild على ENI داخل VPC ويمكنه الوصول إلى RDS الخاصّة. بدون VPC، يعمل في شبكة AWS العامّة.<\/span><span class=\"lang-en\">CodeBuild can run inside a VPC by specifying VPC ID, subnets, and SGs in the project config. The CodeBuild container then gets an ENI in the VPC and can reach private RDS. Without VPC, it runs in AWS's public network.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد مراجعة تلقائيّة للكود لاكتشاف ثغرات أمنيّة. ما الخدمة؟</span><span class="lang-en">A developer wants automated code review for security issues. Which service?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد مراجعة تلقائيّة للكود لاكتشاف ثغرات أمنيّة. ما الخدمة؟<\/span><span class=\"lang-en\">A developer wants automated code review for security issues. Which service?<\/span>",
         options: [
-          "<span class="lang-ar">CodeGuru Reviewer</span><span class="lang-en">CodeGuru Reviewer</span>",
-          "<span class="lang-ar">CodeBuild</span><span class="lang-en">CodeBuild</span>",
-          "<span class="lang-ar">CodeArtifact</span><span class="lang-en">CodeArtifact</span>",
-          "<span class="lang-ar">CodeStar</span><span class="lang-en">CodeStar</span>"
+          "<span class=\"lang-ar\">CodeGuru Reviewer<\/span><span class=\"lang-en\">CodeGuru Reviewer<\/span>",
+          "<span class=\"lang-ar\">CodeBuild<\/span><span class=\"lang-en\">CodeBuild<\/span>",
+          "<span class=\"lang-ar\">CodeArtifact<\/span><span class=\"lang-en\">CodeArtifact<\/span>",
+          "<span class=\"lang-ar\">CodeStar<\/span><span class=\"lang-en\">CodeStar<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><strong>CodeGuru Reviewer</strong> يستخدم ML لمراجعة الكود تلقائياً: ثغرات أمنيّة، AWS best practices، resource leaks، input validation. يدعم Java و Python. يتكامل مع GitHub، Bitbucket، CodeCommit. <strong>Profiler</strong> للأداء في Runtime.</span><span class="lang-en"><strong>CodeGuru Reviewer</strong> uses ML to auto-review code: security issues, AWS best practices, resource leaks, input validation. Supports Java and Python. Integrates with GitHub, Bitbucket, CodeCommit. <strong>Profiler</strong> targets runtime performance.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CodeGuru Reviewer<\/strong> يستخدم ML لمراجعة الكود تلقائياً: ثغرات أمنيّة، AWS best practices، resource leaks، input validation. يدعم Java و Python. يتكامل مع GitHub، Bitbucket، CodeCommit. <strong>Profiler<\/strong> للأداء في Runtime.<\/span><span class=\"lang-en\"><strong>CodeGuru Reviewer<\/strong> uses ML to auto-review code: security issues, AWS best practices, resource leaks, input validation. Supports Java and Python. Integrates with GitHub, Bitbucket, CodeCommit. <strong>Profiler<\/strong> targets runtime performance.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">في EC2 CodeDeploy، أيّ <em>Deployment Configuration</em> يحافظ على ٥٠٪ من السعة دائماً؟</span><span class="lang-en">In EC2 CodeDeploy, which <em>deployment configuration</em> always keeps 50% capacity?</span>",
+        question: "<span class=\"lang-ar\">في EC2 CodeDeploy، أيّ <em>Deployment Configuration<\/em> يحافظ على ٥٠٪ من السعة دائماً؟<\/span><span class=\"lang-en\">In EC2 CodeDeploy, which <em>deployment configuration<\/em> always keeps 50% capacity?<\/span>",
         options: [
-          "<span class="lang-ar">CodeDeployDefault.AllAtOnce</span><span class="lang-en">CodeDeployDefault.AllAtOnce</span>",
-          "<span class="lang-ar">CodeDeployDefault.HalfAtATime</span><span class="lang-en">CodeDeployDefault.HalfAtATime</span>",
-          "<span class="lang-ar">CodeDeployDefault.OneAtATime</span><span class="lang-en">CodeDeployDefault.OneAtATime</span>",
-          "<span class="lang-ar">Custom</span><span class="lang-en">Custom</span>"
+          "<span class=\"lang-ar\">CodeDeployDefault.AllAtOnce<\/span><span class=\"lang-en\">CodeDeployDefault.AllAtOnce<\/span>",
+          "<span class=\"lang-ar\">CodeDeployDefault.HalfAtATime<\/span><span class=\"lang-en\">CodeDeployDefault.HalfAtATime<\/span>",
+          "<span class=\"lang-ar\">CodeDeployDefault.OneAtATime<\/span><span class=\"lang-en\">CodeDeployDefault.OneAtATime<\/span>",
+          "<span class=\"lang-ar\">Custom<\/span><span class=\"lang-en\">Custom<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>HalfAtATime</strong> يُحدّث نصف Instances بينما الباقي يعمل (السعة تبقى ٥٠٪). <strong>AllAtOnce</strong> يُحدّث كل شيء (downtime). <strong>OneAtATime</strong> الأبطأ لكن أكثر أماناً (١/n downtime).</span><span class="lang-en"><strong>HalfAtATime</strong> updates half while the rest serve (50% capacity). <strong>AllAtOnce</strong> updates everything (downtime). <strong>OneAtATime</strong> is slowest but safest (1/n capacity hit).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>HalfAtATime<\/strong> يُحدّث نصف Instances بينما الباقي يعمل (السعة تبقى ٥٠٪). <strong>AllAtOnce<\/strong> يُحدّث كل شيء (downtime). <strong>OneAtATime<\/strong> الأبطأ لكن أكثر أماناً (١/n downtime).<\/span><span class=\"lang-en\"><strong>HalfAtATime<\/strong> updates half while the rest serve (50% capacity). <strong>AllAtOnce<\/strong> updates everything (downtime). <strong>OneAtATime<\/strong> is slowest but safest (1/n capacity hit).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">عند Rollback في CodeDeploy، ماذا يحدث فعلياً؟</span><span class="lang-en">When CodeDeploy rolls back, what actually happens?</span>",
+        question: "<span class=\"lang-ar\">عند Rollback في CodeDeploy، ماذا يحدث فعلياً؟<\/span><span class=\"lang-en\">When CodeDeploy rolls back, what actually happens?<\/span>",
         options: [
-          "<span class="lang-ar">يستعيد نسخة قديمة من Snapshot.</span><span class="lang-en">Restores an old snapshot.</span>",
-          "<span class="lang-ar">يعيد نشر آخر إصدار سليم كنشر جديد.</span><span class="lang-en">Redeploys the last known-good revision as a new deployment.</span>",
-          "<span class="lang-ar">يُعكَس الوقت.</span><span class="lang-en">Reverses time.</span>",
-          "<span class="lang-ar">لا شيء، يحتاج تدخّل يدويّ.</span><span class="lang-en">Nothing — needs manual intervention.</span>"
+          "<span class=\"lang-ar\">يستعيد نسخة قديمة من Snapshot.<\/span><span class=\"lang-en\">Restores an old snapshot.<\/span>",
+          "<span class=\"lang-ar\">يعيد نشر آخر إصدار سليم كنشر جديد.<\/span><span class=\"lang-en\">Redeploys the last known-good revision as a new deployment.<\/span>",
+          "<span class=\"lang-ar\">يُعكَس الوقت.<\/span><span class=\"lang-en\">Reverses time.<\/span>",
+          "<span class=\"lang-ar\">لا شيء، يحتاج تدخّل يدويّ.<\/span><span class=\"lang-en\">Nothing — needs manual intervention.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>CodeDeploy Rollback = إعادة نشر</strong> آخر إصدار صالح كعمليّة نشر جديدة. لا يُعاد "استعادة" النسخة القديمة. يمكن تشغيله تلقائياً عند فشل النشر أو عند تجاوز عتبة CloudWatch Alarm.</span><span class="lang-en"><strong>CodeDeploy rollback = redeploy</strong> of the last known-good revision as a brand-new deployment. No "restoring" of an old snapshot. Can trigger automatically on failure or a breached CloudWatch Alarm.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CodeDeploy Rollback = إعادة نشر<\/strong> آخر إصدار صالح كعمليّة نشر جديدة. لا يُعاد \"استعادة\" النسخة القديمة. يمكن تشغيله تلقائياً عند فشل النشر أو عند تجاوز عتبة CloudWatch Alarm.<\/span><span class=\"lang-en\"><strong>CodeDeploy rollback = redeploy<\/strong> of the last known-good revision as a brand-new deployment. No \"restoring\" of an old snapshot. Can trigger automatically on failure or a breached CloudWatch Alarm.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">في CodeBuild، أين تُخزَّن متغيّرات حسّاسة مثل DB_PASSWORD؟</span><span class="lang-en">In CodeBuild, where should sensitive variables like DB_PASSWORD be stored?</span>",
+        question: "<span class=\"lang-ar\">في CodeBuild، أين تُخزَّن متغيّرات حسّاسة مثل DB_PASSWORD؟<\/span><span class=\"lang-en\">In CodeBuild, where should sensitive variables like DB_PASSWORD be stored?<\/span>",
         options: [
-          "<span class="lang-ar">env:variables في buildspec.yml.</span><span class="lang-en">env:variables in buildspec.yml.</span>",
-          "<span class="lang-ar">env:parameter-store أو env:secrets-manager.</span><span class="lang-en">env:parameter-store or env:secrets-manager.</span>",
-          "<span class="lang-ar">في الكود مباشرة.</span><span class="lang-en">Hardcoded in source.</span>",
-          "<span class="lang-ar">في cache section.</span><span class="lang-en">In the cache section.</span>"
+          "<span class=\"lang-ar\">env:variables في buildspec.yml.<\/span><span class=\"lang-en\">env:variables in buildspec.yml.<\/span>",
+          "<span class=\"lang-ar\">env:parameter-store أو env:secrets-manager.<\/span><span class=\"lang-en\">env:parameter-store or env:secrets-manager.<\/span>",
+          "<span class=\"lang-ar\">في الكود مباشرة.<\/span><span class=\"lang-en\">Hardcoded in source.<\/span>",
+          "<span class=\"lang-ar\">في cache section.<\/span><span class=\"lang-en\">In the cache section.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">env:variables</span> نصّ مكشوف وبالتالي غير آمن. استخدم <span dir="ltr" class="font-mono">env:parameter-store</span> (SSM SecureString) أو <span dir="ltr" class="font-mono">env:secrets-manager</span> (Secrets Manager). CodeBuild يسحبها عند البناء ويحقنها كمتغيّرات بيئة. IAM Role لـ CodeBuild يحتاج صلاحيّة قراءة.</span><span class="lang-en"><span dir="ltr" class="font-mono">env:variables</span> is plaintext and thus insecure. Use <span dir="ltr" class="font-mono">env:parameter-store</span> (SSM SecureString) or <span dir="ltr" class="font-mono">env:secrets-manager</span>. CodeBuild fetches at build time and injects as env vars. The CodeBuild IAM role needs read permission.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">env:variables<\/span> نصّ مكشوف وبالتالي غير آمن. استخدم <span dir=\"ltr\" class=\"font-mono\">env:parameter-store<\/span> (SSM SecureString) أو <span dir=\"ltr\" class=\"font-mono\">env:secrets-manager<\/span> (Secrets Manager). CodeBuild يسحبها عند البناء ويحقنها كمتغيّرات بيئة. IAM Role لـ CodeBuild يحتاج صلاحيّة قراءة.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">env:variables<\/span> is plaintext and thus insecure. Use <span dir=\"ltr\" class=\"font-mono\">env:parameter-store<\/span> (SSM SecureString) or <span dir=\"ltr\" class=\"font-mono\">env:secrets-manager<\/span>. CodeBuild fetches at build time and injects as env vars. The CodeBuild IAM role needs read permission.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       }
     ];
 

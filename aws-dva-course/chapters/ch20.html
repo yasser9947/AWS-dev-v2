@@ -903,226 +903,226 @@ aws ssm put-parameter --name /acme/prod/jwt-secret --type SecureString --value '
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تشفير ملف 50MB وحفظه في S3. ما الطريقة الصحيحة مع KMS؟</span><span class="lang-en">A developer wants to encrypt a 50MB file and store it in S3. Correct KMS approach?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تشفير ملف 50MB وحفظه في S3. ما الطريقة الصحيحة مع KMS؟<\/span><span class=\"lang-en\">A developer wants to encrypt a 50MB file and store it in S3. Correct KMS approach?<\/span>",
         options: [
-          "<span class="lang-ar">استدعاء <span dir="ltr" class="font-mono">kms:Encrypt</span> على الملف كاملاً.</span><span class="lang-en">Call <span dir="ltr" class="font-mono">kms:Encrypt</span> on the full file.</span>",
-          "<span class="lang-ar">استخدام <strong>Envelope Encryption</strong> عبر <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>.</span><span class="lang-en">Use <strong>Envelope Encryption</strong> via <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>.</span>",
-          "<span class="lang-ar">تخزين الملف بدون تشفير.</span><span class="lang-en">Store the file unencrypted.</span>",
-          "<span class="lang-ar">ضغط الملف ثمّ تشفيره.</span><span class="lang-en">Compress then encrypt.</span>"
+          "<span class=\"lang-ar\">استدعاء <span dir=\"ltr\" class=\"font-mono\">kms:Encrypt<\/span> على الملف كاملاً.<\/span><span class=\"lang-en\">Call <span dir=\"ltr\" class=\"font-mono\">kms:Encrypt<\/span> on the full file.<\/span>",
+          "<span class=\"lang-ar\">استخدام <strong>Envelope Encryption<\/strong> عبر <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey<\/span>.<\/span><span class=\"lang-en\">Use <strong>Envelope Encryption<\/strong> via <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey<\/span>.<\/span>",
+          "<span class=\"lang-ar\">تخزين الملف بدون تشفير.<\/span><span class=\"lang-en\">Store the file unencrypted.<\/span>",
+          "<span class=\"lang-ar\">ضغط الملف ثمّ تشفيره.<\/span><span class=\"lang-en\">Compress then encrypt.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">kms:Encrypt</span> محدود بـ <strong>٤ كيلوبايت</strong>. للملفات الأكبر استخدم Envelope Encryption: <span dir="ltr" class="font-mono">GenerateDataKey</span> يعيد DEK (plaintext + مشفّرة)، تشفّر محلّياً بالـ plaintext، وتحفظ DEK المشفّرة بجانب الملف.</span><span class="lang-en"><span dir="ltr" class="font-mono">kms:Encrypt</span> is capped at <strong>4 KB</strong>. For larger files use Envelope Encryption: <span dir="ltr" class="font-mono">GenerateDataKey</span> returns a DEK (plaintext + encrypted), encrypt locally with plaintext, store the encrypted DEK alongside.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حد ٤KB.</span><span class=\"lang-en\">Exceeds 4KB limit.</span>", "", "<span class=\"lang-ar\">غير مقبول أمنياً.</span><span class=\"lang-en\">Insecure.</span>", "<span class=\"lang-ar\">الضغط لا يحلّ مشكلة الحجم.</span><span class=\"lang-en\">Compression doesn't fix size limit.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">kms:Encrypt<\/span> محدود بـ <strong>٤ كيلوبايت<\/strong>. للملفات الأكبر استخدم Envelope Encryption: <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> يعيد DEK (plaintext + مشفّرة)، تشفّر محلّياً بالـ plaintext، وتحفظ DEK المشفّرة بجانب الملف.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">kms:Encrypt<\/span> is capped at <strong>4 KB<\/strong>. For larger files use Envelope Encryption: <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> returns a DEK (plaintext + encrypted), encrypt locally with plaintext, store the encrypted DEK alongside.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حد ٤KB.<\/span><span class=\"lang-en\">Exceeds 4KB limit.<\/span>", "", "<span class=\"lang-ar\">غير مقبول أمنياً.<\/span><span class=\"lang-en\">Insecure.<\/span>", "<span class=\"lang-ar\">الضغط لا يحلّ مشكلة الحجم.<\/span><span class=\"lang-en\">Compression doesn't fix size limit.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين <strong>AWS Managed</strong> و <strong>Customer Managed</strong> KMS Key؟</span><span class="lang-en">Difference between <strong>AWS Managed</strong> and <strong>Customer Managed</strong> KMS Key?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين <strong>AWS Managed<\/strong> و <strong>Customer Managed<\/strong> KMS Key؟<\/span><span class=\"lang-en\">Difference between <strong>AWS Managed<\/strong> and <strong>Customer Managed<\/strong> KMS Key?<\/span>",
         options: [
-          "<span class="lang-ar">لا فرق.</span><span class="lang-en">None.</span>",
-          "<span class="lang-ar">AWS Managed مجاني، يُدوَّر سنوياً تلقائياً، ولا تتحكّم في Key Policy. Customer Managed مدفوع ($1/شهر)، تدوير اختياريّ، تحكّم كامل.</span><span class="lang-en">AWS Managed is free, auto-rotated yearly, no Key Policy control. Customer Managed is paid ($1/month), rotation optional, full control.</span>",
-          "<span class="lang-ar">Customer Managed أسرع.</span><span class="lang-en">Customer Managed is faster.</span>",
-          "<span class="lang-ar">AWS Managed غير مشفّر.</span><span class="lang-en">AWS Managed isn't encrypted.</span>"
+          "<span class=\"lang-ar\">لا فرق.<\/span><span class=\"lang-en\">None.<\/span>",
+          "<span class=\"lang-ar\">AWS Managed مجاني، يُدوَّر سنوياً تلقائياً، ولا تتحكّم في Key Policy. Customer Managed مدفوع ($1/شهر)، تدوير اختياريّ، تحكّم كامل.<\/span><span class=\"lang-en\">AWS Managed is free, auto-rotated yearly, no Key Policy control. Customer Managed is paid ($1/month), rotation optional, full control.<\/span>",
+          "<span class=\"lang-ar\">Customer Managed أسرع.<\/span><span class=\"lang-en\">Customer Managed is faster.<\/span>",
+          "<span class=\"lang-ar\">AWS Managed غير مشفّر.<\/span><span class=\"lang-en\">AWS Managed isn't encrypted.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AWS Managed (<span dir="ltr" class="font-mono">aws/service</span>) مناسب للاستخدام الافتراضيّ مع خدمات AWS. Customer Managed ضروريّ عندما تحتاج: تحكّم في الـ Key Policy (Cross-Account)، تدوير On-demand، Auditing مخصّص، أو امتثال (PCI, HIPAA).</span><span class="lang-en">AWS Managed (<span dir="ltr" class="font-mono">aws/service</span>) suits default use with AWS services. Customer Managed is needed when you want: Key Policy control (cross-account), on-demand rotation, custom auditing, or compliance (PCI, HIPAA).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">فرق جوهريّ.</span><span class=\"lang-en\">Major difference.</span>", "", "<span class=\"lang-ar\">الأداء متقارب.</span><span class=\"lang-en\">Perf similar.</span>", "<span class=\"lang-ar\">كلاهما مشفّر.</span><span class=\"lang-en\">Both encrypted.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">AWS Managed (<span dir=\"ltr\" class=\"font-mono\">aws/service<\/span>) مناسب للاستخدام الافتراضيّ مع خدمات AWS. Customer Managed ضروريّ عندما تحتاج: تحكّم في الـ Key Policy (Cross-Account)، تدوير On-demand، Auditing مخصّص، أو امتثال (PCI, HIPAA).<\/span><span class=\"lang-en\">AWS Managed (<span dir=\"ltr\" class=\"font-mono\">aws/service<\/span>) suits default use with AWS services. Customer Managed is needed when you want: Key Policy control (cross-account), on-demand rotation, custom auditing, or compliance (PCI, HIPAA).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">فرق جوهريّ.<\/span><span class=\"lang-en\">Major difference.<\/span>", "", "<span class=\"lang-ar\">الأداء متقارب.<\/span><span class=\"lang-en\">Perf similar.<\/span>", "<span class=\"lang-ar\">كلاهما مشفّر.<\/span><span class=\"lang-en\">Both encrypted.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot يستدعي <span dir="ltr" class="font-mono">GetSecretValue</span> في كلّ طلب ويب ليحصل على كلمة مرور DB. ما المشكلة؟</span><span class="lang-en">A Spring Boot app calls <span dir="ltr" class="font-mono">GetSecretValue</span> on every web request to get the DB password. What's the issue?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot يستدعي <span dir=\"ltr\" class=\"font-mono\">GetSecretValue<\/span> في كلّ طلب ويب ليحصل على كلمة مرور DB. ما المشكلة؟<\/span><span class=\"lang-en\">A Spring Boot app calls <span dir=\"ltr\" class=\"font-mono\">GetSecretValue<\/span> on every web request to get the DB password. What's the issue?<\/span>",
         options: [
-          "<span class="lang-ar">لا مشكلة.</span><span class="lang-en">No problem.</span>",
-          "<span class="lang-ar">كلفة عالية ($0.05/10K calls) وبطء غير ضروريّ — يجب تخزين الـ Secret مؤقّتاً في الذاكرة.</span><span class="lang-en">High cost ($0.05/10K) and needless latency — cache the secret in-process.</span>",
-          "<span class="lang-ar">خطر أمنيّ.</span><span class="lang-en">Security risk.</span>",
-          "<span class="lang-ar">Secrets Manager لا يسمح بأكثر من استدعاء في الثانية.</span><span class="lang-en">Secrets Manager limits one call per second.</span>"
+          "<span class=\"lang-ar\">لا مشكلة.<\/span><span class=\"lang-en\">No problem.<\/span>",
+          "<span class=\"lang-ar\">كلفة عالية ($0.05/10K calls) وبطء غير ضروريّ — يجب تخزين الـ Secret مؤقّتاً في الذاكرة.<\/span><span class=\"lang-en\">High cost ($0.05/10K) and needless latency — cache the secret in-process.<\/span>",
+          "<span class=\"lang-ar\">خطر أمنيّ.<\/span><span class=\"lang-en\">Security risk.<\/span>",
+          "<span class=\"lang-ar\">Secrets Manager لا يسمح بأكثر من استدعاء في الثانية.<\/span><span class=\"lang-en\">Secrets Manager limits one call per second.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Secrets Manager يفرض تكلفة على كلّ استدعاء ويضيف زمن شبكة. مكتبة <strong>secretsmanager-caching</strong> الرسميّة تخزّن الـ Secret في الذاكرة لمدّة قصيرة وتحدّثه عند التدوير. مع مئات الطلبات في الثانية، الفرق بين $0 و $100+ شهرياً.</span><span class="lang-en">Secrets Manager charges per call and adds network latency. The official <strong>secretsmanager-caching</strong> library keeps the secret in-memory briefly and refreshes on rotation. With hundreds of RPS, difference between $0 and $100+/month.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">المشكلة عمليّة.</span><span class=\"lang-en\">Problem is operational.</span>", "", "<span class=\"lang-ar\">ليس خطراً أمنياً.</span><span class=\"lang-en\">Not a security risk.</span>", "<span class=\"lang-ar\">لا يوجد هذا الحدّ.</span><span class=\"lang-en\">No such limit.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Secrets Manager يفرض تكلفة على كلّ استدعاء ويضيف زمن شبكة. مكتبة <strong>secretsmanager-caching<\/strong> الرسميّة تخزّن الـ Secret في الذاكرة لمدّة قصيرة وتحدّثه عند التدوير. مع مئات الطلبات في الثانية، الفرق بين $0 و $100+ شهرياً.<\/span><span class=\"lang-en\">Secrets Manager charges per call and adds network latency. The official <strong>secretsmanager-caching<\/strong> library keeps the secret in-memory briefly and refreshes on rotation. With hundreds of RPS, difference between $0 and $100+/month.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">المشكلة عمليّة.<\/span><span class=\"lang-en\">Problem is operational.<\/span>", "", "<span class=\"lang-ar\">ليس خطراً أمنياً.<\/span><span class=\"lang-en\">Not a security risk.<\/span>", "<span class=\"lang-ar\">لا يوجد هذا الحدّ.<\/span><span class=\"lang-en\">No such limit.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">شركة Acme تنوي تدوير CMK يدوياً. ماذا يحدث للبيانات المشفّرة بالمفتاح القديم؟</span><span class="lang-en">Acme plans to rotate a CMK. What happens to data encrypted with the old key?</span>",
+        question: "<span class=\"lang-ar\">شركة Acme تنوي تدوير CMK يدوياً. ماذا يحدث للبيانات المشفّرة بالمفتاح القديم؟<\/span><span class=\"lang-en\">Acme plans to rotate a CMK. What happens to data encrypted with the old key?<\/span>",
         options: [
-          "<span class="lang-ar">تُحذَف تلقائياً.</span><span class="lang-en">Deleted automatically.</span>",
-          "<span class="lang-ar">تبقى قابلة للفكّ — KMS يحتفظ بجميع إصدارات المفتاح ويختار الإصدار الصحيح عند Decrypt.</span><span class="lang-en">Still decryptable — KMS keeps all versions and selects the right one on Decrypt.</span>",
-          "<span class="lang-ar">يجب فكّها وإعادة تشفيرها قبل التدوير.</span><span class="lang-en">Must be decrypted and re-encrypted before rotation.</span>",
-          "<span class="lang-ar">تُشفَّر تلقائياً بالمفتاح الجديد.</span><span class="lang-en">Auto-re-encrypted with the new key.</span>"
+          "<span class=\"lang-ar\">تُحذَف تلقائياً.<\/span><span class=\"lang-en\">Deleted automatically.<\/span>",
+          "<span class=\"lang-ar\">تبقى قابلة للفكّ — KMS يحتفظ بجميع إصدارات المفتاح ويختار الإصدار الصحيح عند Decrypt.<\/span><span class=\"lang-en\">Still decryptable — KMS keeps all versions and selects the right one on Decrypt.<\/span>",
+          "<span class=\"lang-ar\">يجب فكّها وإعادة تشفيرها قبل التدوير.<\/span><span class=\"lang-en\">Must be decrypted and re-encrypted before rotation.<\/span>",
+          "<span class=\"lang-ar\">تُشفَّر تلقائياً بالمفتاح الجديد.<\/span><span class=\"lang-en\">Auto-re-encrypted with the new key.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">التدوير يحافظ على <span dir="ltr" class="font-mono">KeyId</span> و <span dir="ltr" class="font-mono">ARN</span> ويضيف إصداراً جديداً لمادّة المفتاح. الـ ciphertext القديم يحمل إشارة للإصدار المستخدم، فـ KMS يعرف أيّ إصدار يستخدم عند Decrypt. لا إعادة تشفير تلقائيّة — تبقى البيانات القديمة بالمفتاح القديم حتى تُعيد تشفيرها.</span><span class="lang-en">Rotation keeps <span dir="ltr" class="font-mono">KeyId</span> and <span dir="ltr" class="font-mono">ARN</span> and adds a new key material version. Old ciphertext references its version; KMS knows which to use on Decrypt. No auto re-encryption — old data stays under the old version until you <span dir="ltr" class="font-mono">ReEncrypt</span> it.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا تُحذَف.</span><span class=\"lang-en\">Not deleted.</span>", "", "<span class=\"lang-ar\">ليس إلزامياً.</span><span class=\"lang-en\">Not mandatory.</span>", "<span class=\"lang-ar\">لا يحدث تلقائياً.</span><span class=\"lang-en\">Doesn't happen automatically.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">التدوير يحافظ على <span dir=\"ltr\" class=\"font-mono\">KeyId<\/span> و <span dir=\"ltr\" class=\"font-mono\">ARN<\/span> ويضيف إصداراً جديداً لمادّة المفتاح. الـ ciphertext القديم يحمل إشارة للإصدار المستخدم، فـ KMS يعرف أيّ إصدار يستخدم عند Decrypt. لا إعادة تشفير تلقائيّة — تبقى البيانات القديمة بالمفتاح القديم حتى تُعيد تشفيرها.<\/span><span class=\"lang-en\">Rotation keeps <span dir=\"ltr\" class=\"font-mono\">KeyId<\/span> and <span dir=\"ltr\" class=\"font-mono\">ARN<\/span> and adds a new key material version. Old ciphertext references its version; KMS knows which to use on Decrypt. No auto re-encryption — old data stays under the old version until you <span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span> it.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تُحذَف.<\/span><span class=\"lang-en\">Not deleted.<\/span>", "", "<span class=\"lang-ar\">ليس إلزامياً.<\/span><span class=\"lang-en\">Not mandatory.<\/span>", "<span class=\"lang-ar\">لا يحدث تلقائياً.<\/span><span class=\"lang-en\">Doesn't happen automatically.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "multi",
-        question: "<span class="lang-ar">أيّ الأسرار التالية تُخزَّن بشكل أفضل في <strong>Secrets Manager</strong> (vs Parameter Store)؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of these are <strong>better in Secrets Manager</strong> than Parameter Store? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ الأسرار التالية تُخزَّن بشكل أفضل في <strong>Secrets Manager<\/strong> (vs Parameter Store)؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which of these are <strong>better in Secrets Manager<\/strong> than Parameter Store? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">كلمة مرور RDS تحتاج تدويراً تلقائياً.</span><span class="lang-en">RDS password requiring auto-rotation.</span>",
-          "<span class="lang-ar">قيمة Feature Flag ثابتة.</span><span class="lang-en">A static feature flag value.</span>",
-          "<span class="lang-ar">API Key لطرف ثالث يجب تدويره شهرياً.</span><span class="lang-en">Third-party API key to rotate monthly.</span>",
-          "<span class="lang-ar">اسم Region.</span><span class="lang-en">A region name.</span>",
-          "<span class="lang-ar">TLS certificate يجب تدويره كلّ ٩٠ يوم.</span><span class="lang-en">TLS certificate to rotate every 90 days.</span>"
+          "<span class=\"lang-ar\">كلمة مرور RDS تحتاج تدويراً تلقائياً.<\/span><span class=\"lang-en\">RDS password requiring auto-rotation.<\/span>",
+          "<span class=\"lang-ar\">قيمة Feature Flag ثابتة.<\/span><span class=\"lang-en\">A static feature flag value.<\/span>",
+          "<span class=\"lang-ar\">API Key لطرف ثالث يجب تدويره شهرياً.<\/span><span class=\"lang-en\">Third-party API key to rotate monthly.<\/span>",
+          "<span class=\"lang-ar\">اسم Region.<\/span><span class=\"lang-en\">A region name.<\/span>",
+          "<span class=\"lang-ar\">TLS certificate يجب تدويره كلّ ٩٠ يوم.<\/span><span class=\"lang-en\">TLS certificate to rotate every 90 days.<\/span>"
         ],
         correct: [0,2,4],
-        explanation: "<span class="lang-ar">Secrets Manager متفوّق حيث يُحتاج <strong>تدوير تلقائي</strong>، <strong>تكامل RDS مدمج</strong>، أو حجم > 4KB (الشهادات). القيم الثابتة والإعدادات البسيطة (Region) تُخزَّن في Parameter Store بدون تكلفة.</span><span class="lang-en">Secrets Manager shines where you need <strong>auto-rotation</strong>, <strong>native RDS integration</strong>, or size >4KB (certificates). Static values and simple configs (Region) go in Parameter Store at no cost.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Secrets Manager متفوّق حيث يُحتاج <strong>تدوير تلقائي<\/strong>، <strong>تكامل RDS مدمج<\/strong>، أو حجم > 4KB (الشهادات). القيم الثابتة والإعدادات البسيطة (Region) تُخزَّن في Parameter Store بدون تكلفة.<\/span><span class=\"lang-en\">Secrets Manager shines where you need <strong>auto-rotation<\/strong>, <strong>native RDS integration<\/strong>, or size >4KB (certificates). Static values and simple configs (Region) go in Parameter Store at no cost.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">ماذا تعيد <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">kms:GenerateDataKey</span> return?</span>",
+        question: "<span class=\"lang-ar\">ماذا تعيد <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey<\/span>؟<\/span><span class=\"lang-en\">What does <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey<\/span> return?<\/span>",
         options: [
-          "<span class="lang-ar">Plaintext DEK + DEK مشفّر بالـ CMK.</span><span class="lang-en">Plaintext DEK + DEK encrypted under the CMK.</span>",
-          "<span class="lang-ar">DEK مشفّر فقط.</span><span class="lang-en">Encrypted DEK only.</span>",
-          "<span class="lang-ar">Public key للتحميل.</span><span class="lang-en">Public key for download.</span>",
-          "<span class="lang-ar">قائمة بالمفاتيح في الحساب.</span><span class="lang-en">List of keys in the account.</span>"
+          "<span class=\"lang-ar\">Plaintext DEK + DEK مشفّر بالـ CMK.<\/span><span class=\"lang-en\">Plaintext DEK + DEK encrypted under the CMK.<\/span>",
+          "<span class=\"lang-ar\">DEK مشفّر فقط.<\/span><span class=\"lang-en\">Encrypted DEK only.<\/span>",
+          "<span class=\"lang-ar\">Public key للتحميل.<\/span><span class=\"lang-en\">Public key for download.<\/span>",
+          "<span class=\"lang-ar\">قائمة بالمفاتيح في الحساب.<\/span><span class=\"lang-en\">List of keys in the account.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">GenerateDataKey</span> يعيد نسختين من نفس DEK: plaintext لتستخدمه فوراً محلّياً في التشفير، ومشفّرة تحفظها بجانب البيانات. هذا قلب آليّة Envelope Encryption. هناك أيضاً <span dir="ltr" class="font-mono">GenerateDataKeyWithoutPlaintext</span> لحالة استخدام لاحق.</span><span class="lang-en"><span dir="ltr" class="font-mono">GenerateDataKey</span> returns two copies of the same DEK: plaintext for immediate local use in encryption, encrypted to store alongside data. This is the core of Envelope Encryption. There's also <span dir="ltr" class="font-mono">GenerateDataKeyWithoutPlaintext</span> for deferred-use cases.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الـ plaintext ضروريّ للتشفير المحلّي.</span><span class=\"lang-en\">Plaintext needed for local encryption.</span>", "", "<span class=\"lang-ar\">هذا <span dir="ltr" class="font-mono">GetPublicKey</span>.</span><span class=\"lang-en\">That's <span dir="ltr" class="font-mono">GetPublicKey</span>.</span>", "<span class=\"lang-ar\">هذا <span dir="ltr" class="font-mono">ListKeys</span>.</span><span class=\"lang-en\">That's <span dir="ltr" class="font-mono">ListKeys</span>.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> يعيد نسختين من نفس DEK: plaintext لتستخدمه فوراً محلّياً في التشفير، ومشفّرة تحفظها بجانب البيانات. هذا قلب آليّة Envelope Encryption. هناك أيضاً <span dir=\"ltr\" class=\"font-mono\">GenerateDataKeyWithoutPlaintext<\/span> لحالة استخدام لاحق.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">GenerateDataKey<\/span> returns two copies of the same DEK: plaintext for immediate local use in encryption, encrypted to store alongside data. This is the core of Envelope Encryption. There's also <span dir=\"ltr\" class=\"font-mono\">GenerateDataKeyWithoutPlaintext<\/span> for deferred-use cases.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الـ plaintext ضروريّ للتشفير المحلّي.<\/span><span class=\"lang-en\">Plaintext needed for local encryption.<\/span>", "", "<span class=\"lang-ar\">هذا <span dir=\"ltr\" class=\"font-mono\">GetPublicKey<\/span>.<\/span><span class=\"lang-en\">That's <span dir=\"ltr\" class=\"font-mono\">GetPublicKey<\/span>.<\/span>", "<span class=\"lang-ar\">هذا <span dir=\"ltr\" class=\"font-mono\">ListKeys<\/span>.<\/span><span class=\"lang-en\">That's <span dir=\"ltr\" class=\"font-mono\">ListKeys<\/span>.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد أن يستطيع حساب ثانٍ استخدام CMK في حسابها. ما الخطوات الصحيحة؟</span><span class="lang-en">A company wants another account to use its CMK. Correct steps?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد أن يستطيع حساب ثانٍ استخدام CMK في حسابها. ما الخطوات الصحيحة؟<\/span><span class=\"lang-en\">A company wants another account to use its CMK. Correct steps?<\/span>",
         options: [
-          "<span class="lang-ar">Key Policy في حساب A يسمح لحساب B، + IAM Policy في B يمنح المستخدم/الدور الصلاحيّات.</span><span class="lang-en">Key Policy in Account A allowing Account B, + IAM Policy in B granting user/role.</span>",
-          "<span class="lang-ar">IAM فقط في B.</span><span class="lang-en">IAM only in B.</span>",
-          "<span class="lang-ar">Key Policy فقط في A.</span><span class="lang-en">Key Policy only in A.</span>",
-          "<span class="lang-ar">Cross-Region Replication.</span><span class="lang-en">Cross-Region Replication.</span>"
+          "<span class=\"lang-ar\">Key Policy في حساب A يسمح لحساب B، + IAM Policy في B يمنح المستخدم/الدور الصلاحيّات.<\/span><span class=\"lang-en\">Key Policy in Account A allowing Account B, + IAM Policy in B granting user/role.<\/span>",
+          "<span class=\"lang-ar\">IAM فقط في B.<\/span><span class=\"lang-en\">IAM only in B.<\/span>",
+          "<span class=\"lang-ar\">Key Policy فقط في A.<\/span><span class=\"lang-en\">Key Policy only in A.<\/span>",
+          "<span class=\"lang-ar\">Cross-Region Replication.<\/span><span class=\"lang-en\">Cross-Region Replication.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">الوصول العابر للحسابات في KMS يحتاج <strong>كلا الطرفين</strong>: Key Policy في A تُصرِّح لـ B (اسم الحساب أو الدور)، وفي B سياسة IAM للمستخدم/الدور الفعليّ تسمح له باستخدام المفتاح. غياب أيّ منهما يُفشل الوصول.</span><span class="lang-en">Cross-account KMS access requires <strong>both</strong>: Key Policy in A allowing B (account or role ARN), and IAM Policy in B on the actual user/role. Missing either breaks access.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">IAM وحدها لا تكفي.</span><span class=\"lang-en\">IAM alone isn't enough.</span>", "<span class=\"lang-ar\">Key Policy وحدها لا تكفي.</span><span class=\"lang-en\">Key Policy alone isn't enough.</span>", "", "<span class=\"lang-ar\">Replication لنسخ البيانات، لا المفاتيح.</span><span class=\"lang-en\">Replication copies data, not keys.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">الوصول العابر للحسابات في KMS يحتاج <strong>كلا الطرفين<\/strong>: Key Policy في A تُصرِّح لـ B (اسم الحساب أو الدور)، وفي B سياسة IAM للمستخدم/الدور الفعليّ تسمح له باستخدام المفتاح. غياب أيّ منهما يُفشل الوصول.<\/span><span class=\"lang-en\">Cross-account KMS access requires <strong>both<\/strong>: Key Policy in A allowing B (account or role ARN), and IAM Policy in B on the actual user/role. Missing either breaks access.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">IAM وحدها لا تكفي.<\/span><span class=\"lang-en\">IAM alone isn't enough.<\/span>", "<span class=\"lang-ar\">Key Policy وحدها لا تكفي.<\/span><span class=\"lang-en\">Key Policy alone isn't enough.<\/span>", "", "<span class=\"lang-ar\">Replication لنسخ البيانات، لا المفاتيح.<\/span><span class=\"lang-en\">Replication copies data, not keys.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تطبيق على Lambda يحتاج إعداد <span dir="ltr" class="font-mono">JWT_SECRET</span> مشفّر. ما الأقلّ تكلفة وأبسط؟</span><span class="lang-en">A Lambda needs an encrypted <span dir="ltr" class="font-mono">JWT_SECRET</span> config. Cheapest and simplest?</span>",
+        question: "<span class=\"lang-ar\">تطبيق على Lambda يحتاج إعداد <span dir=\"ltr\" class=\"font-mono\">JWT_SECRET<\/span> مشفّر. ما الأقلّ تكلفة وأبسط؟<\/span><span class=\"lang-en\">A Lambda needs an encrypted <span dir=\"ltr\" class=\"font-mono\">JWT_SECRET<\/span> config. Cheapest and simplest?<\/span>",
         options: [
-          "<span class="lang-ar">Secrets Manager.</span><span class="lang-en">Secrets Manager.</span>",
-          "<span class="lang-ar">SSM Parameter Store SecureString.</span><span class="lang-en">SSM Parameter Store SecureString.</span>",
-          "<span class="lang-ar">ملف في S3 مشفّر.</span><span class="lang-en">An encrypted S3 file.</span>",
-          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>"
+          "<span class=\"lang-ar\">Secrets Manager.<\/span><span class=\"lang-en\">Secrets Manager.<\/span>",
+          "<span class=\"lang-ar\">SSM Parameter Store SecureString.<\/span><span class=\"lang-en\">SSM Parameter Store SecureString.<\/span>",
+          "<span class=\"lang-ar\">ملف في S3 مشفّر.<\/span><span class=\"lang-en\">An encrypted S3 file.<\/span>",
+          "<span class=\"lang-ar\">DynamoDB.<\/span><span class=\"lang-en\">DynamoDB.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Parameter Store Standard <strong>مجاني</strong> ويدعم SecureString مشفّراً بـ KMS. لا تدوير تلقائي لكنّه غير مطلوب لـ JWT static secret. S3 يتطلّب مزيداً من الإعدادات. DynamoDB لا علاقة له.</span><span class="lang-en">Parameter Store Standard is <strong>free</strong> and supports KMS-encrypted SecureString. No auto-rotation but not needed for a static JWT secret. S3 requires more setup. DynamoDB is unrelated.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Secrets Manager مبالغ — $0.40/شهر لكلّ secret.</span><span class=\"lang-en\">Secrets Manager is overkill — $0.40/month each.</span>", "", "<span class=\"lang-ar\">تعقيد زائد.</span><span class=\"lang-en\">Too complex.</span>", "<span class=\"lang-ar\">غير مناسب.</span><span class=\"lang-en\">Not appropriate.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Parameter Store Standard <strong>مجاني<\/strong> ويدعم SecureString مشفّراً بـ KMS. لا تدوير تلقائي لكنّه غير مطلوب لـ JWT static secret. S3 يتطلّب مزيداً من الإعدادات. DynamoDB لا علاقة له.<\/span><span class=\"lang-en\">Parameter Store Standard is <strong>free<\/strong> and supports KMS-encrypted SecureString. No auto-rotation but not needed for a static JWT secret. S3 requires more setup. DynamoDB is unrelated.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Secrets Manager مبالغ — $0.40/شهر لكلّ secret.<\/span><span class=\"lang-en\">Secrets Manager is overkill — $0.40/month each.<\/span>", "", "<span class=\"lang-ar\">تعقيد زائد.<\/span><span class=\"lang-en\">Too complex.<\/span>", "<span class=\"lang-ar\">غير مناسب.<\/span><span class=\"lang-en\">Not appropriate.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين <strong>Key Policy</strong> و <strong>Grant</strong> في KMS؟</span><span class="lang-en">Difference between <strong>Key Policy</strong> and <strong>Grant</strong> in KMS?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين <strong>Key Policy<\/strong> و <strong>Grant<\/strong> في KMS؟<\/span><span class=\"lang-en\">Difference between <strong>Key Policy<\/strong> and <strong>Grant<\/strong> in KMS?<\/span>",
         options: [
-          "<span class="lang-ar">Key Policy دائمة ومُدمجة بالمفتاح. Grant مؤقّتة ومحدّدة الأوامر.</span><span class="lang-en">Key Policy is persistent and attached to the key; Grant is temporary and scoped.</span>",
-          "<span class="lang-ar">Grant أقوى.</span><span class="lang-en">Grant is stronger.</span>",
-          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
-          "<span class="lang-ar">Key Policy للمستخدمين فقط.</span><span class="lang-en">Key Policy is users-only.</span>"
+          "<span class=\"lang-ar\">Key Policy دائمة ومُدمجة بالمفتاح. Grant مؤقّتة ومحدّدة الأوامر.<\/span><span class=\"lang-en\">Key Policy is persistent and attached to the key; Grant is temporary and scoped.<\/span>",
+          "<span class=\"lang-ar\">Grant أقوى.<\/span><span class=\"lang-en\">Grant is stronger.<\/span>",
+          "<span class=\"lang-ar\">كلاهما نفس الشيء.<\/span><span class=\"lang-en\">Same thing.<\/span>",
+          "<span class=\"lang-ar\">Key Policy للمستخدمين فقط.<\/span><span class=\"lang-en\">Key Policy is users-only.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">Key Policy = المصدر الرئيسي للصلاحيّات، يُعدَّل نادراً، يشمل الجميع. Grant = تفويض مرن ومؤقّت لمستخدم/خدمة معيّنة لأوامر محدّدة (مثلاً KMS Grant تسمح لـ EBS بتشفير snapshot). كلاهما يُقيَّم معاً.</span><span class="lang-en">Key Policy = primary permission source, rarely edited, covers everyone. Grant = flexible temporary delegation to a user/service for specific actions (e.g., a KMS Grant lets EBS encrypt a snapshot). Both are evaluated.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا أحدهما أقوى مطلقاً.</span><span class=\"lang-en\">Neither is stronger.</span>", "", "<span class=\"lang-ar\">مختلفان جوهرياً.</span><span class=\"lang-en\">Fundamentally different.</span>", "<span class=\"lang-ar\">يشمل الأدوار والخدمات.</span><span class=\"lang-en\">Covers roles and services too.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Key Policy = المصدر الرئيسي للصلاحيّات، يُعدَّل نادراً، يشمل الجميع. Grant = تفويض مرن ومؤقّت لمستخدم/خدمة معيّنة لأوامر محدّدة (مثلاً KMS Grant تسمح لـ EBS بتشفير snapshot). كلاهما يُقيَّم معاً.<\/span><span class=\"lang-en\">Key Policy = primary permission source, rarely edited, covers everyone. Grant = flexible temporary delegation to a user/service for specific actions (e.g., a KMS Grant lets EBS encrypt a snapshot). Both are evaluated.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا أحدهما أقوى مطلقاً.<\/span><span class=\"lang-en\">Neither is stronger.<\/span>", "", "<span class=\"lang-ar\">مختلفان جوهرياً.<\/span><span class=\"lang-en\">Fundamentally different.<\/span>", "<span class=\"lang-ar\">يشمل الأدوار والخدمات.<\/span><span class=\"lang-en\">Covers roles and services too.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">ما أقصى حجم للقيمة في <strong>Parameter Store Standard Tier</strong>؟</span><span class="lang-en">Max value size in <strong>Parameter Store Standard Tier</strong>?</span>",
+        question: "<span class=\"lang-ar\">ما أقصى حجم للقيمة في <strong>Parameter Store Standard Tier<\/strong>؟<\/span><span class=\"lang-en\">Max value size in <strong>Parameter Store Standard Tier<\/strong>?<\/span>",
         options: [
-          "<span class="lang-ar">1 KB.</span><span class="lang-en">1 KB.</span>",
-          "<span class="lang-ar">4 KB.</span><span class="lang-en">4 KB.</span>",
-          "<span class="lang-ar">8 KB (Advanced Tier).</span><span class="lang-en">8 KB (Advanced Tier).</span>",
-          "<span class="lang-ar">64 KB.</span><span class="lang-en">64 KB.</span>"
+          "<span class=\"lang-ar\">1 KB.<\/span><span class=\"lang-en\">1 KB.<\/span>",
+          "<span class=\"lang-ar\">4 KB.<\/span><span class=\"lang-en\">4 KB.<\/span>",
+          "<span class=\"lang-ar\">8 KB (Advanced Tier).<\/span><span class=\"lang-en\">8 KB (Advanced Tier).<\/span>",
+          "<span class=\"lang-ar\">64 KB.<\/span><span class=\"lang-en\">64 KB.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Standard = 4 KB (مجاني، حتى 10K parameter). Advanced = 8 KB (مدفوع، حتى 100K، يدعم Policies مثل Expiration). Secrets Manager يدعم 64 KB لكنّه أغلى.</span><span class="lang-en">Standard = 4 KB (free, up to 10K params). Advanced = 8 KB (paid, up to 100K, supports policies like Expiration). Secrets Manager supports 64 KB but costs more.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Standard = 4 KB (مجاني، حتى 10K parameter). Advanced = 8 KB (مدفوع، حتى 100K، يدعم Policies مثل Expiration). Secrets Manager يدعم 64 KB لكنّه أغلى.<\/span><span class=\"lang-en\">Standard = 4 KB (free, up to 10K params). Advanced = 8 KB (paid, up to 100K, supports policies like Expiration). Secrets Manager supports 64 KB but costs more.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java يستخدم <span dir="ltr" class="font-mono">AWS Encryption SDK</span>. لماذا هو أفضل من Envelope Encryption اليدويّ؟</span><span class="lang-en">A Java app uses <span dir="ltr" class="font-mono">AWS Encryption SDK</span>. Why better than DIY Envelope Encryption?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java يستخدم <span dir=\"ltr\" class=\"font-mono\">AWS Encryption SDK<\/span>. لماذا هو أفضل من Envelope Encryption اليدويّ؟<\/span><span class=\"lang-en\">A Java app uses <span dir=\"ltr\" class=\"font-mono\">AWS Encryption SDK<\/span>. Why better than DIY Envelope Encryption?<\/span>",
         options: [
-          "<span class="lang-ar">أرخص.</span><span class="lang-en">Cheaper.</span>",
-          "<span class="lang-ar">يُنفّذ Envelope Encryption تلقائياً ويدعم Data Key Caching لتقليل استدعاءات KMS.</span><span class="lang-en">Auto-implements Envelope Encryption and supports Data Key Caching to reduce KMS calls.</span>",
-          "<span class="lang-ar">يتخطّى KMS كلياً.</span><span class="lang-en">Bypasses KMS.</span>",
-          "<span class="lang-ar">لا يحتاج إلى IAM.</span><span class="lang-en">No IAM needed.</span>"
+          "<span class=\"lang-ar\">أرخص.<\/span><span class=\"lang-en\">Cheaper.<\/span>",
+          "<span class=\"lang-ar\">يُنفّذ Envelope Encryption تلقائياً ويدعم Data Key Caching لتقليل استدعاءات KMS.<\/span><span class=\"lang-en\">Auto-implements Envelope Encryption and supports Data Key Caching to reduce KMS calls.<\/span>",
+          "<span class=\"lang-ar\">يتخطّى KMS كلياً.<\/span><span class=\"lang-en\">Bypasses KMS.<\/span>",
+          "<span class=\"lang-ar\">لا يحتاج إلى IAM.<\/span><span class=\"lang-en\">No IAM needed.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AWS Encryption SDK: يكتب المفتاح المشفّر ضمن الـ ciphertext نفسه، يتحقّق من سلامة البيانات، ويدعم <strong>LocalCryptoMaterialsCache</strong> لإعادة استخدام DEKs عبر عدّة رسائل ضمن حدود زمنيّة — يقلّل ضغط KMS.</span><span class="lang-en">AWS Encryption SDK: embeds the encrypted key in the ciphertext itself, verifies integrity, and supports <strong>LocalCryptoMaterialsCache</strong> to reuse DEKs across messages within bounds — reducing KMS pressure.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">نفس تكلفة KMS.</span><span class=\"lang-en\">Same KMS cost.</span>", "", "<span class=\"lang-ar\">يستخدم KMS.</span><span class=\"lang-en\">Uses KMS.</span>", "<span class=\"lang-ar\">IAM مطلوب.</span><span class=\"lang-en\">IAM still needed.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">AWS Encryption SDK: يكتب المفتاح المشفّر ضمن الـ ciphertext نفسه، يتحقّق من سلامة البيانات، ويدعم <strong>LocalCryptoMaterialsCache<\/strong> لإعادة استخدام DEKs عبر عدّة رسائل ضمن حدود زمنيّة — يقلّل ضغط KMS.<\/span><span class=\"lang-en\">AWS Encryption SDK: embeds the encrypted key in the ciphertext itself, verifies integrity, and supports <strong>LocalCryptoMaterialsCache<\/strong> to reuse DEKs across messages within bounds — reducing KMS pressure.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">نفس تكلفة KMS.<\/span><span class=\"lang-en\">Same KMS cost.<\/span>", "", "<span class=\"lang-ar\">يستخدم KMS.<\/span><span class=\"lang-en\">Uses KMS.<\/span>", "<span class=\"lang-ar\">IAM مطلوب.<\/span><span class=\"lang-en\">IAM still needed.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">أيّ API في KMS تستخدم لتشفير بيانات تحت مفتاح Region آخر؟</span><span class="lang-en">Which KMS API do you use to re-encrypt data under a different region's key?</span>",
+        question: "<span class=\"lang-ar\">أيّ API في KMS تستخدم لتشفير بيانات تحت مفتاح Region آخر؟<\/span><span class=\"lang-en\">Which KMS API do you use to re-encrypt data under a different region's key?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Encrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Encrypt</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">ReEncrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">ReEncrypt</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Decrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Decrypt</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Sign</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Sign</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Encrypt<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Encrypt<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Sign<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Sign<\/span>.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">ReEncrypt</span> يفكّ ثم يشفّر في عمليّة واحدة داخل KMS دون أن يغادر الـ plaintext الخدمة. مفيد عند نسخ EBS Snapshot بين المناطق أو تغيير CMK على البيانات دون كشفها للعميل.</span><span class="lang-en"><span dir="ltr" class="font-mono">ReEncrypt</span> decrypts then encrypts in one KMS call without the plaintext leaving the service. Useful for copying EBS Snapshots across regions or changing CMK without exposing plaintext to the client.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يشفّر فقط.</span><span class=\"lang-en\">Only encrypts.</span>", "", "<span class=\"lang-ar\">يفكّ فقط.</span><span class=\"lang-en\">Only decrypts.</span>", "<span class=\"lang-ar\">للتوقيع الرقميّ.</span><span class=\"lang-en\">For digital signing.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span> يفكّ ثم يشفّر في عمليّة واحدة داخل KMS دون أن يغادر الـ plaintext الخدمة. مفيد عند نسخ EBS Snapshot بين المناطق أو تغيير CMK على البيانات دون كشفها للعميل.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span> decrypts then encrypts in one KMS call without the plaintext leaving the service. Useful for copying EBS Snapshots across regions or changing CMK without exposing plaintext to the client.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يشفّر فقط.<\/span><span class=\"lang-en\">Only encrypts.<\/span>", "", "<span class=\"lang-ar\">يفكّ فقط.<\/span><span class=\"lang-en\">Only decrypts.<\/span>", "<span class=\"lang-ar\">للتوقيع الرقميّ.<\/span><span class=\"lang-en\">For digital signing.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">لماذا <strong>لا يستطيع</strong> حتى المستخدم الجذر (Root) استخدام CMK إذا لم تُعرَّف Key Policy؟</span><span class="lang-en">Why can't even Root use a CMK without a Key Policy?</span>",
+        question: "<span class=\"lang-ar\">لماذا <strong>لا يستطيع<\/strong> حتى المستخدم الجذر (Root) استخدام CMK إذا لم تُعرَّف Key Policy؟<\/span><span class=\"lang-en\">Why can't even Root use a CMK without a Key Policy?<\/span>",
         options: [
-          "<span class="lang-ar">AWS تحذف المفتاح.</span><span class="lang-en">AWS deletes the key.</span>",
-          "<span class="lang-ar">KMS تشترط Key Policy صريحة — Default Policy يمنح Root كلّ الصلاحيّات، لكن لو عُدِّلت وحُذِف Root، يُقفَل المفتاح.</span><span class="lang-en">KMS requires an explicit Key Policy — the default grants Root full access, but if edited to remove Root, the key is locked out.</span>",
-          "<span class="lang-ar">Root ممنوع من KMS.</span><span class="lang-en">Root is banned from KMS.</span>",
-          "<span class="lang-ar">MFA مطلوبة.</span><span class="lang-en">MFA required.</span>"
+          "<span class=\"lang-ar\">AWS تحذف المفتاح.<\/span><span class=\"lang-en\">AWS deletes the key.<\/span>",
+          "<span class=\"lang-ar\">KMS تشترط Key Policy صريحة — Default Policy يمنح Root كلّ الصلاحيّات، لكن لو عُدِّلت وحُذِف Root، يُقفَل المفتاح.<\/span><span class=\"lang-en\">KMS requires an explicit Key Policy — the default grants Root full access, but if edited to remove Root, the key is locked out.<\/span>",
+          "<span class=\"lang-ar\">Root ممنوع من KMS.<\/span><span class=\"lang-en\">Root is banned from KMS.<\/span>",
+          "<span class=\"lang-ar\">MFA مطلوبة.<\/span><span class=\"lang-en\">MFA required.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Key Policy في KMS <strong>إلزاميّة</strong> (بخلاف سياسات الموارد الأخرى). الـ Default Policy تحتوي بياناً يمنح Root الحساب كلّ الصلاحيّات (<span dir="ltr" class="font-mono">kms:*</span>). إذا حذفت هذا البيان، لا أحد يستطيع الإدارة — تواصل مع AWS Support لاستعادة المفتاح.</span><span class="lang-en">KMS Key Policy is <strong>mandatory</strong> (unlike other resource policies). The default contains a statement granting Root full <span dir="ltr" class="font-mono">kms:*</span>. Remove it and nobody can administer — contact AWS Support to recover the key.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">AWS لا تحذف مفاتيح المستخدمين.</span><span class=\"lang-en\">AWS doesn't delete user keys.</span>", "", "<span class=\"lang-ar\">Root لا يُمنَع.</span><span class=\"lang-en\">Root isn't banned.</span>", "<span class=\"lang-ar\">MFA غير مرتبطة.</span><span class=\"lang-en\">MFA unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Key Policy في KMS <strong>إلزاميّة<\/strong> (بخلاف سياسات الموارد الأخرى). الـ Default Policy تحتوي بياناً يمنح Root الحساب كلّ الصلاحيّات (<span dir=\"ltr\" class=\"font-mono\">kms:*<\/span>). إذا حذفت هذا البيان، لا أحد يستطيع الإدارة — تواصل مع AWS Support لاستعادة المفتاح.<\/span><span class=\"lang-en\">KMS Key Policy is <strong>mandatory<\/strong> (unlike other resource policies). The default contains a statement granting Root full <span dir=\"ltr\" class=\"font-mono\">kms:*<\/span>. Remove it and nobody can administer — contact AWS Support to recover the key.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AWS لا تحذف مفاتيح المستخدمين.<\/span><span class=\"lang-en\">AWS doesn't delete user keys.<\/span>", "", "<span class=\"lang-ar\">Root لا يُمنَع.<\/span><span class=\"lang-en\">Root isn't banned.<\/span>", "<span class=\"lang-ar\">MFA غير مرتبطة.<\/span><span class=\"lang-en\">MFA unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">في CloudFormation، كيف تشير إلى سرّ في Secrets Manager ديناميكياً؟</span><span class="lang-en">In CloudFormation, how do you dynamically reference a Secrets Manager secret?</span>",
+        question: "<span class=\"lang-ar\">في CloudFormation، كيف تشير إلى سرّ في Secrets Manager ديناميكياً؟<\/span><span class=\"lang-en\">In CloudFormation, how do you dynamically reference a Secrets Manager secret?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">!GetSecret</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">!GetSecret</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">${secret}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${secret}</span>.</span>",
-          "<span class="lang-ar">غير مدعوم.</span><span class="lang-en">Not supported.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:password}}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:password}}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">!GetSecret<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">!GetSecret<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${secret}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${secret}<\/span>.<\/span>",
+          "<span class=\"lang-ar\">غير مدعوم.<\/span><span class=\"lang-en\">Not supported.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">CloudFormation يدعم Dynamic References بصيغة <span dir="ltr" class="font-mono">{{resolve:service-name:reference-key}}</span>. للـ Secrets Manager: <span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. للـ Parameter Store: <span dir="ltr" class="font-mono">{{resolve:ssm:param-name:version}}</span> أو <span dir="ltr" class="font-mono">ssm-secure</span>.</span><span class="lang-en">CloudFormation supports Dynamic References via <span dir="ltr" class="font-mono">{{resolve:service-name:reference-key}}</span>. Secrets Manager: <span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. Parameter Store: <span dir="ltr" class="font-mono">{{resolve:ssm:param-name:version}}</span> or <span dir="ltr" class="font-mono">ssm-secure</span>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">صيغة مخترعة.</span><span class=\"lang-en\">Made up.</span>", "<span class=\"lang-ar\">صيغة مخترعة.</span><span class=\"lang-en\">Made up.</span>", "", "<span class=\"lang-ar\">مدعوم بالكامل.</span><span class=\"lang-en\">Fully supported.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥ و ٦</span><span class=\"lang-en\">Sections 5 & 6</span>"
+        explanation: "<span class=\"lang-ar\">CloudFormation يدعم Dynamic References بصيغة <span dir=\"ltr\" class=\"font-mono\">{{resolve:service-name:reference-key}}<\/span>. للـ Secrets Manager: <span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}<\/span>. للـ Parameter Store: <span dir=\"ltr\" class=\"font-mono\">{{resolve:ssm:param-name:version}}<\/span> أو <span dir=\"ltr\" class=\"font-mono\">ssm-secure<\/span>.<\/span><span class=\"lang-en\">CloudFormation supports Dynamic References via <span dir=\"ltr\" class=\"font-mono\">{{resolve:service-name:reference-key}}<\/span>. Secrets Manager: <span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}<\/span>. Parameter Store: <span dir=\"ltr\" class=\"font-mono\">{{resolve:ssm:param-name:version}}<\/span> or <span dir=\"ltr\" class=\"font-mono\">ssm-secure<\/span>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">صيغة مخترعة.<\/span><span class=\"lang-en\">Made up.<\/span>", "<span class=\"lang-ar\">صيغة مخترعة.<\/span><span class=\"lang-en\">Made up.<\/span>", "", "<span class=\"lang-ar\">مدعوم بالكامل.<\/span><span class=\"lang-en\">Fully supported.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥ و ٦<\/span><span class=\"lang-en\">Sections 5 & 6<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق بين <span dir="ltr" class="font-mono">Decrypt</span> و <span dir="ltr" class="font-mono">ReEncrypt</span>؟</span><span class="lang-en">Difference between <span dir="ltr" class="font-mono">Decrypt</span> and <span dir="ltr" class="font-mono">ReEncrypt</span>?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق بين <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> و <span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span>؟<\/span><span class=\"lang-en\">Difference between <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> and <span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span>?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Decrypt</span> يعيد plaintext للعميل؛ <span dir="ltr" class="font-mono">ReEncrypt</span> يفكّ ويشفّر بـ CMK آخر بدون كشف plaintext خارج KMS.</span><span class="lang-en"><span dir="ltr" class="font-mono">Decrypt</span> returns plaintext to the client; <span dir="ltr" class="font-mono">ReEncrypt</span> decrypts and re-encrypts under another CMK without exposing plaintext outside KMS.</span>",
-          "<span class="lang-ar">ReEncrypt أبطأ.</span><span class="lang-en">ReEncrypt is slower.</span>",
-          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
-          "<span class="lang-ar">ReEncrypt لفكّ التوقيع فقط.</span><span class="lang-en">ReEncrypt is for signature verification only.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> يعيد plaintext للعميل؛ <span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span> يفكّ ويشفّر بـ CMK آخر بدون كشف plaintext خارج KMS.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> returns plaintext to the client; <span dir=\"ltr\" class=\"font-mono\">ReEncrypt<\/span> decrypts and re-encrypts under another CMK without exposing plaintext outside KMS.<\/span>",
+          "<span class=\"lang-ar\">ReEncrypt أبطأ.<\/span><span class=\"lang-en\">ReEncrypt is slower.<\/span>",
+          "<span class=\"lang-ar\">كلاهما نفس الشيء.<\/span><span class=\"lang-en\">Same thing.<\/span>",
+          "<span class=\"lang-ar\">ReEncrypt لفكّ التوقيع فقط.<\/span><span class=\"lang-en\">ReEncrypt is for signature verification only.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">الفائدة الأمنيّة لـ ReEncrypt: الـ plaintext لا يغادر KMS أبداً. مناسب لتبديل CMK، نسخ EBS Snapshots عبر المناطق، أو تغيير ملكيّة البيانات بين حسابات. <span dir="ltr" class="font-mono">Decrypt</span> يعيد الـ plaintext لتطبيقك.</span><span class="lang-en">The security benefit of ReEncrypt: plaintext never leaves KMS. Ideal for rotating CMK, copying EBS Snapshots across regions, or changing data ownership across accounts. <span dir="ltr" class="font-mono">Decrypt</span> returns plaintext to your app.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الأداء متقارب.</span><span class=\"lang-en\">Perf similar.</span>", "", "<span class=\"lang-ar\">مختلفان.</span><span class=\"lang-en\">Different.</span>", "<span class=\"lang-ar\">ReEncrypt لا علاقة له بالتوقيع.</span><span class=\"lang-en\">ReEncrypt is not for signatures.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">الفائدة الأمنيّة لـ ReEncrypt: الـ plaintext لا يغادر KMS أبداً. مناسب لتبديل CMK، نسخ EBS Snapshots عبر المناطق، أو تغيير ملكيّة البيانات بين حسابات. <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> يعيد الـ plaintext لتطبيقك.<\/span><span class=\"lang-en\">The security benefit of ReEncrypt: plaintext never leaves KMS. Ideal for rotating CMK, copying EBS Snapshots across regions, or changing data ownership across accounts. <span dir=\"ltr\" class=\"font-mono\">Decrypt<\/span> returns plaintext to your app.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الأداء متقارب.<\/span><span class=\"lang-en\">Perf similar.<\/span>", "", "<span class=\"lang-ar\">مختلفان.<\/span><span class=\"lang-en\">Different.<\/span>", "<span class=\"lang-ar\">ReEncrypt لا علاقة له بالتوقيع.<\/span><span class=\"lang-en\">ReEncrypt is not for signatures.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       }
     ];
 

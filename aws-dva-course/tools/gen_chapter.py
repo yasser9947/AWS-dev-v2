@@ -437,13 +437,24 @@ def render_navigation(ch_n, prev_n, next_n):
 """.strip()
 
 
+def js_str(s: str) -> str:
+    """Encode a string as a JS-safe double-quoted literal.
+
+    Uses json.dumps so HTML attribute quotes, backslashes, and control chars
+    are escaped correctly. Also neutralizes `</script>` which would break out
+    of the surrounding <script> block even inside a string.
+    """
+    return json.dumps(s, ensure_ascii=False).replace("</", "<\\/")
+
+
 def render_quiz_data(quiz):
     """Convert quiz spec to JS array string."""
     js_questions = []
     for q in quiz:
-        opts_combined = []
-        for i, (ar, en) in enumerate(zip(q["options_ar"], q["options_en"])):
-            opts_combined.append(f'<span class="lang-ar">{ar}</span><span class="lang-en">{en}</span>')
+        opts_combined = [
+            f'<span class="lang-ar">{ar}</span><span class="lang-en">{en}</span>'
+            for ar, en in zip(q["options_ar"], q["options_en"])
+        ]
 
         correct = q["correct"]
         if isinstance(correct, list):
@@ -453,32 +464,33 @@ def render_quiz_data(quiz):
 
         wrong_js = ""
         if q.get("wrong_ar") or q.get("wrong_en"):
-            wrong_items = []
             wrong_ar = q.get("wrong_ar") or [""] * len(q["options_ar"])
             wrong_en = q.get("wrong_en") or [""] * len(q["options_en"])
+            wrong_items = []
             for ar, en in zip(wrong_ar, wrong_en):
                 if ar or en:
-                    wrong_items.append(f'"<span class=\\"lang-ar\\">{ar}</span><span class=\\"lang-en\\">{en}</span>"')
+                    wrong_items.append(js_str(f'<span class="lang-ar">{ar}</span><span class="lang-en">{en}</span>'))
                 else:
                     wrong_items.append('""')
             wrong_js = f",\n        wrongExplanations: [{', '.join(wrong_items)}]"
 
         ref_js = ""
         if q.get("reference_ar") or q.get("reference_en"):
-            ref_js = f',\n        reference: "<span class=\\"lang-ar\\">{q.get("reference_ar","")}</span><span class=\\"lang-en\\">{q.get("reference_en","")}</span>"'
+            ref_html = f'<span class="lang-ar">{q.get("reference_ar","")}</span><span class="lang-en">{q.get("reference_en","")}</span>'
+            ref_js = f",\n        reference: {js_str(ref_html)}"
 
-        options_js = "[\n          " + ",\n          ".join(f'"{o}"' for o in opts_combined) + "\n        ]"
+        options_js = "[\n          " + ",\n          ".join(js_str(o) for o in opts_combined) + "\n        ]"
 
-        question_combined = f'<span class="lang-ar">{q["question_ar"]}</span><span class="lang-en">{q["question_en"]}</span>'
-        explanation_combined = f'<span class="lang-ar">{q["explanation_ar"]}</span><span class="lang-en">{q["explanation_en"]}</span>'
+        question_html = f'<span class="lang-ar">{q["question_ar"]}</span><span class="lang-en">{q["question_en"]}</span>'
+        explanation_html = f'<span class="lang-ar">{q["explanation_ar"]}</span><span class="lang-en">{q["explanation_en"]}</span>'
 
         js_questions.append(f"""{{
-        id: "{q['id']}",
-        type: "{q['type']}",
-        question: "{question_combined}",
+        id: {js_str(q['id'])},
+        type: {js_str(q['type'])},
+        question: {js_str(question_html)},
         options: {options_js},
         correct: {correct_js},
-        explanation: "{explanation_combined}"{wrong_js}{ref_js}
+        explanation: {js_str(explanation_html)}{wrong_js}{ref_js}
       }}""")
 
     return ",\n      ".join(js_questions)

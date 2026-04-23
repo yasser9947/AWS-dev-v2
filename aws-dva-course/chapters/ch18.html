@@ -918,178 +918,178 @@ aws s3 ls s3://prod-reports/</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق الجوهريّ بين <strong>Trust Policy</strong> و <strong>Permissions Policy</strong> على نفس الدور؟</span><span class="lang-en">Key difference between a role's <strong>Trust Policy</strong> and <strong>Permissions Policy</strong>?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق الجوهريّ بين <strong>Trust Policy<\/strong> و <strong>Permissions Policy<\/strong> على نفس الدور؟<\/span><span class=\"lang-en\">Key difference between a role's <strong>Trust Policy<\/strong> and <strong>Permissions Policy<\/strong>?<\/span>",
         options: [
-          "<span class="lang-ar">Trust تحدّد ماذا يُسمَح فعله، Permissions تحدّد من يتحمّل الدور.</span><span class="lang-en">Trust defines what can be done, Permissions defines who assumes.</span>",
-          "<span class="lang-ar">Trust تحدّد من يتحمّل الدور، Permissions تحدّد ماذا يُسمَح فعله.</span><span class="lang-en">Trust defines who assumes the role, Permissions defines what can be done.</span>",
-          "<span class="lang-ar">لا فرق، كلاهما نفس السياسة.</span><span class="lang-en">No difference, same policy.</span>",
-          "<span class="lang-ar">Trust مخصّصة للحساب الجذر فقط.</span><span class="lang-en">Trust is for Root only.</span>"
+          "<span class=\"lang-ar\">Trust تحدّد ماذا يُسمَح فعله، Permissions تحدّد من يتحمّل الدور.<\/span><span class=\"lang-en\">Trust defines what can be done, Permissions defines who assumes.<\/span>",
+          "<span class=\"lang-ar\">Trust تحدّد من يتحمّل الدور، Permissions تحدّد ماذا يُسمَح فعله.<\/span><span class=\"lang-en\">Trust defines who assumes the role, Permissions defines what can be done.<\/span>",
+          "<span class=\"lang-ar\">لا فرق، كلاهما نفس السياسة.<\/span><span class=\"lang-en\">No difference, same policy.<\/span>",
+          "<span class=\"lang-ar\">Trust مخصّصة للحساب الجذر فقط.<\/span><span class=\"lang-en\">Trust is for Root only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">كلّ Role له سياستان: <strong>Trust Policy</strong> تحدّد <em>من</em> يستطيع تحمّل الدور (<span dir="ltr" class="font-mono">AssumeRolePolicyDocument</span>)، و<strong>Permissions Policy</strong> تحدّد <em>ماذا</em> يفعل بعد التحمّل. بدون Trust الصحيحة، لا أحد يستطيع الوصول حتى لو كانت الصلاحيّات مفتوحة.</span><span class="lang-en">A role has two policies: <strong>Trust Policy</strong> defines <em>who</em> can assume it (<span dir="ltr" class="font-mono">AssumeRolePolicyDocument</span>), <strong>Permissions Policy</strong> defines <em>what</em> they do once assumed. Without a valid trust, nobody can assume it — regardless of permissions.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">كلّ Role له سياستان: <strong>Trust Policy<\/strong> تحدّد <em>من<\/em> يستطيع تحمّل الدور (<span dir=\"ltr\" class=\"font-mono\">AssumeRolePolicyDocument<\/span>)، و<strong>Permissions Policy<\/strong> تحدّد <em>ماذا<\/em> يفعل بعد التحمّل. بدون Trust الصحيحة، لا أحد يستطيع الوصول حتى لو كانت الصلاحيّات مفتوحة.<\/span><span class=\"lang-en\">A role has two policies: <strong>Trust Policy<\/strong> defines <em>who<\/em> can assume it (<span dir=\"ltr\" class=\"font-mono\">AssumeRolePolicyDocument<\/span>), <strong>Permissions Policy<\/strong> defines <em>what<\/em> they do once assumed. Without a valid trust, nobody can assume it — regardless of permissions.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">شركة SaaS تقدّم خدمة مراقبة S3 لعدّة عملاء وتستخدم AssumeRole للوصول إلى حساب كلّ عميل. ما أفضل ممارسة لمنع هجمات <strong>Confused Deputy</strong>؟</span><span class="lang-en">A SaaS provides S3 monitoring to many customers and uses AssumeRole into each customer's account. Best practice to prevent <strong>Confused Deputy</strong>?</span>",
+        question: "<span class=\"lang-ar\">شركة SaaS تقدّم خدمة مراقبة S3 لعدّة عملاء وتستخدم AssumeRole للوصول إلى حساب كلّ عميل. ما أفضل ممارسة لمنع هجمات <strong>Confused Deputy<\/strong>؟<\/span><span class=\"lang-en\">A SaaS provides S3 monitoring to many customers and uses AssumeRole into each customer's account. Best practice to prevent <strong>Confused Deputy<\/strong>?<\/span>",
         options: [
-          "<span class="lang-ar">فرض HTTPS فقط على API calls.</span><span class="lang-en">Force HTTPS on all API calls.</span>",
-          "<span class="lang-ar">استخدام <span dir="ltr" class="font-mono">External ID</span> فريد لكلّ عميل في Trust Policy.</span><span class="lang-en">Use a unique <span dir="ltr" class="font-mono">External ID</span> per customer in Trust Policy.</span>",
-          "<span class="lang-ar">تخزين المفاتيح في KMS.</span><span class="lang-en">Store keys in KMS.</span>",
-          "<span class="lang-ar">تفعيل MFA على مستخدم SaaS.</span><span class="lang-en">Enable MFA on the SaaS user.</span>"
+          "<span class=\"lang-ar\">فرض HTTPS فقط على API calls.<\/span><span class=\"lang-en\">Force HTTPS on all API calls.<\/span>",
+          "<span class=\"lang-ar\">استخدام <span dir=\"ltr\" class=\"font-mono\">External ID<\/span> فريد لكلّ عميل في Trust Policy.<\/span><span class=\"lang-en\">Use a unique <span dir=\"ltr\" class=\"font-mono\">External ID<\/span> per customer in Trust Policy.<\/span>",
+          "<span class=\"lang-ar\">تخزين المفاتيح في KMS.<\/span><span class=\"lang-en\">Store keys in KMS.<\/span>",
+          "<span class=\"lang-ar\">تفعيل MFA على مستخدم SaaS.<\/span><span class=\"lang-en\">Enable MFA on the SaaS user.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">External ID قيمة فريدة لكلّ عميل يشاركها مزوّد SaaS مع العميل ويطلبها في كلّ <span dir="ltr" class="font-mono">AssumeRole</span>. يمنع مهاجم يعرف ARN دور عميل من انتحال شخصيّة عميل آخر لنفس SaaS. هذه الوصفة الرسميّة لحالة Confused Deputy.</span><span class="lang-en">External ID is a per-customer value the SaaS shares with the customer and presents on every <span dir="ltr" class="font-mono">AssumeRole</span>. Blocks an attacker who knows one customer's role ARN from impersonating another customer of the same SaaS. Official fix for Confused Deputy.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">HTTPS لا يحلّ مشكلة التمييز بين العملاء.</span><span class=\"lang-en\">HTTPS doesn't distinguish customers.</span>", "", "<span class=\"lang-ar\">KMS لتشفير المحتوى، لا التحقّق من الهويّة.</span><span class=\"lang-en\">KMS encrypts content, doesn't verify identity.</span>", "<span class=\"lang-ar\">MFA على SaaS ليس قابلاً للتطبيق لأنّها آليّة.</span><span class=\"lang-en\">MFA on SaaS isn't applicable — it's automated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">External ID قيمة فريدة لكلّ عميل يشاركها مزوّد SaaS مع العميل ويطلبها في كلّ <span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>. يمنع مهاجم يعرف ARN دور عميل من انتحال شخصيّة عميل آخر لنفس SaaS. هذه الوصفة الرسميّة لحالة Confused Deputy.<\/span><span class=\"lang-en\">External ID is a per-customer value the SaaS shares with the customer and presents on every <span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>. Blocks an attacker who knows one customer's role ARN from impersonating another customer of the same SaaS. Official fix for Confused Deputy.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">HTTPS لا يحلّ مشكلة التمييز بين العملاء.<\/span><span class=\"lang-en\">HTTPS doesn't distinguish customers.<\/span>", "", "<span class=\"lang-ar\">KMS لتشفير المحتوى، لا التحقّق من الهويّة.<\/span><span class=\"lang-en\">KMS encrypts content, doesn't verify identity.<\/span>", "<span class=\"lang-ar\">MFA على SaaS ليس قابلاً للتطبيق لأنّها آليّة.<\/span><span class=\"lang-en\">MFA on SaaS isn't applicable — it's automated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد أن يستخدم الخادم EC2 الـ Role المُعرَّف. أيّ صلاحيّة إضافيّة يحتاجها المطوّر لإطلاق الخادم مع هذا الدور؟</span><span class="lang-en">A developer wants an EC2 instance to use a defined Role. What additional permission does the developer need to launch the instance with that role?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد أن يستخدم الخادم EC2 الـ Role المُعرَّف. أيّ صلاحيّة إضافيّة يحتاجها المطوّر لإطلاق الخادم مع هذا الدور؟<\/span><span class=\"lang-en\">A developer wants an EC2 instance to use a defined Role. What additional permission does the developer need to launch the instance with that role?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">ec2:AttachRole</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">ec2:AttachRole</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">iam:PassRole</span> على ARN الدور.</span><span class="lang-en"><span dir="ltr" class="font-mono">iam:PassRole</span> on the role ARN.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">sts:AssumeRole</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">sts:AssumeRole</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">iam:AttachPolicy</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">iam:AttachPolicy</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">ec2:AttachRole<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">ec2:AttachRole<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span> على ARN الدور.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span> on the role ARN.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">sts:AssumeRole<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">sts:AssumeRole<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">iam:AttachPolicy<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">iam:AttachPolicy<\/span>.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">عند تمرير دور إلى خدمة AWS (EC2, Lambda, ECS, CodeDeploy...)، يحتاج المستخدم صلاحيّة <span dir="ltr" class="font-mono">iam:PassRole</span>. بدونها يفشل إطلاق الخادم حتى لو كان <span dir="ltr" class="font-mono">ec2:RunInstances</span> متاحاً. قيّد الـ PassRole دائماً بـ ARN محدّد ومع <span dir="ltr" class="font-mono">iam:PassedToService</span>.</span><span class="lang-en">Passing a role to an AWS service (EC2, Lambda, ECS, CodeDeploy, etc.) requires <span dir="ltr" class="font-mono">iam:PassRole</span>. Without it, instance launch fails even with <span dir="ltr" class="font-mono">ec2:RunInstances</span>. Always scope PassRole to specific ARNs and use <span dir="ltr" class="font-mono">iam:PassedToService</span>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا توجد صلاحيّة بهذا الاسم.</span><span class=\"lang-en\">No such permission.</span>", "", "<span class=\"lang-ar\">AssumeRole لاستخدام الدور، لا لتمريره لخدمة.</span><span class=\"lang-en\">AssumeRole is for using it, not passing.</span>", "<span class=\"lang-ar\">AttachPolicy لربط سياسات بمستخدم.</span><span class=\"lang-en\">AttachPolicy is for attaching policies to users.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">عند تمرير دور إلى خدمة AWS (EC2, Lambda, ECS, CodeDeploy...)، يحتاج المستخدم صلاحيّة <span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span>. بدونها يفشل إطلاق الخادم حتى لو كان <span dir=\"ltr\" class=\"font-mono\">ec2:RunInstances<\/span> متاحاً. قيّد الـ PassRole دائماً بـ ARN محدّد ومع <span dir=\"ltr\" class=\"font-mono\">iam:PassedToService<\/span>.<\/span><span class=\"lang-en\">Passing a role to an AWS service (EC2, Lambda, ECS, CodeDeploy, etc.) requires <span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span>. Without it, instance launch fails even with <span dir=\"ltr\" class=\"font-mono\">ec2:RunInstances<\/span>. Always scope PassRole to specific ARNs and use <span dir=\"ltr\" class=\"font-mono\">iam:PassedToService<\/span>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا توجد صلاحيّة بهذا الاسم.<\/span><span class=\"lang-en\">No such permission.<\/span>", "", "<span class=\"lang-ar\">AssumeRole لاستخدام الدور، لا لتمريره لخدمة.<\/span><span class=\"lang-en\">AssumeRole is for using it, not passing.<\/span>", "<span class=\"lang-ar\">AttachPolicy لربط سياسات بمستخدم.<\/span><span class=\"lang-en\">AttachPolicy is for attaching policies to users.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">ما أقصى مدّة صلاحيّة لمفاتيح مؤقّتة من <span dir="ltr" class="font-mono">sts:AssumeRole</span>؟</span><span class="lang-en">Maximum session duration for credentials from <span dir="ltr" class="font-mono">sts:AssumeRole</span>?</span>",
+        question: "<span class=\"lang-ar\">ما أقصى مدّة صلاحيّة لمفاتيح مؤقّتة من <span dir=\"ltr\" class=\"font-mono\">sts:AssumeRole<\/span>؟<\/span><span class=\"lang-en\">Maximum session duration for credentials from <span dir=\"ltr\" class=\"font-mono\">sts:AssumeRole<\/span>?<\/span>",
         options: [
-          "<span class="lang-ar">ساعة واحدة.</span><span class="lang-en">1 hour.</span>",
-          "<span class="lang-ar">١٢ ساعة (قابل للضبط في إعدادات الدور، الحد الافتراضي ساعة).</span><span class="lang-en">12 hours (configurable on the role, default 1h).</span>",
-          "<span class="lang-ar">٢٤ ساعة.</span><span class="lang-en">24 hours.</span>",
-          "<span class="lang-ar">٣٦٠٠ ثانية بالضبط لا أكثر.</span><span class="lang-en">Exactly 3600 seconds, no more.</span>"
+          "<span class=\"lang-ar\">ساعة واحدة.<\/span><span class=\"lang-en\">1 hour.<\/span>",
+          "<span class=\"lang-ar\">١٢ ساعة (قابل للضبط في إعدادات الدور، الحد الافتراضي ساعة).<\/span><span class=\"lang-en\">12 hours (configurable on the role, default 1h).<\/span>",
+          "<span class=\"lang-ar\">٢٤ ساعة.<\/span><span class=\"lang-en\">24 hours.<\/span>",
+          "<span class=\"lang-ar\">٣٦٠٠ ثانية بالضبط لا أكثر.<\/span><span class=\"lang-en\">Exactly 3600 seconds, no more.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الحد الأقصى <strong>١٢ ساعة</strong> للمستخدم مع دور مُكوَّن لذلك (<span dir="ltr" class="font-mono">MaxSessionDuration</span>). <span dir="ltr" class="font-mono">GetSessionToken</span> للمستخدم (MFA) حتى ٣٦ ساعة. حد <span dir="ltr" class="font-mono">Chained AssumeRole</span> (دور يتحمّل دور آخر) = ساعة واحدة فقط.</span><span class="lang-en">Max <strong>12 hours</strong> if role's <span dir="ltr" class="font-mono">MaxSessionDuration</span> permits. <span dir="ltr" class="font-mono">GetSessionToken</span> (MFA) can go up to 36h. <span dir="ltr" class="font-mono">Chained AssumeRole</span> (role assumes role) caps at 1h.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">الحد الأقصى <strong>١٢ ساعة<\/strong> للمستخدم مع دور مُكوَّن لذلك (<span dir=\"ltr\" class=\"font-mono\">MaxSessionDuration<\/span>). <span dir=\"ltr\" class=\"font-mono\">GetSessionToken<\/span> للمستخدم (MFA) حتى ٣٦ ساعة. حد <span dir=\"ltr\" class=\"font-mono\">Chained AssumeRole<\/span> (دور يتحمّل دور آخر) = ساعة واحدة فقط.<\/span><span class=\"lang-en\">Max <strong>12 hours<\/strong> if role's <span dir=\"ltr\" class=\"font-mono\">MaxSessionDuration<\/span> permits. <span dir=\"ltr\" class=\"font-mono\">GetSessionToken<\/span> (MFA) can go up to 36h. <span dir=\"ltr\" class=\"font-mono\">Chained AssumeRole<\/span> (role assumes role) caps at 1h.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تسجيل دخول موظّفيها في AWS عبر Azure AD. أيّ STS API تستخدم؟</span><span class="lang-en">A company wants employees to sign in to AWS via Azure AD. Which STS API?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تسجيل دخول موظّفيها في AWS عبر Azure AD. أيّ STS API تستخدم؟<\/span><span class=\"lang-en\">A company wants employees to sign in to AWS via Azure AD. Which STS API?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">AssumeRole</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">AssumeRole</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">AssumeRoleWithSAML</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">AssumeRoleWithSAML</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">AssumeRoleWithWebIdentity</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">AssumeRoleWithWebIdentity</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">GetFederationToken</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">GetFederationToken</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithSAML<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithSAML<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithWebIdentity<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithWebIdentity<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">GetFederationToken<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">GetFederationToken<\/span>.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">AssumeRoleWithSAML</span> للاتحاد المؤسّسي (Azure AD, ADFS, Okta, OneLogin). الـ Provider يصدر SAML assertion، يُمرَّر إلى STS، يُعاد credentials. <span dir="ltr" class="font-mono">AssumeRoleWithWebIdentity</span> للـ IdPs العامّة (Google, Facebook) — مع ذلك AWS تنصح باستخدام Cognito Identity Pools لها.</span><span class="lang-en"><span dir="ltr" class="font-mono">AssumeRoleWithSAML</span> is for enterprise federation (Azure AD, ADFS, Okta, OneLogin). The IdP issues a SAML assertion, passes to STS, returns creds. <span dir="ltr" class="font-mono">AssumeRoleWithWebIdentity</span> is for public IdPs (Google/Facebook) — but AWS recommends Cognito Identity Pools for those.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">AssumeRole للوصول بين حسابات AWS، لا SAML.</span><span class=\"lang-en\">AssumeRole is for AWS-to-AWS accounts.</span>", "", "<span class=\"lang-ar\">WebIdentity للـ IdP العام، ليس Enterprise.</span><span class=\"lang-en\">WebIdentity is for public IdPs.</span>", "<span class=\"lang-ar\">GetFederationToken لسيناريوهات محدودة من داخل IAM User.</span><span class=\"lang-en\">GetFederationToken is for IAM-User-bound limited scenarios.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithSAML<\/span> للاتحاد المؤسّسي (Azure AD, ADFS, Okta, OneLogin). الـ Provider يصدر SAML assertion، يُمرَّر إلى STS، يُعاد credentials. <span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithWebIdentity<\/span> للـ IdPs العامّة (Google, Facebook) — مع ذلك AWS تنصح باستخدام Cognito Identity Pools لها.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithSAML<\/span> is for enterprise federation (Azure AD, ADFS, Okta, OneLogin). The IdP issues a SAML assertion, passes to STS, returns creds. <span dir=\"ltr\" class=\"font-mono\">AssumeRoleWithWebIdentity<\/span> is for public IdPs (Google/Facebook) — but AWS recommends Cognito Identity Pools for those.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AssumeRole للوصول بين حسابات AWS، لا SAML.<\/span><span class=\"lang-en\">AssumeRole is for AWS-to-AWS accounts.<\/span>", "", "<span class=\"lang-ar\">WebIdentity للـ IdP العام، ليس Enterprise.<\/span><span class=\"lang-en\">WebIdentity is for public IdPs.<\/span>", "<span class=\"lang-ar\">GetFederationToken لسيناريوهات محدودة من داخل IAM User.<\/span><span class=\"lang-en\">GetFederationToken is for IAM-User-bound limited scenarios.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q6",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العناصر التالية يُعيدها STS عند <span dir="ltr" class="font-mono">AssumeRole</span>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which items does STS return on <span dir="ltr" class="font-mono">AssumeRole</span>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العناصر التالية يُعيدها STS عند <span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which items does STS return on <span dir=\"ltr\" class=\"font-mono\">AssumeRole<\/span>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">AccessKeyId</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">AccessKeyId</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">SecretAccessKey</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">SecretAccessKey</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">SessionToken</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">SessionToken</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">Expiration</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Expiration</span>.</span>",
-          "<span class="lang-ar">كلمة مرور المستخدم.</span><span class="lang-en">The user's password.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">AccessKeyId<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">AccessKeyId<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">SecretAccessKey<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">SecretAccessKey<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">SessionToken<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">SessionToken<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">Expiration<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">Expiration<\/span>.<\/span>",
+          "<span class=\"lang-ar\">كلمة مرور المستخدم.<\/span><span class=\"lang-en\">The user's password.<\/span>"
         ],
         correct: [0,1,2,3],
-        explanation: "<span class="lang-ar">STS يعيد دائماً أربعة حقول: AccessKeyId + SecretAccessKey + SessionToken + Expiration. الـ SessionToken إلزاميّ مع كلّ طلب API (بخلاف المفاتيح الدائمة). STS لا يعيد كلمات مرور أبداً.</span><span class="lang-en">STS always returns four: AccessKeyId + SecretAccessKey + SessionToken + Expiration. SessionToken is mandatory with every API call (unlike permanent keys). STS never returns passwords.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">STS يعيد دائماً أربعة حقول: AccessKeyId + SecretAccessKey + SessionToken + Expiration. الـ SessionToken إلزاميّ مع كلّ طلب API (بخلاف المفاتيح الدائمة). STS لا يعيد كلمات مرور أبداً.<\/span><span class=\"lang-en\">STS always returns four: AccessKeyId + SecretAccessKey + SessionToken + Expiration. SessionToken is mandatory with every API call (unlike permanent keys). STS never returns passwords.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">لماذا تُوصي AWS بـ <strong>Roles</strong> لا <strong>Users</strong> للوصول عبر الحسابات؟</span><span class="lang-en">Why does AWS recommend <strong>Roles</strong>, not <strong>Users</strong>, for cross-account access?</span>",
+        question: "<span class=\"lang-ar\">لماذا تُوصي AWS بـ <strong>Roles<\/strong> لا <strong>Users<\/strong> للوصول عبر الحسابات؟<\/span><span class=\"lang-en\">Why does AWS recommend <strong>Roles<\/strong>, not <strong>Users<\/strong>, for cross-account access?<\/span>",
         options: [
-          "<span class="lang-ar">Roles أرخص.</span><span class="lang-en">Roles are cheaper.</span>",
-          "<span class="lang-ar">Roles لا تنقل مفاتيح دائمة بين الحسابات؛ المفاتيح مؤقّتة وتنتهي تلقائياً، والتدقيق موحَّد في CloudTrail.</span><span class="lang-en">Roles never move permanent keys between accounts; temp keys auto-expire and audit is unified in CloudTrail.</span>",
-          "<span class="lang-ar">Users لا يدعمون Cross-Account أصلاً.</span><span class="lang-en">Users can't do cross-account at all.</span>",
-          "<span class="lang-ar">Roles تعطي صلاحيّات أكثر.</span><span class="lang-en">Roles grant more permissions.</span>"
+          "<span class=\"lang-ar\">Roles أرخص.<\/span><span class=\"lang-en\">Roles are cheaper.<\/span>",
+          "<span class=\"lang-ar\">Roles لا تنقل مفاتيح دائمة بين الحسابات؛ المفاتيح مؤقّتة وتنتهي تلقائياً، والتدقيق موحَّد في CloudTrail.<\/span><span class=\"lang-en\">Roles never move permanent keys between accounts; temp keys auto-expire and audit is unified in CloudTrail.<\/span>",
+          "<span class=\"lang-ar\">Users لا يدعمون Cross-Account أصلاً.<\/span><span class=\"lang-en\">Users can't do cross-account at all.<\/span>",
+          "<span class=\"lang-ar\">Roles تعطي صلاحيّات أكثر.<\/span><span class=\"lang-en\">Roles grant more permissions.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">المخاطر مع Users: مفاتيح دائمة تُنقَل يدوياً وتتسرّب، صعوبة التدقيق، لا انتهاء صلاحيّة. Roles تحلّ كلّ هذا: STS تصدر مفاتيح مؤقّتة عند الطلب، CloudTrail يسجّل من الحساب الأصليّ حتى الوجهة، والـ Trust Policy تضبط من يتحمّل.</span><span class="lang-en">Risks with Users: permanent keys manually moved and leaked, weak audit, no expiry. Roles fix all: STS issues ephemeral keys on-demand, CloudTrail traces origin to destination, Trust Policy controls who assumes.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">التكلفة غير ذات صلة.</span><span class=\"lang-en\">Cost is unrelated.</span>", "", "<span class=\"lang-ar\">Users يدعمون Cross-Account لكن بممارسة سيّئة.</span><span class=\"lang-en\">Users do support cross-account, just poorly.</span>", "<span class=\"lang-ar\">Roles لا تمنح صلاحيّات أكثر.</span><span class=\"lang-en\">Roles don't grant more.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">المخاطر مع Users: مفاتيح دائمة تُنقَل يدوياً وتتسرّب، صعوبة التدقيق، لا انتهاء صلاحيّة. Roles تحلّ كلّ هذا: STS تصدر مفاتيح مؤقّتة عند الطلب، CloudTrail يسجّل من الحساب الأصليّ حتى الوجهة، والـ Trust Policy تضبط من يتحمّل.<\/span><span class=\"lang-en\">Risks with Users: permanent keys manually moved and leaked, weak audit, no expiry. Roles fix all: STS issues ephemeral keys on-demand, CloudTrail traces origin to destination, Trust Policy controls who assumes.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">التكلفة غير ذات صلة.<\/span><span class=\"lang-en\">Cost is unrelated.<\/span>", "", "<span class=\"lang-ar\">Users يدعمون Cross-Account لكن بممارسة سيّئة.<\/span><span class=\"lang-en\">Users do support cross-account, just poorly.<\/span>", "<span class=\"lang-ar\">Roles لا تمنح صلاحيّات أكثر.<\/span><span class=\"lang-en\">Roles don't grant more.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تريد السياسة أن تعطي كلّ مستخدم IAM وصولاً إلى مجلّد <span dir="ltr" class="font-mono">home/USERNAME/</span> في S3. ما متغيّر السياسة الصحيح؟</span><span class="lang-en">You want a policy that gives each IAM user access to <span dir="ltr" class="font-mono">home/USERNAME/</span> in S3. Correct policy variable?</span>",
+        question: "<span class=\"lang-ar\">تريد السياسة أن تعطي كلّ مستخدم IAM وصولاً إلى مجلّد <span dir=\"ltr\" class=\"font-mono\">home/USERNAME/<\/span> في S3. ما متغيّر السياسة الصحيح؟<\/span><span class=\"lang-en\">You want a policy that gives each IAM user access to <span dir=\"ltr\" class=\"font-mono\">home/USERNAME/<\/span> in S3. Correct policy variable?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">${iam:username}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${iam:username}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">${aws:username}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${aws:username}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">${s3:user}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${s3:user}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">${principal}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${principal}</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${iam:username}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${iam:username}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${aws:username}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${aws:username}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${s3:user}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${s3:user}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${principal}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${principal}<\/span>.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">${aws:username}</span> متغيّر قياسيّ لكلّ السياسات وينبسط تلقائياً لاسم المستخدم. ينبسط فقط لمستخدمين IAM (لا لأدوار). للأدوار استخدم <span dir="ltr" class="font-mono">${aws:userid}</span> أو <span dir="ltr" class="font-mono">${aws:PrincipalTag/Name}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${aws:username}</span> is the standard variable, auto-expanding to the username. It only expands for IAM users (not roles). For roles, use <span dir="ltr" class="font-mono">${aws:userid}</span> or <span dir="ltr" class="font-mono">${aws:PrincipalTag/Name}</span>.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">${aws:username}<\/span> متغيّر قياسيّ لكلّ السياسات وينبسط تلقائياً لاسم المستخدم. ينبسط فقط لمستخدمين IAM (لا لأدوار). للأدوار استخدم <span dir=\"ltr\" class=\"font-mono\">${aws:userid}<\/span> أو <span dir=\"ltr\" class=\"font-mono\">${aws:PrincipalTag/Name}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">${aws:username}<\/span> is the standard variable, auto-expanding to the username. It only expands for IAM users (not roles). For roles, use <span dir=\"ltr\" class=\"font-mono\">${aws:userid}<\/span> or <span dir=\"ltr\" class=\"font-mono\">${aws:PrincipalTag/Name}<\/span>.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot يستخدم <span dir="ltr" class="font-mono">AWS SDK v2</span> على Lambda. كيف يأخذ الـ SDK الصلاحيّات؟</span><span class="lang-en">A Spring Boot app uses <span dir="ltr" class="font-mono">AWS SDK v2</span> on Lambda. How does the SDK get credentials?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot يستخدم <span dir=\"ltr\" class=\"font-mono\">AWS SDK v2<\/span> على Lambda. كيف يأخذ الـ SDK الصلاحيّات؟<\/span><span class=\"lang-en\">A Spring Boot app uses <span dir=\"ltr\" class=\"font-mono\">AWS SDK v2<\/span> on Lambda. How does the SDK get credentials?<\/span>",
         options: [
-          "<span class="lang-ar">من ملف <span dir="ltr" class="font-mono">~/.aws/credentials</span>.</span><span class="lang-en">From <span dir="ltr" class="font-mono">~/.aws/credentials</span>.</span>",
-          "<span class="lang-ar">من متغيّرات البيئة التي يحقنها Lambda تلقائياً من الـ Execution Role عبر STS.</span><span class="lang-en">From environment variables injected by Lambda automatically from the Execution Role via STS.</span>",
-          "<span class="lang-ar">من قاعدة بيانات RDS.</span><span class="lang-en">From RDS.</span>",
-          "<span class="lang-ar">من Parameter Store.</span><span class="lang-en">From Parameter Store.</span>"
+          "<span class=\"lang-ar\">من ملف <span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials<\/span>.<\/span><span class=\"lang-en\">From <span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials<\/span>.<\/span>",
+          "<span class=\"lang-ar\">من متغيّرات البيئة التي يحقنها Lambda تلقائياً من الـ Execution Role عبر STS.<\/span><span class=\"lang-en\">From environment variables injected by Lambda automatically from the Execution Role via STS.<\/span>",
+          "<span class=\"lang-ar\">من قاعدة بيانات RDS.<\/span><span class=\"lang-en\">From RDS.<\/span>",
+          "<span class=\"lang-ar\">من Parameter Store.<\/span><span class=\"lang-en\">From Parameter Store.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Lambda Execution Role → STS → مفاتيح مؤقّتة → متغيّرات بيئة (<span dir="ltr" class="font-mono">AWS_ACCESS_KEY_ID</span>, <span dir="ltr" class="font-mono">AWS_SECRET_ACCESS_KEY</span>, <span dir="ltr" class="font-mono">AWS_SESSION_TOKEN</span>). الـ SDK <span dir="ltr" class="font-mono">DefaultCredentialsProvider</span> يلتقطها تلقائياً — لا كود إضافيّ.</span><span class="lang-en">Lambda Execution Role → STS → temp creds → env vars (<span dir="ltr" class="font-mono">AWS_ACCESS_KEY_ID</span>, <span dir="ltr" class="font-mono">AWS_SECRET_ACCESS_KEY</span>, <span dir="ltr" class="font-mono">AWS_SESSION_TOKEN</span>). SDK <span dir="ltr" class="font-mono">DefaultCredentialsProvider</span> picks them up — no extra code.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\"><span dir="ltr" class="font-mono">~/.aws/credentials</span> غير موجود في Lambda.</span><span class=\"lang-en\"><span dir="ltr" class="font-mono">~/.aws/credentials</span> doesn't exist in Lambda.</span>", "", "<span class=\"lang-ar\">RDS لا علاقة لها بالصلاحيّات.</span><span class=\"lang-en\">RDS has nothing to do with credentials.</span>", "<span class=\"lang-ar\">Parameter Store يُستخدم للأسرار التطبيقيّة، لا مفاتيح AWS.</span><span class=\"lang-en\">Parameter Store is for app secrets, not AWS keys.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Lambda Execution Role → STS → مفاتيح مؤقّتة → متغيّرات بيئة (<span dir=\"ltr\" class=\"font-mono\">AWS_ACCESS_KEY_ID<\/span>, <span dir=\"ltr\" class=\"font-mono\">AWS_SECRET_ACCESS_KEY<\/span>, <span dir=\"ltr\" class=\"font-mono\">AWS_SESSION_TOKEN<\/span>). الـ SDK <span dir=\"ltr\" class=\"font-mono\">DefaultCredentialsProvider<\/span> يلتقطها تلقائياً — لا كود إضافيّ.<\/span><span class=\"lang-en\">Lambda Execution Role → STS → temp creds → env vars (<span dir=\"ltr\" class=\"font-mono\">AWS_ACCESS_KEY_ID<\/span>, <span dir=\"ltr\" class=\"font-mono\">AWS_SECRET_ACCESS_KEY<\/span>, <span dir=\"ltr\" class=\"font-mono\">AWS_SESSION_TOKEN<\/span>). SDK <span dir=\"ltr\" class=\"font-mono\">DefaultCredentialsProvider<\/span> picks them up — no extra code.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials<\/span> غير موجود في Lambda.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials<\/span> doesn't exist in Lambda.<\/span>", "", "<span class=\"lang-ar\">RDS لا علاقة لها بالصلاحيّات.<\/span><span class=\"lang-en\">RDS has nothing to do with credentials.<\/span>", "<span class=\"lang-ar\">Parameter Store يُستخدم للأسرار التطبيقيّة، لا مفاتيح AWS.<\/span><span class=\"lang-en\">Parameter Store is for app secrets, not AWS keys.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يملك <span dir="ltr" class="font-mono">lambda:CreateFunction</span> لكن <strong>ليس</strong> <span dir="ltr" class="font-mono">iam:PassRole</span>. ماذا يحدث عند محاولته إنشاء Lambda مع Execution Role؟</span><span class="lang-en">A developer has <span dir="ltr" class="font-mono">lambda:CreateFunction</span> but <strong>not</strong> <span dir="ltr" class="font-mono">iam:PassRole</span>. What happens when they try to create a Lambda with an Execution Role?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يملك <span dir=\"ltr\" class=\"font-mono\">lambda:CreateFunction<\/span> لكن <strong>ليس<\/strong> <span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span>. ماذا يحدث عند محاولته إنشاء Lambda مع Execution Role؟<\/span><span class=\"lang-en\">A developer has <span dir=\"ltr\" class=\"font-mono\">lambda:CreateFunction<\/span> but <strong>not<\/strong> <span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span>. What happens when they try to create a Lambda with an Execution Role?<\/span>",
         options: [
-          "<span class="lang-ar">ينجح الإنشاء لأنّ CreateFunction كافية.</span><span class="lang-en">Succeeds — CreateFunction is enough.</span>",
-          "<span class="lang-ar">يفشل الإنشاء لأنّ Lambda لا تستطيع تلقّي الدور بدون PassRole.</span><span class="lang-en">Fails — Lambda can't receive the role without PassRole.</span>",
-          "<span class="lang-ar">ينجح مع تحذير فقط.</span><span class="lang-en">Succeeds with a warning.</span>",
-          "<span class="lang-ar">Lambda تُنشأ لكن لا تعمل.</span><span class="lang-en">Lambda is created but doesn't run.</span>"
+          "<span class=\"lang-ar\">ينجح الإنشاء لأنّ CreateFunction كافية.<\/span><span class=\"lang-en\">Succeeds — CreateFunction is enough.<\/span>",
+          "<span class=\"lang-ar\">يفشل الإنشاء لأنّ Lambda لا تستطيع تلقّي الدور بدون PassRole.<\/span><span class=\"lang-en\">Fails — Lambda can't receive the role without PassRole.<\/span>",
+          "<span class=\"lang-ar\">ينجح مع تحذير فقط.<\/span><span class=\"lang-en\">Succeeds with a warning.<\/span>",
+          "<span class=\"lang-ar\">Lambda تُنشأ لكن لا تعمل.<\/span><span class=\"lang-en\">Lambda is created but doesn't run.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">iam:PassRole</span> إلزاميّ لأيّ عمليّة تمرّر دور لخدمة. بدونها يفشل الطلب بخطأ: <em>User is not authorized to perform: iam:PassRole</em>. هذا لمنع تصعيد الصلاحيّات (Privilege Escalation).</span><span class="lang-en"><span dir="ltr" class="font-mono">iam:PassRole</span> is required for any operation that passes a role to a service. Without it the request fails with: <em>User is not authorized to perform: iam:PassRole</em>. This prevents privilege escalation.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">CreateFunction لا تغني عن PassRole.</span><span class=\"lang-en\">CreateFunction alone isn't enough.</span>", "", "<span class=\"lang-ar\">لا تحذير، خطأ صريح.</span><span class=\"lang-en\">No warning — hard fail.</span>", "<span class=\"lang-ar\">الإنشاء نفسه يفشل قبل الوصول لمرحلة التشغيل.</span><span class=\"lang-en\">Creation itself fails before any runtime.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span> إلزاميّ لأيّ عمليّة تمرّر دور لخدمة. بدونها يفشل الطلب بخطأ: <em>User is not authorized to perform: iam:PassRole<\/em>. هذا لمنع تصعيد الصلاحيّات (Privilege Escalation).<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">iam:PassRole<\/span> is required for any operation that passes a role to a service. Without it the request fails with: <em>User is not authorized to perform: iam:PassRole<\/em>. This prevents privilege escalation.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">CreateFunction لا تغني عن PassRole.<\/span><span class=\"lang-en\">CreateFunction alone isn't enough.<\/span>", "", "<span class=\"lang-ar\">لا تحذير، خطأ صريح.<\/span><span class=\"lang-en\">No warning — hard fail.<\/span>", "<span class=\"lang-ar\">الإنشاء نفسه يفشل قبل الوصول لمرحلة التشغيل.<\/span><span class=\"lang-en\">Creation itself fails before any runtime.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">ما هدف <span dir="ltr" class="font-mono">sts:GetSessionToken</span>؟</span><span class="lang-en">Purpose of <span dir="ltr" class="font-mono">sts:GetSessionToken</span>?</span>",
+        question: "<span class=\"lang-ar\">ما هدف <span dir=\"ltr\" class=\"font-mono\">sts:GetSessionToken<\/span>؟<\/span><span class=\"lang-en\">Purpose of <span dir=\"ltr\" class=\"font-mono\">sts:GetSessionToken<\/span>?<\/span>",
         options: [
-          "<span class="lang-ar">تحمّل دور عبر حسابات.</span><span class="lang-en">Assume cross-account role.</span>",
-          "<span class="lang-ar">إصدار مفاتيح مؤقّتة لمستخدم IAM بعد MFA، أو لمستخدم في الحساب الجذر.</span><span class="lang-en">Issue temp credentials to an IAM user after MFA, or to the Root user.</span>",
-          "<span class="lang-ar">تسجيل دخول SAML.</span><span class="lang-en">SAML sign-in.</span>",
-          "<span class="lang-ar">تشفير الأسرار.</span><span class="lang-en">Encrypt secrets.</span>"
+          "<span class=\"lang-ar\">تحمّل دور عبر حسابات.<\/span><span class=\"lang-en\">Assume cross-account role.<\/span>",
+          "<span class=\"lang-ar\">إصدار مفاتيح مؤقّتة لمستخدم IAM بعد MFA، أو لمستخدم في الحساب الجذر.<\/span><span class=\"lang-en\">Issue temp credentials to an IAM user after MFA, or to the Root user.<\/span>",
+          "<span class=\"lang-ar\">تسجيل دخول SAML.<\/span><span class=\"lang-en\">SAML sign-in.<\/span>",
+          "<span class=\"lang-ar\">تشفير الأسرار.<\/span><span class=\"lang-en\">Encrypt secrets.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">GetSessionToken</span> تُستخدم عادة مع MFA: المستخدم يقدّم رمز MFA ويحصل على credentials مؤقّتة تمكّنه من العمليّات الحسّاسة (مثل حذف MFA devices). السياسات الحسّاسة تشترط <span dir="ltr" class="font-mono">aws:MultiFactorAuthPresent = true</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">GetSessionToken</span> is typically used with MFA: the user provides an MFA code and gets temp credentials allowing sensitive operations (e.g., deleting MFA devices). Sensitive policies condition on <span dir="ltr" class="font-mono">aws:MultiFactorAuthPresent = true</span>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">AssumeRole هو لتحمّل الأدوار.</span><span class=\"lang-en\">AssumeRole is for assuming roles.</span>", "", "<span class=\"lang-ar\">SAML له AssumeRoleWithSAML.</span><span class=\"lang-en\">SAML uses AssumeRoleWithSAML.</span>", "<span class=\"lang-ar\">لا يشفّر.</span><span class=\"lang-en\">Doesn't encrypt.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">GetSessionToken<\/span> تُستخدم عادة مع MFA: المستخدم يقدّم رمز MFA ويحصل على credentials مؤقّتة تمكّنه من العمليّات الحسّاسة (مثل حذف MFA devices). السياسات الحسّاسة تشترط <span dir=\"ltr\" class=\"font-mono\">aws:MultiFactorAuthPresent = true<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">GetSessionToken<\/span> is typically used with MFA: the user provides an MFA code and gets temp credentials allowing sensitive operations (e.g., deleting MFA devices). Sensitive policies condition on <span dir=\"ltr\" class=\"font-mono\">aws:MultiFactorAuthPresent = true<\/span>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AssumeRole هو لتحمّل الأدوار.<\/span><span class=\"lang-en\">AssumeRole is for assuming roles.<\/span>", "", "<span class=\"lang-ar\">SAML له AssumeRoleWithSAML.<\/span><span class=\"lang-en\">SAML uses AssumeRoleWithSAML.<\/span>", "<span class=\"lang-ar\">لا يشفّر.<\/span><span class=\"lang-en\">Doesn't encrypt.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">أيّ الشروط التالية تفرض أن يأتي الطلب <strong>فقط</strong> من نطاق شبكة شركتك؟</span><span class="lang-en">Which condition restricts requests to <strong>only</strong> your corporate network?</span>",
+        question: "<span class=\"lang-ar\">أيّ الشروط التالية تفرض أن يأتي الطلب <strong>فقط<\/strong> من نطاق شبكة شركتك؟<\/span><span class=\"lang-en\">Which condition restricts requests to <strong>only<\/strong> your corporate network?<\/span>",
         options: [
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "203.0.113.0/24"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "203.0.113.0/24"}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"StringEquals": {"aws:SourceArn": "203.0.113.0/24"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"StringEquals": {"aws:SourceArn": "203.0.113.0/24"}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"Bool": {"aws:ViaAWSService": "true"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"Bool": {"aws:ViaAWSService": "true"}</span>.</span>",
-          "<span class="lang-ar"><span dir="ltr" class="font-mono">"ArnLike": {"aws:SourceIp": "203.0.113.0/24"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"ArnLike": {"aws:SourceIp": "203.0.113.0/24"}</span>.</span>"
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"IpAddress\": {\"aws:SourceIp\": \"203.0.113.0/24\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"IpAddress\": {\"aws:SourceIp\": \"203.0.113.0/24\"}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"StringEquals\": {\"aws:SourceArn\": \"203.0.113.0/24\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"StringEquals\": {\"aws:SourceArn\": \"203.0.113.0/24\"}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"Bool\": {\"aws:ViaAWSService\": \"true\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"Bool\": {\"aws:ViaAWSService\": \"true\"}<\/span>.<\/span>",
+          "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">\"ArnLike\": {\"aws:SourceIp\": \"203.0.113.0/24\"}<\/span>.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">\"ArnLike\": {\"aws:SourceIp\": \"203.0.113.0/24\"}<\/span>.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">الصيغة الصحيحة: <span dir="ltr" class="font-mono">IpAddress</span> (أو <span dir="ltr" class="font-mono">NotIpAddress</span>) مع <span dir="ltr" class="font-mono">aws:SourceIp</span> وقيمة CIDR. <span dir="ltr" class="font-mono">StringEquals</span> و <span dir="ltr" class="font-mono">ArnLike</span> عوامل خاطئة لـ IP. <span dir="ltr" class="font-mono">aws:ViaAWSService</span> للسماح للطلبات القادمة من خدمات AWS داخلياً.</span><span class="lang-en">Correct syntax: <span dir="ltr" class="font-mono">IpAddress</span> (or <span dir="ltr" class="font-mono">NotIpAddress</span>) with <span dir="ltr" class="font-mono">aws:SourceIp</span> and a CIDR value. <span dir="ltr" class="font-mono">StringEquals</span> and <span dir="ltr" class="font-mono">ArnLike</span> are wrong operators for IP. <span dir="ltr" class="font-mono">aws:ViaAWSService</span> whitelists AWS internal calls.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">الصيغة الصحيحة: <span dir=\"ltr\" class=\"font-mono\">IpAddress<\/span> (أو <span dir=\"ltr\" class=\"font-mono\">NotIpAddress<\/span>) مع <span dir=\"ltr\" class=\"font-mono\">aws:SourceIp<\/span> وقيمة CIDR. <span dir=\"ltr\" class=\"font-mono\">StringEquals<\/span> و <span dir=\"ltr\" class=\"font-mono\">ArnLike<\/span> عوامل خاطئة لـ IP. <span dir=\"ltr\" class=\"font-mono\">aws:ViaAWSService<\/span> للسماح للطلبات القادمة من خدمات AWS داخلياً.<\/span><span class=\"lang-en\">Correct syntax: <span dir=\"ltr\" class=\"font-mono\">IpAddress<\/span> (or <span dir=\"ltr\" class=\"font-mono\">NotIpAddress<\/span>) with <span dir=\"ltr\" class=\"font-mono\">aws:SourceIp<\/span> and a CIDR value. <span dir=\"ltr\" class=\"font-mono\">StringEquals<\/span> and <span dir=\"ltr\" class=\"font-mono\">ArnLike<\/span> are wrong operators for IP. <span dir=\"ltr\" class=\"font-mono\">aws:ViaAWSService<\/span> whitelists AWS internal calls.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       }
     ];
 

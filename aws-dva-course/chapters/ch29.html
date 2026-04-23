@@ -867,145 +867,145 @@ System.out.println(url.url());</code></pre>
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">فريق يستضيف ملفّات على S3 ويريد تسريع قراءتها عالمياً مع منع الوصول المباشر إلى الـ bucket. الحلّ؟</span><span class="lang-en">Team hosts files on S3 and wants to accelerate global reads while preventing direct bucket access. Solution?</span>",
+        question: "<span class=\"lang-ar\">فريق يستضيف ملفّات على S3 ويريد تسريع قراءتها عالمياً مع منع الوصول المباشر إلى الـ bucket. الحلّ؟<\/span><span class=\"lang-en\">Team hosts files on S3 and wants to accelerate global reads while preventing direct bucket access. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">جعل الـ bucket عام.</span><span class="lang-en">Make the bucket public.</span>",
-          "<span class="lang-ar">CloudFront + <strong>Origin Access Control (OAC)</strong> مع تعديل Bucket Policy.</span><span class="lang-en">CloudFront + <strong>Origin Access Control (OAC)</strong> with updated Bucket Policy.</span>",
-          "<span class="lang-ar">S3 Transfer Acceleration فقط.</span><span class="lang-en">S3 Transfer Acceleration alone.</span>",
-          "<span class="lang-ar">استخدام IAM Role على المستخدمين.</span><span class="lang-en">IAM Role for users.</span>"
+          "<span class=\"lang-ar\">جعل الـ bucket عام.<\/span><span class=\"lang-en\">Make the bucket public.<\/span>",
+          "<span class=\"lang-ar\">CloudFront + <strong>Origin Access Control (OAC)<\/strong> مع تعديل Bucket Policy.<\/span><span class=\"lang-en\">CloudFront + <strong>Origin Access Control (OAC)<\/strong> with updated Bucket Policy.<\/span>",
+          "<span class=\"lang-ar\">S3 Transfer Acceleration فقط.<\/span><span class=\"lang-en\">S3 Transfer Acceleration alone.<\/span>",
+          "<span class=\"lang-ar\">استخدام IAM Role على المستخدمين.<\/span><span class=\"lang-en\">IAM Role for users.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">OAC هو البديل الحديث لـ OAI. يمنح CloudFront وحده حقّ قراءة S3 عبر Bucket Policy مع <span dir="ltr" class="font-mono">aws:SourceArn</span>. Transfer Acceleration لرفع الملفّات، لا للقراءة المُسرَّعة.</span><span class="lang-en">OAC is the modern OAI replacement. Restricts S3 read to CloudFront via Bucket Policy with <span dir="ltr" class="font-mono">aws:SourceArn</span>. Transfer Acceleration is for uploads, not read acceleration.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يلغي الأمان.</span><span class=\"lang-en\">Destroys security.</span>", "", "<span class=\"lang-ar\">يسرّع الرفع لا القراءة الموزّعة.</span><span class=\"lang-en\">Accelerates uploads, not distributed reads.</span>", "<span class=\"lang-ar\">لا يحلّ إخفاء S3.</span><span class=\"lang-en\">Doesn't hide S3.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">OAC هو البديل الحديث لـ OAI. يمنح CloudFront وحده حقّ قراءة S3 عبر Bucket Policy مع <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn<\/span>. Transfer Acceleration لرفع الملفّات، لا للقراءة المُسرَّعة.<\/span><span class=\"lang-en\">OAC is the modern OAI replacement. Restricts S3 read to CloudFront via Bucket Policy with <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn<\/span>. Transfer Acceleration is for uploads, not read acceleration.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يلغي الأمان.<\/span><span class=\"lang-en\">Destroys security.<\/span>", "", "<span class=\"lang-ar\">يسرّع الرفع لا القراءة الموزّعة.<\/span><span class=\"lang-en\">Accelerates uploads, not distributed reads.<\/span>", "<span class=\"lang-ar\">لا يحلّ إخفاء S3.<\/span><span class=\"lang-en\">Doesn't hide S3.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">خدمة فيديو مدفوعة تسمح لكلّ مشترك بمشاهدة مئات الملفّات أثناء اشتراكه الشهريّ. أيّ آليّة؟</span><span class="lang-en">A paid video service lets each subscriber watch hundreds of files during their monthly subscription. Which mechanism?</span>",
+        question: "<span class=\"lang-ar\">خدمة فيديو مدفوعة تسمح لكلّ مشترك بمشاهدة مئات الملفّات أثناء اشتراكه الشهريّ. أيّ آليّة؟<\/span><span class=\"lang-en\">A paid video service lets each subscriber watch hundreds of files during their monthly subscription. Which mechanism?<\/span>",
         options: [
-          "<span class="lang-ar">Signed URL لكلّ ملفّ.</span><span class="lang-en">A Signed URL per file.</span>",
-          "<span class="lang-ar">Signed Cookies بعمر شهر.</span><span class="lang-en">Signed Cookies valid for a month.</span>",
-          "<span class="lang-ar">Public distribution.</span><span class="lang-en">Public distribution.</span>",
-          "<span class="lang-ar">S3 Pre-Signed URL.</span><span class="lang-en">S3 Pre-Signed URL.</span>"
+          "<span class=\"lang-ar\">Signed URL لكلّ ملفّ.<\/span><span class=\"lang-en\">A Signed URL per file.<\/span>",
+          "<span class=\"lang-ar\">Signed Cookies بعمر شهر.<\/span><span class=\"lang-en\">Signed Cookies valid for a month.<\/span>",
+          "<span class=\"lang-ar\">Public distribution.<\/span><span class=\"lang-en\">Public distribution.<\/span>",
+          "<span class=\"lang-ar\">S3 Pre-Signed URL.<\/span><span class=\"lang-en\">S3 Pre-Signed URL.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Signed Cookies = كوكي واحد يفتح نمط أو مجلّد كامل — مثاليّ للاشتراكات. Signed URL لكلّ ملفّ مجهد. Pre-Signed URL يعمل مع S3 مباشرة فقط ولا يستفيد من كاش CloudFront.</span><span class="lang-en">Signed Cookies = one cookie unlocks a pattern/folder — ideal for subscriptions. Per-file Signed URLs are tedious. S3 Pre-Signed URL bypasses CloudFront caching.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير عمليّ لمئات الملفّات.</span><span class=\"lang-en\">Impractical for hundreds of files.</span>", "", "<span class=\"lang-ar\">يلغي الحماية.</span><span class=\"lang-en\">No protection.</span>", "<span class=\"lang-ar\">لا يستفيد من CloudFront.</span><span class=\"lang-en\">Bypasses CloudFront.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Signed Cookies = كوكي واحد يفتح نمط أو مجلّد كامل — مثاليّ للاشتراكات. Signed URL لكلّ ملفّ مجهد. Pre-Signed URL يعمل مع S3 مباشرة فقط ولا يستفيد من كاش CloudFront.<\/span><span class=\"lang-en\">Signed Cookies = one cookie unlocks a pattern/folder — ideal for subscriptions. Per-file Signed URLs are tedious. S3 Pre-Signed URL bypasses CloudFront caching.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير عمليّ لمئات الملفّات.<\/span><span class=\"lang-en\">Impractical for hundreds of files.<\/span>", "", "<span class=\"lang-ar\">يلغي الحماية.<\/span><span class=\"lang-en\">No protection.<\/span>", "<span class=\"lang-ar\">لا يستفيد من CloudFront.<\/span><span class=\"lang-en\">Bypasses CloudFront.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تعديل الـ HTTP Headers قبل وصول الطلب إلى الـ origin دون تعديل التطبيق. ما الخيار؟</span><span class="lang-en">A dev wants to rewrite HTTP headers before the request reaches the origin without changing the app. What to use?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تعديل الـ HTTP Headers قبل وصول الطلب إلى الـ origin دون تعديل التطبيق. ما الخيار؟<\/span><span class=\"lang-en\">A dev wants to rewrite HTTP headers before the request reaches the origin without changing the app. What to use?<\/span>",
         options: [
-          "<span class="lang-ar">Lambda@Edge على حدث <strong>Origin Request</strong>.</span><span class="lang-en">Lambda@Edge on the <strong>Origin Request</strong> trigger.</span>",
-          "<span class="lang-ar">CloudTrail Lambda Function.</span><span class="lang-en">A CloudTrail Lambda.</span>",
-          "<span class="lang-ar">API Gateway Mapping Template.</span><span class="lang-en">API Gateway mapping template.</span>",
-          "<span class="lang-ar">CloudFront Real-time Logs.</span><span class="lang-en">CloudFront Real-time Logs.</span>"
+          "<span class=\"lang-ar\">Lambda@Edge على حدث <strong>Origin Request<\/strong>.<\/span><span class=\"lang-en\">Lambda@Edge on the <strong>Origin Request<\/strong> trigger.<\/span>",
+          "<span class=\"lang-ar\">CloudTrail Lambda Function.<\/span><span class=\"lang-en\">A CloudTrail Lambda.<\/span>",
+          "<span class=\"lang-ar\">API Gateway Mapping Template.<\/span><span class=\"lang-en\">API Gateway mapping template.<\/span>",
+          "<span class=\"lang-ar\">CloudFront Real-time Logs.<\/span><span class=\"lang-en\">CloudFront Real-time Logs.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">Lambda@Edge Origin Request يُشغَّل بعد فحص الكاش وقبل الذهاب للـ origin — مثالي لإضافة/تعديل headers، auth، URL rewriting. CloudTrail للتدقيق، mapping templates لـ API Gateway فقط.</span><span class="lang-en">Lambda@Edge Origin Request fires after cache check and before origin — perfect for header rewrites, auth, URL rewriting. CloudTrail is audit; mapping templates belong to API Gateway only.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Lambda@Edge Origin Request يُشغَّل بعد فحص الكاش وقبل الذهاب للـ origin — مثالي لإضافة/تعديل headers، auth، URL rewriting. CloudTrail للتدقيق، mapping templates لـ API Gateway فقط.<\/span><span class=\"lang-en\">Lambda@Edge Origin Request fires after cache check and before origin — perfect for header rewrites, auth, URL rewriting. CloudTrail is audit; mapping templates belong to API Gateway only.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تقليل تكلفة CloudFront دون التضحية بأداء أمريكا وأوروبا. ما الحلّ؟</span><span class="lang-en">A company wants to cut CloudFront cost without hurting US/EU performance. Option?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تقليل تكلفة CloudFront دون التضحية بأداء أمريكا وأوروبا. ما الحلّ؟<\/span><span class=\"lang-en\">A company wants to cut CloudFront cost without hurting US/EU performance. Option?<\/span>",
         options: [
-          "<span class="lang-ar">استخدام Price Class 100 (أمريكا + أوروبا فقط).</span><span class="lang-en">Use Price Class 100 (US + EU only).</span>",
-          "<span class="lang-ar">إلغاء HTTPS.</span><span class="lang-en">Disable HTTPS.</span>",
-          "<span class="lang-ar">تمكين Field-Level Encryption.</span><span class="lang-en">Enable Field-Level Encryption.</span>",
-          "<span class="lang-ar">حذف Cache Policies.</span><span class="lang-en">Delete Cache Policies.</span>"
+          "<span class=\"lang-ar\">استخدام Price Class 100 (أمريكا + أوروبا فقط).<\/span><span class=\"lang-en\">Use Price Class 100 (US + EU only).<\/span>",
+          "<span class=\"lang-ar\">إلغاء HTTPS.<\/span><span class=\"lang-en\">Disable HTTPS.<\/span>",
+          "<span class=\"lang-ar\">تمكين Field-Level Encryption.<\/span><span class=\"lang-en\">Enable Field-Level Encryption.<\/span>",
+          "<span class=\"lang-ar\">حذف Cache Policies.<\/span><span class=\"lang-en\">Delete Cache Policies.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">Price Class 100 يحصر Edge Locations بأمريكا وأوروبا — أقلّ تكلفة مع أداء ممتاز فيهما. الخيارات الأخرى إمّا تضعف الأمان أو لا تخفض التكلفة.</span><span class="lang-en">Price Class 100 limits edges to US and EU — cheaper with great performance there. Other options either weaken security or don't reduce cost.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.</span><span class=\"lang-en\">Security risk.</span>", "", "<span class=\"lang-ar\">تزيد التكلفة.</span><span class=\"lang-en\">Increases cost.</span>", "<span class=\"lang-ar\">يكسر الكاش.</span><span class=\"lang-en\">Breaks caching.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Price Class 100 يحصر Edge Locations بأمريكا وأوروبا — أقلّ تكلفة مع أداء ممتاز فيهما. الخيارات الأخرى إمّا تضعف الأمان أو لا تخفض التكلفة.<\/span><span class=\"lang-en\">Price Class 100 limits edges to US and EU — cheaper with great performance there. Other options either weaken security or don't reduce cost.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.<\/span><span class=\"lang-en\">Security risk.<\/span>", "", "<span class=\"lang-ar\">تزيد التكلفة.<\/span><span class=\"lang-en\">Increases cost.<\/span>", "<span class=\"lang-ar\">يكسر الكاش.<\/span><span class=\"lang-en\">Breaks caching.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">تطبيق بحاجة لتبديل قيمة feature flag بدون إعادة نشر. أيّ خدمة؟</span><span class="lang-en">App needs to flip a feature flag without redeploy. Which service?</span>",
+        question: "<span class=\"lang-ar\">تطبيق بحاجة لتبديل قيمة feature flag بدون إعادة نشر. أيّ خدمة؟<\/span><span class=\"lang-en\">App needs to flip a feature flag without redeploy. Which service?<\/span>",
         options: [
-          "<span class="lang-ar">AWS AppConfig</span><span class="lang-en">AWS AppConfig</span>",
-          "<span class="lang-ar">AWS Systems Manager Run Command</span><span class="lang-en">AWS Systems Manager Run Command</span>",
-          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>",
-          "<span class="lang-ar">CloudFormation StackSets</span><span class="lang-en">CloudFormation StackSets</span>"
+          "<span class=\"lang-ar\">AWS AppConfig<\/span><span class=\"lang-en\">AWS AppConfig<\/span>",
+          "<span class=\"lang-ar\">AWS Systems Manager Run Command<\/span><span class=\"lang-en\">AWS Systems Manager Run Command<\/span>",
+          "<span class=\"lang-ar\">AWS Config<\/span><span class=\"lang-en\">AWS Config<\/span>",
+          "<span class=\"lang-ar\">CloudFormation StackSets<\/span><span class=\"lang-en\">CloudFormation StackSets<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">AppConfig صُمِّم خصّيصاً لـ feature flags ونشر تكوين ديناميكيّ مع rollback تلقائيّ. AWS Config لمراقبة الامتثال. Run Command لتنفيذ أوامر على الخوادم.</span><span class="lang-en">AppConfig is purpose-built for feature flags & dynamic config with auto-rollback. AWS Config is compliance; Run Command executes commands on instances.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">AppConfig صُمِّم خصّيصاً لـ feature flags ونشر تكوين ديناميكيّ مع rollback تلقائيّ. AWS Config لمراقبة الامتثال. Run Command لتنفيذ أوامر على الخوادم.<\/span><span class=\"lang-en\">AppConfig is purpose-built for feature flags & dynamic config with auto-rollback. AWS Config is compliance; Run Command executes commands on instances.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">فريق front-end يبني تطبيق React ويريد استضافته مع CI/CD تلقائيّ من GitHub. الخدمة المثالية؟</span><span class="lang-en">Front-end team builds a React app and wants hosting + auto CI/CD from GitHub. Ideal service?</span>",
+        question: "<span class=\"lang-ar\">فريق front-end يبني تطبيق React ويريد استضافته مع CI/CD تلقائيّ من GitHub. الخدمة المثالية؟<\/span><span class=\"lang-en\">Front-end team builds a React app and wants hosting + auto CI/CD from GitHub. Ideal service?<\/span>",
         options: [
-          "<span class="lang-ar">S3 Static Website فقط.</span><span class="lang-en">S3 Static Website alone.</span>",
-          "<span class="lang-ar">AWS Amplify.</span><span class="lang-en">AWS Amplify.</span>",
-          "<span class="lang-ar">Elastic Beanstalk.</span><span class="lang-en">Elastic Beanstalk.</span>",
-          "<span class="lang-ar">Lambda@Edge.</span><span class="lang-en">Lambda@Edge.</span>"
+          "<span class=\"lang-ar\">S3 Static Website فقط.<\/span><span class=\"lang-en\">S3 Static Website alone.<\/span>",
+          "<span class=\"lang-ar\">AWS Amplify.<\/span><span class=\"lang-en\">AWS Amplify.<\/span>",
+          "<span class=\"lang-ar\">Elastic Beanstalk.<\/span><span class=\"lang-en\">Elastic Beanstalk.<\/span>",
+          "<span class=\"lang-ar\">Lambda@Edge.<\/span><span class=\"lang-en\">Lambda@Edge.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Amplify يقدّم استضافة + CI/CD من Git + تكامل مع Cognito/AppSync/GraphQL للـ back-end serverless. S3 يقدّم الاستضافة فقط دون CI/CD. Beanstalk لتطبيقات الخادم لا SPAs.</span><span class="lang-en">Amplify bundles hosting + Git CI/CD + Cognito/AppSync/GraphQL serverless back-end. S3 only hosts (no CI/CD). Beanstalk is for server apps, not SPAs.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Amplify يقدّم استضافة + CI/CD من Git + تكامل مع Cognito/AppSync/GraphQL للـ back-end serverless. S3 يقدّم الاستضافة فقط دون CI/CD. Beanstalk لتطبيقات الخادم لا SPAs.<\/span><span class=\"lang-en\">Amplify bundles hosting + Git CI/CD + Cognito/AppSync/GraphQL serverless back-end. S3 only hosts (no CI/CD). Beanstalk is for server apps, not SPAs.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد إرسال مليون رسالة بريد بحجم كبير مع إدارة smart للارتداد. الخدمة؟</span><span class="lang-en">Company needs to send a million bulk emails with bounce management. Service?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد إرسال مليون رسالة بريد بحجم كبير مع إدارة smart للارتداد. الخدمة؟<\/span><span class=\"lang-en\">Company needs to send a million bulk emails with bounce management. Service?<\/span>",
         options: [
-          "<span class="lang-ar">Amazon SNS</span><span class="lang-en">Amazon SNS</span>",
-          "<span class="lang-ar">Amazon SES</span><span class="lang-en">Amazon SES</span>",
-          "<span class="lang-ar">Amazon SQS</span><span class="lang-en">Amazon SQS</span>",
-          "<span class="lang-ar">AWS Pinpoint SMS فقط</span><span class="lang-en">AWS Pinpoint SMS only</span>"
+          "<span class=\"lang-ar\">Amazon SNS<\/span><span class=\"lang-en\">Amazon SNS<\/span>",
+          "<span class=\"lang-ar\">Amazon SES<\/span><span class=\"lang-en\">Amazon SES<\/span>",
+          "<span class=\"lang-ar\">Amazon SQS<\/span><span class=\"lang-en\">Amazon SQS<\/span>",
+          "<span class=\"lang-ar\">AWS Pinpoint SMS فقط<\/span><span class=\"lang-en\">AWS Pinpoint SMS only<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">SES خاصّة بالبريد الإلكترونيّ: تدعم DKIM و SPF وإحصاءات الارتداد والتسليم. SNS للـ push/SMS لكنّها ليست الأنسب للـ bulk email. SQS للرسائل بين التطبيقات.</span><span class="lang-en">SES is email-specific: DKIM, SPF, bounce/delivery stats. SNS handles push/SMS but isn't ideal for bulk email. SQS is app-to-app messaging.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">SES خاصّة بالبريد الإلكترونيّ: تدعم DKIM و SPF وإحصاءات الارتداد والتسليم. SNS للـ push/SMS لكنّها ليست الأنسب للـ bulk email. SQS للرسائل بين التطبيقات.<\/span><span class=\"lang-en\">SES is email-specific: DKIM, SPF, bounce/delivery stats. SNS handles push/SMS but isn't ideal for bulk email. SQS is app-to-app messaging.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تحليل سجلّات CloudTrail (ملفّات JSON في S3) باستعلامات SQL. الأداة الأمثل؟</span><span class="lang-en">Analyzing CloudTrail logs (JSON files in S3) with SQL queries. Best tool?</span>",
+        question: "<span class=\"lang-ar\">تحليل سجلّات CloudTrail (ملفّات JSON في S3) باستعلامات SQL. الأداة الأمثل؟<\/span><span class=\"lang-en\">Analyzing CloudTrail logs (JSON files in S3) with SQL queries. Best tool?<\/span>",
         options: [
-          "<span class="lang-ar">Redshift فقط.</span><span class="lang-en">Redshift only.</span>",
-          "<span class="lang-ar">Amazon Athena.</span><span class="lang-en">Amazon Athena.</span>",
-          "<span class="lang-ar">RDS MySQL.</span><span class="lang-en">RDS MySQL.</span>",
-          "<span class="lang-ar">ElastiCache Redis.</span><span class="lang-en">ElastiCache Redis.</span>"
+          "<span class=\"lang-ar\">Redshift فقط.<\/span><span class=\"lang-en\">Redshift only.<\/span>",
+          "<span class=\"lang-ar\">Amazon Athena.<\/span><span class=\"lang-en\">Amazon Athena.<\/span>",
+          "<span class=\"lang-ar\">RDS MySQL.<\/span><span class=\"lang-en\">RDS MySQL.<\/span>",
+          "<span class=\"lang-ar\">ElastiCache Redis.<\/span><span class=\"lang-en\">ElastiCache Redis.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Athena = SQL serverless على S3 مباشرة. مثاليّ لتحليل CloudTrail و VPC Flow Logs و ALB Logs. Redshift للبيانات الكبيرة المستمرّة (data warehouse). RDS ليست لـ object-store.</span><span class="lang-en">Athena = serverless SQL directly over S3. Perfect for CloudTrail, VPC Flow Logs, ALB Logs. Redshift is for persistent big-data warehouses. RDS isn't for object storage.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Athena = SQL serverless على S3 مباشرة. مثاليّ لتحليل CloudTrail و VPC Flow Logs و ALB Logs. Redshift للبيانات الكبيرة المستمرّة (data warehouse). RDS ليست لـ object-store.<\/span><span class=\"lang-en\">Athena = serverless SQL directly over S3. Perfect for CloudTrail, VPC Flow Logs, ALB Logs. Redshift is for persistent big-data warehouses. RDS isn't for object storage.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q9",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من التالي صحيح حول Cache Behaviors في CloudFront؟</span><span class="lang-en">Which are true about CloudFront Cache Behaviors?</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي صحيح حول Cache Behaviors في CloudFront؟<\/span><span class=\"lang-en\">Which are true about CloudFront Cache Behaviors?<\/span>",
         options: [
-          "<span class="lang-ar">يمكن توجيه <span dir="ltr" class="font-mono">/api/*</span> إلى ALB و <span dir="ltr" class="font-mono">/images/*</span> إلى S3 في نفس الـ distribution.</span><span class="lang-en">Route <span dir="ltr" class="font-mono">/api/*</span> to ALB and <span dir="ltr" class="font-mono">/images/*</span> to S3 in the same distribution.</span>",
-          "<span class="lang-ar">المسار الافتراضيّ <span dir="ltr" class="font-mono">/*</span> يُقيَّم أوّلاً.</span><span class="lang-en">The default <span dir="ltr" class="font-mono">/*</span> behavior is evaluated first.</span>",
-          "<span class="lang-ar">كلّ Behavior له Cache Policy خاصّ به.</span><span class="lang-en">Each Behavior has its own Cache Policy.</span>",
-          "<span class="lang-ar">يمكن ربط دوال Lambda@Edge لكلّ Behavior.</span><span class="lang-en">Lambda@Edge functions can attach per-Behavior.</span>"
+          "<span class=\"lang-ar\">يمكن توجيه <span dir=\"ltr\" class=\"font-mono\">/api/*<\/span> إلى ALB و <span dir=\"ltr\" class=\"font-mono\">/images/*<\/span> إلى S3 في نفس الـ distribution.<\/span><span class=\"lang-en\">Route <span dir=\"ltr\" class=\"font-mono\">/api/*<\/span> to ALB and <span dir=\"ltr\" class=\"font-mono\">/images/*<\/span> to S3 in the same distribution.<\/span>",
+          "<span class=\"lang-ar\">المسار الافتراضيّ <span dir=\"ltr\" class=\"font-mono\">/*<\/span> يُقيَّم أوّلاً.<\/span><span class=\"lang-en\">The default <span dir=\"ltr\" class=\"font-mono\">/*<\/span> behavior is evaluated first.<\/span>",
+          "<span class=\"lang-ar\">كلّ Behavior له Cache Policy خاصّ به.<\/span><span class=\"lang-en\">Each Behavior has its own Cache Policy.<\/span>",
+          "<span class=\"lang-ar\">يمكن ربط دوال Lambda@Edge لكلّ Behavior.<\/span><span class=\"lang-en\">Lambda@Edge functions can attach per-Behavior.<\/span>"
         ],
         correct: [0,2,3],
-        explanation: "<span class="lang-ar">Behaviors تدعم الـ multi-origin routing، كلّ Behavior يحمل Cache Policy، و Lambda@Edge تُربَط بـ Behavior محدّد. المسار <span dir="ltr" class="font-mono">/*</span> دائماً آخر ما يُقيَّم (catch-all).</span><span class="lang-en">Behaviors support multi-origin routing, each has its own Cache Policy, and Lambda@Edge attaches per-Behavior. The <span dir="ltr" class="font-mono">/*</span> default is always evaluated LAST (catch-all).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Behaviors تدعم الـ multi-origin routing، كلّ Behavior يحمل Cache Policy، و Lambda@Edge تُربَط بـ Behavior محدّد. المسار <span dir=\"ltr\" class=\"font-mono\">/*<\/span> دائماً آخر ما يُقيَّم (catch-all).<\/span><span class=\"lang-en\">Behaviors support multi-origin routing, each has its own Cache Policy, and Lambda@Edge attaches per-Behavior. The <span dir=\"ltr\" class=\"font-mono\">/*<\/span> default is always evaluated LAST (catch-all).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">فريق أمن يريد اكتشاف معلومات حسّاسة (بطاقات ائتمان) مخزّنة في S3 buckets. الخدمة؟</span><span class="lang-en">Security team wants to find sensitive data (credit cards) in S3 buckets. Which service?</span>",
+        question: "<span class=\"lang-ar\">فريق أمن يريد اكتشاف معلومات حسّاسة (بطاقات ائتمان) مخزّنة في S3 buckets. الخدمة؟<\/span><span class=\"lang-en\">Security team wants to find sensitive data (credit cards) in S3 buckets. Which service?<\/span>",
         options: [
-          "<span class="lang-ar">Amazon Macie</span><span class="lang-en">Amazon Macie</span>",
-          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>",
-          "<span class="lang-ar">Amazon GuardDuty</span><span class="lang-en">Amazon GuardDuty</span>",
-          "<span class="lang-ar">CloudTrail</span><span class="lang-en">CloudTrail</span>"
+          "<span class=\"lang-ar\">Amazon Macie<\/span><span class=\"lang-en\">Amazon Macie<\/span>",
+          "<span class=\"lang-ar\">AWS Config<\/span><span class=\"lang-en\">AWS Config<\/span>",
+          "<span class=\"lang-ar\">Amazon GuardDuty<\/span><span class=\"lang-en\">Amazon GuardDuty<\/span>",
+          "<span class=\"lang-ar\">CloudTrail<\/span><span class=\"lang-en\">CloudTrail<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">Macie يستخدم ML لاكتشاف PII في S3 (بطاقات، أرقام ضمان، بيانات طبّية) وينبّه عبر EventBridge. GuardDuty لاكتشاف التهديدات (network/IAM). Config للامتثال التكوينيّ.</span><span class="lang-en">Macie uses ML to find PII in S3 (cards, SSNs, medical data) and alerts via EventBridge. GuardDuty is threat detection (network/IAM). Config is config-compliance.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Macie يستخدم ML لاكتشاف PII في S3 (بطاقات، أرقام ضمان، بيانات طبّية) وينبّه عبر EventBridge. GuardDuty لاكتشاف التهديدات (network/IAM). Config للامتثال التكوينيّ.<\/span><span class=\"lang-en\">Macie uses ML to find PII in S3 (cards, SSNs, medical data) and alerts via EventBridge. GuardDuty is threat detection (network/IAM). Config is config-compliance.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

@@ -816,177 +816,177 @@ type Order {
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">شركة تبني workflow لموافقة القرض (يحتاج توقيع بشري). العملية قد تستغرق أيام. أيّ خيار مناسب؟</span><span class="lang-en">A company builds a loan approval workflow (requires human signature). Can take days. Best option?</span>",
+        question: "<span class=\"lang-ar\">شركة تبني workflow لموافقة القرض (يحتاج توقيع بشري). العملية قد تستغرق أيام. أيّ خيار مناسب؟<\/span><span class=\"lang-en\">A company builds a loan approval workflow (requires human signature). Can take days. Best option?<\/span>",
         options: [
-          "<span class="lang-ar">Step Functions Express.</span><span class="lang-en">Step Functions Express.</span>",
-          "<span class="lang-ar">Step Functions Standard مع waitForTaskToken.</span><span class="lang-en">Step Functions Standard with waitForTaskToken.</span>",
-          "<span class="lang-ar">Lambda مع loop sleep.</span><span class="lang-en">Lambda with sleep loop.</span>",
-          "<span class="lang-ar">SQS مع DLQ.</span><span class="lang-en">SQS with DLQ.</span>"
+          "<span class=\"lang-ar\">Step Functions Express.<\/span><span class=\"lang-en\">Step Functions Express.<\/span>",
+          "<span class=\"lang-ar\">Step Functions Standard مع waitForTaskToken.<\/span><span class=\"lang-en\">Step Functions Standard with waitForTaskToken.<\/span>",
+          "<span class=\"lang-ar\">Lambda مع loop sleep.<\/span><span class=\"lang-en\">Lambda with sleep loop.<\/span>",
+          "<span class=\"lang-ar\">SQS مع DLQ.<\/span><span class=\"lang-en\">SQS with DLQ.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Step Functions Standard</strong> يدعم مدّة حتى سنة، والنمط <strong>waitForTaskToken</strong> مصمّم لانتظار callback من نظام خارجي (email approval، webhook). Express محدود بـ ٥ دقائق. Lambda بـ ١٥ دقيقة فقط. SQS ليست orchestration.</span><span class="lang-en"><strong>Standard</strong> supports up to 1 year, and <strong>waitForTaskToken</strong> is designed to wait on external callback (email approval, webhook). Express is capped at 5 min. Lambda at 15 min. SQS isn't orchestration.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">محدود بـ ٥ دقائق.</span><span class=\"lang-en\">Capped at 5 min.</span>", "", "<span class=\"lang-ar\">Lambda ١٥ دقيقة فقط.</span><span class=\"lang-en\">Lambda is 15-min max.</span>", "<span class=\"lang-ar\">ليست orchestration.</span><span class=\"lang-en\">Not orchestration.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١-٢</span><span class=\"lang-en\">Sections 1-2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Step Functions Standard<\/strong> يدعم مدّة حتى سنة، والنمط <strong>waitForTaskToken<\/strong> مصمّم لانتظار callback من نظام خارجي (email approval، webhook). Express محدود بـ ٥ دقائق. Lambda بـ ١٥ دقيقة فقط. SQS ليست orchestration.<\/span><span class=\"lang-en\"><strong>Standard<\/strong> supports up to 1 year, and <strong>waitForTaskToken<\/strong> is designed to wait on external callback (email approval, webhook). Express is capped at 5 min. Lambda at 15 min. SQS isn't orchestration.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">محدود بـ ٥ دقائق.<\/span><span class=\"lang-en\">Capped at 5 min.<\/span>", "", "<span class=\"lang-ar\">Lambda ١٥ دقيقة فقط.<\/span><span class=\"lang-en\">Lambda is 15-min max.<\/span>", "<span class=\"lang-ar\">ليست orchestration.<\/span><span class=\"lang-en\">Not orchestration.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١-٢<\/span><span class=\"lang-en\">Sections 1-2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق الرئيسي بين Step Functions Standard و Express؟</span><span class="lang-en">Main difference between Standard and Express Step Functions?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق الرئيسي بين Step Functions Standard و Express؟<\/span><span class=\"lang-en\">Main difference between Standard and Express Step Functions?<\/span>",
         options: [
-          "<span class="lang-ar">Standard للـ dev، Express للـ prod.</span><span class="lang-en">Standard is for dev, Express for prod.</span>",
-          "<span class="lang-ar">Standard: exactly-once وسنة مدّة؛ Express: at-least-once، ٥ دقائق، عالي التردّد، أرخص.</span><span class="lang-en">Standard: exactly-once, up to 1 year; Express: at-least-once, 5 min, high-volume, cheaper.</span>",
-          "<span class="lang-ar">Standard يستخدم Lambda فقط.</span><span class="lang-en">Standard uses only Lambda.</span>",
-          "<span class="lang-ar">Express يدعم GraphQL.</span><span class="lang-en">Express supports GraphQL.</span>"
+          "<span class=\"lang-ar\">Standard للـ dev، Express للـ prod.<\/span><span class=\"lang-en\">Standard is for dev, Express for prod.<\/span>",
+          "<span class=\"lang-ar\">Standard: exactly-once وسنة مدّة؛ Express: at-least-once، ٥ دقائق، عالي التردّد، أرخص.<\/span><span class=\"lang-en\">Standard: exactly-once, up to 1 year; Express: at-least-once, 5 min, high-volume, cheaper.<\/span>",
+          "<span class=\"lang-ar\">Standard يستخدم Lambda فقط.<\/span><span class=\"lang-en\">Standard uses only Lambda.<\/span>",
+          "<span class=\"lang-ar\">Express يدعم GraphQL.<\/span><span class=\"lang-en\">Express supports GraphQL.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Standard</strong>: exactly-once، حتى سنة، تاريخ مفصّل، مناسب للعمليات التجارية الطويلة. <strong>Express</strong>: at-least-once، ٥ دقائق، ١٠٠٬٠٠٠ execution/sec، أرخص بكثير، مناسب للأحمال عالية التردّد مثل IoT.</span><span class="lang-en"><strong>Standard</strong>: exactly-once, up to 1 year, detailed history, for long business processes. <strong>Express</strong>: at-least-once, 5 min, 100,000 exec/sec, much cheaper, for high-rate workloads like IoT.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Standard<\/strong>: exactly-once، حتى سنة، تاريخ مفصّل، مناسب للعمليات التجارية الطويلة. <strong>Express<\/strong>: at-least-once، ٥ دقائق، ١٠٠٬٠٠٠ execution/sec، أرخص بكثير، مناسب للأحمال عالية التردّد مثل IoT.<\/span><span class=\"lang-en\"><strong>Standard<\/strong>: exactly-once, up to 1 year, detailed history, for long business processes. <strong>Express<\/strong>: at-least-once, 5 min, 100,000 exec/sec, much cheaper, for high-rate workloads like IoT.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">أيّ نوع State يُستخدم للتفرّع بناءً على قيمة المدخل (if/else)؟</span><span class="lang-en">Which State type branches based on input value (if/else)?</span>",
+        question: "<span class=\"lang-ar\">أيّ نوع State يُستخدم للتفرّع بناءً على قيمة المدخل (if/else)؟<\/span><span class=\"lang-en\">Which State type branches based on input value (if/else)?<\/span>",
         options: [
-          "<span class="lang-ar">Task</span><span class="lang-en">Task</span>",
-          "<span class="lang-ar">Choice</span><span class="lang-en">Choice</span>",
-          "<span class="lang-ar">Parallel</span><span class="lang-en">Parallel</span>",
-          "<span class="lang-ar">Map</span><span class="lang-en">Map</span>"
+          "<span class=\"lang-ar\">Task<\/span><span class=\"lang-en\">Task<\/span>",
+          "<span class=\"lang-ar\">Choice<\/span><span class=\"lang-en\">Choice<\/span>",
+          "<span class=\"lang-ar\">Parallel<\/span><span class=\"lang-en\">Parallel<\/span>",
+          "<span class=\"lang-ar\">Map<\/span><span class=\"lang-en\">Map<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Choice State</strong> هو if/else في Step Functions. يحتوي <span class="font-mono">Choices</span> (مجموعة شروط) و <span class="font-mono">Default</span>. Task يستدعي عمل. Parallel يُنشئ فروع متوازية. Map يكرّر على مصفوفة.</span><span class="lang-en"><strong>Choice State</strong> is if/else in Step Functions. Contains <span class="font-mono">Choices</span> (conditions) and <span class="font-mono">Default</span>. Task invokes work. Parallel runs branches together. Map iterates arrays.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Choice State<\/strong> هو if/else في Step Functions. يحتوي <span class=\"font-mono\">Choices<\/span> (مجموعة شروط) و <span class=\"font-mono\">Default<\/span>. Task يستدعي عمل. Parallel يُنشئ فروع متوازية. Map يكرّر على مصفوفة.<\/span><span class=\"lang-en\"><strong>Choice State<\/strong> is if/else in Step Functions. Contains <span class=\"font-mono\">Choices<\/span> (conditions) and <span class=\"font-mono\">Default<\/span>. Task invokes work. Parallel runs branches together. Map iterates arrays.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد معالجة ٥٠٬٠٠٠ ملف في S3 بالتوازي. ما الحلّ الأمثل؟</span><span class="lang-en">A dev wants to process 50,000 S3 files in parallel. Best solution?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد معالجة ٥٠٬٠٠٠ ملف في S3 بالتوازي. ما الحلّ الأمثل؟<\/span><span class=\"lang-en\">A dev wants to process 50,000 S3 files in parallel. Best solution?<\/span>",
         options: [
-          "<span class="lang-ar">Lambda للكل مع loop.</span><span class="lang-en">One Lambda with a loop.</span>",
-          "<span class="lang-ar">Step Functions Distributed Map.</span><span class="lang-en">Step Functions Distributed Map.</span>",
-          "<span class="lang-ar">SNS fan-out.</span><span class="lang-en">SNS fan-out.</span>",
-          "<span class="lang-ar">ECS tasks.</span><span class="lang-en">ECS tasks.</span>"
+          "<span class=\"lang-ar\">Lambda للكل مع loop.<\/span><span class=\"lang-en\">One Lambda with a loop.<\/span>",
+          "<span class=\"lang-ar\">Step Functions Distributed Map.<\/span><span class=\"lang-en\">Step Functions Distributed Map.<\/span>",
+          "<span class=\"lang-ar\">SNS fan-out.<\/span><span class=\"lang-en\">SNS fan-out.<\/span>",
+          "<span class=\"lang-ar\">ECS tasks.<\/span><span class=\"lang-en\">ECS tasks.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Distributed Map</strong> مصمّم لهذا: يقرأ مصدر بيانات كبير (S3 inventory) ويُشغّل حالة فرعية على كل عنصر بالتوازي حتى ١٠٠٬٠٠٠ concurrent executions. Inline Map محدود بـ ٤٠. Lambda loop تصطدم بحدّ ١٥ دقيقة. SNS fan-out لا يوفّر checkpointing.</span><span class="lang-en"><strong>Distributed Map</strong> is built for this: reads large data source (S3 inventory) and runs a sub-state on each item in parallel up to 100,000 concurrent. Inline Map is capped at 40. Lambda loop hits 15-min wall. SNS fan-out lacks checkpointing.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">١٥ دقيقة حدّ Lambda.</span><span class=\"lang-en\">Lambda 15-min limit.</span>", "", "<span class=\"lang-ar\">لا orchestration ولا checkpointing.</span><span class=\"lang-en\">No orchestration/checkpointing.</span>", "<span class=\"lang-ar\">أعقد ولا يدعم retries مدمجة.</span><span class=\"lang-en\">More complex, no built-in retries.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Distributed Map<\/strong> مصمّم لهذا: يقرأ مصدر بيانات كبير (S3 inventory) ويُشغّل حالة فرعية على كل عنصر بالتوازي حتى ١٠٠٬٠٠٠ concurrent executions. Inline Map محدود بـ ٤٠. Lambda loop تصطدم بحدّ ١٥ دقيقة. SNS fan-out لا يوفّر checkpointing.<\/span><span class=\"lang-en\"><strong>Distributed Map<\/strong> is built for this: reads large data source (S3 inventory) and runs a sub-state on each item in parallel up to 100,000 concurrent. Inline Map is capped at 40. Lambda loop hits 15-min wall. SNS fan-out lacks checkpointing.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">١٥ دقيقة حدّ Lambda.<\/span><span class=\"lang-en\">Lambda 15-min limit.<\/span>", "", "<span class=\"lang-ar\">لا orchestration ولا checkpointing.<\/span><span class=\"lang-en\">No orchestration/checkpointing.<\/span>", "<span class=\"lang-ar\">أعقد ولا يدعم retries مدمجة.<\/span><span class=\"lang-en\">More complex, no built-in retries.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">في Step Functions، ما الفرق بين <span dir="ltr" class="font-mono">Retry</span> و <span dir="ltr" class="font-mono">Catch</span>؟</span><span class="lang-en">In Step Functions, Retry vs Catch?</span>",
+        question: "<span class=\"lang-ar\">في Step Functions، ما الفرق بين <span dir=\"ltr\" class=\"font-mono\">Retry<\/span> و <span dir=\"ltr\" class=\"font-mono\">Catch<\/span>؟<\/span><span class=\"lang-en\">In Step Functions, Retry vs Catch?<\/span>",
         options: [
-          "<span class="lang-ar">Retry للشبكة، Catch للبيانات.</span><span class="lang-en">Retry for network, Catch for data.</span>",
-          "<span class="lang-ar">Retry يُعيد تشغيل نفس الحالة (backoff)؛ Catch ينقل التحكّم لحالة أخرى عند الفشل.</span><span class="lang-en">Retry re-runs the same state (backoff); Catch transfers control to another state on failure.</span>",
-          "<span class="lang-ar">Retry للـ Lambda فقط.</span><span class="lang-en">Retry is Lambda-only.</span>",
-          "<span class="lang-ar">لا فرق.</span><span class="lang-en">No difference.</span>"
+          "<span class=\"lang-ar\">Retry للشبكة، Catch للبيانات.<\/span><span class=\"lang-en\">Retry for network, Catch for data.<\/span>",
+          "<span class=\"lang-ar\">Retry يُعيد تشغيل نفس الحالة (backoff)؛ Catch ينقل التحكّم لحالة أخرى عند الفشل.<\/span><span class=\"lang-en\">Retry re-runs the same state (backoff); Catch transfers control to another state on failure.<\/span>",
+          "<span class=\"lang-ar\">Retry للـ Lambda فقط.<\/span><span class=\"lang-en\">Retry is Lambda-only.<\/span>",
+          "<span class=\"lang-ar\">لا فرق.<\/span><span class=\"lang-en\">No difference.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Retry</strong>: يُعيد تشغيل نفس الحالة عند أخطاء معيّنة مع <span class="font-mono">IntervalSeconds, BackoffRate, MaxAttempts</span>. <strong>Catch</strong>: يقفز لحالة أخرى (مثل معالج أخطاء) عند الفشل. الاستخدام الشائع: Retry أولاً، ثم Catch إن فشلت كل المحاولات.</span><span class="lang-en"><strong>Retry</strong>: re-runs the same state on specific errors with <span class="font-mono">IntervalSeconds, BackoffRate, MaxAttempts</span>. <strong>Catch</strong>: jumps to another state (error handler) on failure. Typical use: Retry first, Catch if all retries fail.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢-٣</span><span class=\"lang-en\">Sections 2-3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Retry<\/strong>: يُعيد تشغيل نفس الحالة عند أخطاء معيّنة مع <span class=\"font-mono\">IntervalSeconds, BackoffRate, MaxAttempts<\/span>. <strong>Catch<\/strong>: يقفز لحالة أخرى (مثل معالج أخطاء) عند الفشل. الاستخدام الشائع: Retry أولاً، ثم Catch إن فشلت كل المحاولات.<\/span><span class=\"lang-en\"><strong>Retry<\/strong>: re-runs the same state on specific errors with <span class=\"font-mono\">IntervalSeconds, BackoffRate, MaxAttempts<\/span>. <strong>Catch<\/strong>: jumps to another state (error handler) on failure. Typical use: Retry first, Catch if all retries fail.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢-٣<\/span><span class=\"lang-en\">Sections 2-3<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">تطبيق mobile يريد API يسمح للعميل بطلب حقول محدّدة فقط (لتوفير bandwidth) مع تحديثات real-time. ما الخدمة؟</span><span class="lang-en">A mobile app wants an API where clients request only specific fields (bandwidth savings) plus real-time updates. Which service?</span>",
+        question: "<span class=\"lang-ar\">تطبيق mobile يريد API يسمح للعميل بطلب حقول محدّدة فقط (لتوفير bandwidth) مع تحديثات real-time. ما الخدمة؟<\/span><span class=\"lang-en\">A mobile app wants an API where clients request only specific fields (bandwidth savings) plus real-time updates. Which service?<\/span>",
         options: [
-          "<span class="lang-ar">REST API Gateway.</span><span class="lang-en">REST API Gateway.</span>",
-          "<span class="lang-ar">AppSync (GraphQL + Subscriptions).</span><span class="lang-en">AppSync (GraphQL + Subscriptions).</span>",
-          "<span class="lang-ar">CloudFront.</span><span class="lang-en">CloudFront.</span>",
-          "<span class="lang-ar">S3 Transfer Acceleration.</span><span class="lang-en">S3 Transfer Acceleration.</span>"
+          "<span class=\"lang-ar\">REST API Gateway.<\/span><span class=\"lang-en\">REST API Gateway.<\/span>",
+          "<span class=\"lang-ar\">AppSync (GraphQL + Subscriptions).<\/span><span class=\"lang-en\">AppSync (GraphQL + Subscriptions).<\/span>",
+          "<span class=\"lang-ar\">CloudFront.<\/span><span class=\"lang-en\">CloudFront.<\/span>",
+          "<span class=\"lang-ar\">S3 Transfer Acceleration.<\/span><span class=\"lang-en\">S3 Transfer Acceleration.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>AppSync</strong>: GraphQL يسمح للعميل باختيار الحقول (لا over-fetching)، subscriptions تعطي real-time عبر WebSocket. REST يُرجع ما يقرّره الخادم ويحتاج WebSocket API منفصل للـ real-time. CloudFront للـ CDN. Transfer Acceleration للـ S3.</span><span class="lang-en"><strong>AppSync</strong>: GraphQL lets client pick fields (no over-fetch), subscriptions push real-time via WebSocket. REST returns what server decides and needs a separate WebSocket API for real-time. CloudFront is CDN. Transfer Acceleration is for S3.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يوفّر مرونة الحقول.</span><span class=\"lang-en\">No field flexibility.</span>", "", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">لـ S3 uploads فقط.</span><span class=\"lang-en\">Only S3 uploads.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>AppSync<\/strong>: GraphQL يسمح للعميل باختيار الحقول (لا over-fetching)، subscriptions تعطي real-time عبر WebSocket. REST يُرجع ما يقرّره الخادم ويحتاج WebSocket API منفصل للـ real-time. CloudFront للـ CDN. Transfer Acceleration للـ S3.<\/span><span class=\"lang-en\"><strong>AppSync<\/strong>: GraphQL lets client pick fields (no over-fetch), subscriptions push real-time via WebSocket. REST returns what server decides and needs a separate WebSocket API for real-time. CloudFront is CDN. Transfer Acceleration is for S3.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يوفّر مرونة الحقول.<\/span><span class=\"lang-en\">No field flexibility.<\/span>", "", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>", "<span class=\"lang-ar\">لـ S3 uploads فقط.<\/span><span class=\"lang-en\">Only S3 uploads.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q7",
         type: "multi",
-        question: "<span class="lang-ar">ما مصادر البيانات (Data Sources) المدعومة في AppSync؟ اختر كل ما ينطبق.</span><span class="lang-en">Which data sources does AppSync support? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">ما مصادر البيانات (Data Sources) المدعومة في AppSync؟ اختر كل ما ينطبق.<\/span><span class=\"lang-en\">Which data sources does AppSync support? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">DynamoDB</span><span class="lang-en">DynamoDB</span>",
-          "<span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span>",
-          "<span class="lang-ar">Aurora Serverless</span><span class="lang-en">Aurora Serverless</span>",
-          "<span class="lang-ar">OpenSearch</span><span class="lang-en">OpenSearch</span>",
-          "<span class="lang-ar">SQS (مباشر)</span><span class="lang-en">SQS (direct)</span>",
-          "<span class="lang-ar">HTTP endpoints</span><span class="lang-en">HTTP endpoints</span>"
+          "<span class=\"lang-ar\">DynamoDB<\/span><span class=\"lang-en\">DynamoDB<\/span>",
+          "<span class=\"lang-ar\">Lambda<\/span><span class=\"lang-en\">Lambda<\/span>",
+          "<span class=\"lang-ar\">Aurora Serverless<\/span><span class=\"lang-en\">Aurora Serverless<\/span>",
+          "<span class=\"lang-ar\">OpenSearch<\/span><span class=\"lang-en\">OpenSearch<\/span>",
+          "<span class=\"lang-ar\">SQS (مباشر)<\/span><span class=\"lang-en\">SQS (direct)<\/span>",
+          "<span class=\"lang-ar\">HTTP endpoints<\/span><span class=\"lang-en\">HTTP endpoints<\/span>"
         ],
         correct: [0,1,2,3,5],
-        explanation: "<span class="lang-ar">AppSync يدعم <strong>DynamoDB</strong>, <strong>Lambda</strong>, <strong>Aurora Serverless</strong>, <strong>OpenSearch</strong>, <strong>HTTP endpoints</strong>. SQS ليست data source مباشرة في AppSync (يمكن الوصول عبر Lambda resolver).</span><span class="lang-en">AppSync supports <strong>DynamoDB</strong>, <strong>Lambda</strong>, <strong>Aurora Serverless</strong>, <strong>OpenSearch</strong>, <strong>HTTP endpoints</strong>. SQS isn't a direct data source (accessible via Lambda resolver).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">AppSync يدعم <strong>DynamoDB<\/strong>, <strong>Lambda<\/strong>, <strong>Aurora Serverless<\/strong>, <strong>OpenSearch<\/strong>, <strong>HTTP endpoints<\/strong>. SQS ليست data source مباشرة في AppSync (يمكن الوصول عبر Lambda resolver).<\/span><span class=\"lang-en\">AppSync supports <strong>DynamoDB<\/strong>, <strong>Lambda<\/strong>, <strong>Aurora Serverless<\/strong>, <strong>OpenSearch<\/strong>, <strong>HTTP endpoints<\/strong>. SQS isn't a direct data source (accessible via Lambda resolver).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">AppSync Subscriptions تستخدم:</span><span class="lang-en">AppSync Subscriptions use:</span>",
+        question: "<span class=\"lang-ar\">AppSync Subscriptions تستخدم:<\/span><span class=\"lang-en\">AppSync Subscriptions use:<\/span>",
         options: [
-          "<span class="lang-ar">HTTP polling</span><span class="lang-en">HTTP polling</span>",
-          "<span class="lang-ar">MQTT over WebSocket</span><span class="lang-en">MQTT over WebSocket</span>",
-          "<span class="lang-ar">SSE (Server-Sent Events)</span><span class="lang-en">SSE (Server-Sent Events)</span>",
-          "<span class="lang-ar">gRPC</span><span class="lang-en">gRPC</span>"
+          "<span class=\"lang-ar\">HTTP polling<\/span><span class=\"lang-en\">HTTP polling<\/span>",
+          "<span class=\"lang-ar\">MQTT over WebSocket<\/span><span class=\"lang-en\">MQTT over WebSocket<\/span>",
+          "<span class=\"lang-ar\">SSE (Server-Sent Events)<\/span><span class=\"lang-en\">SSE (Server-Sent Events)<\/span>",
+          "<span class=\"lang-ar\">gRPC<\/span><span class=\"lang-en\">gRPC<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AppSync Subscriptions تعمل عبر <strong>MQTT over WebSocket</strong>. العميل يشترك في حقل GraphQL بـ <span class="font-mono">@aws_subscribe</span>، وأيّ mutation متطابقة تُرسل تلقائياً للعملاء المشتركين.</span><span class="lang-en">AppSync Subscriptions run over <strong>MQTT over WebSocket</strong>. Client subscribes to a GraphQL field via <span class="font-mono">@aws_subscribe</span>; matching mutations auto-push to subscribers.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">AppSync Subscriptions تعمل عبر <strong>MQTT over WebSocket<\/strong>. العميل يشترك في حقل GraphQL بـ <span class=\"font-mono\">@aws_subscribe<\/span>، وأيّ mutation متطابقة تُرسل تلقائياً للعملاء المشتركين.<\/span><span class=\"lang-en\">AppSync Subscriptions run over <strong>MQTT over WebSocket<\/strong>. Client subscribes to a GraphQL field via <span class=\"font-mono\">@aws_subscribe<\/span>; matching mutations auto-push to subscribers.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">ما طرق authentication المدعومة في AppSync؟</span><span class="lang-en">Which authentication methods does AppSync support?</span>",
+        question: "<span class=\"lang-ar\">ما طرق authentication المدعومة في AppSync؟<\/span><span class=\"lang-en\">Which authentication methods does AppSync support?<\/span>",
         options: [
-          "<span class="lang-ar">Cognito User Pool فقط.</span><span class="lang-en">Cognito User Pool only.</span>",
-          "<span class="lang-ar">API Key, IAM, Cognito User Pool, OpenID Connect (ومزج متعدّد).</span><span class="lang-en">API Key, IAM, Cognito User Pool, OpenID Connect (and multi-auth).</span>",
-          "<span class="lang-ar">SAML فقط.</span><span class="lang-en">SAML only.</span>",
-          "<span class="lang-ar">mTLS.</span><span class="lang-en">mTLS.</span>"
+          "<span class=\"lang-ar\">Cognito User Pool فقط.<\/span><span class=\"lang-en\">Cognito User Pool only.<\/span>",
+          "<span class=\"lang-ar\">API Key, IAM, Cognito User Pool, OpenID Connect (ومزج متعدّد).<\/span><span class=\"lang-en\">API Key, IAM, Cognito User Pool, OpenID Connect (and multi-auth).<\/span>",
+          "<span class=\"lang-ar\">SAML فقط.<\/span><span class=\"lang-en\">SAML only.<\/span>",
+          "<span class=\"lang-ar\">mTLS.<\/span><span class=\"lang-en\">mTLS.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AppSync يدعم ٤ طرق: <strong>API Key</strong> (بسيط، للـ dev)، <strong>IAM</strong> (للخدمات الداخلية)، <strong>Cognito User Pool</strong> (للمستخدمين)، <strong>OpenID Connect</strong> (طرف ثالث مثل Okta). يمكن تفعيل عدّة طرق على نفس الـ API (multi-auth).</span><span class="lang-en">AppSync supports 4 methods: <strong>API Key</strong> (simple, dev), <strong>IAM</strong> (internal services), <strong>Cognito User Pool</strong> (users), <strong>OpenID Connect</strong> (3rd party like Okta). Multi-auth is supported on the same API.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">AppSync يدعم ٤ طرق: <strong>API Key<\/strong> (بسيط، للـ dev)، <strong>IAM<\/strong> (للخدمات الداخلية)، <strong>Cognito User Pool<\/strong> (للمستخدمين)، <strong>OpenID Connect<\/strong> (طرف ثالث مثل Okta). يمكن تفعيل عدّة طرق على نفس الـ API (multi-auth).<\/span><span class=\"lang-en\">AppSync supports 4 methods: <strong>API Key<\/strong> (simple, dev), <strong>IAM<\/strong> (internal services), <strong>Cognito User Pool<\/strong> (users), <strong>OpenID Connect<\/strong> (3rd party like Okta). Multi-auth is supported on the same API.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">كيف يمكن لـ Step Function انتظار حدث خارجي لمدّة غير محدّدة (مثل إيميل موافقة بشرية)؟</span><span class="lang-en">How can a Step Function wait indefinitely for an external event (e.g. human email approval)?</span>",
+        question: "<span class=\"lang-ar\">كيف يمكن لـ Step Function انتظار حدث خارجي لمدّة غير محدّدة (مثل إيميل موافقة بشرية)؟<\/span><span class=\"lang-en\">How can a Step Function wait indefinitely for an external event (e.g. human email approval)?<\/span>",
         options: [
-          "<span class="lang-ar">Wait state بزمن طويل.</span><span class="lang-en">Wait state with long duration.</span>",
-          "<span class="lang-ar"><span class="font-mono">waitForTaskToken</span> integration pattern مع callback.</span><span class="lang-en"><span class="font-mono">waitForTaskToken</span> integration pattern with callback.</span>",
-          "<span class="lang-ar">loop في Lambda.</span><span class="lang-en">Lambda loop.</span>",
-          "<span class="lang-ar">EventBridge schedule.</span><span class="lang-en">EventBridge schedule.</span>"
+          "<span class=\"lang-ar\">Wait state بزمن طويل.<\/span><span class=\"lang-en\">Wait state with long duration.<\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">waitForTaskToken<\/span> integration pattern مع callback.<\/span><span class=\"lang-en\"><span class=\"font-mono\">waitForTaskToken<\/span> integration pattern with callback.<\/span>",
+          "<span class=\"lang-ar\">loop في Lambda.<\/span><span class=\"lang-en\">Lambda loop.<\/span>",
+          "<span class=\"lang-ar\">EventBridge schedule.<\/span><span class=\"lang-en\">EventBridge schedule.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>waitForTaskToken</strong>: Step Functions يُنشئ <span class="font-mono">TaskToken</span> يمرّر للخدمة الخارجية (SNS، SQS، Lambda). العملية الخارجية تستدعي <span class="font-mono">SendTaskSuccess/Failure</span> بالـ token لاستئناف الـ workflow. حتى سنة في Standard. Wait state بزمن محدّد مُسبقاً. Lambda ١٥ دقيقة فقط.</span><span class="lang-en"><strong>waitForTaskToken</strong>: Step Functions issues a <span class="font-mono">TaskToken</span> passed to the external service (SNS, SQS, Lambda). External process calls <span class="font-mono">SendTaskSuccess/Failure</span> with the token to resume. Up to 1 year in Standard. Wait state is a fixed duration. Lambda is 15 min max.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">محدّد سلفاً.</span><span class=\"lang-en\">Fixed duration.</span>", "", "<span class=\"lang-ar\">Lambda ١٥ دقيقة.</span><span class=\"lang-en\">Lambda 15 min.</span>", "<span class=\"lang-ar\">لتوقيت مجدول.</span><span class=\"lang-en\">For scheduling.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>waitForTaskToken<\/strong>: Step Functions يُنشئ <span class=\"font-mono\">TaskToken<\/span> يمرّر للخدمة الخارجية (SNS، SQS، Lambda). العملية الخارجية تستدعي <span class=\"font-mono\">SendTaskSuccess/Failure<\/span> بالـ token لاستئناف الـ workflow. حتى سنة في Standard. Wait state بزمن محدّد مُسبقاً. Lambda ١٥ دقيقة فقط.<\/span><span class=\"lang-en\"><strong>waitForTaskToken<\/strong>: Step Functions issues a <span class=\"font-mono\">TaskToken<\/span> passed to the external service (SNS, SQS, Lambda). External process calls <span class=\"font-mono\">SendTaskSuccess/Failure<\/span> with the token to resume. Up to 1 year in Standard. Wait state is a fixed duration. Lambda is 15 min max.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">محدّد سلفاً.<\/span><span class=\"lang-en\">Fixed duration.<\/span>", "", "<span class=\"lang-ar\">Lambda ١٥ دقيقة.<\/span><span class=\"lang-en\">Lambda 15 min.<\/span>", "<span class=\"lang-ar\">لتوقيت مجدول.<\/span><span class=\"lang-en\">For scheduling.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">خطأ شائع: AppSync vs API Gateway. متى تختار AppSync؟</span><span class="lang-en">AppSync vs API Gateway — when pick AppSync?</span>",
+        question: "<span class=\"lang-ar\">خطأ شائع: AppSync vs API Gateway. متى تختار AppSync؟<\/span><span class=\"lang-en\">AppSync vs API Gateway — when pick AppSync?<\/span>",
         options: [
-          "<span class="lang-ar">دائماً أرخص.</span><span class="lang-en">Always cheaper.</span>",
-          "<span class="lang-ar">عندما يحتاج العميل استعلامات مرنة (GraphQL) أو تحديثات real-time subscriptions.</span><span class="lang-en">When client needs flexible queries (GraphQL) or real-time subscriptions.</span>",
-          "<span class="lang-ar">عندما يحتاج REST فقط.</span><span class="lang-en">For pure REST.</span>",
-          "<span class="lang-ar">لـ tax calculations.</span><span class="lang-en">For tax calcs.</span>"
+          "<span class=\"lang-ar\">دائماً أرخص.<\/span><span class=\"lang-en\">Always cheaper.<\/span>",
+          "<span class=\"lang-ar\">عندما يحتاج العميل استعلامات مرنة (GraphQL) أو تحديثات real-time subscriptions.<\/span><span class=\"lang-en\">When client needs flexible queries (GraphQL) or real-time subscriptions.<\/span>",
+          "<span class=\"lang-ar\">عندما يحتاج REST فقط.<\/span><span class=\"lang-en\">For pure REST.<\/span>",
+          "<span class=\"lang-ar\">لـ tax calculations.<\/span><span class=\"lang-en\">For tax calcs.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AppSync يتفوّق عندما: (أ) العملاء يحتاجون اختيار الحقول (mobile app لتوفير bandwidth)، (ب) تحتاج real-time subscriptions بدون كتابة WebSocket code، (ج) دمج عدّة data sources في استعلام واحد. لـ REST البسيط استخدم API Gateway.</span><span class="lang-en">AppSync wins when: (a) clients need field selection (mobile for bandwidth), (b) real-time subscriptions without WebSocket code, (c) combining multiple data sources in one query. For plain REST use API Gateway.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">التسعير متباين.</span><span class=\"lang-en\">Pricing varies.</span>", "", "<span class=\"lang-ar\">REST = API Gateway.</span><span class=\"lang-en\">REST = API Gateway.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">AppSync يتفوّق عندما: (أ) العملاء يحتاجون اختيار الحقول (mobile app لتوفير bandwidth)، (ب) تحتاج real-time subscriptions بدون كتابة WebSocket code، (ج) دمج عدّة data sources في استعلام واحد. لـ REST البسيط استخدم API Gateway.<\/span><span class=\"lang-en\">AppSync wins when: (a) clients need field selection (mobile for bandwidth), (b) real-time subscriptions without WebSocket code, (c) combining multiple data sources in one query. For plain REST use API Gateway.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">التسعير متباين.<\/span><span class=\"lang-en\">Pricing varies.<\/span>", "", "<span class=\"lang-ar\">REST = API Gateway.<\/span><span class=\"lang-en\">REST = API Gateway.<\/span>", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">ASL (Amazon States Language) هو:</span><span class="lang-en">ASL (Amazon States Language) is:</span>",
+        question: "<span class=\"lang-ar\">ASL (Amazon States Language) هو:<\/span><span class=\"lang-en\">ASL (Amazon States Language) is:<\/span>",
         options: [
-          "<span class="lang-ar">لغة برمجة جديدة.</span><span class="lang-en">A new programming language.</span>",
-          "<span class="lang-ar">JSON-based DSL لتعريف state machines في Step Functions.</span><span class="lang-en">A JSON-based DSL for defining Step Functions state machines.</span>",
-          "<span class="lang-ar">YAML لـ CloudFormation.</span><span class="lang-en">YAML for CloudFormation.</span>",
-          "<span class="lang-ar">SQL dialect.</span><span class="lang-en">A SQL dialect.</span>"
+          "<span class=\"lang-ar\">لغة برمجة جديدة.<\/span><span class=\"lang-en\">A new programming language.<\/span>",
+          "<span class=\"lang-ar\">JSON-based DSL لتعريف state machines في Step Functions.<\/span><span class=\"lang-en\">A JSON-based DSL for defining Step Functions state machines.<\/span>",
+          "<span class=\"lang-ar\">YAML لـ CloudFormation.<\/span><span class=\"lang-en\">YAML for CloudFormation.<\/span>",
+          "<span class=\"lang-ar\">SQL dialect.<\/span><span class=\"lang-en\">A SQL dialect.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>ASL</strong> = Amazon States Language، JSON-based DSL تُعرّف بها state machines في Step Functions. الحقول الرئيسية: <span class="font-mono">StartAt, States (Type, Next, Resource, Retry, Catch, End)</span>.</span><span class="lang-en"><strong>ASL</strong> = Amazon States Language, a JSON-based DSL for defining Step Functions state machines. Key fields: <span class="font-mono">StartAt, States (Type, Next, Resource, Retry, Catch, End)</span>.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١-٢</span><span class=\"lang-en\">Sections 1-2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>ASL<\/strong> = Amazon States Language، JSON-based DSL تُعرّف بها state machines في Step Functions. الحقول الرئيسية: <span class=\"font-mono\">StartAt, States (Type, Next, Resource, Retry, Catch, End)<\/span>.<\/span><span class=\"lang-en\"><strong>ASL<\/strong> = Amazon States Language, a JSON-based DSL for defining Step Functions state machines. Key fields: <span class=\"font-mono\">StartAt, States (Type, Next, Resource, Retry, Catch, End)<\/span>.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١-٢<\/span><span class=\"lang-en\">Sections 1-2<\/span>"
       }
     ];
 

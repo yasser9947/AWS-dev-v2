@@ -882,226 +882,226 @@ curl -H "Authorization: $TOKEN" https://abc.execute-api.us-east-1.amazonaws.com/
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يبني API على Lambda ويريد أن يمرّر كل الـ request (headers, query strings, body, path params) للـ Lambda كما هو بدون تحويل. أيّ integration type يختار؟</span><span class="lang-en">A developer builds a Lambda-backed API and wants to pass the entire request (headers, query strings, body, path params) to Lambda as-is. Which integration type?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يبني API على Lambda ويريد أن يمرّر كل الـ request (headers, query strings, body, path params) للـ Lambda كما هو بدون تحويل. أيّ integration type يختار؟<\/span><span class=\"lang-en\">A developer builds a Lambda-backed API and wants to pass the entire request (headers, query strings, body, path params) to Lambda as-is. Which integration type?<\/span>",
         options: [
-          "<span class="lang-ar">AWS (Custom)</span><span class="lang-en">AWS (Custom)</span>",
-          "<span class="lang-ar">AWS_PROXY (Lambda Proxy)</span><span class="lang-en">AWS_PROXY (Lambda Proxy)</span>",
-          "<span class="lang-ar">HTTP</span><span class="lang-en">HTTP</span>",
-          "<span class="lang-ar">MOCK</span><span class="lang-en">MOCK</span>"
+          "<span class=\"lang-ar\">AWS (Custom)<\/span><span class=\"lang-en\">AWS (Custom)<\/span>",
+          "<span class=\"lang-ar\">AWS_PROXY (Lambda Proxy)<\/span><span class=\"lang-en\">AWS_PROXY (Lambda Proxy)<\/span>",
+          "<span class=\"lang-ar\">HTTP<\/span><span class=\"lang-en\">HTTP<\/span>",
+          "<span class=\"lang-ar\">MOCK<\/span><span class=\"lang-en\">MOCK<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>AWS_PROXY (Lambda Proxy)</strong> يُمرّر كل الطلب إلى Lambda كـ event object جاهز بدون mapping templates. هو الأكثر شيوعاً مع Lambda. AWS (Custom) يتطلّب كتابة mapping template. HTTP لـ backend HTTP. MOCK لا يستدعي backend أصلاً.</span><span class="lang-en"><strong>AWS_PROXY (Lambda Proxy)</strong> passes the whole request to Lambda as a ready event, no mapping templates. Most common with Lambda. AWS (Custom) needs VTL mapping. HTTP is for HTTP backends. MOCK doesn't hit any backend.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب mapping templates.</span><span class=\"lang-en\">Needs mapping templates.</span>", "", "<span class=\"lang-ar\">لـ HTTP backend مباشر.</span><span class=\"lang-en\">For HTTP backends.</span>", "<span class=\"lang-ar\">يرجع استجابة بدون backend.</span><span class=\"lang-en\">Returns response without backend.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>AWS_PROXY (Lambda Proxy)<\/strong> يُمرّر كل الطلب إلى Lambda كـ event object جاهز بدون mapping templates. هو الأكثر شيوعاً مع Lambda. AWS (Custom) يتطلّب كتابة mapping template. HTTP لـ backend HTTP. MOCK لا يستدعي backend أصلاً.<\/span><span class=\"lang-en\"><strong>AWS_PROXY (Lambda Proxy)<\/strong> passes the whole request to Lambda as a ready event, no mapping templates. Most common with Lambda. AWS (Custom) needs VTL mapping. HTTP is for HTTP backends. MOCK doesn't hit any backend.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب mapping templates.<\/span><span class=\"lang-en\">Needs mapping templates.<\/span>", "", "<span class=\"lang-ar\">لـ HTTP backend مباشر.<\/span><span class=\"lang-en\">For HTTP backends.<\/span>", "<span class=\"lang-ar\">يرجع استجابة بدون backend.<\/span><span class=\"lang-en\">Returns response without backend.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">تطبيق single-page (SPA) مستضاف على S3 يحاول استدعاء API Gateway ويحصل على <strong>CORS error</strong> في المتصفّح، لكن الطلب يعمل من Postman. ما الحلّ؟</span><span class="lang-en">A SPA hosted on S3 calls API Gateway and gets a <strong>CORS error</strong> in the browser, though Postman works fine. Fix?</span>",
+        question: "<span class=\"lang-ar\">تطبيق single-page (SPA) مستضاف على S3 يحاول استدعاء API Gateway ويحصل على <strong>CORS error<\/strong> في المتصفّح، لكن الطلب يعمل من Postman. ما الحلّ؟<\/span><span class=\"lang-en\">A SPA hosted on S3 calls API Gateway and gets a <strong>CORS error<\/strong> in the browser, though Postman works fine. Fix?<\/span>",
         options: [
-          "<span class="lang-ar">تغيير Endpoint type إلى Edge-Optimized.</span><span class="lang-en">Change Endpoint type to Edge-Optimized.</span>",
-          "<span class="lang-ar">تفعيل CORS في API Gateway ليُنشئ OPTIONS method مع الـ Access-Control-* headers.</span><span class="lang-en">Enable CORS in API Gateway to create an OPTIONS method with the Access-Control-* headers.</span>",
-          "<span class="lang-ar">رفع throttling limit.</span><span class="lang-en">Raise throttling limit.</span>",
-          "<span class="lang-ar">إلغاء Authorization.</span><span class="lang-en">Remove Authorization.</span>"
+          "<span class=\"lang-ar\">تغيير Endpoint type إلى Edge-Optimized.<\/span><span class=\"lang-en\">Change Endpoint type to Edge-Optimized.<\/span>",
+          "<span class=\"lang-ar\">تفعيل CORS في API Gateway ليُنشئ OPTIONS method مع الـ Access-Control-* headers.<\/span><span class=\"lang-en\">Enable CORS in API Gateway to create an OPTIONS method with the Access-Control-* headers.<\/span>",
+          "<span class=\"lang-ar\">رفع throttling limit.<\/span><span class=\"lang-en\">Raise throttling limit.<\/span>",
+          "<span class=\"lang-ar\">إلغاء Authorization.<\/span><span class=\"lang-en\">Remove Authorization.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CORS إعداد متصفّح: قبل الطلب الحقيقي يُرسل المتصفّح <strong>preflight OPTIONS</strong> يتوقّع headers <span class="font-mono">Access-Control-Allow-Origin/Methods/Headers</span>. تفعيل CORS في API Gateway يُنشئ OPTIONS method صحيح. Postman لا يطبّق CORS لأنّه ليس متصفّحاً.</span><span class="lang-en">CORS is a browser rule: before the real request the browser sends a <strong>preflight OPTIONS</strong> expecting <span class="font-mono">Access-Control-Allow-Origin/Methods/Headers</span> headers. Enabling CORS in API Gateway creates the proper OPTIONS method. Postman ignores CORS because it's not a browser.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بـ endpoint type.</span><span class=\"lang-en\">Unrelated to endpoint type.</span>", "", "<span class=\"lang-ar\">الخطأ CORS وليس 429.</span><span class=\"lang-en\">It's CORS, not 429.</span>", "<span class=\"lang-ar\">ليست مشكلة authorization.</span><span class=\"lang-en\">Not an auth issue.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤ — CORS</span><span class=\"lang-en\">Section 4 — CORS</span>"
+        explanation: "<span class=\"lang-ar\">CORS إعداد متصفّح: قبل الطلب الحقيقي يُرسل المتصفّح <strong>preflight OPTIONS<\/strong> يتوقّع headers <span class=\"font-mono\">Access-Control-Allow-Origin/Methods/Headers<\/span>. تفعيل CORS في API Gateway يُنشئ OPTIONS method صحيح. Postman لا يطبّق CORS لأنّه ليس متصفّحاً.<\/span><span class=\"lang-en\">CORS is a browser rule: before the real request the browser sends a <strong>preflight OPTIONS<\/strong> expecting <span class=\"font-mono\">Access-Control-Allow-Origin/Methods/Headers<\/span> headers. Enabling CORS in API Gateway creates the proper OPTIONS method. Postman ignores CORS because it's not a browser.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بـ endpoint type.<\/span><span class=\"lang-en\">Unrelated to endpoint type.<\/span>", "", "<span class=\"lang-ar\">الخطأ CORS وليس 429.<\/span><span class=\"lang-en\">It's CORS, not 429.<\/span>", "<span class=\"lang-ar\">ليست مشكلة authorization.<\/span><span class=\"lang-en\">Not an auth issue.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤ — CORS<\/span><span class=\"lang-en\">Section 4 — CORS<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد أن تبيع API للعملاء الخارجيين مع تقييد كل عميل بعدد محدّد من الطلبات شهرياً. ما الأدوات المناسبة؟</span><span class="lang-en">A company sells an API to external customers and wants to cap each customer at a monthly request quota. Which tools?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد أن تبيع API للعملاء الخارجيين مع تقييد كل عميل بعدد محدّد من الطلبات شهرياً. ما الأدوات المناسبة؟<\/span><span class=\"lang-en\">A company sells an API to external customers and wants to cap each customer at a monthly request quota. Which tools?<\/span>",
         options: [
-          "<span class="lang-ar">Cognito User Pool + Lambda Authorizer</span><span class="lang-en">Cognito User Pool + Lambda Authorizer</span>",
-          "<span class="lang-ar">API Keys + Usage Plans (REST API)</span><span class="lang-en">API Keys + Usage Plans (REST API)</span>",
-          "<span class="lang-ar">IAM Roles للعملاء</span><span class="lang-en">IAM Roles per customer</span>",
-          "<span class="lang-ar">WAF rate limiting</span><span class="lang-en">WAF rate limiting</span>"
+          "<span class=\"lang-ar\">Cognito User Pool + Lambda Authorizer<\/span><span class=\"lang-en\">Cognito User Pool + Lambda Authorizer<\/span>",
+          "<span class=\"lang-ar\">API Keys + Usage Plans (REST API)<\/span><span class=\"lang-en\">API Keys + Usage Plans (REST API)<\/span>",
+          "<span class=\"lang-ar\">IAM Roles للعملاء<\/span><span class=\"lang-en\">IAM Roles per customer<\/span>",
+          "<span class=\"lang-ar\">WAF rate limiting<\/span><span class=\"lang-en\">WAF rate limiting<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>API Keys + Usage Plans</strong> (متاحة في REST API فقط) مُصمَّمة لهذا الغرض: يُعطى كل عميل API Key، و Usage Plan يربط الـ key بـ throttle (RPS) وquota شهرية. WAF يحمي من الهجمات لكن لا يدير الفوترة. Cognito للـ authentication لا لـ billing. IAM غير عملي لآلاف العملاء.</span><span class="lang-en"><strong>API Keys + Usage Plans</strong> (REST API only) are made for this: give each customer an API Key; the Usage Plan links the key to RPS throttle and monthly quota. WAF blocks attacks but doesn't do billing. Cognito is for auth, not metering. IAM doesn't scale to thousands of customers.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">للـ authentication، لا للـ billing/quotas.</span><span class=\"lang-en\">For auth, not billing/quotas.</span>", "", "<span class=\"lang-ar\">غير عملي لعملاء خارجيين بآلاف.</span><span class=\"lang-en\">Doesn't scale to external customers.</span>", "<span class=\"lang-ar\">حماية من الهجمات لا quota per-customer.</span><span class=\"lang-en\">Attack protection, not per-customer quota.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>API Keys + Usage Plans<\/strong> (متاحة في REST API فقط) مُصمَّمة لهذا الغرض: يُعطى كل عميل API Key، و Usage Plan يربط الـ key بـ throttle (RPS) وquota شهرية. WAF يحمي من الهجمات لكن لا يدير الفوترة. Cognito للـ authentication لا لـ billing. IAM غير عملي لآلاف العملاء.<\/span><span class=\"lang-en\"><strong>API Keys + Usage Plans<\/strong> (REST API only) are made for this: give each customer an API Key; the Usage Plan links the key to RPS throttle and monthly quota. WAF blocks attacks but doesn't do billing. Cognito is for auth, not metering. IAM doesn't scale to thousands of customers.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">للـ authentication، لا للـ billing/quotas.<\/span><span class=\"lang-en\">For auth, not billing/quotas.<\/span>", "", "<span class=\"lang-ar\">غير عملي لعملاء خارجيين بآلاف.<\/span><span class=\"lang-en\">Doesn't scale to external customers.<\/span>", "<span class=\"lang-ar\">حماية من الهجمات لا quota per-customer.<\/span><span class=\"lang-en\">Attack protection, not per-customer quota.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q4",
         type: "multi",
-        question: "<span class="lang-ar">أيّ الميزات التالية <strong>متاحة في REST API</strong> لكن <strong>غير متاحة في HTTP API</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which features are <strong>available in REST API</strong> but <strong>NOT in HTTP API</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ الميزات التالية <strong>متاحة في REST API<\/strong> لكن <strong>غير متاحة في HTTP API<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which features are <strong>available in REST API<\/strong> but <strong>NOT in HTTP API<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">API Keys & Usage Plans</span><span class="lang-en">API Keys & Usage Plans</span>",
-          "<span class="lang-ar">Mapping Templates (VTL)</span><span class="lang-en">Mapping Templates (VTL)</span>",
-          "<span class="lang-ar">Resource Policies</span><span class="lang-en">Resource Policies</span>",
-          "<span class="lang-ar">JWT/OIDC native authorizer</span><span class="lang-en">JWT/OIDC native authorizer</span>",
-          "<span class="lang-ar">Caching per stage</span><span class="lang-en">Caching per stage</span>",
-          "<span class="lang-ar">Lambda authorizer</span><span class="lang-en">Lambda authorizer</span>"
+          "<span class=\"lang-ar\">API Keys & Usage Plans<\/span><span class=\"lang-en\">API Keys & Usage Plans<\/span>",
+          "<span class=\"lang-ar\">Mapping Templates (VTL)<\/span><span class=\"lang-en\">Mapping Templates (VTL)<\/span>",
+          "<span class=\"lang-ar\">Resource Policies<\/span><span class=\"lang-en\">Resource Policies<\/span>",
+          "<span class=\"lang-ar\">JWT/OIDC native authorizer<\/span><span class=\"lang-en\">JWT/OIDC native authorizer<\/span>",
+          "<span class=\"lang-ar\">Caching per stage<\/span><span class=\"lang-en\">Caching per stage<\/span>",
+          "<span class=\"lang-ar\">Lambda authorizer<\/span><span class=\"lang-en\">Lambda authorizer<\/span>"
         ],
         correct: [0,1,2,4],
-        explanation: "<span class="lang-ar">REST API غني بالميزات: Usage Plans، mapping templates، Resource Policies، Caching — كلها <u>غير متوفّرة</u> في HTTP API. HTTP API بالمقابل يدعم <strong>JWT/OIDC</strong> مباشرة، وأرخص، وأسرع. Lambda authorizer متاح في الاثنين.</span><span class="lang-en">REST API has: Usage Plans, mapping templates, Resource Policies, Caching — all <u>missing</u> in HTTP API. HTTP API natively supports <strong>JWT/OIDC</strong>, is cheaper, and faster. Lambda authorizer works in both.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">REST API غني بالميزات: Usage Plans، mapping templates، Resource Policies، Caching — كلها <u>غير متوفّرة<\/u> في HTTP API. HTTP API بالمقابل يدعم <strong>JWT/OIDC<\/strong> مباشرة، وأرخص، وأسرع. Lambda authorizer متاح في الاثنين.<\/span><span class=\"lang-en\">REST API has: Usage Plans, mapping templates, Resource Policies, Caching — all <u>missing<\/u> in HTTP API. HTTP API natively supports <strong>JWT/OIDC<\/strong>, is cheaper, and faster. Lambda authorizer works in both.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">مطوّر نشر نسخة جديدة من Lambda عبر API Gateway ويريد إرسال ٥٪ فقط من الحركة للنسخة الجديدة. ما الخيار الأمثل؟</span><span class="lang-en">A dev deployed a new Lambda version via API Gateway and wants to send only 5% of traffic to the new version. Best option?</span>",
+        question: "<span class=\"lang-ar\">مطوّر نشر نسخة جديدة من Lambda عبر API Gateway ويريد إرسال ٥٪ فقط من الحركة للنسخة الجديدة. ما الخيار الأمثل؟<\/span><span class=\"lang-en\">A dev deployed a new Lambda version via API Gateway and wants to send only 5% of traffic to the new version. Best option?<\/span>",
         options: [
-          "<span class="lang-ar">نشر الـ API على stage مختلف وتقسيم DNS.</span><span class="lang-en">Deploy API to a different stage and split DNS.</span>",
-          "<span class="lang-ar">Canary Deployment في الـ stage نفسه بـ 5%.</span><span class="lang-en">Canary Deployment on the same stage at 5%.</span>",
-          "<span class="lang-ar">Auto Scaling Group مختلف.</span><span class="lang-en">Different Auto Scaling Group.</span>",
-          "<span class="lang-ar">CloudFront cache policy.</span><span class="lang-en">CloudFront cache policy.</span>"
+          "<span class=\"lang-ar\">نشر الـ API على stage مختلف وتقسيم DNS.<\/span><span class=\"lang-en\">Deploy API to a different stage and split DNS.<\/span>",
+          "<span class=\"lang-ar\">Canary Deployment في الـ stage نفسه بـ 5%.<\/span><span class=\"lang-en\">Canary Deployment on the same stage at 5%.<\/span>",
+          "<span class=\"lang-ar\">Auto Scaling Group مختلف.<\/span><span class=\"lang-en\">Different Auto Scaling Group.<\/span>",
+          "<span class=\"lang-ar\">CloudFront cache policy.<\/span><span class=\"lang-en\">CloudFront cache policy.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Canary Deployment</strong> مبنيّة في API Gateway لهذا الغرض: نفس الـ stage، نسبة مخصّصة للإصدار الجديد، مقاييس منفصلة. هذا هو blue/green deployment في serverless. تقسيم DNS ممكن لكنه أعقد. ASG لا علاقة له بـ Lambda.</span><span class="lang-en"><strong>Canary Deployment</strong> is built into API Gateway exactly for this: same stage, percentage to new version, separate metrics. It's the serverless blue/green. DNS splitting works but is more complex. ASG is irrelevant to Lambda.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">أعقد من اللازم.</span><span class=\"lang-en\">Overcomplicated.</span>", "", "<span class=\"lang-ar\">Lambda لا تُنشَر في ASG.</span><span class=\"lang-en\">Lambda isn't in ASG.</span>", "<span class=\"lang-ar\">CloudFront لا يعالج تقسيم النسخ.</span><span class=\"lang-en\">CloudFront doesn't split versions.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Canary Deployment<\/strong> مبنيّة في API Gateway لهذا الغرض: نفس الـ stage، نسبة مخصّصة للإصدار الجديد، مقاييس منفصلة. هذا هو blue/green deployment في serverless. تقسيم DNS ممكن لكنه أعقد. ASG لا علاقة له بـ Lambda.<\/span><span class=\"lang-en\"><strong>Canary Deployment<\/strong> is built into API Gateway exactly for this: same stage, percentage to new version, separate metrics. It's the serverless blue/green. DNS splitting works but is more complex. ASG is irrelevant to Lambda.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أعقد من اللازم.<\/span><span class=\"lang-en\">Overcomplicated.<\/span>", "", "<span class=\"lang-ar\">Lambda لا تُنشَر في ASG.<\/span><span class=\"lang-en\">Lambda isn't in ASG.<\/span>", "<span class=\"lang-ar\">CloudFront لا يعالج تقسيم النسخ.<\/span><span class=\"lang-en\">CloudFront doesn't split versions.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">API Gateway يُرجع <strong>502 Bad Gateway</strong> بشكل متقطع. ما السبب الأرجح؟</span><span class="lang-en">API Gateway returns <strong>502 Bad Gateway</strong> intermittently. Most likely cause?</span>",
+        question: "<span class=\"lang-ar\">API Gateway يُرجع <strong>502 Bad Gateway<\/strong> بشكل متقطع. ما السبب الأرجح؟<\/span><span class=\"lang-en\">API Gateway returns <strong>502 Bad Gateway<\/strong> intermittently. Most likely cause?<\/span>",
         options: [
-          "<span class="lang-ar">تجاوز throttling.</span><span class="lang-en">Throttle exceeded.</span>",
-          "<span class="lang-ar">Lambda ترجع شكل استجابة غير متوافق مع Lambda Proxy.</span><span class="lang-en">Lambda returns an incompatible shape for Lambda Proxy.</span>",
-          "<span class="lang-ar">Authorizer رفض الطلب.</span><span class="lang-en">Authorizer denied.</span>",
-          "<span class="lang-ar">CORS غير مُفعَّل.</span><span class="lang-en">CORS disabled.</span>"
+          "<span class=\"lang-ar\">تجاوز throttling.<\/span><span class=\"lang-en\">Throttle exceeded.<\/span>",
+          "<span class=\"lang-ar\">Lambda ترجع شكل استجابة غير متوافق مع Lambda Proxy.<\/span><span class=\"lang-en\">Lambda returns an incompatible shape for Lambda Proxy.<\/span>",
+          "<span class=\"lang-ar\">Authorizer رفض الطلب.<\/span><span class=\"lang-en\">Authorizer denied.<\/span>",
+          "<span class=\"lang-ar\">CORS غير مُفعَّل.<\/span><span class=\"lang-en\">CORS disabled.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>502</strong> في API Gateway مع Lambda Proxy يعني غالباً أن Lambda أرجعت <u>شكلاً</u> لا يفهمه API Gateway (مثلاً أرجعت object بدون <span class="font-mono">statusCode/body</span> كـ string). Throttling يُرجع 429. Authorizer يُرجع 403. CORS يُرجع خطأ في المتصفّح لا 502.</span><span class="lang-en"><strong>502</strong> in API Gateway with Lambda Proxy usually means Lambda returned a <u>shape</u> API Gateway can't parse (e.g. an object missing <span class="font-mono">statusCode</span> or non-string <span class="font-mono">body</span>). Throttling → 429. Authorizer deny → 403. CORS → browser error, not 502.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يُرجع 429.</span><span class=\"lang-en\">Returns 429.</span>", "", "<span class=\"lang-ar\">يُرجع 403.</span><span class=\"lang-en\">Returns 403.</span>", "<span class=\"lang-ar\">ليس 502.</span><span class=\"lang-en\">Not 502.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦ — Errors</span><span class=\"lang-en\">Section 6 — Errors</span>"
+        explanation: "<span class=\"lang-ar\"><strong>502<\/strong> في API Gateway مع Lambda Proxy يعني غالباً أن Lambda أرجعت <u>شكلاً<\/u> لا يفهمه API Gateway (مثلاً أرجعت object بدون <span class=\"font-mono\">statusCode/body<\/span> كـ string). Throttling يُرجع 429. Authorizer يُرجع 403. CORS يُرجع خطأ في المتصفّح لا 502.<\/span><span class=\"lang-en\"><strong>502<\/strong> in API Gateway with Lambda Proxy usually means Lambda returned a <u>shape<\/u> API Gateway can't parse (e.g. an object missing <span class=\"font-mono\">statusCode<\/span> or non-string <span class=\"font-mono\">body<\/span>). Throttling → 429. Authorizer deny → 403. CORS → browser error, not 502.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُرجع 429.<\/span><span class=\"lang-en\">Returns 429.<\/span>", "", "<span class=\"lang-ar\">يُرجع 403.<\/span><span class=\"lang-en\">Returns 403.<\/span>", "<span class=\"lang-ar\">ليس 502.<\/span><span class=\"lang-en\">Not 502.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — Errors<\/span><span class=\"lang-en\">Section 6 — Errors<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يحتاج أن ينشر نفس الـ API على ثلاث بيئات (dev/test/prod) مع Lambda aliases مختلفة لكل بيئة. كيف ينفّذ ذلك بدون تكرار الـ API؟</span><span class="lang-en">A developer deploys the same API across three envs (dev/test/prod) with different Lambda aliases per env. How to do this without duplicating the API?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يحتاج أن ينشر نفس الـ API على ثلاث بيئات (dev/test/prod) مع Lambda aliases مختلفة لكل بيئة. كيف ينفّذ ذلك بدون تكرار الـ API؟<\/span><span class=\"lang-en\">A developer deploys the same API across three envs (dev/test/prod) with different Lambda aliases per env. How to do this without duplicating the API?<\/span>",
         options: [
-          "<span class="lang-ar">ثلاث APIs منفصلة.</span><span class="lang-en">Three separate APIs.</span>",
-          "<span class="lang-ar">Stage Variables تحمل اسم alias، وتُستخدم في Lambda ARN.</span><span class="lang-en">Stage Variables holding the alias name, used in Lambda ARN.</span>",
-          "<span class="lang-ar">ثلاث حسابات AWS.</span><span class="lang-en">Three AWS accounts.</span>",
-          "<span class="lang-ar">تغيير منطقي في Lambda نفسها.</span><span class="lang-en">Logic change inside Lambda.</span>"
+          "<span class=\"lang-ar\">ثلاث APIs منفصلة.<\/span><span class=\"lang-en\">Three separate APIs.<\/span>",
+          "<span class=\"lang-ar\">Stage Variables تحمل اسم alias، وتُستخدم في Lambda ARN.<\/span><span class=\"lang-en\">Stage Variables holding the alias name, used in Lambda ARN.<\/span>",
+          "<span class=\"lang-ar\">ثلاث حسابات AWS.<\/span><span class=\"lang-en\">Three AWS accounts.<\/span>",
+          "<span class=\"lang-ar\">تغيير منطقي في Lambda نفسها.<\/span><span class=\"lang-en\">Logic change inside Lambda.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Stage Variables</strong> مُصمَّمة لهذا الغرض: كل stage يعرّف <span class="font-mono">lambdaAlias=prod</span>/<span class="font-mono">test</span>/<span class="font-mono">dev</span>، وفي الـ integration تستخدم <span class="font-mono">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. API واحد يخدم كل البيئات. ثلاث APIs تضاعف العمل والتكلفة.</span><span class="lang-en"><strong>Stage Variables</strong> are made for this: each stage defines <span class="font-mono">lambdaAlias=prod</span>/<span class="font-mono">test</span>/<span class="font-mono">dev</span>, and the integration uses <span class="font-mono">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. One API serves all envs. Three APIs doubles work and cost.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">تكرار غير ضروري.</span><span class=\"lang-en\">Unnecessary duplication.</span>", "", "<span class=\"lang-ar\">حلّ مبالغ به.</span><span class=\"lang-en\">Overkill.</span>", "<span class=\"lang-ar\">Lambda لا يجب أن تعرف البيئة.</span><span class=\"lang-en\">Lambda shouldn't know its env.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Stage Variables<\/strong> مُصمَّمة لهذا الغرض: كل stage يعرّف <span class=\"font-mono\">lambdaAlias=prod<\/span>/<span class=\"font-mono\">test<\/span>/<span class=\"font-mono\">dev<\/span>، وفي الـ integration تستخدم <span class=\"font-mono\">arn:...:function:myFn:${stageVariables.lambdaAlias}<\/span>. API واحد يخدم كل البيئات. ثلاث APIs تضاعف العمل والتكلفة.<\/span><span class=\"lang-en\"><strong>Stage Variables<\/strong> are made for this: each stage defines <span class=\"font-mono\">lambdaAlias=prod<\/span>/<span class=\"font-mono\">test<\/span>/<span class=\"font-mono\">dev<\/span>, and the integration uses <span class=\"font-mono\">arn:...:function:myFn:${stageVariables.lambdaAlias}<\/span>. One API serves all envs. Three APIs doubles work and cost.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكرار غير ضروري.<\/span><span class=\"lang-en\">Unnecessary duplication.<\/span>", "", "<span class=\"lang-ar\">حلّ مبالغ به.<\/span><span class=\"lang-en\">Overkill.<\/span>", "<span class=\"lang-ar\">Lambda لا يجب أن تعرف البيئة.<\/span><span class=\"lang-en\">Lambda shouldn't know its env.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">ما الـ maximum integration timeout في API Gateway؟</span><span class="lang-en">What's the maximum integration timeout in API Gateway?</span>",
+        question: "<span class=\"lang-ar\">ما الـ maximum integration timeout في API Gateway؟<\/span><span class=\"lang-en\">What's the maximum integration timeout in API Gateway?<\/span>",
         options: [
-          "<span class="lang-ar">١٥ ثانية</span><span class="lang-en">15 seconds</span>",
-          "<span class="lang-ar">٢٩ ثانية</span><span class="lang-en">29 seconds</span>",
-          "<span class="lang-ar">٥٩ ثانية</span><span class="lang-en">59 seconds</span>",
-          "<span class="lang-ar">٥ دقائق</span><span class="lang-en">5 minutes</span>"
+          "<span class=\"lang-ar\">١٥ ثانية<\/span><span class=\"lang-en\">15 seconds<\/span>",
+          "<span class=\"lang-ar\">٢٩ ثانية<\/span><span class=\"lang-en\">29 seconds<\/span>",
+          "<span class=\"lang-ar\">٥٩ ثانية<\/span><span class=\"lang-en\">59 seconds<\/span>",
+          "<span class=\"lang-ar\">٥ دقائق<\/span><span class=\"lang-en\">5 minutes<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>٢٩ ثانية</strong> هو الحدّ الأقصى. لو احتجت أطول: استخدم نمط async — API Gateway يُرجع 202 Accepted، يستدعي Lambda غير متزامنة أو Step Function، ويعيد للعميل polling URL أو webhook. الـ Lambda نفسها حدّها ١٥ دقيقة، لكن API Gateway يقفل عند ٢٩ ثانية.</span><span class="lang-en"><strong>29 seconds</strong> is the hard max. For longer: use async pattern — API Gateway returns 202 Accepted, invokes async Lambda or Step Function, returns a polling URL or webhook. Lambda itself allows 15 min, but API Gateway cuts at 29 s.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>٢٩ ثانية<\/strong> هو الحدّ الأقصى. لو احتجت أطول: استخدم نمط async — API Gateway يُرجع 202 Accepted، يستدعي Lambda غير متزامنة أو Step Function، ويعيد للعميل polling URL أو webhook. الـ Lambda نفسها حدّها ١٥ دقيقة، لكن API Gateway يقفل عند ٢٩ ثانية.<\/span><span class=\"lang-en\"><strong>29 seconds<\/strong> is the hard max. For longer: use async pattern — API Gateway returns 202 Accepted, invokes async Lambda or Step Function, returns a polling URL or webhook. Lambda itself allows 15 min, but API Gateway cuts at 29 s.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">تطبيق مالي على API Gateway يحتاج تمرير JWT من Okta للمصادقة (ليس Cognito). أيّ authorizer يستخدم؟</span><span class="lang-en">A fintech API needs to accept JWTs from Okta (not Cognito). Which authorizer?</span>",
+        question: "<span class=\"lang-ar\">تطبيق مالي على API Gateway يحتاج تمرير JWT من Okta للمصادقة (ليس Cognito). أيّ authorizer يستخدم؟<\/span><span class=\"lang-en\">A fintech API needs to accept JWTs from Okta (not Cognito). Which authorizer?<\/span>",
         options: [
-          "<span class="lang-ar">IAM Authorizer</span><span class="lang-en">IAM Authorizer</span>",
-          "<span class="lang-ar">Cognito User Pool Authorizer</span><span class="lang-en">Cognito User Pool Authorizer</span>",
-          "<span class="lang-ar">Lambda Authorizer (Token-based)</span><span class="lang-en">Lambda Authorizer (Token-based)</span>",
-          "<span class="lang-ar">Resource Policy</span><span class="lang-en">Resource Policy</span>"
+          "<span class=\"lang-ar\">IAM Authorizer<\/span><span class=\"lang-en\">IAM Authorizer<\/span>",
+          "<span class=\"lang-ar\">Cognito User Pool Authorizer<\/span><span class=\"lang-en\">Cognito User Pool Authorizer<\/span>",
+          "<span class=\"lang-ar\">Lambda Authorizer (Token-based)<\/span><span class=\"lang-en\">Lambda Authorizer (Token-based)<\/span>",
+          "<span class=\"lang-ar\">Resource Policy<\/span><span class=\"lang-en\">Resource Policy<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Lambda Authorizer</strong> (token-based) هو الخيار المرن لـ tokens طرف ثالث (Okta, Auth0, Keycloak...). Lambda تتحقّق من JWT وتُرجع IAM policy. Cognito authorizer يقبل Cognito tokens فقط. IAM للـ AWS credentials. Resource Policy لا تعمل authentication. ملاحظة: HTTP API يدعم JWT/OIDC مباشرة (قد يكون بديلاً).</span><span class="lang-en"><strong>Lambda Authorizer</strong> (token-based) is the flexible choice for third-party tokens (Okta, Auth0, Keycloak...). Lambda validates the JWT and returns an IAM policy. Cognito authorizer accepts only Cognito tokens. IAM is for AWS credentials. Resource Policy doesn't auth. Note: HTTP API supports JWT/OIDC natively (possible alternative).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لـ AWS credentials فقط.</span><span class=\"lang-en\">AWS credentials only.</span>", "<span class=\"lang-ar\">Cognito فقط.</span><span class=\"lang-en\">Cognito only.</span>", "", "<span class=\"lang-ar\">لا يعمل authentication.</span><span class=\"lang-en\">Doesn't do authentication.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Lambda Authorizer<\/strong> (token-based) هو الخيار المرن لـ tokens طرف ثالث (Okta, Auth0, Keycloak...). Lambda تتحقّق من JWT وتُرجع IAM policy. Cognito authorizer يقبل Cognito tokens فقط. IAM للـ AWS credentials. Resource Policy لا تعمل authentication. ملاحظة: HTTP API يدعم JWT/OIDC مباشرة (قد يكون بديلاً).<\/span><span class=\"lang-en\"><strong>Lambda Authorizer<\/strong> (token-based) is the flexible choice for third-party tokens (Okta, Auth0, Keycloak...). Lambda validates the JWT and returns an IAM policy. Cognito authorizer accepts only Cognito tokens. IAM is for AWS credentials. Resource Policy doesn't auth. Note: HTTP API supports JWT/OIDC natively (possible alternative).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لـ AWS credentials فقط.<\/span><span class=\"lang-en\">AWS credentials only.<\/span>", "<span class=\"lang-ar\">Cognito فقط.<\/span><span class=\"lang-en\">Cognito only.<\/span>", "", "<span class=\"lang-ar\">لا يعمل authentication.<\/span><span class=\"lang-en\">Doesn't do authentication.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">API Gateway REST API عنده Caching مُفعَّل. عميل يريد تجاوز الـ cache مؤقّتاً لحالة اختبار واحدة. ما الحلّ؟</span><span class="lang-en">REST API has caching enabled. A client needs to temporarily bypass cache for one test. How?</span>",
+        question: "<span class=\"lang-ar\">API Gateway REST API عنده Caching مُفعَّل. عميل يريد تجاوز الـ cache مؤقّتاً لحالة اختبار واحدة. ما الحلّ؟<\/span><span class=\"lang-en\">REST API has caching enabled. A client needs to temporarily bypass cache for one test. How?<\/span>",
         options: [
-          "<span class="lang-ar">إيقاف الـ cache في كل الـ stage.</span><span class="lang-en">Disable cache for the whole stage.</span>",
-          "<span class="lang-ar">إرسال header <span class="font-mono">Cache-Control: max-age=0</span> (مع IAM authorization للـ InvalidateCache).</span><span class="lang-en">Send header <span class="font-mono">Cache-Control: max-age=0</span> (with IAM authorization for InvalidateCache).</span>",
-          "<span class="lang-ar">إعادة نشر الـ API.</span><span class="lang-en">Redeploy the API.</span>",
-          "<span class="lang-ar">إنشاء stage جديد.</span><span class="lang-en">Create a new stage.</span>"
+          "<span class=\"lang-ar\">إيقاف الـ cache في كل الـ stage.<\/span><span class=\"lang-en\">Disable cache for the whole stage.<\/span>",
+          "<span class=\"lang-ar\">إرسال header <span class=\"font-mono\">Cache-Control: max-age=0<\/span> (مع IAM authorization للـ InvalidateCache).<\/span><span class=\"lang-en\">Send header <span class=\"font-mono\">Cache-Control: max-age=0<\/span> (with IAM authorization for InvalidateCache).<\/span>",
+          "<span class=\"lang-ar\">إعادة نشر الـ API.<\/span><span class=\"lang-en\">Redeploy the API.<\/span>",
+          "<span class=\"lang-ar\">إنشاء stage جديد.<\/span><span class=\"lang-en\">Create a new stage.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">يمكن للعميل تمرير <span class="font-mono">Cache-Control: max-age=0</span> header لطلب تجاوز الـ cache، بشرط أن يكون لديه <span class="font-mono">execute-api:InvalidateCache</span> IAM permission (وإلّا، بدون تقييد، أيّ عميل يستطيع إبطال الـ cache وهذا خطر). إيقاف الـ cache عام يضرّ بالأداء.</span><span class="lang-en">Client sends <span class="font-mono">Cache-Control: max-age=0</span> header to bypass, provided they have <span class="font-mono">execute-api:InvalidateCache</span> IAM permission (otherwise any client could invalidate — dangerous). Disabling cache broadly hurts performance.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مفرط — يضرّ كل العملاء.</span><span class=\"lang-en\">Overkill — hurts all clients.</span>", "", "<span class=\"lang-ar\">لا حاجة.</span><span class=\"lang-en\">Unnecessary.</span>", "<span class=\"lang-ar\">مبالغ فيه.</span><span class=\"lang-en\">Overkill.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">يمكن للعميل تمرير <span class=\"font-mono\">Cache-Control: max-age=0<\/span> header لطلب تجاوز الـ cache، بشرط أن يكون لديه <span class=\"font-mono\">execute-api:InvalidateCache<\/span> IAM permission (وإلّا، بدون تقييد، أيّ عميل يستطيع إبطال الـ cache وهذا خطر). إيقاف الـ cache عام يضرّ بالأداء.<\/span><span class=\"lang-en\">Client sends <span class=\"font-mono\">Cache-Control: max-age=0<\/span> header to bypass, provided they have <span class=\"font-mono\">execute-api:InvalidateCache<\/span> IAM permission (otherwise any client could invalidate — dangerous). Disabling cache broadly hurts performance.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مفرط — يضرّ كل العملاء.<\/span><span class=\"lang-en\">Overkill — hurts all clients.<\/span>", "", "<span class=\"lang-ar\">لا حاجة.<\/span><span class=\"lang-en\">Unnecessary.<\/span>", "<span class=\"lang-ar\">مبالغ فيه.<\/span><span class=\"lang-en\">Overkill.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">شركة تبني chat application فوري تحتاج اتّصال ثنائي مستمرّ بين الخادم والعملاء. ما نوع API المناسب؟</span><span class="lang-en">A real-time chat app needs persistent two-way connections between server and clients. Which API type?</span>",
+        question: "<span class=\"lang-ar\">شركة تبني chat application فوري تحتاج اتّصال ثنائي مستمرّ بين الخادم والعملاء. ما نوع API المناسب؟<\/span><span class=\"lang-en\">A real-time chat app needs persistent two-way connections between server and clients. Which API type?<\/span>",
         options: [
-          "<span class="lang-ar">REST API</span><span class="lang-en">REST API</span>",
-          "<span class="lang-ar">HTTP API</span><span class="lang-en">HTTP API</span>",
-          "<span class="lang-ar">WebSocket API</span><span class="lang-en">WebSocket API</span>",
-          "<span class="lang-ar">GraphQL API</span><span class="lang-en">GraphQL API</span>"
+          "<span class=\"lang-ar\">REST API<\/span><span class=\"lang-en\">REST API<\/span>",
+          "<span class=\"lang-ar\">HTTP API<\/span><span class=\"lang-en\">HTTP API<\/span>",
+          "<span class=\"lang-ar\">WebSocket API<\/span><span class=\"lang-en\">WebSocket API<\/span>",
+          "<span class=\"lang-ar\">GraphQL API<\/span><span class=\"lang-en\">GraphQL API<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>WebSocket API</strong> هو الوحيد الذي يدعم الاتّصال ثنائي الاتّجاه المستمرّ (stateful). REST و HTTP طلب-استجابة فقط. الأنماط النموذجية: <span class="font-mono">$connect</span>, <span class="font-mono">$disconnect</span>, <span class="font-mono">$default</span> routes، وتخزين connectionIds في DynamoDB لبثّ الرسائل.</span><span class="lang-en"><strong>WebSocket API</strong> is the only one supporting persistent bidirectional (stateful) connections. REST and HTTP are request/response. Typical: <span class="font-mono">$connect</span>, <span class="font-mono">$disconnect</span>, <span class="font-mono">$default</span> routes; store connectionIds in DynamoDB to push messages.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">طلب-استجابة فقط.</span><span class=\"lang-en\">Request/response only.</span>", "<span class=\"lang-ar\">طلب-استجابة فقط.</span><span class=\"lang-en\">Request/response only.</span>", "", "<span class=\"lang-ar\">AppSync لـ GraphQL لكن السؤال عن API Gateway.</span><span class=\"lang-en\">AppSync is for GraphQL, but question is about API Gateway.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>WebSocket API<\/strong> هو الوحيد الذي يدعم الاتّصال ثنائي الاتّجاه المستمرّ (stateful). REST و HTTP طلب-استجابة فقط. الأنماط النموذجية: <span class=\"font-mono\">$connect<\/span>, <span class=\"font-mono\">$disconnect<\/span>, <span class=\"font-mono\">$default<\/span> routes، وتخزين connectionIds في DynamoDB لبثّ الرسائل.<\/span><span class=\"lang-en\"><strong>WebSocket API<\/strong> is the only one supporting persistent bidirectional (stateful) connections. REST and HTTP are request/response. Typical: <span class=\"font-mono\">$connect<\/span>, <span class=\"font-mono\">$disconnect<\/span>, <span class=\"font-mono\">$default<\/span> routes; store connectionIds in DynamoDB to push messages.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">طلب-استجابة فقط.<\/span><span class=\"lang-en\">Request/response only.<\/span>", "<span class=\"lang-ar\">طلب-استجابة فقط.<\/span><span class=\"lang-en\">Request/response only.<\/span>", "", "<span class=\"lang-ar\">AppSync لـ GraphQL لكن السؤال عن API Gateway.<\/span><span class=\"lang-en\">AppSync is for GraphQL, but question is about API Gateway.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد أن يمنع كل الطلبات غير المطابقة لـ schema معيّن من الوصول للـ backend (لتقليل التكلفة والـ Lambda invocations). ما الحلّ في API Gateway؟</span><span class="lang-en">A dev wants to block all non-matching-schema requests from reaching the backend (saving cost and Lambda invocations). API Gateway solution?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد أن يمنع كل الطلبات غير المطابقة لـ schema معيّن من الوصول للـ backend (لتقليل التكلفة والـ Lambda invocations). ما الحلّ في API Gateway؟<\/span><span class=\"lang-en\">A dev wants to block all non-matching-schema requests from reaching the backend (saving cost and Lambda invocations). API Gateway solution?<\/span>",
         options: [
-          "<span class="lang-ar">Lambda Authorizer يتحقّق من الـ schema.</span><span class="lang-en">Lambda Authorizer validating schema.</span>",
-          "<span class="lang-ar">Request Validation مبنيّ على JSON Schema في method request.</span><span class="lang-en">Built-in Request Validation with JSON Schema on the method.</span>",
-          "<span class="lang-ar">WAF مع custom rule.</span><span class="lang-en">WAF with a custom rule.</span>",
-          "<span class="lang-ar">CORS preflight.</span><span class="lang-en">CORS preflight.</span>"
+          "<span class=\"lang-ar\">Lambda Authorizer يتحقّق من الـ schema.<\/span><span class=\"lang-en\">Lambda Authorizer validating schema.<\/span>",
+          "<span class=\"lang-ar\">Request Validation مبنيّ على JSON Schema في method request.<\/span><span class=\"lang-en\">Built-in Request Validation with JSON Schema on the method.<\/span>",
+          "<span class=\"lang-ar\">WAF مع custom rule.<\/span><span class=\"lang-en\">WAF with a custom rule.<\/span>",
+          "<span class=\"lang-ar\">CORS preflight.<\/span><span class=\"lang-en\">CORS preflight.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Request Validation</strong> مبني في REST API: اعرّف JSON Schema Model ثم فعّله على الـ method (<span class="font-mono">validateRequestBody, validateRequestParameters</span>). أيّ طلب غير مطابق يُرفض فوراً بـ 400 <u>قبل</u> الوصول للـ backend. Lambda authorizer يكلّف Lambda invocations إضافية. WAF لا يُلمّ بـ JSON schemas.</span><span class="lang-en"><strong>Request Validation</strong> is built into REST API: define a JSON Schema Model and enable it on the method (<span class="font-mono">validateRequestBody, validateRequestParameters</span>). Non-matching requests get 400 <u>before</u> hitting backend. Lambda authorizer adds extra Lambda calls. WAF doesn't understand JSON schemas.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يكلف Lambda invocations إضافية.</span><span class=\"lang-en\">Extra Lambda invocations.</span>", "", "<span class=\"lang-ar\">لا يتعامل مع JSON schemas.</span><span class=\"lang-en\">Doesn't handle JSON schemas.</span>", "<span class=\"lang-ar\">CORS لا يُتحقّق من الـ body.</span><span class=\"lang-en\">CORS doesn't validate body.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Request Validation<\/strong> مبني في REST API: اعرّف JSON Schema Model ثم فعّله على الـ method (<span class=\"font-mono\">validateRequestBody, validateRequestParameters<\/span>). أيّ طلب غير مطابق يُرفض فوراً بـ 400 <u>قبل<\/u> الوصول للـ backend. Lambda authorizer يكلّف Lambda invocations إضافية. WAF لا يُلمّ بـ JSON schemas.<\/span><span class=\"lang-en\"><strong>Request Validation<\/strong> is built into REST API: define a JSON Schema Model and enable it on the method (<span class=\"font-mono\">validateRequestBody, validateRequestParameters<\/span>). Non-matching requests get 400 <u>before<\/u> hitting backend. Lambda authorizer adds extra Lambda calls. WAF doesn't understand JSON schemas.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يكلف Lambda invocations إضافية.<\/span><span class=\"lang-en\">Extra Lambda invocations.<\/span>", "", "<span class=\"lang-ar\">لا يتعامل مع JSON schemas.<\/span><span class=\"lang-en\">Doesn't handle JSON schemas.<\/span>", "<span class=\"lang-ar\">CORS لا يُتحقّق من الـ body.<\/span><span class=\"lang-en\">CORS doesn't validate body.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">أيّ الـ CloudWatch metric أكثر فائدة لمعرفة <u>كم يستغرق الـ backend</u> (Lambda مثلاً) في الردّ على API Gateway؟</span><span class="lang-en">Which CloudWatch metric tells you how long the <u>backend</u> (e.g. Lambda) takes to respond to API Gateway?</span>",
+        question: "<span class=\"lang-ar\">أيّ الـ CloudWatch metric أكثر فائدة لمعرفة <u>كم يستغرق الـ backend<\/u> (Lambda مثلاً) في الردّ على API Gateway؟<\/span><span class=\"lang-en\">Which CloudWatch metric tells you how long the <u>backend<\/u> (e.g. Lambda) takes to respond to API Gateway?<\/span>",
         options: [
-          "<span class="lang-ar"><span class="font-mono">Latency</span></span><span class="lang-en"><span class="font-mono">Latency</span></span>",
-          "<span class="lang-ar"><span class="font-mono">IntegrationLatency</span></span><span class="lang-en"><span class="font-mono">IntegrationLatency</span></span>",
-          "<span class="lang-ar"><span class="font-mono">Count</span></span><span class="lang-en"><span class="font-mono">Count</span></span>",
-          "<span class="lang-ar"><span class="font-mono">CacheHitCount</span></span><span class="lang-en"><span class="font-mono">CacheHitCount</span></span>"
+          "<span class=\"lang-ar\"><span class=\"font-mono\">Latency<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">Latency<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">IntegrationLatency<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">IntegrationLatency<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">Count<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">Count<\/span><\/span>",
+          "<span class=\"lang-ar\"><span class=\"font-mono\">CacheHitCount<\/span><\/span><span class=\"lang-en\"><span class=\"font-mono\">CacheHitCount<\/span><\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>IntegrationLatency</strong> = الوقت بين إرسال API Gateway الطلب للـ backend واستلام الرد. <strong>Latency</strong> = الوقت الكلّي (من استلام طلب العميل حتى إرجاع الاستجابة) — يشمل overhead الـ API Gateway + IntegrationLatency. الفرق بينهما يكشف overhead API Gateway. Count = عدد الطلبات.</span><span class="lang-en"><strong>IntegrationLatency</strong> = time from API Gateway sending request to backend until response received. <strong>Latency</strong> = total time (client request → client response) — includes API Gateway overhead + IntegrationLatency. Their difference reveals API Gateway overhead. Count = request count.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يشمل overhead API Gateway.</span><span class=\"lang-en\">Includes API Gateway overhead.</span>", "", "<span class=\"lang-ar\">عدد الطلبات فقط.</span><span class=\"lang-en\">Only request count.</span>", "<span class=\"lang-ar\">كفاءة الـ cache.</span><span class=\"lang-en\">Cache efficiency.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>IntegrationLatency<\/strong> = الوقت بين إرسال API Gateway الطلب للـ backend واستلام الرد. <strong>Latency<\/strong> = الوقت الكلّي (من استلام طلب العميل حتى إرجاع الاستجابة) — يشمل overhead الـ API Gateway + IntegrationLatency. الفرق بينهما يكشف overhead API Gateway. Count = عدد الطلبات.<\/span><span class=\"lang-en\"><strong>IntegrationLatency<\/strong> = time from API Gateway sending request to backend until response received. <strong>Latency<\/strong> = total time (client request → client response) — includes API Gateway overhead + IntegrationLatency. Their difference reveals API Gateway overhead. Count = request count.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يشمل overhead API Gateway.<\/span><span class=\"lang-en\">Includes API Gateway overhead.<\/span>", "", "<span class=\"lang-ar\">عدد الطلبات فقط.<\/span><span class=\"lang-en\">Only request count.<\/span>", "<span class=\"lang-ar\">كفاءة الـ cache.<\/span><span class=\"lang-en\">Cache efficiency.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">مؤسّسة تريد السماح للحساب B بالوصول لـ API Gateway في الحساب A (cross-account). ما الحلّ الأمثل في REST API؟</span><span class="lang-en">Enterprise wants Account B to call an API Gateway in Account A (cross-account). Best REST API approach?</span>",
+        question: "<span class=\"lang-ar\">مؤسّسة تريد السماح للحساب B بالوصول لـ API Gateway في الحساب A (cross-account). ما الحلّ الأمثل في REST API؟<\/span><span class=\"lang-en\">Enterprise wants Account B to call an API Gateway in Account A (cross-account). Best REST API approach?<\/span>",
         options: [
-          "<span class="lang-ar">Cognito User Pool يشمل الحسابين.</span><span class="lang-en">Cognito User Pool covering both accounts.</span>",
-          "<span class="lang-ar">Resource Policy على API + IAM Role في Account B.</span><span class="lang-en">Resource Policy on the API + IAM Role in Account B.</span>",
-          "<span class="lang-ar">فتح API للعامّة.</span><span class="lang-en">Make API public.</span>",
-          "<span class="lang-ar">WAF rule.</span><span class="lang-en">WAF rule.</span>"
+          "<span class=\"lang-ar\">Cognito User Pool يشمل الحسابين.<\/span><span class=\"lang-en\">Cognito User Pool covering both accounts.<\/span>",
+          "<span class=\"lang-ar\">Resource Policy على API + IAM Role في Account B.<\/span><span class=\"lang-en\">Resource Policy on the API + IAM Role in Account B.<\/span>",
+          "<span class=\"lang-ar\">فتح API للعامّة.<\/span><span class=\"lang-en\">Make API public.<\/span>",
+          "<span class=\"lang-ar\">WAF rule.<\/span><span class=\"lang-en\">WAF rule.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Resource Policy</strong> على الـ API تحدّد من يستطيع استدعاءه (principals خارجيون)، وتُدمج مع IAM Role في الحساب B يحمل صلاحية <span class="font-mono">execute-api:Invoke</span>. هذا النمط المعياري لـ cross-account. Resource Policy ميزة حصرية لـ REST API (ليست في HTTP API).</span><span class="lang-en"><strong>Resource Policy</strong> on the API defines who can invoke it (external principals), combined with an IAM Role in Account B holding <span class="font-mono">execute-api:Invoke</span>. Canonical cross-account pattern. Resource Policy is REST-only (not HTTP API).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Cognito للمستخدمين لا لحسابات AWS.</span><span class=\"lang-en\">Cognito is for users, not AWS accounts.</span>", "", "<span class=\"lang-ar\">خطر أمني.</span><span class=\"lang-en\">Security risk.</span>", "<span class=\"lang-ar\">لا يُدير الصلاحيات.</span><span class=\"lang-en\">Doesn't manage permissions.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Resource Policy<\/strong> على الـ API تحدّد من يستطيع استدعاءه (principals خارجيون)، وتُدمج مع IAM Role في الحساب B يحمل صلاحية <span class=\"font-mono\">execute-api:Invoke<\/span>. هذا النمط المعياري لـ cross-account. Resource Policy ميزة حصرية لـ REST API (ليست في HTTP API).<\/span><span class=\"lang-en\"><strong>Resource Policy<\/strong> on the API defines who can invoke it (external principals), combined with an IAM Role in Account B holding <span class=\"font-mono\">execute-api:Invoke<\/span>. Canonical cross-account pattern. Resource Policy is REST-only (not HTTP API).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Cognito للمستخدمين لا لحسابات AWS.<\/span><span class=\"lang-en\">Cognito is for users, not AWS accounts.<\/span>", "", "<span class=\"lang-ar\">خطر أمني.<\/span><span class=\"lang-en\">Security risk.<\/span>", "<span class=\"lang-ar\">لا يُدير الصلاحيات.<\/span><span class=\"lang-en\">Doesn't manage permissions.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تعريف REST API بالكامل كـ infrastructure-as-code قابل للنقل بين البيئات. ما الأداة المناسبة من API Gateway نفسها؟</span><span class="lang-en">A developer wants to define a whole REST API as infrastructure-as-code, portable between envs. Which built-in API Gateway tool?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تعريف REST API بالكامل كـ infrastructure-as-code قابل للنقل بين البيئات. ما الأداة المناسبة من API Gateway نفسها؟<\/span><span class=\"lang-en\">A developer wants to define a whole REST API as infrastructure-as-code, portable between envs. Which built-in API Gateway tool?<\/span>",
         options: [
-          "<span class="lang-ar">YAML عشوائي.</span><span class="lang-en">Arbitrary YAML.</span>",
-          "<span class="lang-ar">OpenAPI 3.0 (Swagger) import/export مع extensions <span class="font-mono">x-amazon-apigateway-*</span>.</span><span class="lang-en">OpenAPI 3.0 (Swagger) import/export with <span class="font-mono">x-amazon-apigateway-*</span> extensions.</span>",
-          "<span class="lang-ar">CloudFormation فقط.</span><span class="lang-en">CloudFormation only.</span>",
-          "<span class="lang-ar">Lambda layers.</span><span class="lang-en">Lambda layers.</span>"
+          "<span class=\"lang-ar\">YAML عشوائي.<\/span><span class=\"lang-en\">Arbitrary YAML.<\/span>",
+          "<span class=\"lang-ar\">OpenAPI 3.0 (Swagger) import/export مع extensions <span class=\"font-mono\">x-amazon-apigateway-*<\/span>.<\/span><span class=\"lang-en\">OpenAPI 3.0 (Swagger) import/export with <span class=\"font-mono\">x-amazon-apigateway-*<\/span> extensions.<\/span>",
+          "<span class=\"lang-ar\">CloudFormation فقط.<\/span><span class=\"lang-en\">CloudFormation only.<\/span>",
+          "<span class=\"lang-ar\">Lambda layers.<\/span><span class=\"lang-en\">Lambda layers.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>OpenAPI 3.0</strong> هو المعيار الصناعي، و API Gateway يدعم الاستيراد/التصدير مباشرة مع <span class="font-mono">x-amazon-apigateway-integration</span> و <span class="font-mono">x-amazon-apigateway-request-validator</span> لإعدادات AWS. يوفّر ملف واحد للـ API كاملاً ينقَل بين البيئات. CloudFormation أوسع (يشمل API Gateway) لكن OpenAPI أكثر تخصّصاً للـ API.</span><span class="lang-en"><strong>OpenAPI 3.0</strong> is the industry standard, and API Gateway imports/exports natively with <span class="font-mono">x-amazon-apigateway-integration</span> and <span class="font-mono">x-amazon-apigateway-request-validator</span> extensions for AWS-specific config. One file defines the whole API, portable across envs. CloudFormation is broader (includes API Gateway), but OpenAPI is more API-specific.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>OpenAPI 3.0<\/strong> هو المعيار الصناعي، و API Gateway يدعم الاستيراد/التصدير مباشرة مع <span class=\"font-mono\">x-amazon-apigateway-integration<\/span> و <span class=\"font-mono\">x-amazon-apigateway-request-validator<\/span> لإعدادات AWS. يوفّر ملف واحد للـ API كاملاً ينقَل بين البيئات. CloudFormation أوسع (يشمل API Gateway) لكن OpenAPI أكثر تخصّصاً للـ API.<\/span><span class=\"lang-en\"><strong>OpenAPI 3.0<\/strong> is the industry standard, and API Gateway imports/exports natively with <span class=\"font-mono\">x-amazon-apigateway-integration<\/span> and <span class=\"font-mono\">x-amazon-apigateway-request-validator<\/span> extensions for AWS-specific config. One file defines the whole API, portable across envs. CloudFormation is broader (includes API Gateway), but OpenAPI is more API-specific.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       }
     ];
 

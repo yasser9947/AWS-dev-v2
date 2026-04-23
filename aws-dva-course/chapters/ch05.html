@@ -926,182 +926,182 @@ aws ec2 authorize-security-group-ingress \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Acme reporting يسبّب بطءاً على قاعدة الإنتاج (RDS PostgreSQL Multi-AZ). أفضل حلّ؟</span><span class="lang-en">Acme's reporting app slows down production (RDS PostgreSQL Multi-AZ). Best fix?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Acme reporting يسبّب بطءاً على قاعدة الإنتاج (RDS PostgreSQL Multi-AZ). أفضل حلّ؟<\/span><span class=\"lang-en\">Acme's reporting app slows down production (RDS PostgreSQL Multi-AZ). Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">ترقية instance type لقاعدة الإنتاج.</span><span class="lang-en">Upgrade the prod instance type.</span>",
-          "<span class="lang-ar">إنشاء Read Replica وتوجيه reporting إليه.</span><span class="lang-en">Create a Read Replica and route reporting to it.</span>",
-          "<span class="lang-ar">تفعيل Multi-AZ مرّة أخرى.</span><span class="lang-en">Enable Multi-AZ again.</span>",
-          "<span class="lang-ar">تشغيل RDS Proxy.</span><span class="lang-en">Turn on RDS Proxy.</span>"
+          "<span class=\"lang-ar\">ترقية instance type لقاعدة الإنتاج.<\/span><span class=\"lang-en\">Upgrade the prod instance type.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Read Replica وتوجيه reporting إليه.<\/span><span class=\"lang-en\">Create a Read Replica and route reporting to it.<\/span>",
+          "<span class=\"lang-ar\">تفعيل Multi-AZ مرّة أخرى.<\/span><span class=\"lang-en\">Enable Multi-AZ again.<\/span>",
+          "<span class=\"lang-ar\">تشغيل RDS Proxy.<\/span><span class=\"lang-en\">Turn on RDS Proxy.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الحالة النموذجيّة لـ <strong>Read Replica</strong>: أحمال قراءة ثقيلة (reporting, analytics) تزاحِم الإنتاج. الـ replica يعزلها. Multi-AZ لا يساعد في القراءة — الـ standby غير قابل للاستعلام. الترقية حلّ عموديّ مكلف.</span><span class="lang-en">Canonical <strong>Read Replica</strong> case: heavy read workloads (reporting, analytics) crowding prod. Replica isolates them. Multi-AZ doesn't help reads — the standby isn't queryable. Vertical upgrade is costly.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مكلف ولا يعالج الازدحام جذرياً.</span><span class=\"lang-en\">Costly, doesn't address contention.</span>", "", "<span class=\"lang-ar\">Multi-AZ لا يخدم القراءة.</span><span class=\"lang-en\">Multi-AZ doesn't serve reads.</span>", "<span class=\"lang-ar\">RDS Proxy لاتّصالات، لا لتقسيم الحِمل.</span><span class=\"lang-en\">RDS Proxy is for connections, not load splitting.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">الحالة النموذجيّة لـ <strong>Read Replica<\/strong>: أحمال قراءة ثقيلة (reporting, analytics) تزاحِم الإنتاج. الـ replica يعزلها. Multi-AZ لا يساعد في القراءة — الـ standby غير قابل للاستعلام. الترقية حلّ عموديّ مكلف.<\/span><span class=\"lang-en\">Canonical <strong>Read Replica<\/strong> case: heavy read workloads (reporting, analytics) crowding prod. Replica isolates them. Multi-AZ doesn't help reads — the standby isn't queryable. Vertical upgrade is costly.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف ولا يعالج الازدحام جذرياً.<\/span><span class=\"lang-en\">Costly, doesn't address contention.<\/span>", "", "<span class=\"lang-ar\">Multi-AZ لا يخدم القراءة.<\/span><span class=\"lang-en\">Multi-AZ doesn't serve reads.<\/span>", "<span class=\"lang-ar\">RDS Proxy لاتّصالات، لا لتقسيم الحِمل.<\/span><span class=\"lang-en\">RDS Proxy is for connections, not load splitting.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">Acme تحتاج DR تلقائيّ لقاعدة RDS MySQL ضدّ فشل AZ كامل. ما الحلّ؟</span><span class="lang-en">Acme needs automatic DR for RDS MySQL against a full AZ outage. Solution?</span>",
+        question: "<span class=\"lang-ar\">Acme تحتاج DR تلقائيّ لقاعدة RDS MySQL ضدّ فشل AZ كامل. ما الحلّ؟<\/span><span class=\"lang-en\">Acme needs automatic DR for RDS MySQL against a full AZ outage. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">Read Replicas في AZ ثانية.</span><span class="lang-en">Read Replicas in a 2nd AZ.</span>",
-          "<span class="lang-ar">Multi-AZ Deployment.</span><span class="lang-en">Multi-AZ Deployment.</span>",
-          "<span class="lang-ar">Cross-Region replication.</span><span class="lang-en">Cross-Region replication.</span>",
-          "<span class="lang-ar">نسخ احتياطيّة يدويّة يوميّة.</span><span class="lang-en">Manual daily backups.</span>"
+          "<span class=\"lang-ar\">Read Replicas في AZ ثانية.<\/span><span class=\"lang-en\">Read Replicas in a 2nd AZ.<\/span>",
+          "<span class=\"lang-ar\">Multi-AZ Deployment.<\/span><span class=\"lang-en\">Multi-AZ Deployment.<\/span>",
+          "<span class=\"lang-ar\">Cross-Region replication.<\/span><span class=\"lang-en\">Cross-Region replication.<\/span>",
+          "<span class=\"lang-ar\">نسخ احتياطيّة يدويّة يوميّة.<\/span><span class=\"lang-en\">Manual daily backups.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Multi-AZ</strong> هو الحلّ لفشل AZ: نسخ متزامن إلى standby في AZ أخرى، failover تلقائيّ خلال دقائق، نفس DNS endpoint. Read Replicas أساسيّة للقراءة لا للـ DR (تكرار async). Cross-Region لفشل Region كامل (أسئلة أخرى).</span><span class="lang-en"><strong>Multi-AZ</strong> is the AZ-failure fix: sync replica to standby in another AZ, auto-failover in minutes, same DNS. Read Replicas are for reads (async). Cross-Region is for full-Region failure (different question).</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">تكرار async، ليست DR حقيقيّة.</span><span class=\"lang-en\">Async replication, not true DR.</span>", "", "<span class=\"lang-ar\">لكارثة Region كاملة — ليست السؤال.</span><span class=\"lang-en\">For full-Region disaster — not the question.</span>", "<span class=\"lang-ar\">غير تلقائيّ، يفقد البيانات.</span><span class=\"lang-en\">Manual, loses data.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Multi-AZ<\/strong> هو الحلّ لفشل AZ: نسخ متزامن إلى standby في AZ أخرى، failover تلقائيّ خلال دقائق، نفس DNS endpoint. Read Replicas أساسيّة للقراءة لا للـ DR (تكرار async). Cross-Region لفشل Region كامل (أسئلة أخرى).<\/span><span class=\"lang-en\"><strong>Multi-AZ<\/strong> is the AZ-failure fix: sync replica to standby in another AZ, auto-failover in minutes, same DNS. Read Replicas are for reads (async). Cross-Region is for full-Region failure (different question).<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكرار async، ليست DR حقيقيّة.<\/span><span class=\"lang-en\">Async replication, not true DR.<\/span>", "", "<span class=\"lang-ar\">لكارثة Region كاملة — ليست السؤال.<\/span><span class=\"lang-en\">For full-Region disaster — not the question.<\/span>", "<span class=\"lang-ar\">غير تلقائيّ، يفقد البيانات.<\/span><span class=\"lang-en\">Manual, loses data.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Lambda يتّصل بـ RDS PostgreSQL. مع ارتفاع معدّل الـ invocations، قاعدة البيانات تشكو من "too many connections". ما الحلّ الأمثل؟</span><span class="lang-en">A Lambda connects to RDS PostgreSQL. As invocations rise, the DB reports "too many connections". Best fix?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Lambda يتّصل بـ RDS PostgreSQL. مع ارتفاع معدّل الـ invocations، قاعدة البيانات تشكو من \"too many connections\". ما الحلّ الأمثل؟<\/span><span class=\"lang-en\">A Lambda connects to RDS PostgreSQL. As invocations rise, the DB reports \"too many connections\". Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">ترقية حجم قاعدة البيانات.</span><span class="lang-en">Upgrade DB size.</span>",
-          "<span class="lang-ar">تفعيل <strong>RDS Proxy</strong> أمام RDS — يجمع الاتّصالات ويشاركها بين الـ invocations.</span><span class="lang-en">Enable <strong>RDS Proxy</strong> in front of RDS — pools and shares connections across invocations.</span>",
-          "<span class="lang-ar">إنشاء Read Replicas.</span><span class="lang-en">Add Read Replicas.</span>",
-          "<span class="lang-ar">إعادة كتابة Lambda بـ Go.</span><span class="lang-en">Rewrite Lambda in Go.</span>"
+          "<span class=\"lang-ar\">ترقية حجم قاعدة البيانات.<\/span><span class=\"lang-en\">Upgrade DB size.<\/span>",
+          "<span class=\"lang-ar\">تفعيل <strong>RDS Proxy<\/strong> أمام RDS — يجمع الاتّصالات ويشاركها بين الـ invocations.<\/span><span class=\"lang-en\">Enable <strong>RDS Proxy<\/strong> in front of RDS — pools and shares connections across invocations.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Read Replicas.<\/span><span class=\"lang-en\">Add Read Replicas.<\/span>",
+          "<span class=\"lang-ar\">إعادة كتابة Lambda بـ Go.<\/span><span class=\"lang-en\">Rewrite Lambda in Go.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">مشكلة كلاسيكيّة لـ Lambda: كلّ invocation يفتح اتّصالاً جديداً، وقاعدة البيانات لديها حدّ اتّصالات. <strong>RDS Proxy</strong> يحلّها بتجميع الاتّصالات (connection pooling) وتقليل failover بـ ٦٦٪. الترقية تؤجّل المشكلة. Read Replicas تزيد التعقيد دون حلّ الاتّصالات.</span><span class="lang-en">Classic Lambda problem: each invocation opens a new connection, DB has a connection cap. <strong>RDS Proxy</strong> solves it via pooling and cuts failover by 66%. Upgrade only postpones. Replicas don't solve the connection issue.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يؤجّل المشكلة فقط.</span><span class=\"lang-en\">Only delays the issue.</span>", "", "<span class=\"lang-ar\">Replicas لا تحلّ الاتّصالات.</span><span class=\"lang-en\">Replicas don't fix connection count.</span>", "<span class=\"lang-ar\">اللغة ليست السبب.</span><span class=\"lang-en\">Language isn't the cause.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">مشكلة كلاسيكيّة لـ Lambda: كلّ invocation يفتح اتّصالاً جديداً، وقاعدة البيانات لديها حدّ اتّصالات. <strong>RDS Proxy<\/strong> يحلّها بتجميع الاتّصالات (connection pooling) وتقليل failover بـ ٦٦٪. الترقية تؤجّل المشكلة. Read Replicas تزيد التعقيد دون حلّ الاتّصالات.<\/span><span class=\"lang-en\">Classic Lambda problem: each invocation opens a new connection, DB has a connection cap. <strong>RDS Proxy<\/strong> solves it via pooling and cuts failover by 66%. Upgrade only postpones. Replicas don't solve the connection issue.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يؤجّل المشكلة فقط.<\/span><span class=\"lang-en\">Only delays the issue.<\/span>", "", "<span class=\"lang-ar\">Replicas لا تحلّ الاتّصالات.<\/span><span class=\"lang-en\">Replicas don't fix connection count.<\/span>", "<span class=\"lang-ar\">اللغة ليست السبب.<\/span><span class=\"lang-en\">Language isn't the cause.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q4",
         type: "multi",
-        question: "<span class="lang-ar">أيّ العبارات صحيحة عن <strong>Aurora</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about <strong>Aurora</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ العبارات صحيحة عن <strong>Aurora<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are true about <strong>Aurora<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">متوافق wire-protocol مع PostgreSQL و MySQL.</span><span class="lang-en">Wire-protocol compatible with PostgreSQL and MySQL.</span>",
-          "<span class="lang-ar">يحتفظ بـ ٦ نسخ من البيانات عبر ٣ AZs.</span><span class="lang-en">Stores 6 copies across 3 AZs.</span>",
-          "<span class="lang-ar">Failover أقلّ من ٣٠ ثانية.</span><span class="lang-en">Failover in under 30 seconds.</span>",
-          "<span class="lang-ar">يدعم Backtrack للعودة في الزمن دون backup.</span><span class="lang-en">Supports Backtrack to rewind without a backup.</span>",
-          "<span class="lang-ar">Aurora هو المحرّك الوحيد الذي يعمل على AWS — لا يوجد MySQL آخر.</span><span class="lang-en">Aurora is the only engine on AWS — no other MySQL exists.</span>"
+          "<span class=\"lang-ar\">متوافق wire-protocol مع PostgreSQL و MySQL.<\/span><span class=\"lang-en\">Wire-protocol compatible with PostgreSQL and MySQL.<\/span>",
+          "<span class=\"lang-ar\">يحتفظ بـ ٦ نسخ من البيانات عبر ٣ AZs.<\/span><span class=\"lang-en\">Stores 6 copies across 3 AZs.<\/span>",
+          "<span class=\"lang-ar\">Failover أقلّ من ٣٠ ثانية.<\/span><span class=\"lang-en\">Failover in under 30 seconds.<\/span>",
+          "<span class=\"lang-ar\">يدعم Backtrack للعودة في الزمن دون backup.<\/span><span class=\"lang-en\">Supports Backtrack to rewind without a backup.<\/span>",
+          "<span class=\"lang-ar\">Aurora هو المحرّك الوحيد الذي يعمل على AWS — لا يوجد MySQL آخر.<\/span><span class=\"lang-en\">Aurora is the only engine on AWS — no other MySQL exists.<\/span>"
         ],
         correct: [0,1,2,3],
-        explanation: "<span class="lang-ar">Aurora متوافق مع PG/MySQL، يحتفظ بـ ٦ نسخ في ٣ AZs، failover تحت ٣٠ ثانية، ويدعم Backtrack. لكن AWS تقدّم MySQL الكلاسيكيّ و MariaDB أيضاً عبر RDS — Aurora ليس الوحيد.</span><span class="lang-en">Aurora is PG/MySQL-compatible, keeps 6 copies in 3 AZs, failover under 30s, supports Backtrack. But AWS also offers classic MySQL and MariaDB via RDS — Aurora isn't the only one.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Aurora متوافق مع PG/MySQL، يحتفظ بـ ٦ نسخ في ٣ AZs، failover تحت ٣٠ ثانية، ويدعم Backtrack. لكن AWS تقدّم MySQL الكلاسيكيّ و MariaDB أيضاً عبر RDS — Aurora ليس الوحيد.<\/span><span class=\"lang-en\">Aurora is PG/MySQL-compatible, keeps 6 copies in 3 AZs, failover under 30s, supports Backtrack. But AWS also offers classic MySQL and MariaDB via RDS — Aurora isn't the only one.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">فريق Acme يريد تخزين بيانات جلسات المستخدمين بشكل مشترك بين خوادم ASG. الخيار الأفضل للأداء؟</span><span class="lang-en">Acme wants to share user session data across ASG instances. Best performance option?</span>",
+        question: "<span class=\"lang-ar\">فريق Acme يريد تخزين بيانات جلسات المستخدمين بشكل مشترك بين خوادم ASG. الخيار الأفضل للأداء؟<\/span><span class=\"lang-en\">Acme wants to share user session data across ASG instances. Best performance option?<\/span>",
         options: [
-          "<span class="lang-ar">RDS PostgreSQL.</span><span class="lang-en">RDS PostgreSQL.</span>",
-          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>",
-          "<span class="lang-ar">ElastiCache Redis.</span><span class="lang-en">ElastiCache Redis.</span>",
-          "<span class="lang-ar">S3.</span><span class="lang-en">S3.</span>"
+          "<span class=\"lang-ar\">RDS PostgreSQL.<\/span><span class=\"lang-en\">RDS PostgreSQL.<\/span>",
+          "<span class=\"lang-ar\">DynamoDB.<\/span><span class=\"lang-en\">DynamoDB.<\/span>",
+          "<span class=\"lang-ar\">ElastiCache Redis.<\/span><span class=\"lang-en\">ElastiCache Redis.<\/span>",
+          "<span class=\"lang-ar\">S3.<\/span><span class=\"lang-en\">S3.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>ElastiCache Redis</strong> هو المعياريّ لتخزين الجلسات: ذاكرة فائقة السرعة (ميلّي ثانية واحدة)، HA مع Multi-AZ، ديمومة اختياريّة (AOF). DynamoDB خيار جيد أيضاً (خاصّة للـ serverless) لكن أبطأ قليلاً. RDS زائد التعقيد. S3 بطيء لجلسات.</span><span class="lang-en"><strong>ElastiCache Redis</strong> is canonical for sessions: in-memory (~1ms), HA via Multi-AZ, optional durability (AOF). DynamoDB is also fine (esp. serverless) but slightly slower. RDS is overkill. S3 is slow for sessions.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">بطيء لجلسات.</span><span class=\"lang-en\">Slow for sessions.</span>", "<span class=\"lang-ar\">جيد لكنّ Redis أسرع لأداء الجلسات.</span><span class=\"lang-en\">Good, but Redis is faster.</span>", "", "<span class=\"lang-ar\">latency بالمئات من الميلّي ثانية — غير مقبول لجلسات.</span><span class=\"lang-en\">Hundreds-of-ms latency — too slow for sessions.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>ElastiCache Redis<\/strong> هو المعياريّ لتخزين الجلسات: ذاكرة فائقة السرعة (ميلّي ثانية واحدة)، HA مع Multi-AZ، ديمومة اختياريّة (AOF). DynamoDB خيار جيد أيضاً (خاصّة للـ serverless) لكن أبطأ قليلاً. RDS زائد التعقيد. S3 بطيء لجلسات.<\/span><span class=\"lang-en\"><strong>ElastiCache Redis<\/strong> is canonical for sessions: in-memory (~1ms), HA via Multi-AZ, optional durability (AOF). DynamoDB is also fine (esp. serverless) but slightly slower. RDS is overkill. S3 is slow for sessions.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بطيء لجلسات.<\/span><span class=\"lang-en\">Slow for sessions.<\/span>", "<span class=\"lang-ar\">جيد لكنّ Redis أسرع لأداء الجلسات.<\/span><span class=\"lang-en\">Good, but Redis is faster.<\/span>", "", "<span class=\"lang-ar\">latency بالمئات من الميلّي ثانية — غير مقبول لجلسات.<\/span><span class=\"lang-en\">Hundreds-of-ms latency — too slow for sessions.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد أعلى أمان: كلمة مرور لا تُخزَّن في الكود ولا في config files لاتّصال التطبيق بـ RDS. ما الطريقة؟</span><span class="lang-en">A dev wants max security: no password in code or config for the app→RDS connection. How?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد أعلى أمان: كلمة مرور لا تُخزَّن في الكود ولا في config files لاتّصال التطبيق بـ RDS. ما الطريقة؟<\/span><span class=\"lang-en\">A dev wants max security: no password in code or config for the app→RDS connection. How?<\/span>",
         options: [
-          "<span class="lang-ar">نقل كلمة المرور إلى S3 مشفّرة.</span><span class="lang-en">Put password in S3 encrypted.</span>",
-          "<span class="lang-ar"><strong>IAM Database Authentication</strong> — التطبيق يولّد token مؤقّت (١٥ دقيقة) عبر IAM role.</span><span class="lang-en"><strong>IAM Database Authentication</strong> — app generates a 15-minute token via IAM role.</span>",
-          "<span class="lang-ar">استخدام AWS Secrets Manager فقط (هو نفس IAM Auth).</span><span class="lang-en">Use AWS Secrets Manager only (same as IAM Auth).</span>",
-          "<span class="lang-ar">كتابة كلمة المرور في User Data.</span><span class="lang-en">Put password in User Data.</span>"
+          "<span class=\"lang-ar\">نقل كلمة المرور إلى S3 مشفّرة.<\/span><span class=\"lang-en\">Put password in S3 encrypted.<\/span>",
+          "<span class=\"lang-ar\"><strong>IAM Database Authentication<\/strong> — التطبيق يولّد token مؤقّت (١٥ دقيقة) عبر IAM role.<\/span><span class=\"lang-en\"><strong>IAM Database Authentication<\/strong> — app generates a 15-minute token via IAM role.<\/span>",
+          "<span class=\"lang-ar\">استخدام AWS Secrets Manager فقط (هو نفس IAM Auth).<\/span><span class=\"lang-en\">Use AWS Secrets Manager only (same as IAM Auth).<\/span>",
+          "<span class=\"lang-ar\">كتابة كلمة المرور في User Data.<\/span><span class=\"lang-en\">Put password in User Data.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>IAM Database Authentication</strong> يلغي كلمات المرور تماماً: التطبيق يستخدم IAM role ليولّد token مؤقّت (١٥ دقيقة) يُستخدم ككلمة مرور. Secrets Manager مختلف — يخزّن كلمات المرور مع rotation تلقائي، لكنّه ليس نفس IAM Auth. S3 و User Data ممارسات خطيرة.</span><span class="lang-en"><strong>IAM Database Authentication</strong> eliminates passwords: app uses IAM role to generate a 15-min token as the password. Secrets Manager is different — stores passwords with auto-rotation, but not IAM Auth. S3/User Data are poor practices.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يُخزِّن كلمة المرور، لا يلغيها.</span><span class=\"lang-en\">Stores the password, doesn't eliminate it.</span>", "", "<span class=\"lang-ar\">Secrets Manager حلّ مختلف (لا يولّد token).</span><span class=\"lang-en\">Secrets Manager is different (no token generation).</span>", "<span class=\"lang-ar\">عرضة لأيّ من يقرأ User Data.</span><span class=\"lang-en\">Exposed to anyone reading User Data.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>IAM Database Authentication<\/strong> يلغي كلمات المرور تماماً: التطبيق يستخدم IAM role ليولّد token مؤقّت (١٥ دقيقة) يُستخدم ككلمة مرور. Secrets Manager مختلف — يخزّن كلمات المرور مع rotation تلقائي، لكنّه ليس نفس IAM Auth. S3 و User Data ممارسات خطيرة.<\/span><span class=\"lang-en\"><strong>IAM Database Authentication<\/strong> eliminates passwords: app uses IAM role to generate a 15-min token as the password. Secrets Manager is different — stores passwords with auto-rotation, but not IAM Auth. S3/User Data are poor practices.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُخزِّن كلمة المرور، لا يلغيها.<\/span><span class=\"lang-en\">Stores the password, doesn't eliminate it.<\/span>", "", "<span class=\"lang-ar\">Secrets Manager حلّ مختلف (لا يولّد token).<\/span><span class=\"lang-en\">Secrets Manager is different (no token generation).<\/span>", "<span class=\"lang-ar\">عرضة لأيّ من يقرأ User Data.<\/span><span class=\"lang-en\">Exposed to anyone reading User Data.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">فريق Acme ينفّذ <span dir="ltr" class="font-mono">DELETE</span> خاطئ في Aurora MySQL. يريدون استعادة قاعدة البيانات إلى حالتها قبل الحذف بـ ساعتين. الأسرع؟</span><span class="lang-en">Acme accidentally runs a bad <span dir="ltr" class="font-mono">DELETE</span> on Aurora MySQL. They want to restore to 2 hours before the delete. Fastest?</span>",
+        question: "<span class=\"lang-ar\">فريق Acme ينفّذ <span dir=\"ltr\" class=\"font-mono\">DELETE<\/span> خاطئ في Aurora MySQL. يريدون استعادة قاعدة البيانات إلى حالتها قبل الحذف بـ ساعتين. الأسرع؟<\/span><span class=\"lang-en\">Acme accidentally runs a bad <span dir=\"ltr\" class=\"font-mono\">DELETE<\/span> on Aurora MySQL. They want to restore to 2 hours before the delete. Fastest?<\/span>",
         options: [
-          "<span class="lang-ar">Point-in-Time Restore من snapshot.</span><span class="lang-en">Point-in-Time Restore from snapshot.</span>",
-          "<span class="lang-ar"><strong>Aurora Backtrack</strong> — ترجع بالقاعدة في الزمن بدقائق.</span><span class="lang-en"><strong>Aurora Backtrack</strong> — rewinds the DB in minutes.</span>",
-          "<span class="lang-ar">استعادة من نسخة احتياطيّة يدويّة.</span><span class="lang-en">Restore from a manual backup.</span>",
-          "<span class="lang-ar">إعادة إنشاء كلّ البيانات يدوياً.</span><span class="lang-en">Recreate all data manually.</span>"
+          "<span class=\"lang-ar\">Point-in-Time Restore من snapshot.<\/span><span class=\"lang-en\">Point-in-Time Restore from snapshot.<\/span>",
+          "<span class=\"lang-ar\"><strong>Aurora Backtrack<\/strong> — ترجع بالقاعدة في الزمن بدقائق.<\/span><span class=\"lang-en\"><strong>Aurora Backtrack<\/strong> — rewinds the DB in minutes.<\/span>",
+          "<span class=\"lang-ar\">استعادة من نسخة احتياطيّة يدويّة.<\/span><span class=\"lang-en\">Restore from a manual backup.<\/span>",
+          "<span class=\"lang-ar\">إعادة إنشاء كلّ البيانات يدوياً.<\/span><span class=\"lang-en\">Recreate all data manually.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Aurora Backtrack</strong> ميزة فريدة: يعيد القاعدة إلى وقت سابق (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق. Point-in-Time Restore يعمل لكنّه أبطأ (ساعات لاستعادة قاعدة كبيرة). Backtrack متاح فقط في Aurora MySQL.</span><span class="lang-en"><strong>Aurora Backtrack</strong> is unique: rewinds DB to a past state (up to 72h) without restore — minutes. PITR works but is slower (hours for a large DB). Backtrack is Aurora MySQL only.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">أبطأ بكثير من Backtrack.</span><span class=\"lang-en\">Much slower than Backtrack.</span>", "", "<span class=\"lang-ar\">أبطأ — ينشئ قاعدة جديدة.</span><span class=\"lang-en\">Slow — creates a new DB.</span>", "<span class=\"lang-ar\">غير واقعيّ.</span><span class=\"lang-en\">Impractical.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Aurora Backtrack<\/strong> ميزة فريدة: يعيد القاعدة إلى وقت سابق (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق. Point-in-Time Restore يعمل لكنّه أبطأ (ساعات لاستعادة قاعدة كبيرة). Backtrack متاح فقط في Aurora MySQL.<\/span><span class=\"lang-en\"><strong>Aurora Backtrack<\/strong> is unique: rewinds DB to a past state (up to 72h) without restore — minutes. PITR works but is slower (hours for a large DB). Backtrack is Aurora MySQL only.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أبطأ بكثير من Backtrack.<\/span><span class=\"lang-en\">Much slower than Backtrack.<\/span>", "", "<span class=\"lang-ar\">أبطأ — ينشئ قاعدة جديدة.<\/span><span class=\"lang-en\">Slow — creates a new DB.<\/span>", "<span class=\"lang-ar\">غير واقعيّ.<\/span><span class=\"lang-en\">Impractical.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">تطبيق microservice يستخدم ElastiCache Redis. بعد إعادة تشغيل خادم Redis، تصبح الـ cache فارغة ويلاحظ المطوّرون ضغطاً مفاجئاً على RDS. لماذا؟</span><span class="lang-en">A microservice uses ElastiCache Redis. After a Redis restart, the cache is empty and devs notice sudden RDS pressure. Why?</span>",
+        question: "<span class=\"lang-ar\">تطبيق microservice يستخدم ElastiCache Redis. بعد إعادة تشغيل خادم Redis، تصبح الـ cache فارغة ويلاحظ المطوّرون ضغطاً مفاجئاً على RDS. لماذا؟<\/span><span class=\"lang-en\">A microservice uses ElastiCache Redis. After a Redis restart, the cache is empty and devs notice sudden RDS pressure. Why?<\/span>",
         options: [
-          "<span class="lang-ar">Redis لا يحتفظ بالبيانات افتراضياً.</span><span class="lang-en">Redis doesn't persist by default.</span>",
-          "<span class="lang-ar">عاصفة cache-miss: كلّ الطلبات تذهب إلى RDS معاً حتى تُملأ الـ cache — الحلّ هو تفعيل <strong>Redis AOF persistence</strong> أو استراتيجيّة warm-up للـ cache.</span><span class="lang-en">Cache-miss storm: all traffic hits RDS until cache warms — fix: enable <strong>Redis AOF persistence</strong> or a warm-up strategy.</span>",
-          "<span class="lang-ar">RDS به مشكلة.</span><span class="lang-en">RDS has an issue.</span>",
-          "<span class="lang-ar">إعادة التشغيل حذفت RDS أيضاً.</span><span class="lang-en">Restart wiped RDS too.</span>"
+          "<span class=\"lang-ar\">Redis لا يحتفظ بالبيانات افتراضياً.<\/span><span class=\"lang-en\">Redis doesn't persist by default.<\/span>",
+          "<span class=\"lang-ar\">عاصفة cache-miss: كلّ الطلبات تذهب إلى RDS معاً حتى تُملأ الـ cache — الحلّ هو تفعيل <strong>Redis AOF persistence<\/strong> أو استراتيجيّة warm-up للـ cache.<\/span><span class=\"lang-en\">Cache-miss storm: all traffic hits RDS until cache warms — fix: enable <strong>Redis AOF persistence<\/strong> or a warm-up strategy.<\/span>",
+          "<span class=\"lang-ar\">RDS به مشكلة.<\/span><span class=\"lang-en\">RDS has an issue.<\/span>",
+          "<span class=\"lang-ar\">إعادة التشغيل حذفت RDS أيضاً.<\/span><span class=\"lang-en\">Restart wiped RDS too.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>عاصفة Cache-miss (thundering herd)</strong> من أصعب مشاكل caching: عند إعادة تشغيل Redis، كلّ الطلبات تصبح cache-miss وتُرسَل إلى DB. الحلول: تفعيل AOF persistence (Redis يحفظ على القرص)، أو استراتيجيّة warm-up (تحميل مسبق للـ cache). Redis <strong>يدعم الديمومة</strong> على عكس Memcached.</span><span class="lang-en"><strong>Thundering herd cache-miss</strong> is a tough caching issue: on Redis restart, every request becomes a miss and hits the DB. Fix: AOF persistence (Redis persists to disk), or a warm-up strategy. Redis <strong>does support durability</strong>, unlike Memcached.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Redis يدعم الديمومة إن فُعِّلت.</span><span class=\"lang-en\">Redis does support persistence if enabled.</span>", "", "<span class=\"lang-ar\">RDS سليم — السبب الـ cache.</span><span class=\"lang-en\">RDS is fine — cache is the cause.</span>", "<span class=\"lang-ar\">إعادة Redis لا تؤثّر على RDS.</span><span class=\"lang-en\">Redis restart doesn't touch RDS.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>عاصفة Cache-miss (thundering herd)<\/strong> من أصعب مشاكل caching: عند إعادة تشغيل Redis، كلّ الطلبات تصبح cache-miss وتُرسَل إلى DB. الحلول: تفعيل AOF persistence (Redis يحفظ على القرص)، أو استراتيجيّة warm-up (تحميل مسبق للـ cache). Redis <strong>يدعم الديمومة<\/strong> على عكس Memcached.<\/span><span class=\"lang-en\"><strong>Thundering herd cache-miss<\/strong> is a tough caching issue: on Redis restart, every request becomes a miss and hits the DB. Fix: AOF persistence (Redis persists to disk), or a warm-up strategy. Redis <strong>does support durability<\/strong>, unlike Memcached.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Redis يدعم الديمومة إن فُعِّلت.<\/span><span class=\"lang-en\">Redis does support persistence if enabled.<\/span>", "", "<span class=\"lang-ar\">RDS سليم — السبب الـ cache.<\/span><span class=\"lang-en\">RDS is fine — cache is the cause.<\/span>", "<span class=\"lang-ar\">إعادة Redis لا تؤثّر على RDS.<\/span><span class=\"lang-en\">Redis restart doesn't touch RDS.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">Acme تستخدم قاعدة RDS Oracle ٢ TB. التخزين يقترب من الامتلاء في منتصف الليل. الحلّ الأقلّ تدخّلاً؟</span><span class="lang-en">Acme uses a 2 TB RDS Oracle DB. Storage is filling up at midnight. Lowest-touch fix?</span>",
+        question: "<span class=\"lang-ar\">Acme تستخدم قاعدة RDS Oracle ٢ TB. التخزين يقترب من الامتلاء في منتصف الليل. الحلّ الأقلّ تدخّلاً؟<\/span><span class=\"lang-en\">Acme uses a 2 TB RDS Oracle DB. Storage is filling up at midnight. Lowest-touch fix?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة حجم التخزين يدوياً كلّ أسبوع.</span><span class="lang-en">Manually resize storage weekly.</span>",
-          "<span class="lang-ar">تفعيل <strong>RDS Storage Auto Scaling</strong> مع Maximum Storage Threshold.</span><span class="lang-en">Enable <strong>RDS Storage Auto Scaling</strong> with a Maximum Storage Threshold.</span>",
-          "<span class="lang-ar">ترقية نوع الخادم.</span><span class="lang-en">Upgrade instance type.</span>",
-          "<span class="lang-ar">حذف بيانات قديمة يدوياً.</span><span class="lang-en">Manually delete old data.</span>"
+          "<span class=\"lang-ar\">زيادة حجم التخزين يدوياً كلّ أسبوع.<\/span><span class=\"lang-en\">Manually resize storage weekly.<\/span>",
+          "<span class=\"lang-ar\">تفعيل <strong>RDS Storage Auto Scaling<\/strong> مع Maximum Storage Threshold.<\/span><span class=\"lang-en\">Enable <strong>RDS Storage Auto Scaling<\/strong> with a Maximum Storage Threshold.<\/span>",
+          "<span class=\"lang-ar\">ترقية نوع الخادم.<\/span><span class=\"lang-en\">Upgrade instance type.<\/span>",
+          "<span class=\"lang-ar\">حذف بيانات قديمة يدوياً.<\/span><span class=\"lang-en\">Manually delete old data.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>RDS Storage Auto Scaling</strong> مخصّص لهذه الحالة بالضبط: يزيد التخزين تلقائياً عندما تنخفض المساحة الحرّة لأقلّ من ١٠٪ لمدّة ٥ دقائق. أنت تحدّد الحدّ الأقصى. يعمل مع كلّ محرّكات RDS بما فيها Oracle.</span><span class="lang-en"><strong>RDS Storage Auto Scaling</strong> is designed exactly for this: auto-grows storage when free space stays below 10% for 5+ minutes. You set the cap. Works on all RDS engines including Oracle.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يدويّ — مرهق.</span><span class=\"lang-en\">Manual — exhausting.</span>", "", "<span class=\"lang-ar\">ترقية الخادم لا تعالج التخزين.</span><span class=\"lang-en\">Instance upgrade doesn't fix storage.</span>", "<span class=\"lang-ar\">حلّ مؤقّت وعمليّ متعب.</span><span class=\"lang-en\">Temporary and painful.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><strong>RDS Storage Auto Scaling<\/strong> مخصّص لهذه الحالة بالضبط: يزيد التخزين تلقائياً عندما تنخفض المساحة الحرّة لأقلّ من ١٠٪ لمدّة ٥ دقائق. أنت تحدّد الحدّ الأقصى. يعمل مع كلّ محرّكات RDS بما فيها Oracle.<\/span><span class=\"lang-en\"><strong>RDS Storage Auto Scaling<\/strong> is designed exactly for this: auto-grows storage when free space stays below 10% for 5+ minutes. You set the cap. Works on all RDS engines including Oracle.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يدويّ — مرهق.<\/span><span class=\"lang-en\">Manual — exhausting.<\/span>", "", "<span class=\"lang-ar\">ترقية الخادم لا تعالج التخزين.<\/span><span class=\"lang-en\">Instance upgrade doesn't fix storage.<\/span>", "<span class=\"lang-ar\">حلّ مؤقّت وعمليّ متعب.<\/span><span class=\"lang-en\">Temporary and painful.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">مطوّر Spring Boot أنشأ تطبيقاً stateful يحفظ سلّة المشتريات في ذاكرة الخادم المحلّيّة. ما أسوأ عواقب هذا القرار في معمار ASG + ALB؟</span><span class="lang-en">A Spring Boot dev built a stateful app storing shopping carts in local instance memory. Worst consequence in an ASG + ALB stack?</span>",
+        question: "<span class=\"lang-ar\">مطوّر Spring Boot أنشأ تطبيقاً stateful يحفظ سلّة المشتريات في ذاكرة الخادم المحلّيّة. ما أسوأ عواقب هذا القرار في معمار ASG + ALB؟<\/span><span class=\"lang-en\">A Spring Boot dev built a stateful app storing shopping carts in local instance memory. Worst consequence in an ASG + ALB stack?<\/span>",
         options: [
-          "<span class="lang-ar">ارتفاع تكلفة CPU.</span><span class="lang-en">Higher CPU cost.</span>",
-          "<span class="lang-ar">فقدان الجلسات عند استبدال خادم (scale-in، unhealthy) وكسر تجربة المستخدم.</span><span class="lang-en">Session loss when instances are replaced (scale-in, unhealthy), breaking UX.</span>",
-          "<span class="lang-ar">بطء في DNS.</span><span class="lang-en">Slow DNS.</span>",
-          "<span class="lang-ar">فشل Multi-AZ.</span><span class="lang-en">Multi-AZ failure.</span>"
+          "<span class=\"lang-ar\">ارتفاع تكلفة CPU.<\/span><span class=\"lang-en\">Higher CPU cost.<\/span>",
+          "<span class=\"lang-ar\">فقدان الجلسات عند استبدال خادم (scale-in، unhealthy) وكسر تجربة المستخدم.<\/span><span class=\"lang-en\">Session loss when instances are replaced (scale-in, unhealthy), breaking UX.<\/span>",
+          "<span class=\"lang-ar\">بطء في DNS.<\/span><span class=\"lang-en\">Slow DNS.<\/span>",
+          "<span class=\"lang-ar\">فشل Multi-AZ.<\/span><span class=\"lang-en\">Multi-AZ failure.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الحالة في الذاكرة المحلّيّة = <strong>عدم مرونة</strong>: أيّ استبدال خادم (scale-in، failed health check، instance refresh) يمسح جلسات المستخدمين ويضطرّهم لإعادة تسجيل الدخول. الحلّ: externalize state إلى ElastiCache/DynamoDB. هذه مشكلة السينيور الكلاسيكيّة.</span><span class="lang-en">Local in-memory state = <strong>no elasticity</strong>: any replacement (scale-in, failed health check, instance refresh) wipes sessions and forces re-login. Fix: externalize state to ElastiCache/DynamoDB. Classic senior-level anti-pattern.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ليس السبب الرئيس.</span><span class=\"lang-en\">Not the main issue.</span>", "", "<span class=\"lang-ar\">لا علاقة.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">لا علاقة.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">الحالة في الذاكرة المحلّيّة = <strong>عدم مرونة<\/strong>: أيّ استبدال خادم (scale-in، failed health check، instance refresh) يمسح جلسات المستخدمين ويضطرّهم لإعادة تسجيل الدخول. الحلّ: externalize state إلى ElastiCache/DynamoDB. هذه مشكلة السينيور الكلاسيكيّة.<\/span><span class=\"lang-en\">Local in-memory state = <strong>no elasticity<\/strong>: any replacement (scale-in, failed health check, instance refresh) wipes sessions and forces re-login. Fix: externalize state to ElastiCache/DynamoDB. Classic senior-level anti-pattern.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس السبب الرئيس.<\/span><span class=\"lang-en\">Not the main issue.<\/span>", "", "<span class=\"lang-ar\">لا علاقة.<\/span><span class=\"lang-en\">Unrelated.<\/span>", "<span class=\"lang-ar\">لا علاقة.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">أيّ من التالي صحيح عن تكرار RDS Read Replica؟</span><span class="lang-en">Which is true about RDS Read Replica replication?</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي صحيح عن تكرار RDS Read Replica؟<\/span><span class=\"lang-en\">Which is true about RDS Read Replica replication?<\/span>",
         options: [
-          "<span class="lang-ar">تكرار متزامن — القراءة دائماً حديثة.</span><span class="lang-en">Synchronous — reads always fresh.</span>",
-          "<span class="lang-ar">تكرار <strong>غير متزامن (ASYNC)</strong> — القراءة قد تكون قديمة (eventually consistent).</span><span class="lang-en"><strong>Asynchronous (ASYNC)</strong> — reads may be stale (eventually consistent).</span>",
-          "<span class="lang-ar">يمكن الكتابة على Read Replica مباشرةً.</span><span class="lang-en">Can write directly to a Read Replica.</span>",
-          "<span class="lang-ar">Replica تستبدل master تلقائياً عند الفشل.</span><span class="lang-en">Replica auto-promotes on master failure.</span>"
+          "<span class=\"lang-ar\">تكرار متزامن — القراءة دائماً حديثة.<\/span><span class=\"lang-en\">Synchronous — reads always fresh.<\/span>",
+          "<span class=\"lang-ar\">تكرار <strong>غير متزامن (ASYNC)<\/strong> — القراءة قد تكون قديمة (eventually consistent).<\/span><span class=\"lang-en\"><strong>Asynchronous (ASYNC)<\/strong> — reads may be stale (eventually consistent).<\/span>",
+          "<span class=\"lang-ar\">يمكن الكتابة على Read Replica مباشرةً.<\/span><span class=\"lang-en\">Can write directly to a Read Replica.<\/span>",
+          "<span class=\"lang-ar\">Replica تستبدل master تلقائياً عند الفشل.<\/span><span class=\"lang-en\">Replica auto-promotes on master failure.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Read Replicas تستخدم تكراراً <strong>غير متزامن</strong> — هناك lag صغير. لا يمكن الكتابة عليها مباشرةً (read-only). لا تُرقَّى تلقائياً — لذلك Multi-AZ ضروريّ للـ HA. الـ replica يمكن ترقيتها يدوياً إلى standalone DB.</span><span class="lang-en">Read Replicas use <strong>async</strong> replication — small lag exists. Cannot write directly to them (read-only). No auto-promotion — that's why Multi-AZ is needed for HA. Replica can be manually promoted to a standalone DB.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">Async لا Sync.</span><span class=\"lang-en\">Async, not sync.</span>", "", "<span class=\"lang-ar\">read-only.</span><span class=\"lang-en\">Read-only.</span>", "<span class=\"lang-ar\">Multi-AZ وحده تلقائيّ الـ failover.</span><span class=\"lang-en\">Only Multi-AZ auto-fails over.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Read Replicas تستخدم تكراراً <strong>غير متزامن<\/strong> — هناك lag صغير. لا يمكن الكتابة عليها مباشرةً (read-only). لا تُرقَّى تلقائياً — لذلك Multi-AZ ضروريّ للـ HA. الـ replica يمكن ترقيتها يدوياً إلى standalone DB.<\/span><span class=\"lang-en\">Read Replicas use <strong>async<\/strong> replication — small lag exists. Cannot write directly to them (read-only). No auto-promotion — that's why Multi-AZ is needed for HA. Replica can be manually promoted to a standalone DB.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Async لا Sync.<\/span><span class=\"lang-en\">Async, not sync.<\/span>", "", "<span class=\"lang-ar\">read-only.<\/span><span class=\"lang-en\">Read-only.<\/span>", "<span class=\"lang-ar\">Multi-AZ وحده تلقائيّ الـ failover.<\/span><span class=\"lang-en\">Only Multi-AZ auto-fails over.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">Acme تحتاج قاعدة بيانات Redis مع ديمومة DB-grade (لا تفقد البيانات عند failure)، ومتوافقة مع Redis API. ما الخدمة؟</span><span class="lang-en">Acme needs a Redis-API DB with DB-grade durability (no data loss on failure). Which service?</span>",
+        question: "<span class=\"lang-ar\">Acme تحتاج قاعدة بيانات Redis مع ديمومة DB-grade (لا تفقد البيانات عند failure)، ومتوافقة مع Redis API. ما الخدمة؟<\/span><span class=\"lang-en\">Acme needs a Redis-API DB with DB-grade durability (no data loss on failure). Which service?<\/span>",
         options: [
-          "<span class="lang-ar">ElastiCache for Redis.</span><span class="lang-en">ElastiCache for Redis.</span>",
-          "<span class="lang-ar">ElastiCache for Memcached.</span><span class="lang-en">ElastiCache for Memcached.</span>",
-          "<span class="lang-ar"><strong>Amazon MemoryDB for Redis</strong>.</span><span class="lang-en"><strong>Amazon MemoryDB for Redis</strong>.</span>",
-          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>"
+          "<span class=\"lang-ar\">ElastiCache for Redis.<\/span><span class=\"lang-en\">ElastiCache for Redis.<\/span>",
+          "<span class=\"lang-ar\">ElastiCache for Memcached.<\/span><span class=\"lang-en\">ElastiCache for Memcached.<\/span>",
+          "<span class=\"lang-ar\"><strong>Amazon MemoryDB for Redis<\/strong>.<\/span><span class=\"lang-en\"><strong>Amazon MemoryDB for Redis<\/strong>.<\/span>",
+          "<span class=\"lang-ar\">DynamoDB.<\/span><span class=\"lang-en\">DynamoDB.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>MemoryDB for Redis</strong> هو Redis مع ضمان DB-grade: Multi-AZ transactional log، ديمومة تامّة، سرعة ذاكرة (٢٫٥× ElastiCache). ElastiCache Redis سريع لكن ليس بنفس ضمانات DB. Memcached بدون ديمومة. DynamoDB ليس Redis API.</span><span class="lang-en"><strong>MemoryDB for Redis</strong> is Redis with DB-grade guarantees: Multi-AZ transactional log, full durability, in-memory speed (2.5× ElastiCache). ElastiCache Redis is fast but not DB-grade. Memcached has no persistence. DynamoDB isn't Redis API.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ديمومته عبر AOF ليست DB-grade.</span><span class=\"lang-en\">AOF durability isn't DB-grade.</span>", "<span class=\"lang-ar\">بدون ديمومة.</span><span class=\"lang-en\">No persistence.</span>", "", "<span class=\"lang-ar\">مختلف تماماً — لا Redis API.</span><span class=\"lang-en\">Different service — no Redis API.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>MemoryDB for Redis<\/strong> هو Redis مع ضمان DB-grade: Multi-AZ transactional log، ديمومة تامّة، سرعة ذاكرة (٢٫٥× ElastiCache). ElastiCache Redis سريع لكن ليس بنفس ضمانات DB. Memcached بدون ديمومة. DynamoDB ليس Redis API.<\/span><span class=\"lang-en\"><strong>MemoryDB for Redis<\/strong> is Redis with DB-grade guarantees: Multi-AZ transactional log, full durability, in-memory speed (2.5× ElastiCache). ElastiCache Redis is fast but not DB-grade. Memcached has no persistence. DynamoDB isn't Redis API.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ديمومته عبر AOF ليست DB-grade.<\/span><span class=\"lang-en\">AOF durability isn't DB-grade.<\/span>", "<span class=\"lang-ar\">بدون ديمومة.<\/span><span class=\"lang-en\">No persistence.<\/span>", "", "<span class=\"lang-ar\">مختلف تماماً — لا Redis API.<\/span><span class=\"lang-en\">Different service — no Redis API.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 

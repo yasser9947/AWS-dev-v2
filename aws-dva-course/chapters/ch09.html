@@ -970,221 +970,221 @@ aws s3api put-bucket-notification-configuration \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Java يرفع ملفّات ٨ جيجابايت إلى S3 عبر put-object. يفشل بشكل متكرّر. ما الحلّ الأنسب؟</span><span class="lang-en">A Java app uploads 8 GB files to S3 via put-object. It fails repeatedly. Best fix?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Java يرفع ملفّات ٨ جيجابايت إلى S3 عبر put-object. يفشل بشكل متكرّر. ما الحلّ الأنسب؟<\/span><span class=\"lang-en\">A Java app uploads 8 GB files to S3 via put-object. It fails repeatedly. Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">ترقية نوع الخادم.</span><span class="lang-en">Upgrade instance type.</span>",
-          "<span class="lang-ar">استخدام Multipart Upload (إلزاميّ للملفّات >5GB)، أفضل عبر S3TransferManager في SDK v2.</span><span class="lang-en">Use Multipart Upload (mandatory for >5GB files); use S3TransferManager in SDK v2.</span>",
-          "<span class="lang-ar">تقسيم الملفّ يدوياً إلى ملفّات أصغر.</span><span class="lang-en">Manually split into smaller files.</span>",
-          "<span class="lang-ar">استخدام SSH بدلاً من HTTPS.</span><span class="lang-en">Use SSH instead of HTTPS.</span>"
+          "<span class=\"lang-ar\">ترقية نوع الخادم.<\/span><span class=\"lang-en\">Upgrade instance type.<\/span>",
+          "<span class=\"lang-ar\">استخدام Multipart Upload (إلزاميّ للملفّات >5GB)، أفضل عبر S3TransferManager في SDK v2.<\/span><span class=\"lang-en\">Use Multipart Upload (mandatory for >5GB files); use S3TransferManager in SDK v2.<\/span>",
+          "<span class=\"lang-ar\">تقسيم الملفّ يدوياً إلى ملفّات أصغر.<\/span><span class=\"lang-en\">Manually split into smaller files.<\/span>",
+          "<span class=\"lang-ar\">استخدام SSH بدلاً من HTTPS.<\/span><span class=\"lang-en\">Use SSH instead of HTTPS.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">أيّ ملف أكبر من ٥ جيجابايت يتطلّب Multipart Upload. Java SDK v2 يوفّر <span dir="ltr" class="font-mono">S3TransferManager</span> يفعل ذلك تلقائياً بالتوازي مع retry لكلّ part على حدة.</span><span class="lang-en">Files >5GB require multipart upload. Java SDK v2's <span dir="ltr" class="font-mono">S3TransferManager</span> handles it automatically in parallel with per-part retries.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الخادم ليس العنق.</span><span class=\"lang-en\">Instance isn't the bottleneck.</span>", "", "<span class=\"lang-ar\">يُفقِد التطبيق ذريّة العمليّة — ليس حلاً مهنياً.</span><span class=\"lang-en\">Loses atomicity — not professional.</span>", "<span class=\"lang-ar\">S3 لا يدعم SSH.</span><span class=\"lang-en\">S3 doesn't support SSH.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">أيّ ملف أكبر من ٥ جيجابايت يتطلّب Multipart Upload. Java SDK v2 يوفّر <span dir=\"ltr\" class=\"font-mono\">S3TransferManager<\/span> يفعل ذلك تلقائياً بالتوازي مع retry لكلّ part على حدة.<\/span><span class=\"lang-en\">Files >5GB require multipart upload. Java SDK v2's <span dir=\"ltr\" class=\"font-mono\">S3TransferManager<\/span> handles it automatically in parallel with per-part retries.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الخادم ليس العنق.<\/span><span class=\"lang-en\">Instance isn't the bottleneck.<\/span>", "", "<span class=\"lang-ar\">يُفقِد التطبيق ذريّة العمليّة — ليس حلاً مهنياً.<\/span><span class=\"lang-en\">Loses atomicity — not professional.<\/span>", "<span class=\"lang-ar\">S3 لا يدعم SSH.<\/span><span class=\"lang-en\">S3 doesn't support SSH.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q2",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الخيارات التالية صحيح عن S3 Replication؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about S3 Replication? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الخيارات التالية صحيح عن S3 Replication؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are true about S3 Replication? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">يجب تفعيل Versioning في المصدر والوجهة.</span><span class="lang-en">Versioning must be enabled on both source and destination.</span>",
-          "<span class="lang-ar">يدعم النسخ المتسلسل bucket1→bucket2→bucket3.</span><span class="lang-en">Supports chaining bucket1→bucket2→bucket3.</span>",
-          "<span class="lang-ar">يُنسَخ فقط الـ objects الجديدة بعد التفعيل (القديمة تحتاج S3 Batch Replication).</span><span class="lang-en">Only new objects after enablement are replicated (existing require S3 Batch Replication).</span>",
-          "<span class="lang-ar">DELETE بـ version ID محدّد يُنسَخ دائماً.</span><span class="lang-en">DELETE with a specific version ID is always replicated.</span>"
+          "<span class=\"lang-ar\">يجب تفعيل Versioning في المصدر والوجهة.<\/span><span class=\"lang-en\">Versioning must be enabled on both source and destination.<\/span>",
+          "<span class=\"lang-ar\">يدعم النسخ المتسلسل bucket1→bucket2→bucket3.<\/span><span class=\"lang-en\">Supports chaining bucket1→bucket2→bucket3.<\/span>",
+          "<span class=\"lang-ar\">يُنسَخ فقط الـ objects الجديدة بعد التفعيل (القديمة تحتاج S3 Batch Replication).<\/span><span class=\"lang-en\">Only new objects after enablement are replicated (existing require S3 Batch Replication).<\/span>",
+          "<span class=\"lang-ar\">DELETE بـ version ID محدّد يُنسَخ دائماً.<\/span><span class=\"lang-en\">DELETE with a specific version ID is always replicated.<\/span>"
         ],
         correct: [0,2],
-        explanation: "<span class="lang-ar">Versioning شرط. لا يوجد chaining. الـ objects القديمة لا تُنسَخ. DELETE بـ version ID لا يُنسَخ (لتجنّب انتشار الحذف الخبيث).</span><span class="lang-en">Versioning is required. No chaining. Existing objects are not replicated. DELETE with version ID isn't replicated (prevents malicious deletes propagating).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Versioning شرط. لا يوجد chaining. الـ objects القديمة لا تُنسَخ. DELETE بـ version ID لا يُنسَخ (لتجنّب انتشار الحذف الخبيث).<\/span><span class=\"lang-en\">Versioning is required. No chaining. Existing objects are not replicated. DELETE with version ID isn't replicated (prevents malicious deletes propagating).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">فريق يريد مشاركة ملفّ PDF خاصّ من S3 مع مورّد خارجيّ دون إعطائه حساب AWS، لمدّة ساعة واحدة فقط. ما الأسلوب الصحيح؟</span><span class="lang-en">A team wants to share a private S3 PDF with an external vendor for 1 hour only, without giving them an AWS account. Right approach?</span>",
+        question: "<span class=\"lang-ar\">فريق يريد مشاركة ملفّ PDF خاصّ من S3 مع مورّد خارجيّ دون إعطائه حساب AWS، لمدّة ساعة واحدة فقط. ما الأسلوب الصحيح؟<\/span><span class=\"lang-en\">A team wants to share a private S3 PDF with an external vendor for 1 hour only, without giving them an AWS account. Right approach?<\/span>",
         options: [
-          "<span class="lang-ar">جعل الـ bucket عامّاً مؤقّتاً.</span><span class="lang-en">Temporarily make the bucket public.</span>",
-          "<span class="lang-ar">إنشاء Presigned URL بصلاحيّة ساعة واحدة عبر SDK.</span><span class="lang-en">Generate a Presigned URL valid for 1 hour via SDK.</span>",
-          "<span class="lang-ar">إرسال Access Keys للمورّد.</span><span class="lang-en">Send the vendor Access Keys.</span>",
-          "<span class="lang-ar">نسخ الملف إلى bucket آخر.</span><span class="lang-en">Copy to another bucket.</span>"
+          "<span class=\"lang-ar\">جعل الـ bucket عامّاً مؤقّتاً.<\/span><span class=\"lang-en\">Temporarily make the bucket public.<\/span>",
+          "<span class=\"lang-ar\">إنشاء Presigned URL بصلاحيّة ساعة واحدة عبر SDK.<\/span><span class=\"lang-en\">Generate a Presigned URL valid for 1 hour via SDK.<\/span>",
+          "<span class=\"lang-ar\">إرسال Access Keys للمورّد.<\/span><span class=\"lang-en\">Send the vendor Access Keys.<\/span>",
+          "<span class=\"lang-ar\">نسخ الملف إلى bucket آخر.<\/span><span class=\"lang-en\">Copy to another bucket.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Presigned URL هو الحلّ المعياريّ — رابط مؤقّت موقّع بـ SigV4 يحمل صلاحيّة <span dir="ltr" class="font-mono">X-Amz-Expires=3600</span>. لا يكشف مفاتيحك ولا يجعل الـ bucket عامّاً.</span><span class="lang-en">Presigned URL is the standard — a time-bound, SigV4-signed link with <span dir="ltr" class="font-mono">X-Amz-Expires=3600</span>. Neither exposes your keys nor publicizes the bucket.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">تسريب أمنيّ خطير.</span><span class=\"lang-en\">Major security risk.</span>", "", "<span class=\"lang-ar\">ممنوع منعاً باتّاً — خرق للممارسات الأمنية.</span><span class=\"lang-en\">Strictly forbidden — breach of best practice.</span>", "<span class=\"lang-ar\">لا يحلّ مشكلة الوصول.</span><span class=\"lang-en\">Doesn't solve access.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">Presigned URL هو الحلّ المعياريّ — رابط مؤقّت موقّع بـ SigV4 يحمل صلاحيّة <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires=3600<\/span>. لا يكشف مفاتيحك ولا يجعل الـ bucket عامّاً.<\/span><span class=\"lang-en\">Presigned URL is the standard — a time-bound, SigV4-signed link with <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires=3600<\/span>. Neither exposes your keys nor publicizes the bucket.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تسريب أمنيّ خطير.<\/span><span class=\"lang-en\">Major security risk.<\/span>", "", "<span class=\"lang-ar\">ممنوع منعاً باتّاً — خرق للممارسات الأمنية.<\/span><span class=\"lang-en\">Strictly forbidden — breach of best practice.<\/span>", "<span class=\"lang-ar\">لا يحلّ مشكلة الوصول.<\/span><span class=\"lang-en\">Doesn't solve access.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يُنشئ thumbnail لأيّ صورة جديدة تُرفَع على S3. الحلّ الأنسب والأقلّ تكلفةً؟</span><span class="lang-en">An app generates thumbnails for every image uploaded to S3. Best, lowest-cost solution?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يُنشئ thumbnail لأيّ صورة جديدة تُرفَع على S3. الحلّ الأنسب والأقلّ تكلفةً؟<\/span><span class=\"lang-en\">An app generates thumbnails for every image uploaded to S3. Best, lowest-cost solution?<\/span>",
         options: [
-          "<span class="lang-ar">خادم EC2 يفحص الـ bucket كلّ دقيقة.</span><span class="lang-en">An EC2 server polls the bucket every minute.</span>",
-          "<span class="lang-ar">S3 Event Notification تستدعي Lambda عند PUT مع object name filter لصور jpg.</span><span class="lang-en">S3 Event Notification invokes Lambda on PUT with name filter *.jpg.</span>",
-          "<span class="lang-ar">استخدام S3 Batch Operations.</span><span class="lang-en">Use S3 Batch Operations.</span>",
-          "<span class="lang-ar">نسخة يدويّة كلّ ليلة.</span><span class="lang-en">Manual nightly copy.</span>"
+          "<span class=\"lang-ar\">خادم EC2 يفحص الـ bucket كلّ دقيقة.<\/span><span class=\"lang-en\">An EC2 server polls the bucket every minute.<\/span>",
+          "<span class=\"lang-ar\">S3 Event Notification تستدعي Lambda عند PUT مع object name filter لصور jpg.<\/span><span class=\"lang-en\">S3 Event Notification invokes Lambda on PUT with name filter *.jpg.<\/span>",
+          "<span class=\"lang-ar\">استخدام S3 Batch Operations.<\/span><span class=\"lang-en\">Use S3 Batch Operations.<\/span>",
+          "<span class=\"lang-ar\">نسخة يدويّة كلّ ليلة.<\/span><span class=\"lang-en\">Manual nightly copy.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">النمط المعياريّ للـ serverless — S3 Event → Lambda. الفلترة بالاسم تمنع استدعاءات غير ضرورية. تكلفة pennies.</span><span class="lang-en">Classic serverless pattern — S3 Event → Lambda. Name filter avoids unnecessary invocations. Pennies in cost.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يدفع مقابل خادم قائم و polling مستمر.</span><span class=\"lang-en\">Paying for a running instance and constant polling.</span>", "", "<span class=\"lang-ar\">للعمليّات الجماعيّة على مجموعات موجودة، لا للإشعار الفوريّ.</span><span class=\"lang-en\">For bulk ops on existing sets, not real-time.</span>", "<span class=\"lang-ar\">لا يتعامل مع الصور الجديدة فوراً.</span><span class=\"lang-en\">Doesn't react to new uploads.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">النمط المعياريّ للـ serverless — S3 Event → Lambda. الفلترة بالاسم تمنع استدعاءات غير ضرورية. تكلفة pennies.<\/span><span class=\"lang-en\">Classic serverless pattern — S3 Event → Lambda. Name filter avoids unnecessary invocations. Pennies in cost.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يدفع مقابل خادم قائم و polling مستمر.<\/span><span class=\"lang-en\">Paying for a running instance and constant polling.<\/span>", "", "<span class=\"lang-ar\">للعمليّات الجماعيّة على مجموعات موجودة، لا للإشعار الفوريّ.<\/span><span class=\"lang-en\">For bulk ops on existing sets, not real-time.<\/span>", "<span class=\"lang-ar\">لا يتعامل مع الصور الجديدة فوراً.<\/span><span class=\"lang-en\">Doesn't react to new uploads.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">شركة تخزّن logs في S3 ولا تصل إليها إلّا مرّة واحدة ربع سنوياً لأغراض امتثاليّة. أيّ storage class الأمثل من حيث التكلفة؟</span><span class="lang-en">A company stores logs in S3, accesses them once a quarter for compliance. Most cost-effective class?</span>",
+        question: "<span class=\"lang-ar\">شركة تخزّن logs في S3 ولا تصل إليها إلّا مرّة واحدة ربع سنوياً لأغراض امتثاليّة. أيّ storage class الأمثل من حيث التكلفة؟<\/span><span class=\"lang-en\">A company stores logs in S3, accesses them once a quarter for compliance. Most cost-effective class?<\/span>",
         options: [
-          "<span class="lang-ar">S3 Standard</span><span class="lang-en">S3 Standard</span>",
-          "<span class="lang-ar">S3 Standard-IA</span><span class="lang-en">S3 Standard-IA</span>",
-          "<span class="lang-ar">S3 Glacier Instant Retrieval</span><span class="lang-en">S3 Glacier Instant Retrieval</span>",
-          "<span class="lang-ar">S3 Glacier Deep Archive</span><span class="lang-en">S3 Glacier Deep Archive</span>"
+          "<span class=\"lang-ar\">S3 Standard<\/span><span class=\"lang-en\">S3 Standard<\/span>",
+          "<span class=\"lang-ar\">S3 Standard-IA<\/span><span class=\"lang-en\">S3 Standard-IA<\/span>",
+          "<span class=\"lang-ar\">S3 Glacier Instant Retrieval<\/span><span class=\"lang-en\">S3 Glacier Instant Retrieval<\/span>",
+          "<span class=\"lang-ar\">S3 Glacier Deep Archive<\/span><span class=\"lang-en\">S3 Glacier Deep Archive<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Glacier Instant Retrieval</strong> مصمَّم تحديداً للوصول ربع السنويّ مع استرجاع بملّيثانية. أرخص من Standard-IA. Deep Archive أرخص لكن الاسترجاع يستغرق ١٢-٤٨ ساعة.</span><span class="lang-en"><strong>Glacier Instant Retrieval</strong> is designed exactly for quarterly access with millisecond retrieval. Cheaper than Standard-IA. Deep Archive is cheaper but retrieval takes 12-48h.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الأغلى، غير مبرّر للوصول ربع السنويّ.</span><span class=\"lang-en\">Most expensive, overkill.</span>", "<span class=\"lang-ar\">مصمَّم للوصول الشهريّ تقريباً، أغلى من Glacier Instant.</span><span class=\"lang-en\">Monthly-ish access, pricier than Glacier Instant.</span>", "", "<span class=\"lang-ar\">الاسترجاع ١٢-٤٨ ساعة — قد يكون مقبولاً لكن Instant أنسب للامتثال السريع.</span><span class=\"lang-en\">Retrieval 12-48h — may be OK but Instant fits compliance queries better.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Glacier Instant Retrieval<\/strong> مصمَّم تحديداً للوصول ربع السنويّ مع استرجاع بملّيثانية. أرخص من Standard-IA. Deep Archive أرخص لكن الاسترجاع يستغرق ١٢-٤٨ ساعة.<\/span><span class=\"lang-en\"><strong>Glacier Instant Retrieval<\/strong> is designed exactly for quarterly access with millisecond retrieval. Cheaper than Standard-IA. Deep Archive is cheaper but retrieval takes 12-48h.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الأغلى، غير مبرّر للوصول ربع السنويّ.<\/span><span class=\"lang-en\">Most expensive, overkill.<\/span>", "<span class=\"lang-ar\">مصمَّم للوصول الشهريّ تقريباً، أغلى من Glacier Instant.<\/span><span class=\"lang-en\">Monthly-ish access, pricier than Glacier Instant.<\/span>", "", "<span class=\"lang-ar\">الاسترجاع ١٢-٤٨ ساعة — قد يكون مقبولاً لكن Instant أنسب للامتثال السريع.<\/span><span class=\"lang-en\">Retrieval 12-48h — may be OK but Instant fits compliance queries better.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يصل إلى bucket يحتوي على ١٠٠ ألف prefix مختلف. ما أقصى GET/HEAD total يمكن أن يحصل عليه نظرياً بالثانية؟</span><span class="lang-en">An app queries a bucket with 100k unique prefixes. Theoretical max GET/HEAD throughput per second?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يصل إلى bucket يحتوي على ١٠٠ ألف prefix مختلف. ما أقصى GET/HEAD total يمكن أن يحصل عليه نظرياً بالثانية؟<\/span><span class=\"lang-en\">An app queries a bucket with 100k unique prefixes. Theoretical max GET/HEAD throughput per second?<\/span>",
         options: [
-          "<span class="lang-ar">٣٥٠٠</span><span class="lang-en">3500</span>",
-          "<span class="lang-ar">٥٥٠٠</span><span class="lang-en">5500</span>",
-          "<span class="lang-ar">٥٥٠,٠٠٠,٠٠٠ (5500 × 100,000 prefix)</span><span class="lang-en">550,000,000 (5500 × 100k prefixes)</span>",
-          "<span class="lang-ar">١٠,٠٠٠</span><span class="lang-en">10,000</span>"
+          "<span class=\"lang-ar\">٣٥٠٠<\/span><span class=\"lang-en\">3500<\/span>",
+          "<span class=\"lang-ar\">٥٥٠٠<\/span><span class=\"lang-en\">5500<\/span>",
+          "<span class=\"lang-ar\">٥٥٠,٠٠٠,٠٠٠ (5500 × 100,000 prefix)<\/span><span class=\"lang-en\">550,000,000 (5500 × 100k prefixes)<\/span>",
+          "<span class=\"lang-ar\">١٠,٠٠٠<\/span><span class=\"lang-en\">10,000<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">حدّ الـ GET/HEAD هو ٥٥٠٠ لكل prefix، وليس للـ bucket كاملاً. لا يوجد حدّ على عدد الـ prefixes. لذلك التوزيع يضرب السعة مباشرةً.</span><span class="lang-en">GET/HEAD limit is 5500 per prefix, not per bucket. Unlimited prefixes means distribution multiplies capacity linearly.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">حدّ الـ GET/HEAD هو ٥٥٠٠ لكل prefix، وليس للـ bucket كاملاً. لا يوجد حدّ على عدد الـ prefixes. لذلك التوزيع يضرب السعة مباشرةً.<\/span><span class=\"lang-en\">GET/HEAD limit is 5500 per prefix, not per bucket. Unlimited prefixes means distribution multiplies capacity linearly.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">فريق يحتاج تفعيل تشفير إلزاميّ لأيّ object يُرفَع إلى bucket. الحلّ الأضمن؟</span><span class="lang-en">A team needs to enforce encryption on every PUT to a bucket. Most robust approach?</span>",
+        question: "<span class=\"lang-ar\">فريق يحتاج تفعيل تشفير إلزاميّ لأيّ object يُرفَع إلى bucket. الحلّ الأضمن؟<\/span><span class=\"lang-en\">A team needs to enforce encryption on every PUT to a bucket. Most robust approach?<\/span>",
         options: [
-          "<span class="lang-ar">الاعتماد على الـ developers لإضافة encryption header في الكود.</span><span class="lang-en">Rely on developers to include encryption header in code.</span>",
-          "<span class="lang-ar">تفعيل Default Encryption على الـ bucket + Bucket Policy ترفض أيّ PUT بدون encryption header.</span><span class="lang-en">Enable Default Encryption + Bucket Policy denying any PUT without encryption header.</span>",
-          "<span class="lang-ar">استخدام VPC Endpoint.</span><span class="lang-en">Use a VPC Endpoint.</span>",
-          "<span class="lang-ar">فرض TLS.</span><span class="lang-en">Enforce TLS.</span>"
+          "<span class=\"lang-ar\">الاعتماد على الـ developers لإضافة encryption header في الكود.<\/span><span class=\"lang-en\">Rely on developers to include encryption header in code.<\/span>",
+          "<span class=\"lang-ar\">تفعيل Default Encryption على الـ bucket + Bucket Policy ترفض أيّ PUT بدون encryption header.<\/span><span class=\"lang-en\">Enable Default Encryption + Bucket Policy denying any PUT without encryption header.<\/span>",
+          "<span class=\"lang-ar\">استخدام VPC Endpoint.<\/span><span class=\"lang-en\">Use a VPC Endpoint.<\/span>",
+          "<span class=\"lang-ar\">فرض TLS.<\/span><span class=\"lang-en\">Enforce TLS.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Default Encryption يطبّق التشفير تلقائياً. Bucket Policy يمنع تحايُل الـ clients. معاً يشكّلان حاجزَين (defense in depth).</span><span class="lang-en">Default Encryption applies it automatically. Bucket Policy blocks client-side bypass. Together = defense in depth.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">غير موثوق — يعتمد على جودة الكود.</span><span class=\"lang-en\">Unreliable — depends on code quality.</span>", "", "<span class=\"lang-ar\">يتعلّق بالشبكة لا التشفير.</span><span class=\"lang-en\">Network-related, not encryption.</span>", "<span class=\"lang-ar\">يحمي أثناء النقل لا أثناء التخزين.</span><span class=\"lang-en\">Protects in transit, not at rest.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Default Encryption يطبّق التشفير تلقائياً. Bucket Policy يمنع تحايُل الـ clients. معاً يشكّلان حاجزَين (defense in depth).<\/span><span class=\"lang-en\">Default Encryption applies it automatically. Bucket Policy blocks client-side bypass. Together = defense in depth.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير موثوق — يعتمد على جودة الكود.<\/span><span class=\"lang-en\">Unreliable — depends on code quality.<\/span>", "", "<span class=\"lang-ar\">يتعلّق بالشبكة لا التشفير.<\/span><span class=\"lang-en\">Network-related, not encryption.<\/span>", "<span class=\"lang-ar\">يحمي أثناء النقل لا أثناء التخزين.<\/span><span class=\"lang-en\">Protects in transit, not at rest.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد تطبيق "لا يمكن حذف object في bucket لمدّة ٧ سنوات" (WORM). ما الميزة المناسبة؟</span><span class="lang-en">A company wants WORM ("no delete for 7 years") on a bucket. Which feature?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد تطبيق \"لا يمكن حذف object في bucket لمدّة ٧ سنوات\" (WORM). ما الميزة المناسبة؟<\/span><span class=\"lang-en\">A company wants WORM (\"no delete for 7 years\") on a bucket. Which feature?<\/span>",
         options: [
-          "<span class="lang-ar">Versioning وحده</span><span class="lang-en">Versioning alone</span>",
-          "<span class="lang-ar">S3 Object Lock مع retention mode Governance أو Compliance</span><span class="lang-en">S3 Object Lock with Governance or Compliance retention mode</span>",
-          "<span class="lang-ar">Glacier</span><span class="lang-en">Glacier</span>",
-          "<span class="lang-ar">Bucket Policy DENY</span><span class="lang-en">Bucket Policy DENY</span>"
+          "<span class=\"lang-ar\">Versioning وحده<\/span><span class=\"lang-en\">Versioning alone<\/span>",
+          "<span class=\"lang-ar\">S3 Object Lock مع retention mode Governance أو Compliance<\/span><span class=\"lang-en\">S3 Object Lock with Governance or Compliance retention mode<\/span>",
+          "<span class=\"lang-ar\">Glacier<\/span><span class=\"lang-en\">Glacier<\/span>",
+          "<span class=\"lang-ar\">Bucket Policy DENY<\/span><span class=\"lang-en\">Bucket Policy DENY<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>S3 Object Lock</strong> يوفّر WORM — Compliance mode لا يمكن لأحد (حتى الـ root user) تعديله خلال فترة الاحتفاظ. يجب تفعيله عند إنشاء الـ bucket. Versioning شرط مساعد لكن لا يفرض WORM.</span><span class="lang-en"><strong>S3 Object Lock</strong> provides WORM — Compliance mode can't be overridden even by root during retention. Must be enabled at bucket creation. Versioning is a prerequisite but doesn't enforce WORM.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣ + المعرفة المتقدمة</span><span class=\"lang-en\">Section 3 + advanced knowledge</span>"
+        explanation: "<span class=\"lang-ar\"><strong>S3 Object Lock<\/strong> يوفّر WORM — Compliance mode لا يمكن لأحد (حتى الـ root user) تعديله خلال فترة الاحتفاظ. يجب تفعيله عند إنشاء الـ bucket. Versioning شرط مساعد لكن لا يفرض WORM.<\/span><span class=\"lang-en\"><strong>S3 Object Lock<\/strong> provides WORM — Compliance mode can't be overridden even by root during retention. Must be enabled at bucket creation. Versioning is a prerequisite but doesn't enforce WORM.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣ + المعرفة المتقدمة<\/span><span class=\"lang-en\">Section 3 + advanced knowledge<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يلاحظ أنّ lifecycle rule نقلت objects من Standard إلى Standard-IA بعد ١٠ أيام. ما العيب؟</span><span class="lang-en">A developer notices a lifecycle rule moved objects from Standard to Standard-IA after just 10 days. What's the issue?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يلاحظ أنّ lifecycle rule نقلت objects من Standard إلى Standard-IA بعد ١٠ أيام. ما العيب؟<\/span><span class=\"lang-en\">A developer notices a lifecycle rule moved objects from Standard to Standard-IA after just 10 days. What's the issue?<\/span>",
         options: [
-          "<span class="lang-ar">لا عيب، الإعداد صحيح.</span><span class="lang-en">No issue.</span>",
-          "<span class="lang-ar">Standard-IA يفرض رسوماً لحد أدنى ٣٠ يوماً من التخزين، فالنقل المبكّر سيسبّب تكلفة إضافية.</span><span class="lang-en">Standard-IA has a 30-day minimum storage charge; early transitions trigger extra cost.</span>",
-          "<span class="lang-ar">يجب أن تكون الـ objects أكبر من ١ جيجابايت.</span><span class="lang-en">Objects must be >1 GB.</span>",
-          "<span class="lang-ar">الـ lifecycle لا يعمل على Standard.</span><span class="lang-en">Lifecycle doesn't work on Standard.</span>"
+          "<span class=\"lang-ar\">لا عيب، الإعداد صحيح.<\/span><span class=\"lang-en\">No issue.<\/span>",
+          "<span class=\"lang-ar\">Standard-IA يفرض رسوماً لحد أدنى ٣٠ يوماً من التخزين، فالنقل المبكّر سيسبّب تكلفة إضافية.<\/span><span class=\"lang-en\">Standard-IA has a 30-day minimum storage charge; early transitions trigger extra cost.<\/span>",
+          "<span class=\"lang-ar\">يجب أن تكون الـ objects أكبر من ١ جيجابايت.<\/span><span class=\"lang-en\">Objects must be >1 GB.<\/span>",
+          "<span class=\"lang-ar\">الـ lifecycle لا يعمل على Standard.<\/span><span class=\"lang-en\">Lifecycle doesn't work on Standard.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Standard-IA و One Zone-IA يفرضان حد أدنى ٣٠ يوماً. Glacier/Glacier Instant ٩٠ يوماً، Deep Archive ١٨٠ يوماً. النقل قبل هذه الفترات يفرض رسوم كأنّ الـ object بقي المدّة كاملة.</span><span class="lang-en">Standard-IA and One Zone-IA have 30-day minimums. Glacier/Glacier Instant = 90 days, Deep Archive = 180 days. Early transitions still pay for the full minimum as if the object stayed there.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Standard-IA و One Zone-IA يفرضان حد أدنى ٣٠ يوماً. Glacier/Glacier Instant ٩٠ يوماً، Deep Archive ١٨٠ يوماً. النقل قبل هذه الفترات يفرض رسوم كأنّ الـ object بقي المدّة كاملة.<\/span><span class=\"lang-en\">Standard-IA and One Zone-IA have 30-day minimums. Glacier/Glacier Instant = 90 days, Deep Archive = 180 days. Early transitions still pay for the full minimum as if the object stayed there.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من الحالات التالية مناسبة لـ <strong>Transfer Acceleration</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are suitable for <strong>Transfer Acceleration</strong>? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من الحالات التالية مناسبة لـ <strong>Transfer Acceleration<\/strong>؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are suitable for <strong>Transfer Acceleration<\/strong>? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">رفع ملفّات من مستخدمين موزّعين عبر القارّات إلى bucket مركزيّ.</span><span class="lang-en">Uploads from users across continents to a central bucket.</span>",
-          "<span class="lang-ar">تنزيل داخل نفس الـ Region.</span><span class="lang-en">Download inside the same region.</span>",
-          "<span class="lang-ar">رفع متوازن مع Multipart Upload.</span><span class="lang-en">Parallelized upload with Multipart.</span>",
-          "<span class="lang-ar">نقل بيانات بين AZs داخل نفس الـ Region.</span><span class="lang-en">Data transfer between AZs in the same region.</span>"
+          "<span class=\"lang-ar\">رفع ملفّات من مستخدمين موزّعين عبر القارّات إلى bucket مركزيّ.<\/span><span class=\"lang-en\">Uploads from users across continents to a central bucket.<\/span>",
+          "<span class=\"lang-ar\">تنزيل داخل نفس الـ Region.<\/span><span class=\"lang-en\">Download inside the same region.<\/span>",
+          "<span class=\"lang-ar\">رفع متوازن مع Multipart Upload.<\/span><span class=\"lang-en\">Parallelized upload with Multipart.<\/span>",
+          "<span class=\"lang-ar\">نقل بيانات بين AZs داخل نفس الـ Region.<\/span><span class=\"lang-en\">Data transfer between AZs in the same region.<\/span>"
         ],
         correct: [0,2],
-        explanation: "<span class="lang-ar">Transfer Acceleration يفيد عندما يكون المستخدم بعيداً جغرافياً عن الـ bucket — يستخدم أقرب edge location ثم شبكة AWS السريعة. متوافق مع Multipart. لا قيمة مضافة داخل نفس الـ region.</span><span class="lang-en">Transfer Acceleration helps when users are far from the bucket — uses nearest edge then AWS backbone. Multipart-compatible. No value inside the same region.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">Transfer Acceleration يفيد عندما يكون المستخدم بعيداً جغرافياً عن الـ bucket — يستخدم أقرب edge location ثم شبكة AWS السريعة. متوافق مع Multipart. لا قيمة مضافة داخل نفس الـ region.<\/span><span class=\"lang-en\">Transfer Acceleration helps when users are far from the bucket — uses nearest edge then AWS backbone. Multipart-compatible. No value inside the same region.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">شركة تطلب من المطوّرين تقديم صور PII-free للمستخدمين العامّين بينما يجب أن يراها فريق الامتثال بالكامل — دون تخزين نسختين. الحلّ؟</span><span class="lang-en">A company needs public users to see PII-free images while compliance sees the full version — without storing two copies. Solution?</span>",
+        question: "<span class=\"lang-ar\">شركة تطلب من المطوّرين تقديم صور PII-free للمستخدمين العامّين بينما يجب أن يراها فريق الامتثال بالكامل — دون تخزين نسختين. الحلّ؟<\/span><span class=\"lang-en\">A company needs public users to see PII-free images while compliance sees the full version — without storing two copies. Solution?<\/span>",
         options: [
-          "<span class="lang-ar">S3 Select</span><span class="lang-en">S3 Select</span>",
-          "<span class="lang-ar">S3 Object Lambda — دالة تعدّل الـ response أثناء الاسترجاع.</span><span class="lang-en">S3 Object Lambda — Lambda modifies the response on retrieval.</span>",
-          "<span class="lang-ar">Lifecycle Rules</span><span class="lang-en">Lifecycle Rules</span>",
-          "<span class="lang-ar">Versioning</span><span class="lang-en">Versioning</span>"
+          "<span class=\"lang-ar\">S3 Select<\/span><span class=\"lang-en\">S3 Select<\/span>",
+          "<span class=\"lang-ar\">S3 Object Lambda — دالة تعدّل الـ response أثناء الاسترجاع.<\/span><span class=\"lang-en\">S3 Object Lambda — Lambda modifies the response on retrieval.<\/span>",
+          "<span class=\"lang-ar\">Lifecycle Rules<\/span><span class=\"lang-en\">Lifecycle Rules<\/span>",
+          "<span class=\"lang-ar\">Versioning<\/span><span class=\"lang-en\">Versioning<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>S3 Object Lambda</strong> يعدّل مخرجات GetObject حسب السياق (role يطلب، المستخدم، ...). يمكن أن يُعيد نسخة مُعقَّمة للعموم وكاملة للامتثال، بدون تخزين مزدوج.</span><span class="lang-en"><strong>S3 Object Lambda</strong> transforms GetObject output based on context (requesting role, user, etc.). Returns sanitized for public, full for compliance, without dual storage.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لاستعلام SQL على CSV/JSON/Parquet.</span><span class=\"lang-en\">SQL on CSV/JSON/Parquet.</span>", "", "<span class=\"lang-ar\">لنقل storage class، لا للتعديل أثناء القراءة.</span><span class=\"lang-en\">Changes storage class, not on-read transformation.</span>", "<span class=\"lang-ar\">لتتبّع التاريخ، لا للتحويل.</span><span class=\"lang-en\">Historical tracking, not transformation.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\"><strong>S3 Object Lambda<\/strong> يعدّل مخرجات GetObject حسب السياق (role يطلب، المستخدم، ...). يمكن أن يُعيد نسخة مُعقَّمة للعموم وكاملة للامتثال، بدون تخزين مزدوج.<\/span><span class=\"lang-en\"><strong>S3 Object Lambda<\/strong> transforms GetObject output based on context (requesting role, user, etc.). Returns sanitized for public, full for compliance, without dual storage.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لاستعلام SQL على CSV/JSON/Parquet.<\/span><span class=\"lang-en\">SQL on CSV/JSON/Parquet.<\/span>", "", "<span class=\"lang-ar\">لنقل storage class، لا للتعديل أثناء القراءة.<\/span><span class=\"lang-en\">Changes storage class, not on-read transformation.<\/span>", "<span class=\"lang-ar\">لتتبّع التاريخ، لا للتحويل.<\/span><span class=\"lang-en\">Historical tracking, not transformation.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يحاول استرجاع object من bucket مشفّر بـ KMS لكن يحصل على AccessDenied رغم أنّ لديه صلاحيّة s3:GetObject. السبب الأرجح؟</span><span class="lang-en">A developer can't GetObject from a KMS-encrypted bucket even with s3:GetObject permission, getting AccessDenied. Most likely cause?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يحاول استرجاع object من bucket مشفّر بـ KMS لكن يحصل على AccessDenied رغم أنّ لديه صلاحيّة s3:GetObject. السبب الأرجح؟<\/span><span class=\"lang-en\">A developer can't GetObject from a KMS-encrypted bucket even with s3:GetObject permission, getting AccessDenied. Most likely cause?<\/span>",
         options: [
-          "<span class="lang-ar">الصلاحيّة kms:Decrypt غير معطاة له في KMS Key Policy.</span><span class="lang-en">Missing kms:Decrypt permission on the KMS Key Policy.</span>",
-          "<span class="lang-ar">الـ bucket عام.</span><span class="lang-en">Bucket is public.</span>",
-          "<span class="lang-ar">الـ object تالف.</span><span class="lang-en">Object is corrupt.</span>",
-          "<span class="lang-ar">أزال Block Public Access.</span><span class="lang-en">Disabled Block Public Access.</span>"
+          "<span class=\"lang-ar\">الصلاحيّة kms:Decrypt غير معطاة له في KMS Key Policy.<\/span><span class=\"lang-en\">Missing kms:Decrypt permission on the KMS Key Policy.<\/span>",
+          "<span class=\"lang-ar\">الـ bucket عام.<\/span><span class=\"lang-en\">Bucket is public.<\/span>",
+          "<span class=\"lang-ar\">الـ object تالف.<\/span><span class=\"lang-en\">Object is corrupt.<\/span>",
+          "<span class=\"lang-ar\">أزال Block Public Access.<\/span><span class=\"lang-en\">Disabled Block Public Access.<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">للـ objects المشفّرة بـ SSE-KMS، المستخدم يحتاج صلاحيّتين: <span dir="ltr" class="font-mono">s3:GetObject</span> + <span dir="ltr" class="font-mono">kms:Decrypt</span> على الـ CMK المستخدم. هذا فخّ شائع.</span><span class="lang-en">For SSE-KMS objects, the user needs both <span dir="ltr" class="font-mono">s3:GetObject</span> + <span dir="ltr" class="font-mono">kms:Decrypt</span> on the CMK. Common trap.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يفسّر AccessDenied لمستخدم مُوثَّق.</span><span class=\"lang-en\">Doesn't explain authenticated access denial.</span>", "<span class=\"lang-ar\">لا علاقة للتلف بالصلاحيات.</span><span class=\"lang-en\">Corruption unrelated to permissions.</span>", "<span class=\"lang-ar\">لا علاقة له بالحصول على ملف خاص.</span><span class=\"lang-en\">Unrelated to getting a private file.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">للـ objects المشفّرة بـ SSE-KMS، المستخدم يحتاج صلاحيّتين: <span dir=\"ltr\" class=\"font-mono\">s3:GetObject<\/span> + <span dir=\"ltr\" class=\"font-mono\">kms:Decrypt<\/span> على الـ CMK المستخدم. هذا فخّ شائع.<\/span><span class=\"lang-en\">For SSE-KMS objects, the user needs both <span dir=\"ltr\" class=\"font-mono\">s3:GetObject<\/span> + <span dir=\"ltr\" class=\"font-mono\">kms:Decrypt<\/span> on the CMK. Common trap.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يفسّر AccessDenied لمستخدم مُوثَّق.<\/span><span class=\"lang-en\">Doesn't explain authenticated access denial.<\/span>", "<span class=\"lang-ar\">لا علاقة للتلف بالصلاحيات.<\/span><span class=\"lang-en\">Corruption unrelated to permissions.<\/span>", "<span class=\"lang-ar\">لا علاقة له بالحصول على ملف خاص.<\/span><span class=\"lang-en\">Unrelated to getting a private file.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">شركة لديها bucket في us-east-1 ومستخدمون في أوروبا يشتكون من بطء التنزيل. الحلّ الأنسب والأقلّ تكلفة؟</span><span class="lang-en">A company has a bucket in us-east-1 and European users complain of slow downloads. Best low-cost fix?</span>",
+        question: "<span class=\"lang-ar\">شركة لديها bucket في us-east-1 ومستخدمون في أوروبا يشتكون من بطء التنزيل. الحلّ الأنسب والأقلّ تكلفة؟<\/span><span class=\"lang-en\">A company has a bucket in us-east-1 and European users complain of slow downloads. Best low-cost fix?<\/span>",
         options: [
-          "<span class="lang-ar">Transfer Acceleration على الـ bucket.</span><span class="lang-en">Transfer Acceleration on the bucket.</span>",
-          "<span class="lang-ar">CloudFront أمام الـ bucket لتخزين نسخ مؤقّتة في edge locations.</span><span class="lang-en">CloudFront in front of the bucket to cache at edge locations.</span>",
-          "<span class="lang-ar">نسخ كامل لـ bucket في eu-west-1.</span><span class="lang-en">Full bucket copy in eu-west-1.</span>",
-          "<span class="lang-ar">ترقية الشبكة.</span><span class="lang-en">Upgrade networking.</span>"
+          "<span class=\"lang-ar\">Transfer Acceleration على الـ bucket.<\/span><span class=\"lang-en\">Transfer Acceleration on the bucket.<\/span>",
+          "<span class=\"lang-ar\">CloudFront أمام الـ bucket لتخزين نسخ مؤقّتة في edge locations.<\/span><span class=\"lang-en\">CloudFront in front of the bucket to cache at edge locations.<\/span>",
+          "<span class=\"lang-ar\">نسخ كامل لـ bucket في eu-west-1.<\/span><span class=\"lang-en\">Full bucket copy in eu-west-1.<\/span>",
+          "<span class=\"lang-ar\">ترقية الشبكة.<\/span><span class=\"lang-en\">Upgrade networking.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>CloudFront</strong> الأمثل للتنزيل المتكرّر — ينسخ المحتوى إلى edge locations قريبة من المستخدمين. Transfer Acceleration مصمَّم للرفع أكثر من التنزيل، ولا يقدّم تخزيناً مؤقّتاً. CRR مكلف لبيانات كبيرة.</span><span class="lang-en"><strong>CloudFront</strong> is ideal for repeated downloads — caches content at edges near users. Transfer Acceleration is more upload-focused and doesn't cache. CRR is expensive for large data.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يركّز على الرفع لا التنزيل المتكرر.</span><span class=\"lang-en\">Upload-focused, not download-caching.</span>", "", "<span class=\"lang-ar\">تكلفة تخزين ونقل مزدوجة.</span><span class=\"lang-en\">Double storage + replication cost.</span>", "<span class=\"lang-ar\">الشبكة ليست العنق.</span><span class=\"lang-en\">Network isn't the bottleneck.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CloudFront<\/strong> الأمثل للتنزيل المتكرّر — ينسخ المحتوى إلى edge locations قريبة من المستخدمين. Transfer Acceleration مصمَّم للرفع أكثر من التنزيل، ولا يقدّم تخزيناً مؤقّتاً. CRR مكلف لبيانات كبيرة.<\/span><span class=\"lang-en\"><strong>CloudFront<\/strong> is ideal for repeated downloads — caches content at edges near users. Transfer Acceleration is more upload-focused and doesn't cache. CRR is expensive for large data.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يركّز على الرفع لا التنزيل المتكرر.<\/span><span class=\"lang-en\">Upload-focused, not download-caching.<\/span>", "", "<span class=\"lang-ar\">تكلفة تخزين ونقل مزدوجة.<\/span><span class=\"lang-en\">Double storage + replication cost.<\/span>", "<span class=\"lang-ar\">الشبكة ليست العنق.<\/span><span class=\"lang-en\">Network isn't the bottleneck.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">بعد تفعيل versioning، المطوّر يحذف object ثم يشاهد <strong>Delete Marker</strong>. كيف يستعيد الملف الأصليّ؟</span><span class="lang-en">After enabling versioning, a dev deletes an object and sees a <strong>Delete Marker</strong>. How to restore?</span>",
+        question: "<span class=\"lang-ar\">بعد تفعيل versioning، المطوّر يحذف object ثم يشاهد <strong>Delete Marker<\/strong>. كيف يستعيد الملف الأصليّ؟<\/span><span class=\"lang-en\">After enabling versioning, a dev deletes an object and sees a <strong>Delete Marker<\/strong>. How to restore?<\/span>",
         options: [
-          "<span class="lang-ar">من المستحيل — الحذف نهائيّ.</span><span class="lang-en">Impossible — delete is permanent.</span>",
-          "<span class="lang-ar">احذف الـ Delete Marker (عبر الـ version ID الخاصّ به)، فتظهر النسخة السابقة.</span><span class="lang-en">Delete the Delete Marker (by its version ID), and the prior version resurfaces.</span>",
-          "<span class="lang-ar">أعد رفع نفس الملف.</span><span class="lang-en">Re-upload the file.</span>",
-          "<span class="lang-ar">انتقل إلى Glacier.</span><span class="lang-en">Move to Glacier.</span>"
+          "<span class=\"lang-ar\">من المستحيل — الحذف نهائيّ.<\/span><span class=\"lang-en\">Impossible — delete is permanent.<\/span>",
+          "<span class=\"lang-ar\">احذف الـ Delete Marker (عبر الـ version ID الخاصّ به)، فتظهر النسخة السابقة.<\/span><span class=\"lang-en\">Delete the Delete Marker (by its version ID), and the prior version resurfaces.<\/span>",
+          "<span class=\"lang-ar\">أعد رفع نفس الملف.<\/span><span class=\"lang-en\">Re-upload the file.<\/span>",
+          "<span class=\"lang-ar\">انتقل إلى Glacier.<\/span><span class=\"lang-en\">Move to Glacier.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">مع versioning، DELETE لا يمحو الـ object — يضيف Delete Marker كنسخة جديدة أعلى. حذف هذا الـ marker يكشف النسخة الأصلية. هذا هو الغرض الأساسيّ من versioning.</span><span class="lang-en">With versioning, DELETE doesn't remove — it adds a Delete Marker on top. Removing that marker exposes the original. That's versioning's primary purpose.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">مع versioning، DELETE لا يمحو الـ object — يضيف Delete Marker كنسخة جديدة أعلى. حذف هذا الـ marker يكشف النسخة الأصلية. هذا هو الغرض الأساسيّ من versioning.<\/span><span class=\"lang-en\">With versioning, DELETE doesn't remove — it adds a Delete Marker on top. Removing that marker exposes the original. That's versioning's primary purpose.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">فريق يحتاج إعطاء تطبيق مستضاف على EC2 صلاحيّة قراءة وكتابة على bucket محدّد فقط. أفضل الممارسات؟</span><span class="lang-en">An EC2-hosted app needs read/write on one specific bucket. Best practice?</span>",
+        question: "<span class=\"lang-ar\">فريق يحتاج إعطاء تطبيق مستضاف على EC2 صلاحيّة قراءة وكتابة على bucket محدّد فقط. أفضل الممارسات؟<\/span><span class=\"lang-en\">An EC2-hosted app needs read/write on one specific bucket. Best practice?<\/span>",
         options: [
-          "<span class="lang-ar">مفاتيح IAM User في متغيّرات البيئة.</span><span class="lang-en">IAM User keys in env vars.</span>",
-          "<span class="lang-ar">IAM Role مرفق بالخادم (Instance Profile) مع policy محدودة لـ arn:aws:s3:::bucket-name/*.</span><span class="lang-en">IAM Role attached to the instance (Instance Profile) with policy scoped to arn:aws:s3:::bucket-name/*.</span>",
-          "<span class="lang-ar">Bucket ACL.</span><span class="lang-en">Bucket ACL.</span>",
-          "<span class="lang-ar">تعطيل Block Public Access.</span><span class="lang-en">Disable Block Public Access.</span>"
+          "<span class=\"lang-ar\">مفاتيح IAM User في متغيّرات البيئة.<\/span><span class=\"lang-en\">IAM User keys in env vars.<\/span>",
+          "<span class=\"lang-ar\">IAM Role مرفق بالخادم (Instance Profile) مع policy محدودة لـ arn:aws:s3:::bucket-name/*.<\/span><span class=\"lang-en\">IAM Role attached to the instance (Instance Profile) with policy scoped to arn:aws:s3:::bucket-name/*.<\/span>",
+          "<span class=\"lang-ar\">Bucket ACL.<\/span><span class=\"lang-en\">Bucket ACL.<\/span>",
+          "<span class=\"lang-ar\">تعطيل Block Public Access.<\/span><span class=\"lang-en\">Disable Block Public Access.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">IAM Role مع least-privilege هو المعيار. الـ SDK يأخذ الصلاحيات من IMDS تلقائياً، ومفاتيح مؤقّتة تُدوَّر، ولا حاجة لإدارة أسرار.</span><span class="lang-en">IAM Role with least-privilege is the standard. SDK auto-fetches creds from IMDS, tempo keys auto-rotate, no secrets to manage.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ممارسة سيّئة، مفاتيح مكتوبة.</span><span class=\"lang-en\">Bad practice, hardcoded keys.</span>", "", "<span class=\"lang-ar\">ACL طريقة قديمة، معطَّلة افتراضياً للـ buckets الحديثة.</span><span class=\"lang-en\">ACLs are legacy, disabled by default on new buckets.</span>", "<span class=\"lang-ar\">لا علاقة بمنح تطبيق محدّد.</span><span class=\"lang-en\">Unrelated to granting specific app access.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">IAM Role مع least-privilege هو المعيار. الـ SDK يأخذ الصلاحيات من IMDS تلقائياً، ومفاتيح مؤقّتة تُدوَّر، ولا حاجة لإدارة أسرار.<\/span><span class=\"lang-en\">IAM Role with least-privilege is the standard. SDK auto-fetches creds from IMDS, tempo keys auto-rotate, no secrets to manage.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ممارسة سيّئة، مفاتيح مكتوبة.<\/span><span class=\"lang-en\">Bad practice, hardcoded keys.<\/span>", "", "<span class=\"lang-ar\">ACL طريقة قديمة، معطَّلة افتراضياً للـ buckets الحديثة.<\/span><span class=\"lang-en\">ACLs are legacy, disabled by default on new buckets.<\/span>", "<span class=\"lang-ar\">لا علاقة بمنح تطبيق محدّد.<\/span><span class=\"lang-en\">Unrelated to granting specific app access.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       }
     ];
 

@@ -1068,218 +1068,218 @@ sam deploy --stack-name order-processor \
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق الجوهريّ بين Reserved Concurrency و Provisioned Concurrency؟</span><span class="lang-en">Key difference between Reserved and Provisioned Concurrency?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق الجوهريّ بين Reserved Concurrency و Provisioned Concurrency؟<\/span><span class=\"lang-en\">Key difference between Reserved and Provisioned Concurrency?<\/span>",
         options: [
-          "<span class="lang-ar">لا يوجد فرق.</span><span class="lang-en">No difference.</span>",
-          "<span class="lang-ar">Reserved = سقف + حجز سعة من الحساب (لا يمنع cold start). Provisioned = instances مُحمَّلة مسبقاً (يمنع cold start). يُدفَع لها حتى لو لم تُستخدم.</span><span class="lang-en">Reserved = cap + reserves account capacity (doesn't eliminate cold starts). Provisioned = pre-initialized instances (eliminates cold starts). Paid even when idle.</span>",
-          "<span class="lang-ar">Provisioned مجاني.</span><span class="lang-en">Provisioned is free.</span>",
-          "<span class="lang-ar">Reserved يعطي cold start أسرع.</span><span class="lang-en">Reserved improves cold starts.</span>"
+          "<span class=\"lang-ar\">لا يوجد فرق.<\/span><span class=\"lang-en\">No difference.<\/span>",
+          "<span class=\"lang-ar\">Reserved = سقف + حجز سعة من الحساب (لا يمنع cold start). Provisioned = instances مُحمَّلة مسبقاً (يمنع cold start). يُدفَع لها حتى لو لم تُستخدم.<\/span><span class=\"lang-en\">Reserved = cap + reserves account capacity (doesn't eliminate cold starts). Provisioned = pre-initialized instances (eliminates cold starts). Paid even when idle.<\/span>",
+          "<span class=\"lang-ar\">Provisioned مجاني.<\/span><span class=\"lang-en\">Provisioned is free.<\/span>",
+          "<span class=\"lang-ar\">Reserved يعطي cold start أسرع.<\/span><span class=\"lang-en\">Reserved improves cold starts.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Reserved يحدّد سقفاً على الدالة ويحجز لها السعة. Provisioned يحضّر instances جاهزة للاستقبال دون cold start — مكلِف لكنّه ضروريّ للزمن الحرج.</span><span class="lang-en">Reserved caps & reserves capacity. Provisioned pre-warms instances, eliminating cold starts — costly but essential for latency-critical paths.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Reserved يحدّد سقفاً على الدالة ويحجز لها السعة. Provisioned يحضّر instances جاهزة للاستقبال دون cold start — مكلِف لكنّه ضروريّ للزمن الحرج.<\/span><span class=\"lang-en\">Reserved caps & reserves capacity. Provisioned pre-warms instances, eliminating cold starts — costly but essential for latency-critical paths.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">دالة Lambda داخل VPC تحتاج استدعاء API خارجيّ. ما الإعداد المطلوب؟</span><span class="lang-en">A Lambda in a VPC needs to call an external API. What's required?</span>",
+        question: "<span class=\"lang-ar\">دالة Lambda داخل VPC تحتاج استدعاء API خارجيّ. ما الإعداد المطلوب؟<\/span><span class=\"lang-en\">A Lambda in a VPC needs to call an external API. What's required?<\/span>",
         options: [
-          "<span class="lang-ar">نشر الدالة في public subnet.</span><span class="lang-en">Deploy in a public subnet.</span>",
-          "<span class="lang-ar">إرفاق Elastic IP.</span><span class="lang-en">Attach an Elastic IP.</span>",
-          "<span class="lang-ar">نشر الدالة في private subnet مع route إلى NAT Gateway في public subnet.</span><span class="lang-en">Deploy in a private subnet with a route to a NAT Gateway in a public subnet.</span>",
-          "<span class="lang-ar">استخدام IGW مباشرةً.</span><span class="lang-en">Use an IGW directly.</span>"
+          "<span class=\"lang-ar\">نشر الدالة في public subnet.<\/span><span class=\"lang-en\">Deploy in a public subnet.<\/span>",
+          "<span class=\"lang-ar\">إرفاق Elastic IP.<\/span><span class=\"lang-en\">Attach an Elastic IP.<\/span>",
+          "<span class=\"lang-ar\">نشر الدالة في private subnet مع route إلى NAT Gateway في public subnet.<\/span><span class=\"lang-en\">Deploy in a private subnet with a route to a NAT Gateway in a public subnet.<\/span>",
+          "<span class=\"lang-ar\">استخدام IGW مباشرةً.<\/span><span class=\"lang-en\">Use an IGW directly.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">Lambda لا يحصل على Public IP حتى في public subnet. الحل الصحيح: private subnet + NAT Gateway في public subnet للخروج. Internet Gateway لا يكفي لأنّ Lambda بلا Public IP.</span><span class="lang-en">Lambda gets no public IP even in a public subnet. Correct: private subnet + NAT Gateway in public subnet for egress. IGW alone insufficient because Lambda has no public IP.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يعطي إنترنت تلقائياً.</span><span class=\"lang-en\">Doesn't auto-grant internet.</span>", "<span class=\"lang-ar\">Lambda لا يقبل Elastic IP.</span><span class=\"lang-en\">Lambda can't have Elastic IP.</span>", "", "<span class=\"lang-ar\">IGW بحاجة Public IP.</span><span class=\"lang-en\">IGW needs a public IP.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Lambda لا يحصل على Public IP حتى في public subnet. الحل الصحيح: private subnet + NAT Gateway في public subnet للخروج. Internet Gateway لا يكفي لأنّ Lambda بلا Public IP.<\/span><span class=\"lang-en\">Lambda gets no public IP even in a public subnet. Correct: private subnet + NAT Gateway in public subnet for egress. IGW alone insufficient because Lambda has no public IP.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يعطي إنترنت تلقائياً.<\/span><span class=\"lang-en\">Doesn't auto-grant internet.<\/span>", "<span class=\"lang-ar\">Lambda لا يقبل Elastic IP.<\/span><span class=\"lang-en\">Lambda can't have Elastic IP.<\/span>", "", "<span class=\"lang-ar\">IGW بحاجة Public IP.<\/span><span class=\"lang-en\">IGW needs a public IP.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">Java Lambda لديه timeout ٣ ثوانٍ ومستوى RAM ١٢٨MB. يحدث timeout في كلّ استدعاء. الحل الأوّل المجدي؟</span><span class="lang-en">A Java Lambda with 3s timeout and 128MB RAM times out every invocation. First fix to try?</span>",
+        question: "<span class=\"lang-ar\">Java Lambda لديه timeout ٣ ثوانٍ ومستوى RAM ١٢٨MB. يحدث timeout في كلّ استدعاء. الحل الأوّل المجدي؟<\/span><span class=\"lang-en\">A Java Lambda with 3s timeout and 128MB RAM times out every invocation. First fix to try?<\/span>",
         options: [
-          "<span class="lang-ar">زيادة timeout إلى ١٥ دقيقة.</span><span class="lang-en">Raise timeout to 15 min.</span>",
-          "<span class="lang-ar">زيادة RAM (الذاكرة مرتبطة بـ vCPU — زيادتها تزيد سرعة JVM بشكل كبير).</span><span class="lang-en">Increase RAM (memory is coupled to vCPU — JVM runs dramatically faster).</span>",
-          "<span class="lang-ar">الانتقال إلى container image.</span><span class="lang-en">Switch to container image.</span>",
-          "<span class="lang-ar">إلغاء Active Tracing.</span><span class="lang-en">Disable Active Tracing.</span>"
+          "<span class=\"lang-ar\">زيادة timeout إلى ١٥ دقيقة.<\/span><span class=\"lang-en\">Raise timeout to 15 min.<\/span>",
+          "<span class=\"lang-ar\">زيادة RAM (الذاكرة مرتبطة بـ vCPU — زيادتها تزيد سرعة JVM بشكل كبير).<\/span><span class=\"lang-en\">Increase RAM (memory is coupled to vCPU — JVM runs dramatically faster).<\/span>",
+          "<span class=\"lang-ar\">الانتقال إلى container image.<\/span><span class=\"lang-en\">Switch to container image.<\/span>",
+          "<span class=\"lang-ar\">إلغاء Active Tracing.<\/span><span class=\"lang-en\">Disable Active Tracing.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">في Lambda، زيادة الـ RAM تزيد vCPU تلقائياً. JVM تستفيد كثيراً من الـ CPU الإضافيّ — رفع الذاكرة من ١٢٨ إلى ٥١٢MB قد يقلّص الـ duration بنسبة ٧٠٪+. الـ timeout قد يكون حلاً أخيراً.</span><span class="lang-en">In Lambda, more RAM = more vCPU. JVM benefits hugely from extra CPU — raising 128→512MB can cut duration by 70%+. Timeout is a last resort.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يُعالج العرض لا السبب الجذريّ (بطء JVM).</span><span class=\"lang-en\">Treats symptom, not root (slow JVM).</span>", "", "<span class=\"lang-ar\">لا يحلّ مشكلة CPU-bound.</span><span class=\"lang-en\">Doesn't solve CPU-bound issue.</span>", "<span class=\"lang-ar\">قد يقلل شيئاً، لكن ليس السبب الرئيسيّ.</span><span class=\"lang-en\">Might help a bit, but not the main cause.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">في Lambda، زيادة الـ RAM تزيد vCPU تلقائياً. JVM تستفيد كثيراً من الـ CPU الإضافيّ — رفع الذاكرة من ١٢٨ إلى ٥١٢MB قد يقلّص الـ duration بنسبة ٧٠٪+. الـ timeout قد يكون حلاً أخيراً.<\/span><span class=\"lang-en\">In Lambda, more RAM = more vCPU. JVM benefits hugely from extra CPU — raising 128→512MB can cut duration by 70%+. Timeout is a last resort.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُعالج العرض لا السبب الجذريّ (بطء JVM).<\/span><span class=\"lang-en\">Treats symptom, not root (slow JVM).<\/span>", "", "<span class=\"lang-ar\">لا يحلّ مشكلة CPU-bound.<\/span><span class=\"lang-en\">Doesn't solve CPU-bound issue.<\/span>", "<span class=\"lang-ar\">قد يقلل شيئاً، لكن ليس السبب الرئيسيّ.<\/span><span class=\"lang-en\">Might help a bit, but not the main cause.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q4",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من هذه الإعدادات صحيحة لـ Lambda Layers؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about Lambda Layers? Select all.</span>",
+        question: "<span class=\"lang-ar\">أيّ من هذه الإعدادات صحيحة لـ Lambda Layers؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are true about Lambda Layers? Select all.<\/span>",
         options: [
-          "<span class="lang-ar">أقصى ٥ layers لكل دالة.</span><span class="lang-en">Max 5 layers per function.</span>",
-          "<span class="lang-ar">الحجم الإجماليّ المفكوك ≤ ٢٥٠MB (يشمل الكود).</span><span class="lang-en">Total unpacked ≤ 250MB (includes code).</span>",
-          "<span class="lang-ar">Layer immutable بعد النشر — لا يمكن تعديله.</span><span class="lang-en">Layer is immutable after publish — cannot be edited.</span>",
-          "<span class="lang-ar">يمكن أن تشير Layer إلى Layer أخرى بشكل متسلسل.</span><span class="lang-en">A Layer can reference another Layer (chaining).</span>"
+          "<span class=\"lang-ar\">أقصى ٥ layers لكل دالة.<\/span><span class=\"lang-en\">Max 5 layers per function.<\/span>",
+          "<span class=\"lang-ar\">الحجم الإجماليّ المفكوك ≤ ٢٥٠MB (يشمل الكود).<\/span><span class=\"lang-en\">Total unpacked ≤ 250MB (includes code).<\/span>",
+          "<span class=\"lang-ar\">Layer immutable بعد النشر — لا يمكن تعديله.<\/span><span class=\"lang-en\">Layer is immutable after publish — cannot be edited.<\/span>",
+          "<span class=\"lang-ar\">يمكن أن تشير Layer إلى Layer أخرى بشكل متسلسل.<\/span><span class=\"lang-en\">A Layer can reference another Layer (chaining).<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">٥ layers، ٢٥٠MB مفكوك، immutable (أنشئ إصدارة جديدة بدلاً من التعديل). لا يوجد chaining للـ Layers.</span><span class="lang-en">5 layers, 250MB unpacked, immutable (publish a new version instead). No Layer chaining.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">٥ layers، ٢٥٠MB مفكوك، immutable (أنشئ إصدارة جديدة بدلاً من التعديل). لا يوجد chaining للـ Layers.<\/span><span class=\"lang-en\">5 layers, 250MB unpacked, immutable (publish a new version instead). No Layer chaining.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">شركة تريد إطلاق نسخة جديدة من Lambda لكن بنقل ١٠٪ من الترافيك لـ ٥ دقائق أوّلاً، ثم الكامل إذا نجح الاختبار. أسرع طريقة؟</span><span class="lang-en">A company wants to roll a new Lambda version with 10% traffic for 5 min, then 100% if healthy. Fastest path?</span>",
+        question: "<span class=\"lang-ar\">شركة تريد إطلاق نسخة جديدة من Lambda لكن بنقل ١٠٪ من الترافيك لـ ٥ دقائق أوّلاً، ثم الكامل إذا نجح الاختبار. أسرع طريقة؟<\/span><span class=\"lang-en\">A company wants to roll a new Lambda version with 10% traffic for 5 min, then 100% if healthy. Fastest path?<\/span>",
         options: [
-          "<span class="lang-ar">نشر بأمر AllAtOnce.</span><span class="lang-en">Deploy AllAtOnce.</span>",
-          "<span class="lang-ar">استخدام Alias مع Routing Config AdditionalVersionWeights يدوياً.</span><span class="lang-en">Manually set Alias Routing Config AdditionalVersionWeights.</span>",
-          "<span class="lang-ar">AWS CodeDeploy مع Canary10Percent5Minutes deployment preference.</span><span class="lang-en">AWS CodeDeploy with Canary10Percent5Minutes preference.</span>",
-          "<span class="lang-ar">إعادة النشر كلّياً.</span><span class="lang-en">Full redeploy.</span>"
+          "<span class=\"lang-ar\">نشر بأمر AllAtOnce.<\/span><span class=\"lang-en\">Deploy AllAtOnce.<\/span>",
+          "<span class=\"lang-ar\">استخدام Alias مع Routing Config AdditionalVersionWeights يدوياً.<\/span><span class=\"lang-en\">Manually set Alias Routing Config AdditionalVersionWeights.<\/span>",
+          "<span class=\"lang-ar\">AWS CodeDeploy مع Canary10Percent5Minutes deployment preference.<\/span><span class=\"lang-en\">AWS CodeDeploy with Canary10Percent5Minutes preference.<\/span>",
+          "<span class=\"lang-ar\">إعادة النشر كلّياً.<\/span><span class=\"lang-en\">Full redeploy.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>CodeDeploy مع deployment preference Canary10Percent5Minutes</strong> يوتمت هذا تماماً مع dashboards و rollback. SAM يدعمها مباشرةً بـ property واحد. الإعداد اليدويّ ممكن لكنّه أبطأ وأعرضة للخطأ.</span><span class="lang-en"><strong>CodeDeploy + Canary10Percent5Minutes</strong> automates this end-to-end with dashboards and rollback. SAM supports it with one property. Manual routing works but is slower and error-prone.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">بدون canary = مخاطرة.</span><span class=\"lang-en\">No canary = risky.</span>", "<span class=\"lang-ar\">ممكن لكن يدويّ.</span><span class=\"lang-en\">Possible but manual.</span>", "", "<span class=\"lang-ar\">إنهاء كامل، لا canary.</span><span class=\"lang-en\">Full cutover, no canary.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>CodeDeploy مع deployment preference Canary10Percent5Minutes<\/strong> يوتمت هذا تماماً مع dashboards و rollback. SAM يدعمها مباشرةً بـ property واحد. الإعداد اليدويّ ممكن لكنّه أبطأ وأعرضة للخطأ.<\/span><span class=\"lang-en\"><strong>CodeDeploy + Canary10Percent5Minutes<\/strong> automates this end-to-end with dashboards and rollback. SAM supports it with one property. Manual routing works but is slower and error-prone.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بدون canary = مخاطرة.<\/span><span class=\"lang-en\">No canary = risky.<\/span>", "<span class=\"lang-ar\">ممكن لكن يدويّ.<\/span><span class=\"lang-en\">Possible but manual.<\/span>", "", "<span class=\"lang-ar\">إنهاء كامل، لا canary.<\/span><span class=\"lang-en\">Full cutover, no canary.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">Lambda لديها PROD alias يشير إلى V3. تمّ نشر V4. كيف يُجرى rollback فوريّ إذا اكتُشف خطأ في V4؟</span><span class="lang-en">A Lambda's PROD alias points to V3. V4 is deployed. How to instantly roll back if V4 breaks?</span>",
+        question: "<span class=\"lang-ar\">Lambda لديها PROD alias يشير إلى V3. تمّ نشر V4. كيف يُجرى rollback فوريّ إذا اكتُشف خطأ في V4؟<\/span><span class=\"lang-en\">A Lambda's PROD alias points to V3. V4 is deployed. How to instantly roll back if V4 breaks?<\/span>",
         options: [
-          "<span class="lang-ar">حذف V4.</span><span class="lang-en">Delete V4.</span>",
-          "<span class="lang-ar">تحديث الـ alias ليشير إلى V3 مرّة أخرى — عمليّة ذريّة (atomic).</span><span class="lang-en">Update the alias to point to V3 again — atomic operation.</span>",
-          "<span class="lang-ar">إعادة نشر الكود القديم.</span><span class="lang-en">Redeploy the old code.</span>",
-          "<span class="lang-ar">إعادة تشغيل الحساب.</span><span class="lang-en">Restart the account.</span>"
+          "<span class=\"lang-ar\">حذف V4.<\/span><span class=\"lang-en\">Delete V4.<\/span>",
+          "<span class=\"lang-ar\">تحديث الـ alias ليشير إلى V3 مرّة أخرى — عمليّة ذريّة (atomic).<\/span><span class=\"lang-en\">Update the alias to point to V3 again — atomic operation.<\/span>",
+          "<span class=\"lang-ar\">إعادة نشر الكود القديم.<\/span><span class=\"lang-en\">Redeploy the old code.<\/span>",
+          "<span class=\"lang-ar\">إعادة تشغيل الحساب.<\/span><span class=\"lang-en\">Restart the account.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الـ alias pointer قابل للتحديث فوراً. <span dir="ltr" class="font-mono">update-alias --function-version 3</span> يعيد الترافيك إلى V3 فوراً دون إعادة نشر الكود. V4 يبقى متاحاً للفحص.</span><span class="lang-en">Alias is a mutable pointer updatable instantly. <span dir="ltr" class="font-mono">update-alias --function-version 3</span> swings traffic back immediately without redeploying. V4 remains for investigation.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا يُعيد الترافيك — فقط يحذف نسخة.</span><span class=\"lang-en\">Doesn't flip traffic — just deletes.</span>", "", "<span class=\"lang-ar\">بطيء جداً عند حاجة فوريّة.</span><span class=\"lang-en\">Too slow for urgency.</span>", "<span class=\"lang-ar\">لا قيمة له.</span><span class=\"lang-en\">Meaningless.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">الـ alias pointer قابل للتحديث فوراً. <span dir=\"ltr\" class=\"font-mono\">update-alias --function-version 3<\/span> يعيد الترافيك إلى V3 فوراً دون إعادة نشر الكود. V4 يبقى متاحاً للفحص.<\/span><span class=\"lang-en\">Alias is a mutable pointer updatable instantly. <span dir=\"ltr\" class=\"font-mono\">update-alias --function-version 3<\/span> swings traffic back immediately without redeploying. V4 remains for investigation.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يُعيد الترافيك — فقط يحذف نسخة.<\/span><span class=\"lang-en\">Doesn't flip traffic — just deletes.<\/span>", "", "<span class=\"lang-ar\">بطيء جداً عند حاجة فوريّة.<\/span><span class=\"lang-en\">Too slow for urgency.<\/span>", "<span class=\"lang-ar\">لا قيمة له.<\/span><span class=\"lang-en\">Meaningless.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">دالة ML Lambda تحتاج تحميل model ٢GB من S3 في كلّ cold start، وتعمل على ٥٠ request/ثانية. الحل الأمثل؟</span><span class="lang-en">An ML Lambda downloads a 2GB model from S3 on every cold start, at 50 req/s. Best fix?</span>",
+        question: "<span class=\"lang-ar\">دالة ML Lambda تحتاج تحميل model ٢GB من S3 في كلّ cold start، وتعمل على ٥٠ request/ثانية. الحل الأمثل؟<\/span><span class=\"lang-en\">An ML Lambda downloads a 2GB model from S3 on every cold start, at 50 req/s. Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">رفع الـ RAM إلى الحد الأقصى.</span><span class="lang-en">Max out RAM.</span>",
-          "<span class="lang-ar">تخزين الـ model في Lambda Layer (إذا <250MB) أو EFS واستخدام EFS من Lambda في VPC (مناسب لـ 2GB).</span><span class="lang-en">Store the model in a Lambda Layer (if <250MB) or EFS and mount EFS from Lambda in VPC (fits 2GB).</span>",
-          "<span class="lang-ar">تقسيم الـ model إلى أجزاء.</span><span class="lang-en">Split the model into parts.</span>",
-          "<span class="lang-ar">زيادة timeout.</span><span class="lang-en">Increase timeout.</span>"
+          "<span class=\"lang-ar\">رفع الـ RAM إلى الحد الأقصى.<\/span><span class=\"lang-en\">Max out RAM.<\/span>",
+          "<span class=\"lang-ar\">تخزين الـ model في Lambda Layer (إذا <250MB) أو EFS واستخدام EFS من Lambda في VPC (مناسب لـ 2GB).<\/span><span class=\"lang-en\">Store the model in a Lambda Layer (if <250MB) or EFS and mount EFS from Lambda in VPC (fits 2GB).<\/span>",
+          "<span class=\"lang-ar\">تقسيم الـ model إلى أجزاء.<\/span><span class=\"lang-en\">Split the model into parts.<\/span>",
+          "<span class=\"lang-ar\">زيادة timeout.<\/span><span class=\"lang-en\">Increase timeout.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">٢GB أكبر من حد Layer. EFS مثاليّ: ينشر في VPC، يُقَرَأ كـ local filesystem، مشترك بين instances، لا cold-start download. /tmp يمكن أن يُستخدم كـ cache ثانوي على warm invocations.</span><span class="lang-en">2GB exceeds Layer limit. EFS is ideal: VPC-deployed, read as local filesystem, shared across instances, no cold-start download. /tmp can act as secondary warm cache.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">٢GB أكبر من حد Layer. EFS مثاليّ: ينشر في VPC، يُقَرَأ كـ local filesystem، مشترك بين instances، لا cold-start download. /tmp يمكن أن يُستخدم كـ cache ثانوي على warm invocations.<\/span><span class=\"lang-en\">2GB exceeds Layer limit. EFS is ideal: VPC-deployed, read as local filesystem, shared across instances, no cold-start download. /tmp can act as secondary warm cache.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">Java Lambda يفتح DB connection داخل الـ handler. ما الخطأ المعماريّ الأساسيّ؟</span><span class="lang-en">A Java Lambda opens a DB connection inside the handler. Core architectural mistake?</span>",
+        question: "<span class=\"lang-ar\">Java Lambda يفتح DB connection داخل الـ handler. ما الخطأ المعماريّ الأساسيّ؟<\/span><span class=\"lang-en\">A Java Lambda opens a DB connection inside the handler. Core architectural mistake?<\/span>",
         options: [
-          "<span class="lang-ar">عدم تسجيل الاتصال.</span><span class="lang-en">Not logging the connection.</span>",
-          "<span class="lang-ar">الاتصال يُنشَأ في كلّ استدعاء — يضرب الأداء بشدّة ويستنزف aggregate connections. الصحيح: إنشاء الـ client static خارج الـ handler.</span><span class="lang-en">Connection created on every invocation — destroys perf and blows aggregate DB connections. Correct: static client outside handler.</span>",
-          "<span class="lang-ar">استخدام Java.</span><span class="lang-en">Using Java.</span>",
-          "<span class="lang-ar">عدم تشفير الاتصال.</span><span class="lang-en">No encryption.</span>"
+          "<span class=\"lang-ar\">عدم تسجيل الاتصال.<\/span><span class=\"lang-en\">Not logging the connection.<\/span>",
+          "<span class=\"lang-ar\">الاتصال يُنشَأ في كلّ استدعاء — يضرب الأداء بشدّة ويستنزف aggregate connections. الصحيح: إنشاء الـ client static خارج الـ handler.<\/span><span class=\"lang-en\">Connection created on every invocation — destroys perf and blows aggregate DB connections. Correct: static client outside handler.<\/span>",
+          "<span class=\"lang-ar\">استخدام Java.<\/span><span class=\"lang-en\">Using Java.<\/span>",
+          "<span class=\"lang-ar\">عدم تشفير الاتصال.<\/span><span class=\"lang-en\">No encryption.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الـ execution context يُعاد استخدامه بين warm invocations — استغلها. عميل DB، SDK، HTTP client كلّها يجب أن تُنشَأ مرّة واحدة (static/module-level). هذا من أشيع أخطاء الـ Lambda.</span><span class="lang-en">Execution context is reused across warm invocations — leverage it. DB client, SDK, HTTP client should be created once (static/module-level). One of the most common Lambda mistakes.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">الـ execution context يُعاد استخدامه بين warm invocations — استغلها. عميل DB، SDK، HTTP client كلّها يجب أن تُنشَأ مرّة واحدة (static/module-level). هذا من أشيع أخطاء الـ Lambda.<\/span><span class=\"lang-en\">Execution context is reused across warm invocations — leverage it. DB client, SDK, HTTP client should be created once (static/module-level). One of the most common Lambda mistakes.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">ما الحدّ الأقصى لحجم Lambda container image من ECR؟</span><span class="lang-en">Max Lambda container image size from ECR?</span>",
+        question: "<span class=\"lang-ar\">ما الحدّ الأقصى لحجم Lambda container image من ECR؟<\/span><span class=\"lang-en\">Max Lambda container image size from ECR?<\/span>",
         options: [
-          "<span class="lang-ar">٥٠ MB</span><span class="lang-en">50 MB</span>",
-          "<span class="lang-ar">٢٥٠ MB</span><span class="lang-en">250 MB</span>",
-          "<span class="lang-ar">١ GB</span><span class="lang-en">1 GB</span>",
-          "<span class="lang-ar">١٠ GB</span><span class="lang-en">10 GB</span>"
+          "<span class=\"lang-ar\">٥٠ MB<\/span><span class=\"lang-en\">50 MB<\/span>",
+          "<span class=\"lang-ar\">٢٥٠ MB<\/span><span class=\"lang-en\">250 MB<\/span>",
+          "<span class=\"lang-ar\">١ GB<\/span><span class=\"lang-en\">1 GB<\/span>",
+          "<span class=\"lang-ar\">١٠ GB<\/span><span class=\"lang-en\">10 GB<\/span>"
         ],
         correct: 3,
-        explanation: "<span class="lang-ar">Container images حتى ١٠GB من ECR — الطريقة الموصى بها لـ ML workloads و تبعيّات ضخمة. Zip محدود بـ ٥٠MB مضغوط/٢٥٠MB مفكوك.</span><span class="lang-en">Container images up to 10GB from ECR — the recommended path for ML workloads and massive dependencies. Zip is limited to 50MB zipped/250MB unzipped.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Container images حتى ١٠GB من ECR — الطريقة الموصى بها لـ ML workloads و تبعيّات ضخمة. Zip محدود بـ ٥٠MB مضغوط/٢٥٠MB مفكوك.<\/span><span class=\"lang-en\">Container images up to 10GB from ECR — the recommended path for ML workloads and massive dependencies. Zip is limited to 50MB zipped/250MB unzipped.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من هذه الإجراءات تُحسِّن cold start لـ Java Lambda؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which improve cold start for Java Lambda? Select all.</span>",
+        question: "<span class=\"lang-ar\">أيّ من هذه الإجراءات تُحسِّن cold start لـ Java Lambda؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which improve cold start for Java Lambda? Select all.<\/span>",
         options: [
-          "<span class="lang-ar">Provisioned Concurrency على الـ alias.</span><span class="lang-en">Provisioned Concurrency on alias.</span>",
-          "<span class="lang-ar">تقليل عدد classes في الحزمة وإزالة التبعيّات غير المستخدمة.</span><span class="lang-en">Trim classes and remove unused dependencies.</span>",
-          "<span class="lang-ar">زيادة RAM (أسرع JVM start).</span><span class="lang-en">More RAM (faster JVM start).</span>",
-          "<span class="lang-ar">وضع init للـ SDK clients داخل الـ handler.</span><span class="lang-en">Put SDK client init inside the handler.</span>"
+          "<span class=\"lang-ar\">Provisioned Concurrency على الـ alias.<\/span><span class=\"lang-en\">Provisioned Concurrency on alias.<\/span>",
+          "<span class=\"lang-ar\">تقليل عدد classes في الحزمة وإزالة التبعيّات غير المستخدمة.<\/span><span class=\"lang-en\">Trim classes and remove unused dependencies.<\/span>",
+          "<span class=\"lang-ar\">زيادة RAM (أسرع JVM start).<\/span><span class=\"lang-en\">More RAM (faster JVM start).<\/span>",
+          "<span class=\"lang-ar\">وضع init للـ SDK clients داخل الـ handler.<\/span><span class=\"lang-en\">Put SDK client init inside the handler.<\/span>"
         ],
         correct: [0,1,2],
-        explanation: "<span class="lang-ar">Provisioned Concurrency يقضي على cold start. تقليل الـ classpath يسرّع تحميل JVM. زيادة RAM = CPU أكثر = JVM أسرع. إنشاء الـ client داخل الـ handler يزيد الـ cold start ويُهدر الـ execution context.</span><span class="lang-en">Provisioned Concurrency eliminates cold starts. Smaller classpath = faster JVM load. More RAM = more CPU = faster JVM. Initializing clients inside the handler worsens cold start and wastes context reuse.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\">Provisioned Concurrency يقضي على cold start. تقليل الـ classpath يسرّع تحميل JVM. زيادة RAM = CPU أكثر = JVM أسرع. إنشاء الـ client داخل الـ handler يزيد الـ cold start ويُهدر الـ execution context.<\/span><span class=\"lang-en\">Provisioned Concurrency eliminates cold starts. Smaller classpath = faster JVM load. More RAM = more CPU = faster JVM. Initializing clients inside the handler worsens cold start and wastes context reuse.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">Lambda Function URL يحتاج حمايته بحيث لا يستطيع الوصول إليه إلّا مستخدمو IAM في حساب آخر. ما AuthType؟</span><span class="lang-en">Lambda Function URL must only be reachable by IAM users in another account. Which AuthType?</span>",
+        question: "<span class=\"lang-ar\">Lambda Function URL يحتاج حمايته بحيث لا يستطيع الوصول إليه إلّا مستخدمو IAM في حساب آخر. ما AuthType؟<\/span><span class=\"lang-en\">Lambda Function URL must only be reachable by IAM users in another account. Which AuthType?<\/span>",
         options: [
-          "<span class="lang-ar">NONE مع Bucket Policy.</span><span class="lang-en">NONE with Bucket Policy.</span>",
-          "<span class="lang-ar">AWS_IAM — مع resource-based policy تسمح للحساب الآخر + identity policy في الحساب الآخر تسمح بـ lambda:InvokeFunctionUrl.</span><span class="lang-en">AWS_IAM — resource-based policy allowing other account + identity policy in the other account allowing lambda:InvokeFunctionUrl.</span>",
-          "<span class="lang-ar">Cognito only.</span><span class="lang-en">Cognito only.</span>",
-          "<span class="lang-ar">لا يمكن.</span><span class="lang-en">Not possible.</span>"
+          "<span class=\"lang-ar\">NONE مع Bucket Policy.<\/span><span class=\"lang-en\">NONE with Bucket Policy.<\/span>",
+          "<span class=\"lang-ar\">AWS_IAM — مع resource-based policy تسمح للحساب الآخر + identity policy في الحساب الآخر تسمح بـ lambda:InvokeFunctionUrl.<\/span><span class=\"lang-en\">AWS_IAM — resource-based policy allowing other account + identity policy in the other account allowing lambda:InvokeFunctionUrl.<\/span>",
+          "<span class=\"lang-ar\">Cognito only.<\/span><span class=\"lang-en\">Cognito only.<\/span>",
+          "<span class=\"lang-ar\">لا يمكن.<\/span><span class=\"lang-en\">Not possible.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">AuthType AWS_IAM يفرض التوقيع بـ SigV4. للـ cross-account تحتاج: (١) resource-based policy على الـ function URL تسمح للـ principal من الحساب B، (٢) identity-based policy في الحساب B تسمح بـ lambda:InvokeFunctionUrl.</span><span class="lang-en">AuthType AWS_IAM requires SigV4. For cross-account: (1) resource-based policy on Function URL allowing principal from account B, (2) identity-based policy in account B allowing lambda:InvokeFunctionUrl.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">AuthType AWS_IAM يفرض التوقيع بـ SigV4. للـ cross-account تحتاج: (١) resource-based policy على الـ function URL تسمح للـ principal من الحساب B، (٢) identity-based policy في الحساب B تسمح بـ lambda:InvokeFunctionUrl.<\/span><span class=\"lang-en\">AuthType AWS_IAM requires SigV4. For cross-account: (1) resource-based policy on Function URL allowing principal from account B, (2) identity-based policy in account B allowing lambda:InvokeFunctionUrl.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يلاحظ أنّ CloudFormation لا يحدِّث الدالة رغم تغيير الكود في S3. السبب؟</span><span class="lang-en">A dev notices CloudFormation isn't updating the function even though S3 code changed. Cause?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يلاحظ أنّ CloudFormation لا يحدِّث الدالة رغم تغيير الكود في S3. السبب؟<\/span><span class=\"lang-en\">A dev notices CloudFormation isn't updating the function even though S3 code changed. Cause?<\/span>",
         options: [
-          "<span class="lang-ar">Bug في CloudFormation.</span><span class="lang-en">CloudFormation bug.</span>",
-          "<span class="lang-ar">لم يتغيّر S3Bucket أو S3Key أو S3ObjectVersion في template — CloudFormation يكتشف التغيير عبر هذه الحقول فقط.</span><span class="lang-en">Neither S3Bucket, S3Key, nor S3ObjectVersion changed in the template — CloudFormation only detects updates through those fields.</span>",
-          "<span class="lang-ar">لم يُرفَع الكود.</span><span class="lang-en">Code not uploaded.</span>",
-          "<span class="lang-ar">الـ role غير صالح.</span><span class="lang-en">Invalid role.</span>"
+          "<span class=\"lang-ar\">Bug في CloudFormation.<\/span><span class=\"lang-en\">CloudFormation bug.<\/span>",
+          "<span class=\"lang-ar\">لم يتغيّر S3Bucket أو S3Key أو S3ObjectVersion في template — CloudFormation يكتشف التغيير عبر هذه الحقول فقط.<\/span><span class=\"lang-en\">Neither S3Bucket, S3Key, nor S3ObjectVersion changed in the template — CloudFormation only detects updates through those fields.<\/span>",
+          "<span class=\"lang-ar\">لم يُرفَع الكود.<\/span><span class=\"lang-en\">Code not uploaded.<\/span>",
+          "<span class=\"lang-ar\">الـ role غير صالح.<\/span><span class=\"lang-en\">Invalid role.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">CloudFormation لا يفحص محتوى S3 — يعتمد على تغيير التعريف في الـ template. الحلّ: versioned bucket ومرّر <span dir="ltr" class="font-mono">S3ObjectVersion</span> جديد في كلّ نشر. أو استخدم SAM الذي يدير ذلك تلقائياً.</span><span class="lang-en">CloudFormation doesn't inspect S3 content — it relies on template changes. Fix: use a versioned bucket and pass a new <span dir="ltr" class="font-mono">S3ObjectVersion</span> each deploy. Or use SAM, which handles this automatically.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">CloudFormation لا يفحص محتوى S3 — يعتمد على تغيير التعريف في الـ template. الحلّ: versioned bucket ومرّر <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion<\/span> جديد في كلّ نشر. أو استخدم SAM الذي يدير ذلك تلقائياً.<\/span><span class=\"lang-en\">CloudFormation doesn't inspect S3 content — it relies on template changes. Fix: use a versioned bucket and pass a new <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion<\/span> each deploy. Or use SAM, which handles this automatically.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">فريق يشغّل Lambda في حساب A ويريد أن يستدعيه Lambda في حساب B. ما أبسط إعداد؟</span><span class="lang-en">Team runs Lambda in Account A and wants a Lambda in Account B to invoke it. Simplest setup?</span>",
+        question: "<span class=\"lang-ar\">فريق يشغّل Lambda في حساب A ويريد أن يستدعيه Lambda في حساب B. ما أبسط إعداد؟<\/span><span class=\"lang-en\">Team runs Lambda in Account A and wants a Lambda in Account B to invoke it. Simplest setup?<\/span>",
         options: [
-          "<span class="lang-ar">جعل الدالة عامّة.</span><span class="lang-en">Make the function public.</span>",
-          "<span class="lang-ar">إضافة resource policy على Lambda A تسمح لـ Lambda B's execution role، و Lambda B تستدعي ARN الـ Lambda A عبر SDK.</span><span class="lang-en">Add resource policy on Lambda A allowing Lambda B's exec role; Lambda B invokes Lambda A's ARN via SDK.</span>",
-          "<span class="lang-ar">مشاركة execution role.</span><span class="lang-en">Share execution roles.</span>",
-          "<span class="lang-ar">استخدام S3 بالوسط.</span><span class="lang-en">S3 as a middle layer.</span>"
+          "<span class=\"lang-ar\">جعل الدالة عامّة.<\/span><span class=\"lang-en\">Make the function public.<\/span>",
+          "<span class=\"lang-ar\">إضافة resource policy على Lambda A تسمح لـ Lambda B's execution role، و Lambda B تستدعي ARN الـ Lambda A عبر SDK.<\/span><span class=\"lang-en\">Add resource policy on Lambda A allowing Lambda B's exec role; Lambda B invokes Lambda A's ARN via SDK.<\/span>",
+          "<span class=\"lang-ar\">مشاركة execution role.<\/span><span class=\"lang-en\">Share execution roles.<\/span>",
+          "<span class=\"lang-ar\">استخدام S3 بالوسط.<\/span><span class=\"lang-en\">S3 as a middle layer.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Cross-account Lambda invoke: (١) resource policy على A تسمح لـ role من B، (٢) role من B يحتوي على lambda:InvokeFunction على ARN A. SDK invoke العاديّ يعمل بعد ذلك.</span><span class="lang-en">Cross-account Lambda invoke: (1) resource policy on A allowing B's role, (2) B's role has lambda:InvokeFunction on A's ARN. Standard SDK invoke works after that.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.</span><span class=\"lang-en\">Security risk.</span>", "", "<span class=\"lang-ar\">ممنوع، لا يمكن مشاركة execution roles.</span><span class=\"lang-en\">Can't share exec roles.</span>", "<span class=\"lang-ar\">تعقيد غير مبرّر.</span><span class=\"lang-en\">Needless complexity.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٦ + ch10</span><span class=\"lang-en\">Section 6 + ch10</span>"
+        explanation: "<span class=\"lang-ar\">Cross-account Lambda invoke: (١) resource policy على A تسمح لـ role من B، (٢) role من B يحتوي على lambda:InvokeFunction على ARN A. SDK invoke العاديّ يعمل بعد ذلك.<\/span><span class=\"lang-en\">Cross-account Lambda invoke: (1) resource policy on A allowing B's role, (2) B's role has lambda:InvokeFunction on A's ARN. Standard SDK invoke works after that.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.<\/span><span class=\"lang-en\">Security risk.<\/span>", "", "<span class=\"lang-ar\">ممنوع، لا يمكن مشاركة execution roles.<\/span><span class=\"lang-en\">Can't share exec roles.<\/span>", "<span class=\"lang-ar\">تعقيد غير مبرّر.<\/span><span class=\"lang-en\">Needless complexity.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ + ch10<\/span><span class=\"lang-en\">Section 6 + ch10<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">أيّ metric في CloudWatch تستخدمها لضبط Provisioned Concurrency؟</span><span class="lang-en">Which CloudWatch metric do you use to tune Provisioned Concurrency?</span>",
+        question: "<span class=\"lang-ar\">أيّ metric في CloudWatch تستخدمها لضبط Provisioned Concurrency؟<\/span><span class=\"lang-en\">Which CloudWatch metric do you use to tune Provisioned Concurrency?<\/span>",
         options: [
-          "<span class="lang-ar">Duration</span><span class="lang-en">Duration</span>",
-          "<span class="lang-ar">Invocations</span><span class="lang-en">Invocations</span>",
-          "<span class="lang-ar">ProvisionedConcurrencyUtilization</span><span class="lang-en">ProvisionedConcurrencyUtilization</span>",
-          "<span class="lang-ar">Errors</span><span class="lang-en">Errors</span>"
+          "<span class=\"lang-ar\">Duration<\/span><span class=\"lang-en\">Duration<\/span>",
+          "<span class=\"lang-ar\">Invocations<\/span><span class=\"lang-en\">Invocations<\/span>",
+          "<span class=\"lang-ar\">ProvisionedConcurrencyUtilization<\/span><span class=\"lang-en\">ProvisionedConcurrencyUtilization<\/span>",
+          "<span class=\"lang-ar\">Errors<\/span><span class=\"lang-en\">Errors<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span> = (used / provisioned). أبقِها ٧٠-٨٠٪. أعلى = نقص، أقل = دفع مبالغ فيه. يمكن أتمتتها عبر Application Auto Scaling.</span><span class="lang-en"><span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span> = used / provisioned. Target 70-80%. Higher = under-provisioned, lower = overpay. Automate via Application Auto Scaling.</span>",
-        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+        explanation: "<span class=\"lang-ar\"><span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization<\/span> = (used / provisioned). أبقِها ٧٠-٨٠٪. أعلى = نقص، أقل = دفع مبالغ فيه. يمكن أتمتتها عبر Application Auto Scaling.<\/span><span class=\"lang-en\"><span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization<\/span> = used / provisioned. Target 70-80%. Higher = under-provisioned, lower = overpay. Automate via Application Auto Scaling.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ١<\/span><span class=\"lang-en\">Section 1<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Lambda يحتاج مكتبة C++ ضخمة غير متوفّرة في runtime افتراضيّ. الأنسب؟</span><span class="lang-en">A Lambda needs a huge C++ library unavailable in default runtimes. Best option?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Lambda يحتاج مكتبة C++ ضخمة غير متوفّرة في runtime افتراضيّ. الأنسب؟<\/span><span class=\"lang-en\">A Lambda needs a huge C++ library unavailable in default runtimes. Best option?<\/span>",
         options: [
-          "<span class="lang-ar">Zip package عادي.</span><span class="lang-en">Normal zip package.</span>",
-          "<span class="lang-ar">Custom Runtime API + layer.</span><span class="lang-en">Custom Runtime API + layer.</span>",
-          "<span class="lang-ar">Container Image مع base image تُنفِّذ Lambda Runtime API.</span><span class="lang-en">Container Image with base image implementing Lambda Runtime API.</span>",
-          "<span class="lang-ar">EC2 مع Docker.</span><span class="lang-en">EC2 with Docker.</span>"
+          "<span class=\"lang-ar\">Zip package عادي.<\/span><span class=\"lang-en\">Normal zip package.<\/span>",
+          "<span class=\"lang-ar\">Custom Runtime API + layer.<\/span><span class=\"lang-en\">Custom Runtime API + layer.<\/span>",
+          "<span class=\"lang-ar\">Container Image مع base image تُنفِّذ Lambda Runtime API.<\/span><span class=\"lang-en\">Container Image with base image implementing Lambda Runtime API.<\/span>",
+          "<span class=\"lang-ar\">EC2 مع Docker.<\/span><span class=\"lang-en\">EC2 with Docker.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">Container Image = المرونة القصوى. يصل إلى ١٠GB، تنتخب أيّ distro، تجمع system dependencies. يجب أن تنفّذ الـ base image الـ Lambda Runtime API (AWS يوفّر صور base). Custom Runtime بديل لكن أصعب في التغليف.</span><span class="lang-en">Container Image = maximum flexibility. Up to 10GB, any distro, bundle system deps. Base image must implement Lambda Runtime API (AWS provides bases). Custom Runtime is an alternative but harder to package.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">الحد ٢٥٠MB ولا يناسب C++ الضخم.</span><span class=\"lang-en\">250MB cap can't fit big C++.</span>", "<span class=\"lang-ar\">ممكن لكن Container Image أسهل للـ C++.</span><span class=\"lang-en\">Possible but Container is easier for C++.</span>", "", "<span class=\"lang-ar\">ليس Lambda.</span><span class=\"lang-en\">Not Lambda.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">Container Image = المرونة القصوى. يصل إلى ١٠GB، تنتخب أيّ distro، تجمع system dependencies. يجب أن تنفّذ الـ base image الـ Lambda Runtime API (AWS يوفّر صور base). Custom Runtime بديل لكن أصعب في التغليف.<\/span><span class=\"lang-en\">Container Image = maximum flexibility. Up to 10GB, any distro, bundle system deps. Base image must implement Lambda Runtime API (AWS provides bases). Custom Runtime is an alternative but harder to package.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الحد ٢٥٠MB ولا يناسب C++ الضخم.<\/span><span class=\"lang-en\">250MB cap can't fit big C++.<\/span>", "<span class=\"lang-ar\">ممكن لكن Container Image أسهل للـ C++.<\/span><span class=\"lang-en\">Possible but Container is easier for C++.<\/span>", "", "<span class=\"lang-ar\">ليس Lambda.<\/span><span class=\"lang-en\">Not Lambda.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       }
     ];
 

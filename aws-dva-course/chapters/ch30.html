@@ -724,116 +724,116 @@
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يعمل على Lambda يستقبل ذروة غير متوقّعة أحياناً فيصبح الـ cold start ملحوظاً. الحلّ الأقلّ كلفة الذي يعالج الذروة؟</span><span class="lang-en">A Lambda app gets unpredictable spikes, making cold starts noticeable. Most cost-effective fix for spikes?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يعمل على Lambda يستقبل ذروة غير متوقّعة أحياناً فيصبح الـ cold start ملحوظاً. الحلّ الأقلّ كلفة الذي يعالج الذروة؟<\/span><span class=\"lang-en\">A Lambda app gets unpredictable spikes, making cold starts noticeable. Most cost-effective fix for spikes?<\/span>",
         options: [
-          "<span class="lang-ar">Provisioned Concurrency على كامل السعة المتوقّعة.</span><span class="lang-en">Provisioned Concurrency at peak capacity.</span>",
-          "<span class="lang-ar">Reserved Concurrency فقط.</span><span class="lang-en">Reserved Concurrency only.</span>",
-          "<span class="lang-ar">SnapStart (لوقت تشغيل Java) أو Provisioned Concurrency مع Auto Scaling.</span><span class="lang-en">SnapStart (Java runtime) or Provisioned Concurrency with Auto Scaling.</span>",
-          "<span class="lang-ar">الترحيل إلى EC2.</span><span class="lang-en">Migrate to EC2.</span>"
+          "<span class=\"lang-ar\">Provisioned Concurrency على كامل السعة المتوقّعة.<\/span><span class=\"lang-en\">Provisioned Concurrency at peak capacity.<\/span>",
+          "<span class=\"lang-ar\">Reserved Concurrency فقط.<\/span><span class=\"lang-en\">Reserved Concurrency only.<\/span>",
+          "<span class=\"lang-ar\">SnapStart (لوقت تشغيل Java) أو Provisioned Concurrency مع Auto Scaling.<\/span><span class=\"lang-en\">SnapStart (Java runtime) or Provisioned Concurrency with Auto Scaling.<\/span>",
+          "<span class=\"lang-ar\">الترحيل إلى EC2.<\/span><span class=\"lang-en\">Migrate to EC2.<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar">SnapStart (لـ Java 11+ و Python) يقلّل cold start بـ ١٠× مجّاناً. أو Provisioned Concurrency مع Application Auto Scaling للذروات. Reserved Concurrency يحدّ الاستدعاءات ولا يمنع cold start.</span><span class="lang-en">SnapStart (Java 11+ and Python) cuts cold start 10× at no cost. Or Provisioned Concurrency with Application Auto Scaling for spikes. Reserved Concurrency caps invokes, doesn't prevent cold start.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مكلف جدّاً للذروات النادرة.</span><span class=\"lang-en\">Too costly for rare spikes.</span>", "<span class=\"lang-ar\">يحدّ الاستدعاءات ولا يعالج cold start.</span><span class=\"lang-en\">Caps invocations, doesn't fix cold start.</span>", "", "<span class=\"lang-ar\">يزيد التكلفة والعبء التشغيليّ.</span><span class=\"lang-en\">Increases cost and ops overhead.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣ — جداول المقارنة</span><span class=\"lang-en\">Section 3 — comparison tables</span>"
+        explanation: "<span class=\"lang-ar\">SnapStart (لـ Java 11+ و Python) يقلّل cold start بـ ١٠× مجّاناً. أو Provisioned Concurrency مع Application Auto Scaling للذروات. Reserved Concurrency يحدّ الاستدعاءات ولا يمنع cold start.<\/span><span class=\"lang-en\">SnapStart (Java 11+ and Python) cuts cold start 10× at no cost. Or Provisioned Concurrency with Application Auto Scaling for spikes. Reserved Concurrency caps invokes, doesn't prevent cold start.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف جدّاً للذروات النادرة.<\/span><span class=\"lang-en\">Too costly for rare spikes.<\/span>", "<span class=\"lang-ar\">يحدّ الاستدعاءات ولا يعالج cold start.<\/span><span class=\"lang-en\">Caps invocations, doesn't fix cold start.<\/span>", "", "<span class=\"lang-ar\">يزيد التكلفة والعبء التشغيليّ.<\/span><span class=\"lang-en\">Increases cost and ops overhead.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣ — جداول المقارنة<\/span><span class=\"lang-en\">Section 3 — comparison tables<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">فريق يحتاج تخزين أسرار DB مع <strong>تدوير تلقائيّ كلّ ٣٠ يوماً</strong>. الخدمة؟</span><span class="lang-en">Team needs DB secret storage with <strong>automatic rotation every 30 days</strong>. Service?</span>",
+        question: "<span class=\"lang-ar\">فريق يحتاج تخزين أسرار DB مع <strong>تدوير تلقائيّ كلّ ٣٠ يوماً<\/strong>. الخدمة؟<\/span><span class=\"lang-en\">Team needs DB secret storage with <strong>automatic rotation every 30 days<\/strong>. Service?<\/span>",
         options: [
-          "<span class="lang-ar">AWS Secrets Manager</span><span class="lang-en">AWS Secrets Manager</span>",
-          "<span class="lang-ar">SSM Parameter Store (Standard)</span><span class="lang-en">SSM Parameter Store (Standard)</span>",
-          "<span class="lang-ar">KMS</span><span class="lang-en">KMS</span>",
-          "<span class="lang-ar">SSM Parameter Store (SecureString)</span><span class="lang-en">SSM Parameter Store (SecureString)</span>"
+          "<span class=\"lang-ar\">AWS Secrets Manager<\/span><span class=\"lang-en\">AWS Secrets Manager<\/span>",
+          "<span class=\"lang-ar\">SSM Parameter Store (Standard)<\/span><span class=\"lang-en\">SSM Parameter Store (Standard)<\/span>",
+          "<span class=\"lang-ar\">KMS<\/span><span class=\"lang-en\">KMS<\/span>",
+          "<span class=\"lang-ar\">SSM Parameter Store (SecureString)<\/span><span class=\"lang-en\">SSM Parameter Store (SecureString)<\/span>"
         ],
         correct: 0,
-        explanation: "<span class="lang-ar">كلمة "rotation تلقائيّ" = Secrets Manager حصراً. Parameter Store لا يدعم تدوير مدمج (يتطلّب EventBridge + Lambda يدوياً). KMS لإدارة مفاتيح التشفير لا الأسرار.</span><span class="lang-en">Keyword "auto rotation" = Secrets Manager only. Parameter Store has no built-in rotation (needs EventBridge + Lambda manually). KMS manages encryption keys, not secrets.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">كلمة \"rotation تلقائيّ\" = Secrets Manager حصراً. Parameter Store لا يدعم تدوير مدمج (يتطلّب EventBridge + Lambda يدوياً). KMS لإدارة مفاتيح التشفير لا الأسرار.<\/span><span class=\"lang-en\">Keyword \"auto rotation\" = Secrets Manager only. Parameter Store has no built-in rotation (needs EventBridge + Lambda manually). KMS manages encryption keys, not secrets.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة تحتاج نشر تحديث Lambda تدريجياً مع انتقال ١٠٪ من الحركة للإصدار الجديد لمدّة ١٠ دقائق قبل تحويل الباقي. أيّ أسلوب CodeDeploy؟</span><span class="lang-en">Company wants to deploy a Lambda update gradually: 10% of traffic to new version for 10 minutes, then shift the rest. Which CodeDeploy config?</span>",
+        question: "<span class=\"lang-ar\">شركة تحتاج نشر تحديث Lambda تدريجياً مع انتقال ١٠٪ من الحركة للإصدار الجديد لمدّة ١٠ دقائق قبل تحويل الباقي. أيّ أسلوب CodeDeploy؟<\/span><span class=\"lang-en\">Company wants to deploy a Lambda update gradually: 10% of traffic to new version for 10 minutes, then shift the rest. Which CodeDeploy config?<\/span>",
         options: [
-          "<span class="lang-ar">AllAtOnce</span><span class="lang-en">AllAtOnce</span>",
-          "<span class="lang-ar">Canary10Percent10Minutes</span><span class="lang-en">Canary10Percent10Minutes</span>",
-          "<span class="lang-ar">Linear10PercentEvery1Minute</span><span class="lang-en">Linear10PercentEvery1Minute</span>",
-          "<span class="lang-ar">Blue/Green AllAtOnce</span><span class="lang-en">Blue/Green AllAtOnce</span>"
+          "<span class=\"lang-ar\">AllAtOnce<\/span><span class=\"lang-en\">AllAtOnce<\/span>",
+          "<span class=\"lang-ar\">Canary10Percent10Minutes<\/span><span class=\"lang-en\">Canary10Percent10Minutes<\/span>",
+          "<span class=\"lang-ar\">Linear10PercentEvery1Minute<\/span><span class=\"lang-en\">Linear10PercentEvery1Minute<\/span>",
+          "<span class=\"lang-ar\">Blue/Green AllAtOnce<\/span><span class=\"lang-en\">Blue/Green AllAtOnce<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Canary = نسبة ابتدائيّة ثابتة لمدّة محدّدة ثمّ قفزة. Linear = زيادة نسبيّة ثابتة على مراحل. AllAtOnce = كلّ شيء دفعة واحدة (بدون تدريج).</span><span class="lang-en">Canary = fixed initial % for a set period, then a leap. Linear = constant incremental ramp. AllAtOnce = everything at once (no gradual).</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">Canary = نسبة ابتدائيّة ثابتة لمدّة محدّدة ثمّ قفزة. Linear = زيادة نسبيّة ثابتة على مراحل. AllAtOnce = كلّ شيء دفعة واحدة (بدون تدريج).<\/span><span class=\"lang-en\">Canary = fixed initial % for a set period, then a leap. Linear = constant incremental ramp. AllAtOnce = everything at once (no gradual).<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot على ECS Fargate يستهلك DynamoDB بشكل مكثّف. لاحظ الفريق زمن استجابة بطيء. ما أسرع خطوة تحسين؟</span><span class="lang-en">A Spring Boot app on ECS Fargate heavily uses DynamoDB. Team sees slow response. Fastest performance improvement?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot على ECS Fargate يستهلك DynamoDB بشكل مكثّف. لاحظ الفريق زمن استجابة بطيء. ما أسرع خطوة تحسين؟<\/span><span class=\"lang-en\">A Spring Boot app on ECS Fargate heavily uses DynamoDB. Team sees slow response. Fastest performance improvement?<\/span>",
         options: [
-          "<span class="lang-ar">رفع ذاكرة Fargate.</span><span class="lang-en">Increase Fargate memory.</span>",
-          "<span class="lang-ar">تفعيل <strong>DAX</strong> (DynamoDB Accelerator).</span><span class="lang-en">Enable <strong>DAX</strong> (DynamoDB Accelerator).</span>",
-          "<span class="lang-ar">تحويل DynamoDB إلى RDS.</span><span class="lang-en">Migrate DynamoDB to RDS.</span>",
-          "<span class="lang-ar">استخدام ElastiCache Redis.</span><span class="lang-en">Use ElastiCache Redis.</span>"
+          "<span class=\"lang-ar\">رفع ذاكرة Fargate.<\/span><span class=\"lang-en\">Increase Fargate memory.<\/span>",
+          "<span class=\"lang-ar\">تفعيل <strong>DAX<\/strong> (DynamoDB Accelerator).<\/span><span class=\"lang-en\">Enable <strong>DAX<\/strong> (DynamoDB Accelerator).<\/span>",
+          "<span class=\"lang-ar\">تحويل DynamoDB إلى RDS.<\/span><span class=\"lang-en\">Migrate DynamoDB to RDS.<\/span>",
+          "<span class=\"lang-ar\">استخدام ElastiCache Redis.<\/span><span class=\"lang-en\">Use ElastiCache Redis.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">DAX كاش مصمّم خصّيصاً لـ DynamoDB ويقدّم قراءات بميكروثواني. ElastiCache Redis ممكن لكنّه عامّ ويحتاج كود كاش يدويّاً. تحويل للـ RDS يغيّر نموذج البيانات بالكامل.</span><span class="lang-en">DAX is a DynamoDB-specific cache with microsecond reads. ElastiCache Redis is possible but generic and needs manual cache code. RDS migration rewrites the data model entirely.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بزمن DynamoDB.</span><span class=\"lang-en\">Unrelated to DynamoDB latency.</span>", "", "<span class=\"lang-ar\">تكلفة ترحيل ضخمة.</span><span class=\"lang-en\">Massive migration cost.</span>", "<span class=\"lang-ar\">ممكن لكنّه ليس الأمثل لـ DynamoDB.</span><span class=\"lang-en\">Possible but suboptimal for DynamoDB.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">DAX كاش مصمّم خصّيصاً لـ DynamoDB ويقدّم قراءات بميكروثواني. ElastiCache Redis ممكن لكنّه عامّ ويحتاج كود كاش يدويّاً. تحويل للـ RDS يغيّر نموذج البيانات بالكامل.<\/span><span class=\"lang-en\">DAX is a DynamoDB-specific cache with microsecond reads. ElastiCache Redis is possible but generic and needs manual cache code. RDS migration rewrites the data model entirely.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بزمن DynamoDB.<\/span><span class=\"lang-en\">Unrelated to DynamoDB latency.<\/span>", "", "<span class=\"lang-ar\">تكلفة ترحيل ضخمة.<\/span><span class=\"lang-en\">Massive migration cost.<\/span>", "<span class=\"lang-ar\">ممكن لكنّه ليس الأمثل لـ DynamoDB.<\/span><span class=\"lang-en\">Possible but suboptimal for DynamoDB.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">مدير فريق يريد معرفة <strong>من</strong> حذف ملفّ كبير من S3 bucket (غير مسجَّل في Data Events). ماذا يفعل؟</span><span class="lang-en">A team lead wants to know <strong>who</strong> deleted a large S3 object (Data Events not enabled). Next step?</span>",
+        question: "<span class=\"lang-ar\">مدير فريق يريد معرفة <strong>من<\/strong> حذف ملفّ كبير من S3 bucket (غير مسجَّل في Data Events). ماذا يفعل؟<\/span><span class=\"lang-en\">A team lead wants to know <strong>who<\/strong> deleted a large S3 object (Data Events not enabled). Next step?<\/span>",
         options: [
-          "<span class="lang-ar">مراجعة CloudWatch Logs.</span><span class="lang-en">Check CloudWatch Logs.</span>",
-          "<span class="lang-ar">تفعيل Data Events في CloudTrail للمستقبل، ومراجعة S3 Server Access Logs إن كانت مفعّلة للحدث السابق.</span><span class="lang-en">Enable CloudTrail Data Events going forward, and check S3 Server Access Logs for the past event if they were enabled.</span>",
-          "<span class="lang-ar">استخدام X-Ray.</span><span class="lang-en">Use X-Ray.</span>",
-          "<span class="lang-ar">فحص EventBridge Archive.</span><span class="lang-en">Check EventBridge Archive.</span>"
+          "<span class=\"lang-ar\">مراجعة CloudWatch Logs.<\/span><span class=\"lang-en\">Check CloudWatch Logs.<\/span>",
+          "<span class=\"lang-ar\">تفعيل Data Events في CloudTrail للمستقبل، ومراجعة S3 Server Access Logs إن كانت مفعّلة للحدث السابق.<\/span><span class=\"lang-en\">Enable CloudTrail Data Events going forward, and check S3 Server Access Logs for the past event if they were enabled.<\/span>",
+          "<span class=\"lang-ar\">استخدام X-Ray.<\/span><span class=\"lang-en\">Use X-Ray.<\/span>",
+          "<span class=\"lang-ar\">فحص EventBridge Archive.<\/span><span class=\"lang-en\">Check EventBridge Archive.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">بدون Data Events في CloudTrail، لا سجلّ في CloudTrail لعمليّات Object. S3 Server Access Logs (أو S3 Event Notifications) قد تكون المصدر الوحيد للأحداث الماضية. للمستقبل، فعّل Data Events.</span><span class="lang-en">Without CloudTrail Data Events, there's no CloudTrail record of object operations. S3 Server Access Logs (or S3 Event Notifications) may be the only source for past events. For the future, enable Data Events.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\">بدون Data Events في CloudTrail، لا سجلّ في CloudTrail لعمليّات Object. S3 Server Access Logs (أو S3 Event Notifications) قد تكون المصدر الوحيد للأحداث الماضية. للمستقبل، فعّل Data Events.<\/span><span class=\"lang-en\">Without CloudTrail Data Events, there's no CloudTrail record of object operations. S3 Server Access Logs (or S3 Event Notifications) may be the only source for past events. For the future, enable Data Events.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q6",
         type: "multi",
-        question: "<span class="lang-ar">أيّ من التالي استراتيجيّات مفيدة يوم الامتحان؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are useful exam-day strategies? Select all that apply.</span>",
+        question: "<span class=\"lang-ar\">أيّ من التالي استراتيجيّات مفيدة يوم الامتحان؟ اختر كلّ ما ينطبق.<\/span><span class=\"lang-en\">Which are useful exam-day strategies? Select all that apply.<\/span>",
         options: [
-          "<span class="lang-ar">وسم الأسئلة الصعبة (Flag) والعودة إليها لاحقاً.</span><span class="lang-en">Flag difficult questions and revisit later.</span>",
-          "<span class="lang-ar">قراءة كلمات القيد مثل "most cost-effective" بدقّة.</span><span class="lang-en">Carefully read constraint words like "most cost-effective".</span>",
-          "<span class="lang-ar">اختيار أكثر الخيارات تعقيداً دائماً.</span><span class="lang-en">Always pick the most complex-looking option.</span>",
-          "<span class="lang-ar">استبعاد الخيارات الخاطئة وضوحاً قبل التفكير العميق.</span><span class="lang-en">Eliminate obviously wrong options before deep thinking.</span>"
+          "<span class=\"lang-ar\">وسم الأسئلة الصعبة (Flag) والعودة إليها لاحقاً.<\/span><span class=\"lang-en\">Flag difficult questions and revisit later.<\/span>",
+          "<span class=\"lang-ar\">قراءة كلمات القيد مثل \"most cost-effective\" بدقّة.<\/span><span class=\"lang-en\">Carefully read constraint words like \"most cost-effective\".<\/span>",
+          "<span class=\"lang-ar\">اختيار أكثر الخيارات تعقيداً دائماً.<\/span><span class=\"lang-en\">Always pick the most complex-looking option.<\/span>",
+          "<span class=\"lang-ar\">استبعاد الخيارات الخاطئة وضوحاً قبل التفكير العميق.<\/span><span class=\"lang-en\">Eliminate obviously wrong options before deep thinking.<\/span>"
         ],
         correct: [0,1,3],
-        explanation: "<span class="lang-ar">الخيار ٣ خطأ: AWS يفضّل الحلول الأنيقة البسيطة. لو الحلّ ممكن لكن معقّد جدّاً، غالباً هو الفخّ.</span><span class="lang-en">Option 3 is wrong: AWS favors simple, elegant solutions. If an answer is feasible but overcomplex, it's usually the trap.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">الخيار ٣ خطأ: AWS يفضّل الحلول الأنيقة البسيطة. لو الحلّ ممكن لكن معقّد جدّاً، غالباً هو الفخّ.<\/span><span class=\"lang-en\">Option 3 is wrong: AWS favors simple, elegant solutions. If an answer is feasible but overcomplex, it's usually the trap.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يحتاج نشر غير متزامن لرسالة إلى ٤ مستهلكين مختلفين، كلّ واحد يعالج بطريقته الخاصّة. النمط؟</span><span class="lang-en">App needs async publishing of a message to 4 different consumers, each processing independently. Pattern?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يحتاج نشر غير متزامن لرسالة إلى ٤ مستهلكين مختلفين، كلّ واحد يعالج بطريقته الخاصّة. النمط؟<\/span><span class=\"lang-en\">App needs async publishing of a message to 4 different consumers, each processing independently. Pattern?<\/span>",
         options: [
-          "<span class="lang-ar">SQS واحد لكلّ المستهلكين.</span><span class="lang-en">One SQS for all consumers.</span>",
-          "<span class="lang-ar">SNS topic يُشترك به SQS queue لكلّ مستهلك (Fan-Out).</span><span class="lang-en">SNS topic with one SQS queue per consumer (Fan-Out).</span>",
-          "<span class="lang-ar">EventBridge scheduler.</span><span class="lang-en">EventBridge scheduler.</span>",
-          "<span class="lang-ar">Kinesis Data Streams فقط.</span><span class="lang-en">Kinesis Data Streams only.</span>"
+          "<span class=\"lang-ar\">SQS واحد لكلّ المستهلكين.<\/span><span class=\"lang-en\">One SQS for all consumers.<\/span>",
+          "<span class=\"lang-ar\">SNS topic يُشترك به SQS queue لكلّ مستهلك (Fan-Out).<\/span><span class=\"lang-en\">SNS topic with one SQS queue per consumer (Fan-Out).<\/span>",
+          "<span class=\"lang-ar\">EventBridge scheduler.<\/span><span class=\"lang-en\">EventBridge scheduler.<\/span>",
+          "<span class=\"lang-ar\">Kinesis Data Streams فقط.<\/span><span class=\"lang-en\">Kinesis Data Streams only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">نمط Fan-Out المعياريّ: SNS يوزّع نسخة لكلّ SQS، كلّ مستهلك يعالج طابوره باستقلال. SQS واحد = رسالة واحدة فقط لمستهلك واحد. EventBridge خيار بديل لكن SQS+SNS أبسط ومطلوب بالاسم في الامتحان.</span><span class="lang-en">Canonical Fan-Out pattern: SNS delivers a copy to each SQS; each consumer processes independently. One SQS = one message to one consumer only. EventBridge is an alternative but SQS+SNS is the exam-named pattern.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\">نمط Fan-Out المعياريّ: SNS يوزّع نسخة لكلّ SQS، كلّ مستهلك يعالج طابوره باستقلال. SQS واحد = رسالة واحدة فقط لمستهلك واحد. EventBridge خيار بديل لكن SQS+SNS أبسط ومطلوب بالاسم في الامتحان.<\/span><span class=\"lang-en\">Canonical Fan-Out pattern: SNS delivers a copy to each SQS; each consumer processes independently. One SQS = one message to one consumer only. EventBridge is an alternative but SQS+SNS is the exam-named pattern.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">بعد اجتياز DVA-C02، أيّ شهادة ستمنح مطوّر Spring Boot أسرع عائد على سوق العمل؟</span><span class="lang-en">After passing DVA-C02, which certification gives a Spring Boot dev the fastest market ROI?</span>",
+        question: "<span class=\"lang-ar\">بعد اجتياز DVA-C02، أيّ شهادة ستمنح مطوّر Spring Boot أسرع عائد على سوق العمل؟<\/span><span class=\"lang-en\">After passing DVA-C02, which certification gives a Spring Boot dev the fastest market ROI?<\/span>",
         options: [
-          "<span class="lang-ar">AI Practitioner (Foundational)</span><span class="lang-en">AI Practitioner (Foundational)</span>",
-          "<span class="lang-ar">DevOps Engineer — Professional</span><span class="lang-en">DevOps Engineer — Professional</span>",
-          "<span class="lang-ar">Cloud Practitioner (Foundational)</span><span class="lang-en">Cloud Practitioner (Foundational)</span>",
-          "<span class="lang-ar">Data Engineer — Associate</span><span class="lang-en">Data Engineer — Associate</span>"
+          "<span class=\"lang-ar\">AI Practitioner (Foundational)<\/span><span class=\"lang-en\">AI Practitioner (Foundational)<\/span>",
+          "<span class=\"lang-ar\">DevOps Engineer — Professional<\/span><span class=\"lang-en\">DevOps Engineer — Professional<\/span>",
+          "<span class=\"lang-ar\">Cloud Practitioner (Foundational)<\/span><span class=\"lang-en\">Cloud Practitioner (Foundational)<\/span>",
+          "<span class=\"lang-ar\">Data Engineer — Associate<\/span><span class=\"lang-en\">Data Engineer — Associate<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">DevOps Pro هو الامتداد الطبيعيّ للمطوّر: يعمّق CI/CD، مراقبة، أتمتة متقدّمة — مهارات يطلبها السوق بسعر أعلى. الشهادات التأسيسية (Foundational) أقلّ عائداً لمن عنده Associate.</span><span class="lang-en">DevOps Pro is the natural dev extension: deeper CI/CD, monitoring, advanced automation — high-paying market skills. Foundational certs yield less ROI once you hold an Associate.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+        explanation: "<span class=\"lang-ar\">DevOps Pro هو الامتداد الطبيعيّ للمطوّر: يعمّق CI/CD، مراقبة، أتمتة متقدّمة — مهارات يطلبها السوق بسعر أعلى. الشهادات التأسيسية (Foundational) أقلّ عائداً لمن عنده Associate.<\/span><span class=\"lang-en\">DevOps Pro is the natural dev extension: deeper CI/CD, monitoring, advanced automation — high-paying market skills. Foundational certs yield less ROI once you hold an Associate.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٦<\/span><span class=\"lang-en\">Section 6<\/span>"
       }
     ];
 

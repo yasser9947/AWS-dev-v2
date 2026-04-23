@@ -901,226 +901,226 @@ for (Message m : resp.messages()) {
       {
         id: "q1",
         type: "single",
-        question: "<span class="lang-ar">تطبيق يحتاج ضمان أنّ رسائل المدفوعات تصل <strong>بالترتيب</strong> ولا تُعالج مرّتين. أيّ نوع SQS يختار؟</span><span class="lang-en">Payment messages must be processed <strong>in order</strong> and never duplicated. Which SQS queue type?</span>",
+        question: "<span class=\"lang-ar\">تطبيق يحتاج ضمان أنّ رسائل المدفوعات تصل <strong>بالترتيب<\/strong> ولا تُعالج مرّتين. أيّ نوع SQS يختار؟<\/span><span class=\"lang-en\">Payment messages must be processed <strong>in order<\/strong> and never duplicated. Which SQS queue type?<\/span>",
         options: [
-          "<span class="lang-ar">SQS Standard</span><span class="lang-en">SQS Standard</span>",
-          "<span class="lang-ar">SQS FIFO</span><span class="lang-en">SQS FIFO</span>",
-          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
-          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>"
+          "<span class=\"lang-ar\">SQS Standard<\/span><span class=\"lang-en\">SQS Standard<\/span>",
+          "<span class=\"lang-ar\">SQS FIFO<\/span><span class=\"lang-en\">SQS FIFO<\/span>",
+          "<span class=\"lang-ar\">SNS<\/span><span class=\"lang-en\">SNS<\/span>",
+          "<span class=\"lang-ar\">Kinesis Data Streams<\/span><span class=\"lang-en\">Kinesis Data Streams<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>SQS FIFO</strong> يضمن ترتيب صارم و exactly-once delivery. Standard يعطي best-effort ordering وat-least-once (قد تتكرّر). SNS pub/sub ليس queue. Kinesis يعطي ترتيب داخل shard لكنّه أعقد بكثير. ملاحظة: اسم FIFO queue يجب أن ينتهي بـ <span class="font-mono">.fifo</span>.</span><span class="lang-en"><strong>SQS FIFO</strong> guarantees strict order and exactly-once delivery. Standard is best-effort ordering + at-least-once (possible dupes). SNS is pub/sub, not a queue. Kinesis orders per-shard but is overkill. Note: FIFO queue name must end with <span class="font-mono">.fifo</span>.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يقبل التكرار والترتيب غير مضمون.</span><span class=\"lang-en\">Allows duplicates; no order guarantee.</span>", "", "<span class=\"lang-ar\">pub/sub ليس queue.</span><span class=\"lang-en\">Pub/sub, not a queue.</span>", "<span class=\"lang-ar\">مبالغ فيه لهذه الحالة.</span><span class=\"lang-en\">Overkill here.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>SQS FIFO<\/strong> يضمن ترتيب صارم و exactly-once delivery. Standard يعطي best-effort ordering وat-least-once (قد تتكرّر). SNS pub/sub ليس queue. Kinesis يعطي ترتيب داخل shard لكنّه أعقد بكثير. ملاحظة: اسم FIFO queue يجب أن ينتهي بـ <span class=\"font-mono\">.fifo<\/span>.<\/span><span class=\"lang-en\"><strong>SQS FIFO<\/strong> guarantees strict order and exactly-once delivery. Standard is best-effort ordering + at-least-once (possible dupes). SNS is pub/sub, not a queue. Kinesis orders per-shard but is overkill. Note: FIFO queue name must end with <span class=\"font-mono\">.fifo<\/span>.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يقبل التكرار والترتيب غير مضمون.<\/span><span class=\"lang-en\">Allows duplicates; no order guarantee.<\/span>", "", "<span class=\"lang-ar\">pub/sub ليس queue.<\/span><span class=\"lang-en\">Pub/sub, not a queue.<\/span>", "<span class=\"lang-ar\">مبالغ فيه لهذه الحالة.<\/span><span class=\"lang-en\">Overkill here.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q2",
         type: "single",
-        question: "<span class="lang-ar">مستهلك SQS يستغرق أحياناً أكثر من ٣٠ ثانية لمعالجة رسالة، فتظهر الرسالة مرّتين في logs. ما الحلّ الأفضل؟</span><span class="lang-en">An SQS consumer sometimes takes over 30s to process a message, causing duplicate processing. Best fix?</span>",
+        question: "<span class=\"lang-ar\">مستهلك SQS يستغرق أحياناً أكثر من ٣٠ ثانية لمعالجة رسالة، فتظهر الرسالة مرّتين في logs. ما الحلّ الأفضل؟<\/span><span class=\"lang-en\">An SQS consumer sometimes takes over 30s to process a message, causing duplicate processing. Best fix?<\/span>",
         options: [
-          "<span class="lang-ar">حذف الرسالة قبل المعالجة.</span><span class="lang-en">Delete the message before processing.</span>",
-          "<span class="lang-ar">زيادة Visibility Timeout أو استدعاء <span class="font-mono">ChangeMessageVisibility</span>.</span><span class="lang-en">Raise Visibility Timeout or call <span class="font-mono">ChangeMessageVisibility</span>.</span>",
-          "<span class="lang-ar">استخدام FIFO queue.</span><span class="lang-en">Use a FIFO queue.</span>",
-          "<span class="lang-ar">Short polling.</span><span class="lang-en">Short polling.</span>"
+          "<span class=\"lang-ar\">حذف الرسالة قبل المعالجة.<\/span><span class=\"lang-en\">Delete the message before processing.<\/span>",
+          "<span class=\"lang-ar\">زيادة Visibility Timeout أو استدعاء <span class=\"font-mono\">ChangeMessageVisibility<\/span>.<\/span><span class=\"lang-en\">Raise Visibility Timeout or call <span class=\"font-mono\">ChangeMessageVisibility<\/span>.<\/span>",
+          "<span class=\"lang-ar\">استخدام FIFO queue.<\/span><span class=\"lang-en\">Use a FIFO queue.<\/span>",
+          "<span class=\"lang-ar\">Short polling.<\/span><span class=\"lang-en\">Short polling.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">Visibility Timeout الافتراضي ٣٠ ثانية. لو المعالجة أطول، الرسالة تعود للقائمة ويُعالجها مستهلك آخر (تكرار). ارفع الـ timeout عند إنشاء الطابور، أو استدع <span class="font-mono">ChangeMessageVisibility</span> أثناء المعالجة لتمديد الوقت. حذف الرسالة قبل المعالجة يفقدها عند الفشل.</span><span class="lang-en">Default Visibility Timeout is 30s. If processing takes longer, the message returns and another consumer re-processes it (duplicate). Raise the timeout at queue-create, or call <span class="font-mono">ChangeMessageVisibility</span> mid-processing. Deleting before processing loses data on failure.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">خطر فقدان الرسائل عند الفشل.</span><span class=\"lang-en\">Risky — lost messages on failure.</span>", "", "<span class=\"lang-ar\">FIFO لا يحلّ المشكلة الأساسية (مدة المعالجة).</span><span class=\"lang-en\">FIFO doesn't fix processing duration.</span>", "<span class=\"lang-ar\">لا يؤثر على visibility.</span><span class=\"lang-en\">Unrelated to visibility.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">Visibility Timeout الافتراضي ٣٠ ثانية. لو المعالجة أطول، الرسالة تعود للقائمة ويُعالجها مستهلك آخر (تكرار). ارفع الـ timeout عند إنشاء الطابور، أو استدع <span class=\"font-mono\">ChangeMessageVisibility<\/span> أثناء المعالجة لتمديد الوقت. حذف الرسالة قبل المعالجة يفقدها عند الفشل.<\/span><span class=\"lang-en\">Default Visibility Timeout is 30s. If processing takes longer, the message returns and another consumer re-processes it (duplicate). Raise the timeout at queue-create, or call <span class=\"font-mono\">ChangeMessageVisibility<\/span> mid-processing. Deleting before processing loses data on failure.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر فقدان الرسائل عند الفشل.<\/span><span class=\"lang-en\">Risky — lost messages on failure.<\/span>", "", "<span class=\"lang-ar\">FIFO لا يحلّ المشكلة الأساسية (مدة المعالجة).<\/span><span class=\"lang-en\">FIFO doesn't fix processing duration.<\/span>", "<span class=\"lang-ar\">لا يؤثر على visibility.<\/span><span class=\"lang-en\">Unrelated to visibility.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q3",
         type: "single",
-        question: "<span class="lang-ar">شركة تجارة إلكترونية تريد عند كل طلب: (أ) إرسال بريد تأكيد، (ب) تحديث المخزون، (ج) تسجيل السجلّ في DWH. ما النمط الأمثل؟</span><span class="lang-en">E-commerce: on each order, (a) send email, (b) update inventory, (c) log to DWH. Best pattern?</span>",
+        question: "<span class=\"lang-ar\">شركة تجارة إلكترونية تريد عند كل طلب: (أ) إرسال بريد تأكيد، (ب) تحديث المخزون، (ج) تسجيل السجلّ في DWH. ما النمط الأمثل؟<\/span><span class=\"lang-en\">E-commerce: on each order, (a) send email, (b) update inventory, (c) log to DWH. Best pattern?<\/span>",
         options: [
-          "<span class="lang-ar">٣ استدعاءات synchronous من التطبيق.</span><span class="lang-en">3 synchronous calls from the app.</span>",
-          "<span class="lang-ar">SNS Topic + ٣ SQS subscribers (Fan-out).</span><span class="lang-en">SNS Topic + 3 SQS subscribers (Fan-out).</span>",
-          "<span class="lang-ar">DynamoDB Streams.</span><span class="lang-en">DynamoDB Streams.</span>",
-          "<span class="lang-ar">EventBridge فقط.</span><span class="lang-en">EventBridge only.</span>"
+          "<span class=\"lang-ar\">٣ استدعاءات synchronous من التطبيق.<\/span><span class=\"lang-en\">3 synchronous calls from the app.<\/span>",
+          "<span class=\"lang-ar\">SNS Topic + ٣ SQS subscribers (Fan-out).<\/span><span class=\"lang-en\">SNS Topic + 3 SQS subscribers (Fan-out).<\/span>",
+          "<span class=\"lang-ar\">DynamoDB Streams.<\/span><span class=\"lang-en\">DynamoDB Streams.<\/span>",
+          "<span class=\"lang-ar\">EventBridge فقط.<\/span><span class=\"lang-en\">EventBridge only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Fan-out Pattern</strong>: SNS يستقبل الحدث مرّة واحدة ويوزّعه على عدّة SQS queues (أو Lambda). كل queue تعالج بشكل مستقلّ — إن فشل DWH لا يتأثر البريد. الـ synchronous يخلق تبعيّات هشّة. EventBridge بديل جيّد لكن SNS+SQS هو النمط المعياري المعروف للامتحان.</span><span class="lang-en"><strong>Fan-out Pattern</strong>: SNS receives the event once and distributes to several SQS queues (or Lambdas). Each processes independently — DWH failure doesn't hurt email. Sync creates brittle coupling. EventBridge is a good alt but SNS+SQS is the classic exam pattern.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">هشّ — فشل واحد يُوقف الكل.</span><span class=\"lang-en\">Brittle — one failure halts all.</span>", "", "<span class=\"lang-ar\">لا علاقة بالأحداث العامّة.</span><span class=\"lang-en\">Not for general events.</span>", "<span class=\"lang-ar\">بديل جيّد لكن ليس الإجابة الأكثر شيوعاً هنا.</span><span class=\"lang-en\">Good alt but SNS+SQS is the canonical answer.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Fan-out Pattern<\/strong>: SNS يستقبل الحدث مرّة واحدة ويوزّعه على عدّة SQS queues (أو Lambda). كل queue تعالج بشكل مستقلّ — إن فشل DWH لا يتأثر البريد. الـ synchronous يخلق تبعيّات هشّة. EventBridge بديل جيّد لكن SNS+SQS هو النمط المعياري المعروف للامتحان.<\/span><span class=\"lang-en\"><strong>Fan-out Pattern<\/strong>: SNS receives the event once and distributes to several SQS queues (or Lambdas). Each processes independently — DWH failure doesn't hurt email. Sync creates brittle coupling. EventBridge is a good alt but SNS+SQS is the classic exam pattern.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هشّ — فشل واحد يُوقف الكل.<\/span><span class=\"lang-en\">Brittle — one failure halts all.<\/span>", "", "<span class=\"lang-ar\">لا علاقة بالأحداث العامّة.<\/span><span class=\"lang-en\">Not for general events.<\/span>", "<span class=\"lang-ar\">بديل جيّد لكن ليس الإجابة الأكثر شيوعاً هنا.<\/span><span class=\"lang-en\">Good alt but SNS+SQS is the canonical answer.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q4",
         type: "single",
-        question: "<span class="lang-ar">نظام IoT يستقبل ملايين القياسات في الثانية، ويحتاج تحليلها فوراً مع حفظها لـ ٧ أيام ويمكن reprocessing. أيّ خدمة؟</span><span class="lang-en">IoT system ingests millions of metrics/sec, needs instant analysis + 7-day replay. Which service?</span>",
+        question: "<span class=\"lang-ar\">نظام IoT يستقبل ملايين القياسات في الثانية، ويحتاج تحليلها فوراً مع حفظها لـ ٧ أيام ويمكن reprocessing. أيّ خدمة؟<\/span><span class=\"lang-en\">IoT system ingests millions of metrics/sec, needs instant analysis + 7-day replay. Which service?<\/span>",
         options: [
-          "<span class="lang-ar">SQS Standard</span><span class="lang-en">SQS Standard</span>",
-          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
-          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>",
-          "<span class="lang-ar">EventBridge</span><span class="lang-en">EventBridge</span>"
+          "<span class=\"lang-ar\">SQS Standard<\/span><span class=\"lang-en\">SQS Standard<\/span>",
+          "<span class=\"lang-ar\">SNS<\/span><span class=\"lang-en\">SNS<\/span>",
+          "<span class=\"lang-ar\">Kinesis Data Streams<\/span><span class=\"lang-en\">Kinesis Data Streams<\/span>",
+          "<span class=\"lang-ar\">EventBridge<\/span><span class=\"lang-en\">EventBridge<\/span>"
         ],
         correct: 2,
-        explanation: "<span class="lang-ar"><strong>Kinesis Data Streams</strong> مصمّم للتدفّق الفوري على نطاق واسع: shards تتوسّع للتدفّق العالي، بيانات قابلة للإعادة (replay) حتى ٣٦٥ يوماً، عدّة مستهلكين يقرأون نفس البيانات. SQS يخزّن حتى ١٤ يوماً بلا replay. SNS لا يخزّن. EventBridge لتكامل الخدمات لا للـ streaming.</span><span class="lang-en"><strong>Kinesis Data Streams</strong> is built for high-volume real-time streaming: shards scale, data replayable for up to 365 days, multiple consumers read same data. SQS: 14-day max, no replay. SNS: no storage. EventBridge: service integration, not streaming.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا replay ولا consumers متعدّدين.</span><span class=\"lang-en\">No replay or multi-consumer.</span>", "<span class=\"lang-ar\">لا يخزّن البيانات.</span><span class=\"lang-en\">No storage.</span>", "", "<span class=\"lang-ar\">ليس للـ streaming.</span><span class=\"lang-en\">Not for streaming.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Kinesis Data Streams<\/strong> مصمّم للتدفّق الفوري على نطاق واسع: shards تتوسّع للتدفّق العالي، بيانات قابلة للإعادة (replay) حتى ٣٦٥ يوماً، عدّة مستهلكين يقرأون نفس البيانات. SQS يخزّن حتى ١٤ يوماً بلا replay. SNS لا يخزّن. EventBridge لتكامل الخدمات لا للـ streaming.<\/span><span class=\"lang-en\"><strong>Kinesis Data Streams<\/strong> is built for high-volume real-time streaming: shards scale, data replayable for up to 365 days, multiple consumers read same data. SQS: 14-day max, no replay. SNS: no storage. EventBridge: service integration, not streaming.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا replay ولا consumers متعدّدين.<\/span><span class=\"lang-en\">No replay or multi-consumer.<\/span>", "<span class=\"lang-ar\">لا يخزّن البيانات.<\/span><span class=\"lang-en\">No storage.<\/span>", "", "<span class=\"lang-ar\">ليس للـ streaming.<\/span><span class=\"lang-en\">Not for streaming.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q5",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تحميل أحداث التطبيق إلى S3 لأغراض data lake بدون كتابة كود مستهلك. ما الخيار الأمثل؟</span><span class="lang-en">A dev wants to load app events to S3 for a data lake with no consumer code. Best option?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تحميل أحداث التطبيق إلى S3 لأغراض data lake بدون كتابة كود مستهلك. ما الخيار الأمثل؟<\/span><span class=\"lang-en\">A dev wants to load app events to S3 for a data lake with no consumer code. Best option?<\/span>",
         options: [
-          "<span class="lang-ar">Kinesis Data Streams + Lambda consumer.</span><span class="lang-en">Kinesis Data Streams + Lambda consumer.</span>",
-          "<span class="lang-ar">Kinesis Data Firehose مع S3 destination.</span><span class="lang-en">Kinesis Data Firehose with S3 destination.</span>",
-          "<span class="lang-ar">SQS + EC2 consumer.</span><span class="lang-en">SQS + EC2 consumer.</span>",
-          "<span class="lang-ar">S3 event notifications.</span><span class="lang-en">S3 event notifications.</span>"
+          "<span class=\"lang-ar\">Kinesis Data Streams + Lambda consumer.<\/span><span class=\"lang-en\">Kinesis Data Streams + Lambda consumer.<\/span>",
+          "<span class=\"lang-ar\">Kinesis Data Firehose مع S3 destination.<\/span><span class=\"lang-en\">Kinesis Data Firehose with S3 destination.<\/span>",
+          "<span class=\"lang-ar\">SQS + EC2 consumer.<\/span><span class=\"lang-en\">SQS + EC2 consumer.<\/span>",
+          "<span class=\"lang-ar\">S3 event notifications.<\/span><span class=\"lang-en\">S3 event notifications.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Kinesis Data Firehose</strong> هو الأبسط: managed service يجمع الأحداث ويحمّلها مباشرة إلى S3/Redshift/OpenSearch بدون shards أو كود استهلاك. يدعم buffering (حجم + وقت)، compression، format conversion (JSON → Parquet). Data Streams يتطلّب KCL/Lambda. SQS غير مناسب. S3 event notifications عكس الاتجاه.</span><span class="lang-en"><strong>Kinesis Data Firehose</strong> is simplest: managed service that batches events and loads to S3/Redshift/OpenSearch with no shards or consumer code. Supports buffering (size + time), compression, format conversion (JSON → Parquet). Data Streams needs KCL/Lambda. SQS doesn't fit. S3 events are the reverse direction.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب كود مستهلك.</span><span class=\"lang-en\">Needs consumer code.</span>", "", "<span class=\"lang-ar\">غير مصمّم لـ data lake.</span><span class=\"lang-en\">Not for data lake.</span>", "<span class=\"lang-ar\">الاتجاه المعاكس.</span><span class=\"lang-en\">Opposite direction.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Kinesis Data Firehose<\/strong> هو الأبسط: managed service يجمع الأحداث ويحمّلها مباشرة إلى S3/Redshift/OpenSearch بدون shards أو كود استهلاك. يدعم buffering (حجم + وقت)، compression، format conversion (JSON → Parquet). Data Streams يتطلّب KCL/Lambda. SQS غير مناسب. S3 event notifications عكس الاتجاه.<\/span><span class=\"lang-en\"><strong>Kinesis Data Firehose<\/strong> is simplest: managed service that batches events and loads to S3/Redshift/OpenSearch with no shards or consumer code. Supports buffering (size + time), compression, format conversion (JSON → Parquet). Data Streams needs KCL/Lambda. SQS doesn't fit. S3 events are the reverse direction.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب كود مستهلك.<\/span><span class=\"lang-en\">Needs consumer code.<\/span>", "", "<span class=\"lang-ar\">غير مصمّم لـ data lake.<\/span><span class=\"lang-en\">Not for data lake.<\/span>", "<span class=\"lang-ar\">الاتجاه المعاكس.<\/span><span class=\"lang-en\">Opposite direction.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q6",
         type: "single",
-        question: "<span class="lang-ar">مطوّر يريد تشغيل Lambda تلقائياً كل يوم الساعة ٣ صباحاً لتوليد تقارير. ما الأداة؟</span><span class="lang-en">A dev wants to trigger a Lambda daily at 3am for reports. Tool?</span>",
+        question: "<span class=\"lang-ar\">مطوّر يريد تشغيل Lambda تلقائياً كل يوم الساعة ٣ صباحاً لتوليد تقارير. ما الأداة؟<\/span><span class=\"lang-en\">A dev wants to trigger a Lambda daily at 3am for reports. Tool?<\/span>",
         options: [
-          "<span class="lang-ar">SQS delay queue.</span><span class="lang-en">SQS delay queue.</span>",
-          "<span class="lang-ar">EventBridge rule مع cron expression.</span><span class="lang-en">EventBridge rule with cron expression.</span>",
-          "<span class="lang-ar">SNS subscription.</span><span class="lang-en">SNS subscription.</span>",
-          "<span class="lang-ar">S3 lifecycle.</span><span class="lang-en">S3 lifecycle.</span>"
+          "<span class=\"lang-ar\">SQS delay queue.<\/span><span class=\"lang-en\">SQS delay queue.<\/span>",
+          "<span class=\"lang-ar\">EventBridge rule مع cron expression.<\/span><span class=\"lang-en\">EventBridge rule with cron expression.<\/span>",
+          "<span class=\"lang-ar\">SNS subscription.<\/span><span class=\"lang-en\">SNS subscription.<\/span>",
+          "<span class=\"lang-ar\">S3 lifecycle.<\/span><span class=\"lang-en\">S3 lifecycle.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>EventBridge</strong> يدعم schedule expressions — cron (<span class="font-mono">cron(0 3 * * ? *)</span>) أو rate (<span class="font-mono">rate(1 day)</span>). أضف Lambda كـ target. أبسط من أيّ شيء آخر. SQS delay queue لرسالة واحدة حتى ١٥ دقيقة. SNS ليست scheduler. S3 lifecycle للـ objects.</span><span class="lang-en"><strong>EventBridge</strong> supports schedule expressions — cron (<span class="font-mono">cron(0 3 * * ? *)</span>) or rate (<span class="font-mono">rate(1 day)</span>). Add Lambda as target. Simplest. SQS delay queue is a single message up to 15 min. SNS isn't a scheduler. S3 lifecycle is for objects.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">١٥ دقيقة فقط ولا يتكرّر.</span><span class=\"lang-en\">Only 15 min, not recurring.</span>", "", "<span class=\"lang-ar\">ليس scheduler.</span><span class=\"lang-en\">Not a scheduler.</span>", "<span class=\"lang-ar\">للـ objects فقط.</span><span class=\"lang-en\">For objects only.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>EventBridge<\/strong> يدعم schedule expressions — cron (<span class=\"font-mono\">cron(0 3 * * ? *)<\/span>) أو rate (<span class=\"font-mono\">rate(1 day)<\/span>). أضف Lambda كـ target. أبسط من أيّ شيء آخر. SQS delay queue لرسالة واحدة حتى ١٥ دقيقة. SNS ليست scheduler. S3 lifecycle للـ objects.<\/span><span class=\"lang-en\"><strong>EventBridge<\/strong> supports schedule expressions — cron (<span class=\"font-mono\">cron(0 3 * * ? *)<\/span>) or rate (<span class=\"font-mono\">rate(1 day)<\/span>). Add Lambda as target. Simplest. SQS delay queue is a single message up to 15 min. SNS isn't a scheduler. S3 lifecycle is for objects.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">١٥ دقيقة فقط ولا يتكرّر.<\/span><span class=\"lang-en\">Only 15 min, not recurring.<\/span>", "", "<span class=\"lang-ar\">ليس scheduler.<\/span><span class=\"lang-en\">Not a scheduler.<\/span>", "<span class=\"lang-ar\">للـ objects فقط.<\/span><span class=\"lang-en\">For objects only.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q7",
         type: "single",
-        question: "<span class="lang-ar">طابور SQS يحتوي رسائل فاشلة بعد ٥ محاولات معالجة. كيف تمنع إعادة المحاولة اللا نهائية مع الاحتفاظ بالرسائل للتحقيق؟</span><span class="lang-en">An SQS queue has messages failing after 5 processing attempts. How to stop the infinite loop and keep them for investigation?</span>",
+        question: "<span class=\"lang-ar\">طابور SQS يحتوي رسائل فاشلة بعد ٥ محاولات معالجة. كيف تمنع إعادة المحاولة اللا نهائية مع الاحتفاظ بالرسائل للتحقيق؟<\/span><span class=\"lang-en\">An SQS queue has messages failing after 5 processing attempts. How to stop the infinite loop and keep them for investigation?<\/span>",
         options: [
-          "<span class="lang-ar">حذف الرسائل الفاشلة فوراً.</span><span class="lang-en">Delete failed messages immediately.</span>",
-          "<span class="lang-ar">تكوين Dead Letter Queue مع <span class="font-mono">maxReceiveCount=5</span>.</span><span class="lang-en">Configure a DLQ with <span class="font-mono">maxReceiveCount=5</span>.</span>",
-          "<span class="lang-ar">زيادة Visibility Timeout.</span><span class="lang-en">Raise Visibility Timeout.</span>",
-          "<span class="lang-ar">Short polling.</span><span class="lang-en">Short polling.</span>"
+          "<span class=\"lang-ar\">حذف الرسائل الفاشلة فوراً.<\/span><span class=\"lang-en\">Delete failed messages immediately.<\/span>",
+          "<span class=\"lang-ar\">تكوين Dead Letter Queue مع <span class=\"font-mono\">maxReceiveCount=5<\/span>.<\/span><span class=\"lang-en\">Configure a DLQ with <span class=\"font-mono\">maxReceiveCount=5<\/span>.<\/span>",
+          "<span class=\"lang-ar\">زيادة Visibility Timeout.<\/span><span class=\"lang-en\">Raise Visibility Timeout.<\/span>",
+          "<span class=\"lang-ar\">Short polling.<\/span><span class=\"lang-en\">Short polling.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Dead Letter Queue (DLQ)</strong> هو الحلّ المعياري: بعد <span class="font-mono">maxReceiveCount</span> محاولات، الرسالة تنتقل للـ DLQ. تحافظ على الرسائل للتحقيق (اعدّ احتفاظ ١٤ يوماً). DLQ لـ FIFO يجب أن تكون FIFO أيضاً. ميزة <strong>Redrive to Source</strong> تُعيد الرسائل بعد إصلاح الكود.</span><span class="lang-en"><strong>Dead Letter Queue (DLQ)</strong> is the canonical fix: after <span class="font-mono">maxReceiveCount</span> attempts, the message moves to DLQ. Keep it for debug (14-day retention). FIFO DLQ must also be FIFO. <strong>Redrive to Source</strong> feature returns messages after code fix.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يفقد البيانات.</span><span class=\"lang-en\">Loses data.</span>", "", "<span class=\"lang-ar\">لا يحلّ الأخطاء المتكرّرة.</span><span class=\"lang-en\">Doesn't stop repeat failures.</span>", "<span class=\"lang-ar\">لا يؤثر.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Dead Letter Queue (DLQ)<\/strong> هو الحلّ المعياري: بعد <span class=\"font-mono\">maxReceiveCount<\/span> محاولات، الرسالة تنتقل للـ DLQ. تحافظ على الرسائل للتحقيق (اعدّ احتفاظ ١٤ يوماً). DLQ لـ FIFO يجب أن تكون FIFO أيضاً. ميزة <strong>Redrive to Source<\/strong> تُعيد الرسائل بعد إصلاح الكود.<\/span><span class=\"lang-en\"><strong>Dead Letter Queue (DLQ)<\/strong> is the canonical fix: after <span class=\"font-mono\">maxReceiveCount<\/span> attempts, the message moves to DLQ. Keep it for debug (14-day retention). FIFO DLQ must also be FIFO. <strong>Redrive to Source<\/strong> feature returns messages after code fix.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يفقد البيانات.<\/span><span class=\"lang-en\">Loses data.<\/span>", "", "<span class=\"lang-ar\">لا يحلّ الأخطاء المتكرّرة.<\/span><span class=\"lang-en\">Doesn't stop repeat failures.<\/span>", "<span class=\"lang-ar\">لا يؤثر.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q8",
         type: "single",
-        question: "<span class="lang-ar">SNS Topic يوزّع رسائل الطلبات. فريق التسويق يريد فقط الطلبات <span dir="ltr" class="font-mono">premium</span> في منطقة <span dir="ltr" class="font-mono">US</span>. كيف؟</span><span class="lang-en">An SNS Topic distributes order events. Marketing wants only <span dir="ltr" class="font-mono">premium</span> orders in the <span dir="ltr" class="font-mono">US</span>. How?</span>",
+        question: "<span class=\"lang-ar\">SNS Topic يوزّع رسائل الطلبات. فريق التسويق يريد فقط الطلبات <span dir=\"ltr\" class=\"font-mono\">premium<\/span> في منطقة <span dir=\"ltr\" class=\"font-mono\">US<\/span>. كيف؟<\/span><span class=\"lang-en\">An SNS Topic distributes order events. Marketing wants only <span dir=\"ltr\" class=\"font-mono\">premium<\/span> orders in the <span dir=\"ltr\" class=\"font-mono\">US<\/span>. How?<\/span>",
         options: [
-          "<span class="lang-ar">إنشاء topic منفصل.</span><span class="lang-en">Create a separate topic.</span>",
-          "<span class="lang-ar">Subscription Filter Policy على message attributes.</span><span class="lang-en">Subscription Filter Policy on message attributes.</span>",
-          "<span class="lang-ar">تصفية داخل Lambda المستهلك.</span><span class="lang-en">Filter inside consumer Lambda.</span>",
-          "<span class="lang-ar">SNS FIFO.</span><span class="lang-en">SNS FIFO.</span>"
+          "<span class=\"lang-ar\">إنشاء topic منفصل.<\/span><span class=\"lang-en\">Create a separate topic.<\/span>",
+          "<span class=\"lang-ar\">Subscription Filter Policy على message attributes.<\/span><span class=\"lang-en\">Subscription Filter Policy on message attributes.<\/span>",
+          "<span class=\"lang-ar\">تصفية داخل Lambda المستهلك.<\/span><span class=\"lang-en\">Filter inside consumer Lambda.<\/span>",
+          "<span class=\"lang-ar\">SNS FIFO.<\/span><span class=\"lang-en\">SNS FIFO.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>SNS Filter Policy</strong> يسمح لكل subscriber بتلقّي الرسائل المطابقة فقط (JSON policy على message attributes). يوفّر تكلفة الـ Lambda invocations للرسائل غير المطلوبة. فصل الـ topic يُضاعف العمل. الفلترة داخل Lambda مكلفة.</span><span class="lang-en"><strong>SNS Filter Policy</strong> lets each subscriber receive only matching messages (JSON policy on attributes). Saves Lambda invocations for irrelevant messages. Separate topic doubles work. In-Lambda filtering wastes invocations.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">يضاعف العمل والتكلفة.</span><span class=\"lang-en\">Doubles work and cost.</span>", "", "<span class=\"lang-ar\">يهدر Lambda invocations.</span><span class=\"lang-en\">Wastes Lambda invocations.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+        explanation: "<span class=\"lang-ar\"><strong>SNS Filter Policy<\/strong> يسمح لكل subscriber بتلقّي الرسائل المطابقة فقط (JSON policy على message attributes). يوفّر تكلفة الـ Lambda invocations للرسائل غير المطلوبة. فصل الـ topic يُضاعف العمل. الفلترة داخل Lambda مكلفة.<\/span><span class=\"lang-en\"><strong>SNS Filter Policy<\/strong> lets each subscriber receive only matching messages (JSON policy on attributes). Saves Lambda invocations for irrelevant messages. Separate topic doubles work. In-Lambda filtering wastes invocations.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يضاعف العمل والتكلفة.<\/span><span class=\"lang-en\">Doubles work and cost.<\/span>", "", "<span class=\"lang-ar\">يهدر Lambda invocations.<\/span><span class=\"lang-en\">Wastes Lambda invocations.<\/span>", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣<\/span><span class=\"lang-en\">Section 3<\/span>"
       },
       {
         id: "q9",
         type: "single",
-        question: "<span class="lang-ar">Kinesis Data Streams يُرجع <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. ما السبب الأرجح والحلّ؟</span><span class="lang-en">Kinesis Data Streams throws <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. Cause and fix?</span>",
+        question: "<span class=\"lang-ar\">Kinesis Data Streams يُرجع <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException<\/span>. ما السبب الأرجح والحلّ؟<\/span><span class=\"lang-en\">Kinesis Data Streams throws <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException<\/span>. Cause and fix?<\/span>",
         options: [
-          "<span class="lang-ar">VPC غير صحيح؛ أصلح route.</span><span class="lang-en">Wrong VPC; fix routing.</span>",
-          "<span class="lang-ar">hot shard من partition key ضعيف؛ حسّن الـ key أو reshard أو حوّل إلى On-Demand.</span><span class="lang-en">Hot shard from poor partition key; improve key or reshard or switch to On-Demand.</span>",
-          "<span class="lang-ar">IAM permissions ناقصة.</span><span class="lang-en">Missing IAM permissions.</span>",
-          "<span class="lang-ar">نوع consumer خاطئ.</span><span class="lang-en">Wrong consumer type.</span>"
+          "<span class=\"lang-ar\">VPC غير صحيح؛ أصلح route.<\/span><span class=\"lang-en\">Wrong VPC; fix routing.<\/span>",
+          "<span class=\"lang-ar\">hot shard من partition key ضعيف؛ حسّن الـ key أو reshard أو حوّل إلى On-Demand.<\/span><span class=\"lang-en\">Hot shard from poor partition key; improve key or reshard or switch to On-Demand.<\/span>",
+          "<span class=\"lang-ar\">IAM permissions ناقصة.<\/span><span class=\"lang-en\">Missing IAM permissions.<\/span>",
+          "<span class=\"lang-ar\">نوع consumer خاطئ.<\/span><span class=\"lang-en\">Wrong consumer type.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>hot shard</strong>: كلّ shard يدعم ١ MB/s ingest أو ١٠٠٠ records. لو جميع الرسائل تذهب لنفس shard بسبب partition key ضعيف، يختنق رغم أنّ الإنتاجية الكلّية كافية. الحلول: partition key أفضل توزيعاً، split shards (resharding)، أو <strong>On-Demand mode</strong> يتوسّع تلقائياً.</span><span class="lang-en"><strong>Hot shard</strong>: each shard handles 1 MB/s or 1000 rec/s. If all traffic hits one shard due to a bad partition key, it throttles even when aggregate capacity is fine. Fixes: better-distributed key, reshard (split), or <strong>On-Demand mode</strong> which auto-scales.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">ليس خطأ VPC.</span><span class=\"lang-en\">Not a VPC issue.</span>", "", "<span class=\"lang-ar\">يُرجع AccessDenied لا Provisioned exception.</span><span class=\"lang-en\">Would be AccessDenied, not Provisioned.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>hot shard<\/strong>: كلّ shard يدعم ١ MB/s ingest أو ١٠٠٠ records. لو جميع الرسائل تذهب لنفس shard بسبب partition key ضعيف، يختنق رغم أنّ الإنتاجية الكلّية كافية. الحلول: partition key أفضل توزيعاً، split shards (resharding)، أو <strong>On-Demand mode<\/strong> يتوسّع تلقائياً.<\/span><span class=\"lang-en\"><strong>Hot shard<\/strong>: each shard handles 1 MB/s or 1000 rec/s. If all traffic hits one shard due to a bad partition key, it throttles even when aggregate capacity is fine. Fixes: better-distributed key, reshard (split), or <strong>On-Demand mode<\/strong> which auto-scales.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس خطأ VPC.<\/span><span class=\"lang-en\">Not a VPC issue.<\/span>", "", "<span class=\"lang-ar\">يُرجع AccessDenied لا Provisioned exception.<\/span><span class=\"lang-en\">Would be AccessDenied, not Provisioned.<\/span>", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q10",
         type: "single",
-        question: "<span class="lang-ar">ما الفرق الجوهري بين SNS و EventBridge؟</span><span class="lang-en">Core difference between SNS and EventBridge?</span>",
+        question: "<span class=\"lang-ar\">ما الفرق الجوهري بين SNS و EventBridge؟<\/span><span class=\"lang-en\">Core difference between SNS and EventBridge?<\/span>",
         options: [
-          "<span class="lang-ar">EventBridge أغلى.</span><span class="lang-en">EventBridge is pricier.</span>",
-          "<span class="lang-ar">SNS pub/sub سريع وبسيط (fan-out, Email/SMS)؛ EventBridge event bus مع rules و schemas ومحفوظات ومشاركة من خدمات AWS وSaaS.</span><span class="lang-en">SNS is simple pub/sub (fan-out, Email/SMS); EventBridge is an event bus with rules, schemas, archive, and native AWS/SaaS events.</span>",
-          "<span class="lang-ar">SNS يدعم JSON؛ EventBridge XML.</span><span class="lang-en">SNS uses JSON; EventBridge XML.</span>",
-          "<span class="lang-ar">EventBridge للـ mobile فقط.</span><span class="lang-en">EventBridge is mobile-only.</span>"
+          "<span class=\"lang-ar\">EventBridge أغلى.<\/span><span class=\"lang-en\">EventBridge is pricier.<\/span>",
+          "<span class=\"lang-ar\">SNS pub/sub سريع وبسيط (fan-out, Email/SMS)؛ EventBridge event bus مع rules و schemas ومحفوظات ومشاركة من خدمات AWS وSaaS.<\/span><span class=\"lang-en\">SNS is simple pub/sub (fan-out, Email/SMS); EventBridge is an event bus with rules, schemas, archive, and native AWS/SaaS events.<\/span>",
+          "<span class=\"lang-ar\">SNS يدعم JSON؛ EventBridge XML.<\/span><span class=\"lang-en\">SNS uses JSON; EventBridge XML.<\/span>",
+          "<span class=\"lang-ar\">EventBridge للـ mobile فقط.<\/span><span class=\"lang-en\">EventBridge is mobile-only.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>SNS</strong>: pub/sub سريع مع filter على attributes. يدعم Email/SMS/Push وSQS وLambda. <strong>EventBridge</strong>: event bus أقوى مع JSON pattern matching، schema registry، archive/replay، Partner Buses للـ SaaS (Shopify, Datadog)، وأحداث AWS native. ترى EventBridge في event-driven microservices، SNS في simple fan-out/notifications.</span><span class="lang-en"><strong>SNS</strong>: fast pub/sub with attribute filters. Supports Email/SMS/Push, SQS, Lambda. <strong>EventBridge</strong>: richer event bus with JSON pattern matching, schema registry, archive/replay, Partner Buses (Shopify, Datadog), native AWS events. EventBridge for event-driven microservices, SNS for simple fan-out/notifications.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">التسعير غير المحدّد.</span><span class=\"lang-en\">Pricing varies, unclear.</span>", "", "<span class=\"lang-ar\">الاثنان يدعمان JSON.</span><span class=\"lang-en\">Both use JSON.</span>", "<span class=\"lang-ar\">لا، للخدمات العامّة.</span><span class=\"lang-en\">No, it's general-purpose.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\"><strong>SNS<\/strong>: pub/sub سريع مع filter على attributes. يدعم Email/SMS/Push وSQS وLambda. <strong>EventBridge<\/strong>: event bus أقوى مع JSON pattern matching، schema registry، archive/replay، Partner Buses للـ SaaS (Shopify, Datadog)، وأحداث AWS native. ترى EventBridge في event-driven microservices، SNS في simple fan-out/notifications.<\/span><span class=\"lang-en\"><strong>SNS<\/strong>: fast pub/sub with attribute filters. Supports Email/SMS/Push, SQS, Lambda. <strong>EventBridge<\/strong>: richer event bus with JSON pattern matching, schema registry, archive/replay, Partner Buses (Shopify, Datadog), native AWS events. EventBridge for event-driven microservices, SNS for simple fan-out/notifications.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">التسعير غير المحدّد.<\/span><span class=\"lang-en\">Pricing varies, unclear.<\/span>", "", "<span class=\"lang-ar\">الاثنان يدعمان JSON.<\/span><span class=\"lang-en\">Both use JSON.<\/span>", "<span class=\"lang-ar\">لا، للخدمات العامّة.<\/span><span class=\"lang-en\">No, it's general-purpose.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       },
       {
         id: "q11",
         type: "single",
-        question: "<span class="lang-ar">حدّ حجم رسالة SQS القياسي؟</span><span class="lang-en">SQS standard max message size?</span>",
+        question: "<span class=\"lang-ar\">حدّ حجم رسالة SQS القياسي؟<\/span><span class=\"lang-en\">SQS standard max message size?<\/span>",
         options: [
-          "<span class="lang-ar">٦٤ KB</span><span class="lang-en">64 KB</span>",
-          "<span class="lang-ar">٢٥٦ KB</span><span class="lang-en">256 KB</span>",
-          "<span class="lang-ar">١ MB</span><span class="lang-en">1 MB</span>",
-          "<span class="lang-ar">١٠ MB</span><span class="lang-en">10 MB</span>"
+          "<span class=\"lang-ar\">٦٤ KB<\/span><span class=\"lang-en\">64 KB<\/span>",
+          "<span class=\"lang-ar\">٢٥٦ KB<\/span><span class=\"lang-en\">256 KB<\/span>",
+          "<span class=\"lang-ar\">١ MB<\/span><span class=\"lang-en\">1 MB<\/span>",
+          "<span class=\"lang-ar\">١٠ MB<\/span><span class=\"lang-en\">10 MB<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الحدّ <strong>٢٥٦ KB</strong>. للرسائل الأكبر استخدم <strong>SQS Extended Client Library</strong> الذي يخزّن الـ payload في S3 ويرسل مرجعه في SQS.</span><span class="lang-en">Limit is <strong>256 KB</strong>. For larger, use <strong>SQS Extended Client Library</strong> which stores payload in S3 and sends an S3 reference via SQS.</span>",
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">الحدّ <strong>٢٥٦ KB<\/strong>. للرسائل الأكبر استخدم <strong>SQS Extended Client Library<\/strong> الذي يخزّن الـ payload في S3 ويرسل مرجعه في SQS.<\/span><span class=\"lang-en\">Limit is <strong>256 KB<\/strong>. For larger, use <strong>SQS Extended Client Library<\/strong> which stores payload in S3 and sends an S3 reference via SQS.<\/span>",
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q12",
         type: "single",
-        question: "<span class="lang-ar">شركة تستخدم Auto Scaling Group من EC2 لمعالجة SQS. كيف تجعل الـ ASG يتوسّع بناءً على حجم الطابور؟</span><span class="lang-en">A company runs ASG of EC2 consuming SQS. How to scale ASG based on queue size?</span>",
+        question: "<span class=\"lang-ar\">شركة تستخدم Auto Scaling Group من EC2 لمعالجة SQS. كيف تجعل الـ ASG يتوسّع بناءً على حجم الطابور؟<\/span><span class=\"lang-en\">A company runs ASG of EC2 consuming SQS. How to scale ASG based on queue size?<\/span>",
         options: [
-          "<span class="lang-ar">CPU utilization metric.</span><span class="lang-en">CPU utilization metric.</span>",
-          "<span class="lang-ar">CloudWatch Alarm على <span class="font-mono">ApproximateNumberOfMessages</span> يُشغّل ASG scaling policy.</span><span class="lang-en">CloudWatch Alarm on <span class="font-mono">ApproximateNumberOfMessages</span> triggers ASG scaling policy.</span>",
-          "<span class="lang-ar">Lambda مجدولة.</span><span class="lang-en">Scheduled Lambda.</span>",
-          "<span class="lang-ar">SNS notification.</span><span class="lang-en">SNS notification.</span>"
+          "<span class=\"lang-ar\">CPU utilization metric.<\/span><span class=\"lang-en\">CPU utilization metric.<\/span>",
+          "<span class=\"lang-ar\">CloudWatch Alarm على <span class=\"font-mono\">ApproximateNumberOfMessages<\/span> يُشغّل ASG scaling policy.<\/span><span class=\"lang-en\">CloudWatch Alarm on <span class=\"font-mono\">ApproximateNumberOfMessages<\/span> triggers ASG scaling policy.<\/span>",
+          "<span class=\"lang-ar\">Lambda مجدولة.<\/span><span class=\"lang-en\">Scheduled Lambda.<\/span>",
+          "<span class=\"lang-ar\">SNS notification.<\/span><span class=\"lang-en\">SNS notification.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">الـ <strong>ApproximateNumberOfMessages</strong> هو المقياس المعياري لتدرّج SQS consumers. أنشئ CloudWatch Alarm يطلق ASG policy عند تجاوز عتبة. CPU مضلّل — الـ EC2 قد يستهلك CPU قليلاً بينما الطابور يتراكم.</span><span class="lang-en"><strong>ApproximateNumberOfMessages</strong> is the canonical metric for scaling SQS consumers. Create a CloudWatch Alarm → ASG policy on threshold. CPU is misleading — EC2 may be CPU-idle while queue grows.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">قد تكون CPU منخفضة والطابور يتراكم.</span><span class=\"lang-en\">CPU can be low while queue grows.</span>", "", "<span class=\"lang-ar\">Lambda لا تتحكّم بـ ASG مباشرة.</span><span class=\"lang-en\">Lambda doesn't drive ASG directly.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\">الـ <strong>ApproximateNumberOfMessages<\/strong> هو المقياس المعياري لتدرّج SQS consumers. أنشئ CloudWatch Alarm يطلق ASG policy عند تجاوز عتبة. CPU مضلّل — الـ EC2 قد يستهلك CPU قليلاً بينما الطابور يتراكم.<\/span><span class=\"lang-en\"><strong>ApproximateNumberOfMessages<\/strong> is the canonical metric for scaling SQS consumers. Create a CloudWatch Alarm → ASG policy on threshold. CPU is misleading — EC2 may be CPU-idle while queue grows.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قد تكون CPU منخفضة والطابور يتراكم.<\/span><span class=\"lang-en\">CPU can be low while queue grows.<\/span>", "", "<span class=\"lang-ar\">Lambda لا تتحكّم بـ ASG مباشرة.<\/span><span class=\"lang-en\">Lambda doesn't drive ASG directly.<\/span>", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q13",
         type: "single",
-        question: "<span class="lang-ar">SQS Long Polling ينصح به لأنّه:</span><span class="lang-en">SQS Long Polling is recommended because:</span>",
+        question: "<span class=\"lang-ar\">SQS Long Polling ينصح به لأنّه:<\/span><span class=\"lang-en\">SQS Long Polling is recommended because:<\/span>",
         options: [
-          "<span class="lang-ar">يزيد سرعة الـ network.</span><span class="lang-en">Increases network speed.</span>",
-          "<span class="lang-ar">يُقلّل عدد API calls ويقلّل الـ latency عند عدم وجود رسائل.</span><span class="lang-en">Reduces API calls and latency when queue is empty.</span>",
-          "<span class="lang-ar">يُمكّن FIFO.</span><span class="lang-en">Enables FIFO.</span>",
-          "<span class="lang-ar">يُضاعف Visibility Timeout.</span><span class="lang-en">Doubles Visibility Timeout.</span>"
+          "<span class=\"lang-ar\">يزيد سرعة الـ network.<\/span><span class=\"lang-en\">Increases network speed.<\/span>",
+          "<span class=\"lang-ar\">يُقلّل عدد API calls ويقلّل الـ latency عند عدم وجود رسائل.<\/span><span class=\"lang-en\">Reduces API calls and latency when queue is empty.<\/span>",
+          "<span class=\"lang-ar\">يُمكّن FIFO.<\/span><span class=\"lang-en\">Enables FIFO.<\/span>",
+          "<span class=\"lang-ar\">يُضاعف Visibility Timeout.<\/span><span class=\"lang-en\">Doubles Visibility Timeout.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>Long Polling</strong> (<span class="font-mono">ReceiveMessageWaitTimeSeconds=20</span>) ينتظر حتى ٢٠ ثانية لوصول رسالة، بدلاً من short polling الذي يطلب باستمرار. النتائج: API calls أقلّ (أرخص)، و latency أقلّ لأنّ الاستجابة تأتي فوراً عند وصول الرسالة، و CPU مستهلك أقل في العميل.</span><span class="lang-en"><strong>Long Polling</strong> (<span class="font-mono">ReceiveMessageWaitTimeSeconds=20</span>) waits up to 20s for a message instead of short polling's constant requesting. Result: fewer API calls (cheaper), lower latency (response arrives as soon as a message does), less client CPU.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالـ network.</span><span class=\"lang-en\">Unrelated to network.</span>", "", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">لا يؤثر على visibility.</span><span class=\"lang-en\">Doesn't affect visibility.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+        explanation: "<span class=\"lang-ar\"><strong>Long Polling<\/strong> (<span class=\"font-mono\">ReceiveMessageWaitTimeSeconds=20<\/span>) ينتظر حتى ٢٠ ثانية لوصول رسالة، بدلاً من short polling الذي يطلب باستمرار. النتائج: API calls أقلّ (أرخص)، و latency أقلّ لأنّ الاستجابة تأتي فوراً عند وصول الرسالة، و CPU مستهلك أقل في العميل.<\/span><span class=\"lang-en\"><strong>Long Polling<\/strong> (<span class=\"font-mono\">ReceiveMessageWaitTimeSeconds=20<\/span>) waits up to 20s for a message instead of short polling's constant requesting. Result: fewer API calls (cheaper), lower latency (response arrives as soon as a message does), less client CPU.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالـ network.<\/span><span class=\"lang-en\">Unrelated to network.<\/span>", "", "<span class=\"lang-ar\">غير ذي صلة.<\/span><span class=\"lang-en\">Unrelated.<\/span>", "<span class=\"lang-ar\">لا يؤثر على visibility.<\/span><span class=\"lang-en\">Doesn't affect visibility.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢<\/span><span class=\"lang-en\">Section 2<\/span>"
       },
       {
         id: "q14",
         type: "single",
-        question: "<span class="lang-ar">تطبيق Spring Boot يستهلك رسائل من Kinesis Data Streams لعدّة مستهلكين. ما الأداة التي تبسّط بناء الـ consumer الموزّع؟</span><span class="lang-en">A Spring Boot app consumes Kinesis Data Streams across multiple consumers. Which tool simplifies distributed consumption?</span>",
+        question: "<span class=\"lang-ar\">تطبيق Spring Boot يستهلك رسائل من Kinesis Data Streams لعدّة مستهلكين. ما الأداة التي تبسّط بناء الـ consumer الموزّع؟<\/span><span class=\"lang-en\">A Spring Boot app consumes Kinesis Data Streams across multiple consumers. Which tool simplifies distributed consumption?<\/span>",
         options: [
-          "<span class="lang-ar">Kinesis Producer Library (KPL).</span><span class="lang-en">Kinesis Producer Library (KPL).</span>",
-          "<span class="lang-ar">Kinesis Client Library (KCL).</span><span class="lang-en">Kinesis Client Library (KCL).</span>",
-          "<span class="lang-ar">Kinesis Agent.</span><span class="lang-en">Kinesis Agent.</span>",
-          "<span class="lang-ar">AWS CLI polling.</span><span class="lang-en">AWS CLI polling.</span>"
+          "<span class=\"lang-ar\">Kinesis Producer Library (KPL).<\/span><span class=\"lang-en\">Kinesis Producer Library (KPL).<\/span>",
+          "<span class=\"lang-ar\">Kinesis Client Library (KCL).<\/span><span class=\"lang-en\">Kinesis Client Library (KCL).<\/span>",
+          "<span class=\"lang-ar\">Kinesis Agent.<\/span><span class=\"lang-en\">Kinesis Agent.<\/span>",
+          "<span class=\"lang-ar\">AWS CLI polling.<\/span><span class=\"lang-en\">AWS CLI polling.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar"><strong>KCL (Kinesis Client Library)</strong> يتعامل مع: تتبّع الـ shards، توزيع الـ shards على المستهلكين، checkpointing في DynamoDB (تعرف من أين تكمل)، handle load balancing عند انضمام/انسحاب مستهلك. مثالي لتطبيقات Java/Spring Boot. KPL للإنتاج. Agent لإرسال ملفات.</span><span class="lang-en"><strong>KCL (Kinesis Client Library)</strong> handles: shard tracking, distributing shards across consumers, checkpointing to DynamoDB (resume from position), load balancing on consumer join/leave. Ideal for Java/Spring Boot. KPL is for producing. Agent is for file streaming.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">KPL للإنتاج (مستهلك ≠ منتج).</span><span class=\"lang-en\">KPL is for producing.</span>", "", "<span class=\"lang-ar\">Agent لإرسال الملفات.</span><span class=\"lang-en\">Agent ships files.</span>", "<span class=\"lang-ar\">غير قابل للتطوير.</span><span class=\"lang-en\">Doesn't scale.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+        explanation: "<span class=\"lang-ar\"><strong>KCL (Kinesis Client Library)<\/strong> يتعامل مع: تتبّع الـ shards، توزيع الـ shards على المستهلكين، checkpointing في DynamoDB (تعرف من أين تكمل)، handle load balancing عند انضمام/انسحاب مستهلك. مثالي لتطبيقات Java/Spring Boot. KPL للإنتاج. Agent لإرسال ملفات.<\/span><span class=\"lang-en\"><strong>KCL (Kinesis Client Library)<\/strong> handles: shard tracking, distributing shards across consumers, checkpointing to DynamoDB (resume from position), load balancing on consumer join/leave. Ideal for Java/Spring Boot. KPL is for producing. Agent is for file streaming.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">KPL للإنتاج (مستهلك ≠ منتج).<\/span><span class=\"lang-en\">KPL is for producing.<\/span>", "", "<span class=\"lang-ar\">Agent لإرسال الملفات.<\/span><span class=\"lang-en\">Agent ships files.<\/span>", "<span class=\"lang-ar\">غير قابل للتطوير.<\/span><span class=\"lang-en\">Doesn't scale.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤<\/span><span class=\"lang-en\">Section 4<\/span>"
       },
       {
         id: "q15",
         type: "single",
-        question: "<span class="lang-ar">يريد مطوّر أن يستجيب تلقائياً لأحداث تغيير حالة EC2 instances (أيّ instance يُصبح <span class="font-mono">terminated</span>). ما الحلّ؟</span><span class="lang-en">A dev wants to auto-react to EC2 instance state changes (any instance that becomes <span class="font-mono">terminated</span>). Solution?</span>",
+        question: "<span class=\"lang-ar\">يريد مطوّر أن يستجيب تلقائياً لأحداث تغيير حالة EC2 instances (أيّ instance يُصبح <span class=\"font-mono\">terminated<\/span>). ما الحلّ؟<\/span><span class=\"lang-en\">A dev wants to auto-react to EC2 instance state changes (any instance that becomes <span class=\"font-mono\">terminated<\/span>). Solution?<\/span>",
         options: [
-          "<span class="lang-ar">Polling EC2 API يدوياً.</span><span class="lang-en">Manually poll EC2 API.</span>",
-          "<span class="lang-ar">EventBridge rule على <span class="font-mono">aws.ec2</span> source مع <span class="font-mono">detail-type = 'EC2 Instance State-change Notification'</span> و Lambda target.</span><span class="lang-en">EventBridge rule on <span class="font-mono">aws.ec2</span> source with <span class="font-mono">detail-type = 'EC2 Instance State-change Notification'</span> and Lambda target.</span>",
-          "<span class="lang-ar">S3 event.</span><span class="lang-en">S3 event.</span>",
-          "<span class="lang-ar">SQS polling.</span><span class="lang-en">SQS polling.</span>"
+          "<span class=\"lang-ar\">Polling EC2 API يدوياً.<\/span><span class=\"lang-en\">Manually poll EC2 API.<\/span>",
+          "<span class=\"lang-ar\">EventBridge rule على <span class=\"font-mono\">aws.ec2<\/span> source مع <span class=\"font-mono\">detail-type = 'EC2 Instance State-change Notification'<\/span> و Lambda target.<\/span><span class=\"lang-en\">EventBridge rule on <span class=\"font-mono\">aws.ec2<\/span> source with <span class=\"font-mono\">detail-type = 'EC2 Instance State-change Notification'<\/span> and Lambda target.<\/span>",
+          "<span class=\"lang-ar\">S3 event.<\/span><span class=\"lang-en\">S3 event.<\/span>",
+          "<span class=\"lang-ar\">SQS polling.<\/span><span class=\"lang-en\">SQS polling.<\/span>"
         ],
         correct: 1,
-        explanation: "<span class="lang-ar">EventBridge هو المسار المعياري لأحداث خدمات AWS: كل خدمة تنشر أحداثها على الـ default bus. أنشئ rule يُطابق <span class="font-mono">aws.ec2</span> + state-change event، وأضف Lambda target. polling يدوي مضيعة للموارد.</span><span class="lang-en">EventBridge is the standard path for AWS service events: each service publishes to the default bus. Create a rule matching <span class="font-mono">aws.ec2</span> + state-change event, add Lambda target. Manual polling wastes resources.</span>",
-        wrongExplanations: ["<span class=\"lang-ar\">مضيعة للموارد.</span><span class=\"lang-en\">Wasteful.</span>", "", "<span class=\"lang-ar\">غير متعلّق.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">غير متعلّق.</span><span class=\"lang-en\">Unrelated.</span>"],
-        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+        explanation: "<span class=\"lang-ar\">EventBridge هو المسار المعياري لأحداث خدمات AWS: كل خدمة تنشر أحداثها على الـ default bus. أنشئ rule يُطابق <span class=\"font-mono\">aws.ec2<\/span> + state-change event، وأضف Lambda target. polling يدوي مضيعة للموارد.<\/span><span class=\"lang-en\">EventBridge is the standard path for AWS service events: each service publishes to the default bus. Create a rule matching <span class=\"font-mono\">aws.ec2<\/span> + state-change event, add Lambda target. Manual polling wastes resources.<\/span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مضيعة للموارد.<\/span><span class=\"lang-en\">Wasteful.<\/span>", "", "<span class=\"lang-ar\">غير متعلّق.<\/span><span class=\"lang-en\">Unrelated.<\/span>", "<span class=\"lang-ar\">غير متعلّق.<\/span><span class=\"lang-en\">Unrelated.<\/span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥<\/span><span class=\"lang-en\">Section 5<\/span>"
       }
     ];
 
