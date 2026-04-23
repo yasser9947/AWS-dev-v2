@@ -1,0 +1,47 @@
+{
+  "slug": "ssm-parameter-store",
+  "name": "SSM Parameter Store",
+  "icon": "settings",
+  "color": "red",
+  "tagline_ar": "تخزين الإعدادات والأسرار بطبقتين — Standard مجّانية و Advanced مع خصائص إضافية.",
+  "tagline_en": "Configuration + secret storage with Standard (free) and Advanced tiers.",
+  "key_concepts": [
+    {"concept": "Parameter Types", "desc_ar": "String، StringList، SecureString (مشفّر بـ KMS).", "desc_en": "String, StringList, SecureString (KMS-encrypted)."},
+    {"concept": "Hierarchy", "desc_ar": "مسار شجري مثل /acme/prod/db/host يسمح بقراءة فرع كامل بطلب واحد.", "desc_en": "Tree path like /acme/prod/db/host — read a whole branch in one call."},
+    {"concept": "Standard vs Advanced", "desc_ar": "Standard: مجّاني، 4KB، 10k params. Advanced: $0.05/param، 8KB، سياسات، 100k params.", "desc_en": "Standard: free, 4KB, 10k params. Advanced: $0.05/param, 8KB, policies, 100k params."},
+    {"concept": "Policies (Advanced)", "desc_ar": "Expiration، ExpirationNotification، NoChangeNotification للحصول على أحداث EventBridge.", "desc_en": "Expiration, ExpirationNotification, NoChangeNotification — fires EventBridge events."},
+    {"concept": "Versioning", "desc_ar": "كل تحديث يُنشئ version جديد — يمكن الرجوع والإشارة إلى version محدّد.", "desc_en": "Each update creates a new version — rollback + reference specific versions."},
+    {"concept": "Public Parameters", "desc_ar": "AWS ينشر parameters عامّة مثل /aws/service/ami-windows-latest/* للـ AMIs.", "desc_en": "AWS publishes public params like /aws/service/ami-windows-latest/* for AMIs."},
+    {"concept": "IAM Integration", "desc_ar": "ssm:GetParameter* + kms:Decrypt للـ SecureString — لا يحتاج Resource Policy.", "desc_en": "ssm:GetParameter* + kms:Decrypt for SecureString — no resource policy needed."}
+  ],
+  "limits": [
+    {"limit": "Parameter value size (Standard)", "limit_en": "Size (Standard)", "value": "4 KB", "note_ar": "للقيم الأكبر استخدم Advanced.", "note_en": "Use Advanced for larger values."},
+    {"limit": "Parameter value size (Advanced)", "limit_en": "Size (Advanced)", "value": "8 KB", "note_ar": "للقيم الكبيرة فقط.", "note_en": "For large values only."},
+    {"limit": "Parameters per account", "limit_en": "Parameters per account", "value": "10,000 (Std) / 100,000 (Adv)", "note_ar": "قابل للزيادة.", "note_en": "Can be raised."},
+    {"limit": "API throughput", "limit_en": "API rate", "value": "40 TPS (default, up to 10k)", "note_ar": "ارفعه عبر Advanced Throughput.", "note_en": "Raise via Advanced Throughput."},
+    {"limit": "Versions per parameter", "limit_en": "Versions per parameter", "value": "100", "note_ar": "الأقدم يُحذف تلقائيًا.", "note_en": "Oldest auto-deleted."},
+    {"limit": "Cost", "limit_en": "Cost", "value": "Standard: Free. Advanced: $0.05/param/month", "note_ar": "+ $0.05/10k API calls.", "note_en": "+ $0.05/10k API calls."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "كتابة parameter عادي.", "desc_en": "Put a standard parameter.", "cmd": "aws ssm put-parameter --name /acme/prod/api-url --value https://api.acme.com --type String"},
+    {"desc_ar": "كتابة SecureString بمفتاح KMS مخصّص.", "desc_en": "Put SecureString with custom KMS key.", "cmd": "aws ssm put-parameter --name /acme/prod/api-key --value XYZ --type SecureString --key-id alias/acme"},
+    {"desc_ar": "قراءة parameter مع فكّ تشفير.", "desc_en": "Get with decryption.", "cmd": "aws ssm get-parameter --name /acme/prod/api-key --with-decryption --query Parameter.Value --output text"},
+    {"desc_ar": "قراءة فرع كامل.", "desc_en": "Get whole path.", "cmd": "aws ssm get-parameters-by-path --path /acme/prod --recursive --with-decryption"},
+    {"desc_ar": "عرض تاريخ parameter.", "desc_en": "Show parameter history.", "cmd": "aws ssm get-parameter-history --name /acme/prod/api-key"},
+    {"desc_ar": "وضع سياسة انتهاء صلاحية.", "desc_en": "Apply expiration policy (Advanced).", "cmd": "aws ssm put-parameter --name /acme/tmp/key --value v --type String --tier Advanced --policies '[{\"Type\":\"Expiration\",\"Version\":\"1.0\",\"Attributes\":{\"Timestamp\":\"2030-01-01T00:00:00.000Z\"}}]'"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "إعدادات التطبيق المتغيّرة حسب البيئة.", "scenario_en": "App config by environment.", "choice": "Parameter Store Standard + hierarchy"},
+    {"scenario_ar": "أسرار بسيطة لا تحتاج rotation.", "scenario_en": "Simple secrets without rotation.", "choice": "Parameter Store SecureString"},
+    {"scenario_ar": "أسرار تحتاج rotation تلقائي.", "scenario_en": "Secrets needing auto-rotation.", "choice": "Secrets Manager"},
+    {"scenario_ar": "نشر CloudFormation يحتاج أحدث AMI.", "scenario_en": "CloudFormation needing latest AMI.", "choice": "Public Parameter /aws/service/ami-*"},
+    {"scenario_ar": "تنبيه عند تغيير إعداد حسّاس.", "scenario_en": "Alert on sensitive config change.", "choice": "Advanced + NoChangeNotification policy"}
+  ],
+  "exam_tips": [
+    {"ar": "SecureString يستخدم KMS — تحتاج صلاحية kms:Decrypt.", "en": "SecureString uses KMS — need kms:Decrypt permission."},
+    {"ar": "Parameter Store أرخص بكثير من Secrets Manager — لكن بدون rotation.", "en": "Parameter Store is much cheaper, but no native rotation."},
+    {"ar": "Hierarchy = organize parameters منطقيًا وقراءة شجرة بـ call واحد.", "en": "Hierarchy = logical organization + one-call tree reads."},
+    {"ar": "Public parameters لمعرفة أحدث AMI ID بدون hardcoding.", "en": "Public parameters fetch latest AMI ID without hardcoding."},
+    {"ar": "Advanced tier فقط يدعم Policies وExpiration.", "en": "Only Advanced tier supports Policies + Expiration."}
+  ]
+}

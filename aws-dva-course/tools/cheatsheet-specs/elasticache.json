@@ -1,0 +1,52 @@
+{
+  "slug": "elasticache",
+  "name": "Amazon ElastiCache",
+  "icon": "flame",
+  "color": "rose",
+  "tagline_ar": "ذاكرة تخزين مؤقت مُدارة داخل الذاكرة بـ Redis/Valkey أو Memcached لسرعة استجابة بالمايكروثانية.",
+  "tagline_en": "Managed in-memory cache with Redis/Valkey or Memcached delivering microsecond latency.",
+  "key_concepts": [
+    {"concept": "Redis/Valkey vs Memcached", "desc_ar": "Redis/Valkey: بنى بيانات غنية، دائمية، نسخ احتياطي، Replication. Memcached: بسيط بلا استمرارية بل multi-threaded.", "desc_en": "Redis/Valkey: rich data types, persistence, replication. Memcached: simple, multi-threaded, no persistence."},
+    {"concept": "Cluster Mode (Redis)", "desc_ar": "Cluster Mode Disabled: node master + replicas. Enabled: sharding عبر 1-500 shard.", "desc_en": "Cluster Mode Disabled: 1 master + replicas. Enabled: sharded across 1–500 shards."},
+    {"concept": "Replication & Failover", "desc_ar": "Redis يدعم Multi-AZ مع auto-failover، Memcached لا يدعم replication.", "desc_en": "Redis supports Multi-AZ with automatic failover; Memcached doesn’t support replication."},
+    {"concept": "Data Tiering", "desc_ar": "يخزّن البيانات النادرة على SSD مع الإبقاء على الساخنة في الذاكرة (r6gd).", "desc_en": "Stores less-frequently accessed data on SSD while keeping hot data in memory (r6gd)."},
+    {"concept": "Encryption & Auth", "desc_ar": "TLS في النقل، KMS في الراحة، Redis AUTH + IAM Auth.", "desc_en": "TLS in transit, KMS at rest, Redis AUTH + IAM Auth."},
+    {"concept": "Lazy Loading vs Write-Through", "desc_ar": "Lazy: اقرأ من DB عند miss وخزّن. Write-Through: حدّث الكاش مع الكتابة.", "desc_en": "Lazy loading: populate on cache miss; Write-through: update cache with every write."},
+    {"concept": "Eviction Policies", "desc_ar": "allkeys-lru، volatile-lru، LFU، random، noeviction عند امتلاء الذاكرة.", "desc_en": "allkeys-lru, volatile-lru, LFU, random, noeviction when memory fills."},
+    {"concept": "Global Datastore (Redis)", "desc_ar": "نسخ عبر المناطق لقراءة منخفضة الكمون وDR.", "desc_en": "Cross-region replication for low-latency reads and DR."}
+  ],
+  "limits": [
+    {"limit": "أقصى shards لـ Redis Cluster Mode", "limit_en": "Max shards (Cluster Mode)", "value": "500", "note_ar": "كل shard = master + حتى 5 replicas.", "note_en": "Each shard = master + up to 5 replicas."},
+    {"limit": "أقصى replicas لكل shard", "limit_en": "Max replicas per shard", "value": "5", "note_ar": "Redis فقط، Memcached لا يدعم.", "note_en": "Redis only; Memcached has no replication."},
+    {"limit": "أقصى nodes لـ Memcached", "limit_en": "Max nodes (Memcached)", "value": "40 (soft)", "note_ar": "أفقيًا بـ Auto Discovery.", "note_en": "Horizontal scaling via Auto Discovery."},
+    {"limit": "أقصى حجم مفتاح Redis", "limit_en": "Max Redis key size", "value": "512 MB", "note_ar": "حدود Redis الأساسية.", "note_en": "Redis core limit."},
+    {"limit": "TLS overhead", "limit_en": "TLS overhead", "value": "~15% latency", "note_ar": "مقبول لمعظم الأحمال.", "note_en": "Acceptable for most workloads."},
+    {"limit": "Global Datastore مناطق", "limit_en": "Global Datastore regions", "value": "1 primary + 2 secondaries", "note_ar": "Redis فقط.", "note_en": "Redis only."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء عنقود Redis مع Multi-AZ.", "desc_en": "Create a Redis cluster with Multi-AZ.", "cmd": "aws elasticache create-replication-group --replication-group-id prod-cache --engine redis --cache-node-type cache.r6g.large --num-cache-clusters 2 --automatic-failover-enabled"},
+    {"desc_ar": "إنشاء عنقود Memcached بـ 3 nodes.", "desc_en": "Create a Memcached cluster with 3 nodes.", "cmd": "aws elasticache create-cache-cluster --cache-cluster-id sessions --engine memcached --cache-node-type cache.t3.medium --num-cache-nodes 3"},
+    {"desc_ar": "تمكين TLS في النقل.", "desc_en": "Enable TLS in transit.", "cmd": "aws elasticache create-replication-group --replication-group-id secure-cache --transit-encryption-enabled --auth-token MySecret --engine redis"},
+    {"desc_ar": "إنشاء لقطة يدوية لـ Redis.", "desc_en": "Create a manual Redis snapshot.", "cmd": "aws elasticache create-snapshot --replication-group-id prod-cache --snapshot-name manual-2026-04-23"},
+    {"desc_ar": "توسيع عدد replicas.", "desc_en": "Increase replica count.", "cmd": "aws elasticache increase-replica-count --replication-group-id prod-cache --new-replica-count 3 --apply-immediately"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "كاش قاعدة بيانات لتقليل زمن القراءة.", "scenario_en": "Database cache to reduce read latency.", "choice": "Redis/Valkey (Cluster Mode)"},
+    {"scenario_ar": "مخزن جلسات مركزي لتطبيق ويب خلف ELB.", "scenario_en": "Centralized session store for web app behind ELB.", "choice": "Redis / Memcached"},
+    {"scenario_ar": "قوائم متصدّرين وPub/Sub وعدّادات ذرّية.", "scenario_en": "Leaderboards, Pub/Sub, atomic counters.", "choice": "Redis data structures"},
+    {"scenario_ar": "تخزين مؤقت بسيط متعدّد الخيوط بأقل تكلفة.", "scenario_en": "Simple multi-threaded cache at lowest cost.", "choice": "Memcached"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Data types", "feature_ar": "أنواع البيانات", "this": "Strings, Lists, Hashes, Sets, ZSets, Streams", "alt": "Key-value strings only", "alt_name": "Memcached"},
+    {"feature": "Persistence", "feature_ar": "الدوام", "this": "Optional (RDB/AOF)", "alt": "None", "alt_name": "Memcached"},
+    {"feature": "Replication", "feature_ar": "النسخ", "this": "Up to 5 replicas + Multi-AZ", "alt": "None", "alt_name": "Memcached"},
+    {"feature": "Threading", "feature_ar": "الخيوط", "this": "Single-threaded core", "alt": "Multi-threaded", "alt_name": "Memcached"},
+    {"feature": "Pub/Sub", "feature_ar": "Pub/Sub", "this": "Yes", "alt": "No", "alt_name": "Memcached"}
+  ],
+  "exam_tips": [
+    {"ar": "اختر Redis عند الحاجة للـ Replication/Persistence؛ اختر Memcached للتخزين البسيط والتوسّع متعدّد الخيوط.", "en": "Choose Redis when you need replication/persistence; Memcached for simple multi-threaded caching."},
+    {"ar": "ElastiCache يعيش داخل VPC؛ افتح منفذ 6379 (Redis) أو 11211 (Memcached).", "en": "ElastiCache lives in a VPC; open port 6379 (Redis) or 11211 (Memcached)."},
+    {"ar": "لخفض حمل DB استخدم Lazy Loading مع TTL.", "en": "To reduce DB load, combine lazy loading with TTL expiration."},
+    {"ar": "Auto-Failover يعمل فقط على Redis في وضع Multi-AZ.", "en": "Auto-failover only works on Redis with Multi-AZ enabled."}
+  ]
+}

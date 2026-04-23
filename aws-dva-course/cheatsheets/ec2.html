@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon EC2 — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-orange-600 via-orange-700 to-orange-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="server" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-orange-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">Amazon EC2</h1>
+        </div>
+      </div>
+      <p class="text-lg text-orange-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">سيرفرات افتراضية قابلة للتوسعة في السحابة مع أنواع instance متعدّدة وخيارات دفع مرنة.</span>
+        <span class="lang-en">Scalable virtual servers with multiple instance types and flexible pricing.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-orange-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">Instance Types</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">T/M (عام)، C (حوسبة)، R/X (ذاكرة)، I (IOPS)، G/P (GPU)، Mac (macOS).</span>
+      <span class="lang-en">T/M (general), C (compute), R/X (memory), I (I/O), G/P (GPU), Mac (macOS).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">Pricing Models</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">On-Demand، Reserved (1y/3y)، Savings Plan، Spot (حتى 90% توفير)، Dedicated Host، Dedicated Instance.</span>
+      <span class="lang-en">On-Demand, Reserved, Savings Plan, Spot (up to 90% off), Dedicated Host, Dedicated Instance.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">AMI</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">صورة قالب للـ instance تحتوي OS + تطبيقات مُسبّقة — خاصة/عامة/Marketplace.</span>
+      <span class="lang-en">Image template with pre-installed OS + apps — private/public/marketplace.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">Placement Groups</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Cluster (أداء عالي)، Spread (موزّع على hardware)، Partition (لتقسيم Hadoop/Kafka).</span>
+      <span class="lang-en">Cluster (perf), Spread (across hardware), Partition (for Hadoop/Kafka).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">User Data & Metadata</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">User Data = سكريبت يعمل عند أول تشغيل. Metadata = http://169.254.169.254 لجلب معلومات الـ instance.</span>
+      <span class="lang-en">User Data = script on first boot. Metadata = http://169.254.169.254 for instance info.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">IMDSv2</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">الإصدار الآمن — يتطلّب session token ويمنع SSRF attacks.</span>
+      <span class="lang-en">Secure version — requires session token, prevents SSRF.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">ENI & Elastic IP</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">ENI = بطاقة شبكة افتراضية، Elastic IP = IPv4 عام ثابت.</span>
+      <span class="lang-en">ENI = virtual NIC; Elastic IP = static public IPv4.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-orange-700" dir="ltr">Security Groups & NACLs</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">SG على مستوى الـ instance (stateful)، NACL على subnet (stateless).</span>
+      <span class="lang-en">SG at instance-level (stateful); NACL at subnet-level (stateless).</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-orange-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Instances قيد التشغيل</span>
+      <span class="lang-en">Running on-demand instances</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حسب vCPU — قابل للزيادة.</span>
+        <span class="lang-en">vCPU-based, can be raised.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">vCPU-based (soft)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Elastic IPs</span>
+      <span class="lang-en">Elastic IPs per region</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">الحدّ الافتراضي 5 ويمكن رفعه.</span>
+        <span class="lang-en">Default 5, can be raised.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">5 (soft)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">User Data size</span>
+      <span class="lang-en">User Data size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">قبل الترميز Base64.</span>
+        <span class="lang-en">Before Base64 encoding.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">16 KB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">EBS Volumes per instance</span>
+      <span class="lang-en">EBS Volumes per instance</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">يختلف حسب نوع الـ instance.</span>
+        <span class="lang-en">Varies by instance type.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">~28 (Nitro)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">IAM Role per instance</span>
+      <span class="lang-en">IAM Role per instance</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">instance profile واحد فقط.</span>
+        <span class="lang-en">One instance profile only.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Security Groups per ENI</span>
+      <span class="lang-en">Security Groups per ENI</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">قابل للزيادة.</span>
+        <span class="lang-en">Can be raised.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">5 (soft, up to 16)</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تشغيل instance جديد.</span>
+    <span class="lang-en">Launch a new instance.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 run-instances --image-id ami-xxx --count 1 --instance-type t3.micro --key-name my-key --security-group-ids sg-xxx</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">عرض instances قيد التشغيل.</span>
+    <span class="lang-en">List running instances.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 describe-instances --filters Name=instance-state-name,Values=running</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إيقاف instance.</span>
+    <span class="lang-en">Stop instance.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 stop-instances --instance-ids i-xxx</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء AMI من instance.</span>
+    <span class="lang-en">Create AMI from instance.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 create-image --instance-id i-xxx --name acme-web-v1</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تطبيق Instance Profile (IAM Role).</span>
+    <span class="lang-en">Attach instance profile.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 associate-iam-instance-profile --iam-instance-profile Name=AcmeAppRole --instance-id i-xxx</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-orange-600"></i>
+        <span class="lang-ar">متى تستخدم Amazon EC2؟</span>
+        <span class="lang-en">When to use Amazon EC2</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">أعباء غير ثابتة/مفاجئة (dev/test).</span>
+      <span class="lang-en">Bursty unpredictable workloads (dev/test).</span>
+    </p>
+    <p class="text-xs text-orange-700 font-mono">On-Demand</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">أعباء مستقرّة لأكثر من سنة.</span>
+      <span class="lang-en">Steady workloads > 1 year.</span>
+    </p>
+    <p class="text-xs text-orange-700 font-mono">Reserved / Savings Plan</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">مهام قابلة للمقاطعة (Batch، CI).</span>
+      <span class="lang-en">Interruptible jobs (Batch, CI).</span>
+    </p>
+    <p class="text-xs text-orange-700 font-mono">Spot</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">HPC أو ML منخفض زمن الاستجابة.</span>
+      <span class="lang-en">Low-latency HPC or ML.</span>
+    </p>
+    <p class="text-xs text-orange-700 font-mono">Cluster Placement Group + enhanced networking</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">امتثال يتطلّب hardware مخصّص.</span>
+      <span class="lang-en">Compliance requiring dedicated hardware.</span>
+    </p>
+    <p class="text-xs text-orange-700 font-mono">Dedicated Host</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Stop يحفظ البيانات على EBS، Terminate يحذفها (ما لم تُضبط DeleteOnTermination=false).</span>
+    <span class="lang-en">Stop preserves EBS; Terminate deletes (unless DeleteOnTermination=false).</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">IMDSv2 إلزامي لمنع SSRF — اضبط HttpTokens=required.</span>
+    <span class="lang-en">Enforce IMDSv2 to prevent SSRF — set HttpTokens=required.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Spot + On-Demand Base = مزيج فعّال للتوفير.</span>
+    <span class="lang-en">Spot + On-Demand Base = cost-effective blend.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Cluster PG للأداء، Spread للاستقلالية، Partition لبيانات كبيرة.</span>
+    <span class="lang-en">Cluster for perf, Spread for independence, Partition for big data.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لا تُخزّن مفاتيح AWS على الـ instance — استخدم IAM Role.</span>
+    <span class="lang-en">Never store AWS keys on instance — use IAM Role.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

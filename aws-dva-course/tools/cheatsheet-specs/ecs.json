@@ -1,0 +1,46 @@
+{
+  "slug": "ecs",
+  "name": "Amazon ECS",
+  "icon": "box",
+  "color": "blue",
+  "tagline_ar": "منصّة تنسيق حاويات مُدارة بالكامل تدعم EC2 Launch Type و Fargate.",
+  "tagline_en": "Fully-managed container orchestration supporting EC2 and Fargate launch types.",
+  "key_concepts": [
+    {"concept": "Cluster / Service / Task", "desc_ar": "Cluster = مجموعة حاسوبية، Service = مجموعة Tasks دائمة، Task = تعريف تشغيل حاوية.", "desc_en": "Cluster = compute pool, Service = long-running Task group, Task = container run definition."},
+    {"concept": "Task Definition", "desc_ar": "JSON يصف الحاوية (image، ports، env، resources). يُنشر بإصداراتٍ محدّثة (revision).", "desc_en": "JSON describing container (image, ports, env, resources). Published in revisions."},
+    {"concept": "Launch Types", "desc_ar": "EC2 (تتحكّم بالسيرفرات)، Fargate (serverless)، External (ECS Anywhere).", "desc_en": "EC2 (you manage servers), Fargate (serverless), External (ECS Anywhere)."},
+    {"concept": "Task Role vs Execution Role", "desc_ar": "Task Role = صلاحيات التطبيق داخل الحاوية. Execution Role = سحب الصور وكتابة سجلات.", "desc_en": "Task Role = app permissions inside container. Execution Role = pull images, write logs."},
+    {"concept": "Service Auto Scaling", "desc_ar": "توسيع تلقائي على Target Tracking / Step Scaling / Scheduled بناء على CPU أو ALB requests.", "desc_en": "Target Tracking / Step / Scheduled based on CPU or ALB requests."},
+    {"concept": "Load Balancing", "desc_ar": "ALB (HTTP)، NLB (TCP)، CLB (قديم) — ALB يدعم Dynamic Port Mapping مع EC2.", "desc_en": "ALB (HTTP), NLB (TCP), CLB (legacy) — ALB supports dynamic port mapping on EC2."},
+    {"concept": "Service Discovery", "desc_ar": "تكامل مع Route 53 (CloudMap) لإعطاء اسم DNS ثابت لكل خدمة.", "desc_en": "Integrates with Route 53 (CloudMap) giving each service a stable DNS name."},
+    {"concept": "ECS Exec", "desc_ar": "تنفيذ أوامر shell داخل الحاوية المُشغّلة عبر SSM بدون SSH.", "desc_en": "Exec shell commands inside a running task via SSM (no SSH)."}
+  ],
+  "limits": [
+    {"limit": "Tasks per service", "limit_en": "Tasks per service", "value": "5,000", "note_ar": "حدّ صلب.", "note_en": "Hard limit."},
+    {"limit": "Services per cluster", "limit_en": "Services per cluster", "value": "5,000", "note_ar": "قابل للزيادة.", "note_en": "Can be raised."},
+    {"limit": "Container defs per Task", "limit_en": "Container defs per Task", "value": "10", "note_ar": "حدّ صلب.", "note_en": "Hard limit."},
+    {"limit": "Task Definition size", "limit_en": "Task Definition size", "value": "512 KB (JSON)", "note_ar": "بعد التشفير Base64.", "note_en": "After Base64 encoding."},
+    {"limit": "Fargate vCPU", "limit_en": "Fargate vCPU", "value": "0.25 – 16 vCPU", "note_ar": "مع ذاكرة 0.5–120 GB.", "note_en": "With memory 0.5–120 GB."},
+    {"limit": "ECS Exec log retention", "limit_en": "ECS Exec session log", "value": "stored in S3/CW Logs", "note_ar": "حسب إعدادات الـ cluster.", "note_en": "Based on cluster config."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء cluster.", "desc_en": "Create cluster.", "cmd": "aws ecs create-cluster --cluster-name acme-prod"},
+    {"desc_ar": "تسجيل Task Definition.", "desc_en": "Register Task Definition.", "cmd": "aws ecs register-task-definition --cli-input-json file://td.json"},
+    {"desc_ar": "إنشاء service.", "desc_en": "Create service.", "cmd": "aws ecs create-service --cluster acme-prod --service-name web --task-definition web:12 --desired-count 3"},
+    {"desc_ar": "تحديث service لإصدار جديد.", "desc_en": "Update service to new revision.", "cmd": "aws ecs update-service --cluster acme-prod --service web --task-definition web:13 --force-new-deployment"},
+    {"desc_ar": "تنفيذ أمر داخل task.", "desc_en": "Exec into task.", "cmd": "aws ecs execute-command --cluster acme-prod --task arn:... --container web --interactive --command /bin/sh"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تشغيل microservices في حاويات على AWS.", "scenario_en": "Run microservices on AWS.", "choice": "ECS on Fargate (easiest)"},
+    {"scenario_ar": "تحكّم كامل بالـ OS والنواة.", "scenario_en": "Full OS/kernel control.", "choice": "ECS on EC2"},
+    {"scenario_ar": "تشغيل حاويات متعدّدة cloud-أوnprem.", "scenario_en": "Multi-cloud/on-prem containers.", "choice": "ECS Anywhere or EKS"},
+    {"scenario_ar": "مهام Batch مؤقّتة.", "scenario_en": "Batch jobs.", "choice": "ECS standalone Tasks (runTask) or AWS Batch"}
+  ],
+  "exam_tips": [
+    {"ar": "Task Role ≠ Execution Role — فرّق بينهما في الامتحان.", "en": "Task Role ≠ Execution Role — know the difference."},
+    {"ar": "Fargate لا يدعم Placement Strategies — ECS على EC2 فقط.", "en": "Placement Strategies are EC2-only, not Fargate."},
+    {"ar": "ALB + Dynamic Port Mapping = تشغيل tasks متعدّدة على نفس الـ EC2.", "en": "ALB + Dynamic Port Mapping = multiple tasks on same EC2."},
+    {"ar": "FARGATE_SPOT = توفير حتى 70% لأعباء قابلة للمقاطعة.", "en": "FARGATE_SPOT = up to 70% off for interruptible workloads."},
+    {"ar": "ECS Exec بديل آمن للـ SSH — لا يحتاج bastion.", "en": "ECS Exec = secure SSH alternative, no bastion needed."}
+  ]
+}

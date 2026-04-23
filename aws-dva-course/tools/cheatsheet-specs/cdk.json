@@ -1,0 +1,53 @@
+{
+  "slug": "cdk",
+  "name": "AWS CDK",
+  "icon": "terminal",
+  "color": "green",
+  "tagline_ar": "تعريف البنية التحتية بكود حقيقي (TS/Python/Java/Go/.NET) يُترجم إلى CloudFormation بواسطة cdk synth.",
+  "tagline_en": "Define infrastructure in real code (TS/Python/Java/Go/.NET) that synthesizes to CloudFormation via cdk synth.",
+  "key_concepts": [
+    {"concept": "Construct", "desc_ar": "اللبنة الأساسية؛ L1 (Cfn) يطابق CFN، L2 مبسّطة، L3 (Patterns) مجمّعة.", "desc_en": "Building block; L1 (Cfn) mirrors CFN, L2 simplified, L3 (Patterns) composed."},
+    {"concept": "Stack", "desc_ar": "حاوية موارد تُترجم إلى CloudFormation stack واحد.", "desc_en": "Resource container mapped to a single CloudFormation stack."},
+    {"concept": "App", "desc_ar": "الجذر يحتوي على stacks متعددة ومنطق النشر.", "desc_en": "Root containing multiple stacks and deployment logic."},
+    {"concept": "cdk synth", "desc_ar": "يولّد قالب CloudFormation من الكود.", "desc_en": "Generates the CloudFormation template from code."},
+    {"concept": "cdk deploy / destroy", "desc_ar": "ينشر أو يحذف stack عبر CloudFormation.", "desc_en": "Deploys or destroys stack via CloudFormation."},
+    {"concept": "cdk bootstrap", "desc_ar": "ينشئ CDKToolkit stack (S3 + ECR + IAM) في الحساب/المنطقة قبل أول نشر.", "desc_en": "Creates CDKToolkit stack (S3 + ECR + IAM) in account/region before first deploy."},
+    {"concept": "Context", "desc_ar": "قيم في cdk.json / cdk.context.json لتخزين بيانات البيئة.", "desc_en": "Values in cdk.json / cdk.context.json storing environment data."},
+    {"concept": "Assets", "desc_ar": "ملفات/صور Docker تُرفع تلقائياً لـ S3/ECR أثناء النشر.", "desc_en": "Files/Docker images auto-uploaded to S3/ECR during deployment."},
+    {"concept": "Aspects & Tags", "desc_ar": "تطبيق سياسات/وسوم تلقائياً على كل موارد Construct.", "desc_en": "Apply policies/tags automatically across all child constructs."}
+  ],
+  "limits": [
+    {"limit": "Underlying template size", "limit_en": "Template size (via CFN)", "value": "1 MB (S3)"},
+    {"limit": "Resources per stack", "limit_en": "Resources per stack", "value": "500 (CFN)"},
+    {"limit": "Bootstrap version compatibility", "limit_en": "Bootstrap version", "value": "Must match CLI"},
+    {"limit": "Supported languages", "limit_en": "Supported languages", "value": "TS, JS, Py, Java, C#, Go"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تهيئة مشروع TypeScript.", "desc_en": "Init TypeScript project.", "cmd": "cdk init app --language typescript"},
+    {"desc_ar": "تهيئة الحساب/المنطقة للنشر.", "desc_en": "Bootstrap account/region.", "cmd": "cdk bootstrap aws://123456789012/us-east-1"},
+    {"desc_ar": "توليد قالب CloudFormation.", "desc_en": "Synthesize CloudFormation template.", "cmd": "cdk synth"},
+    {"desc_ar": "نشر جميع stacks.", "desc_en": "Deploy all stacks.", "cmd": "cdk deploy --all --require-approval never"},
+    {"desc_ar": "الفرق بين الكود والمنشور.", "desc_en": "Diff between code and deployed.", "cmd": "cdk diff MyStack"},
+    {"desc_ar": "حذف stack.", "desc_en": "Destroy stack.", "cmd": "cdk destroy MyStack"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "فرق مبرمجين تريد IaC بلغة برمجة حقيقية", "scenario_en": "Dev teams wanting IaC in a real programming language", "choice": "AWS CDK"},
+    {"scenario_ar": "تكرار أنماط معقدة (VPC + Fargate + ALB)", "scenario_en": "Reuse complex patterns (VPC + Fargate + ALB)", "choice": "CDK L3 patterns"},
+    {"scenario_ar": "نشر متعدد الحسابات والمناطق", "scenario_en": "Multi-account/region deployments", "choice": "CDK Pipelines"},
+    {"scenario_ar": "بناء constructs داخلية لتوحيد الأنماط", "scenario_en": "Build internal constructs for standard patterns", "choice": "Custom L2/L3 constructs"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Language", "feature_ar": "اللغة", "this": "Real programming languages", "alt": "YAML/JSON DSL", "alt_name": "CloudFormation"},
+    {"feature": "Abstractions", "feature_ar": "التجريد", "this": "L1/L2/L3 constructs", "alt": "Raw resources only", "alt_name": "CloudFormation"},
+    {"feature": "Learning curve", "feature_ar": "منحنى التعلم", "this": "Steeper (code + CFN)", "alt": "Simpler declarative", "alt_name": "CloudFormation"},
+    {"feature": "Deployment engine", "feature_ar": "محرك النشر", "this": "Uses CFN underneath", "alt": "Native", "alt_name": "CloudFormation"},
+    {"feature": "Testing", "feature_ar": "الاختبار", "this": "Unit tests via assertions lib", "alt": "cfn-lint / cfn-guard", "alt_name": "CloudFormation"}
+  ],
+  "exam_tips": [
+    {"ar": "CDK يولّد CloudFormation template — أي حد في CFN (500 مورد/1MB) ينطبق أيضاً.", "en": "CDK synthesizes CloudFormation — CFN limits (500 resources / 1MB) apply."},
+    {"ar": "cdk bootstrap إلزامي قبل أول deploy في كل account+region لإنشاء CDKToolkit stack.", "en": "cdk bootstrap is mandatory before first deploy per account+region (creates CDKToolkit stack)."},
+    {"ar": "L1 = Cfn* classes (مطابقة CFN)؛ L2 = friendly defaults؛ L3 = patterns (مثل ApplicationLoadBalancedFargateService).", "en": "L1 = Cfn* classes (CFN mirror); L2 = friendly defaults; L3 = patterns (e.g. ApplicationLoadBalancedFargateService)."},
+    {"ar": "cdk diff يستخدم CloudFormation API لمعاينة التغيير دون نشر فعلي.", "en": "cdk diff uses CloudFormation API to preview changes without deploying."},
+    {"ar": "Assets تُنسخ تلقائياً إلى bucket الـ bootstrap عبر cdk deploy.", "en": "Assets are auto-uploaded to the bootstrap bucket during cdk deploy."}
+  ]
+}

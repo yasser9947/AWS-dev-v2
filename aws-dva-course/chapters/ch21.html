@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 21 — AWS CloudFormation | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢١ من ٣٠</span>
+        <span class="lang-en">Chapter 21 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.384-431</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS CloudFormation</span>
+        <span class="lang-en">AWS CloudFormation</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">البنية التحتية بوصفها كوداً: قوالب YAML تصف جميع موارد AWS، وتُنشَأ بالترتيب الصحيح تلقائياً. أهمّ أداة في نطاق النشر.</span>
+        <span class="lang-en">Infrastructure as code: declarative YAML templates that provision AWS resources in the correct order automatically. The most-tested service in the Deployment domain.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CloudFormation</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">IaC</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Stacks</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Drift</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">StackSets</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">ChangeSets</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Template Anatomy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — معرفة الأقسام الإلزامية والاختيارية في القالب.</span>
+      <span class="lang-en">Domain 3 — knowing mandatory vs optional template sections.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Intrinsic Functions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Ref، GetAtt، Sub، Join، ImportValue.</span>
+      <span class="lang-en">Domain 3 — Ref, GetAtt, Sub, Join, ImportValue.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Stack Policies & Deletion</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — DeletionPolicy، Rollback، Termination Protection.</span>
+      <span class="lang-en">Domain 3 — DeletionPolicy, Rollback, Termination Protection.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Drift & StackSets</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — كشف الانحراف ونشر متعدّد الحسابات.</span>
+      <span class="lang-en">Domain 3 — drift detection and multi-account deployment.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">لماذا CloudFormation</span>
+      <span class="lang-en">Why CloudFormation</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">CloudFormation</span> تعريفيّة (declarative) لبنية AWS التحتية: تكتب في قالب YAML أنّك تريد Security Group و خادمين EC2 و Load Balancer، فتقوم CloudFormation بإنشائها بالترتيب الصحيح وبالإعدادات المطلوبة تماماً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">CloudFormation</span> is a declarative way to define AWS infrastructure: write a YAML template saying you need a Security Group, two EC2 instances, and a Load Balancer, and CloudFormation creates them in the right order with the exact config.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="file-code" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Infrastructure as Code</span><span class="lang-en">Infrastructure as code</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل الموارد بالكود — قابلة للمراجعة في Git، قابلة للنسخ، وغير معرّضة لأخطاء الإعداد اليدوي.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All resources in code — version-controlled, reproducible, free from manual drift.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">إعادة الإنشاء المتكرّرة</span><span class="lang-en">Ephemeral environments</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يمكنك حذف Dev كل ليلة وإعادة إنشائه صباحاً — توفير تكلفة ممتاز.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Tear down dev nightly and recreate it in the morning — excellent cost savings.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">تنظيم بـ Stacks</span><span class="lang-en">Stack separation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">VPC stack منفصل عن Application stack. يسمح لفرق مختلفة بإدارة طبقاتها.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Separate VPC stack from app stack. Different teams own their layers.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">تتبّع التكلفة</span><span class="lang-en">Cost tracking</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل مورد يُوسَم تلقائياً بمُعرّف Stack، فتعرف كم تكلفتك بالضبط.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Every resource auto-tagged with stack ID, so you know exactly what each stack costs.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> الـ <strong>Resources</strong> هو القسم الوحيد <u>الإلزاميّ</u> في القالب. كلّ الأقسام الأخرى (Parameters، Outputs، Mappings، Conditions، Metadata) اختياريّة.</span>
+      <span class="lang-en"> <strong>Resources</strong> is the <u>only mandatory</u> section. Everything else (Parameters, Outputs, Mappings, Conditions, Metadata) is optional.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أقسام القالب وأمثلة</span>
+      <span class="lang-en">Template sections & examples</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">قالب CloudFormation يتكوّن من عدّة أقسام، لكلٍّ منها غرض محدّد. يجب أن تتقن الفرق بين <strong>Parameters</strong> (مدخلات يُحدّدها المستخدم) و <strong>Mappings</strong> (قيم ثابتة متعدّدة حسب المنطقة/البيئة) و <strong>Outputs</strong> (قيم مُصدَّرة لـ Stacks أخرى).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A CloudFormation template has multiple sections, each with a specific purpose. Master the distinction between <strong>Parameters</strong> (user-provided inputs), <strong>Mappings</strong> (static lookups by region/env), and <strong>Outputs</strong> (values exported to other stacks).</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">القسم</span><span class="lang-en">Section</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Purpose</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مطلوب؟</span><span class="lang-en">Required?</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSTemplateFormatVersion</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إصدار القالب، دائماً 2010-09-09</span><span class="lang-en">Template version, always 2010-09-09</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Description</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">وصف نصّيّ للقالب</span><span class="lang-en">Text description</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Parameters</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مدخلات ديناميكيّة (String، Number، AllowedValues، NoEcho للأسرار)</span><span class="lang-en">Dynamic inputs (String, Number, AllowedValues, NoEcho for secrets)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Mappings</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قيم ثابتة (مثل AMI لكل منطقة)، يُقرَأ بـ FindInMap</span><span class="lang-en">Static lookup (e.g. AMI per region), accessed via FindInMap</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Conditions</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تحكّم في إنشاء مورد (prod vs dev)، يُستخدَم مع If</span><span class="lang-en">Control resource creation (prod vs dev), used with If</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Resources</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الموارد الفعليّة (EC2، S3، RDS، ...)</span><span class="lang-en">The actual resources (EC2, S3, RDS, ...)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>نعم</strong></span><span class="lang-en"><strong>Yes</strong></span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Outputs</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قيم تُصدَّر، يمكن استيرادها في Stacks أخرى بـ ImportValue</span><span class="lang-en">Exported values, importable in other stacks via ImportValue</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml">AWSTemplateFormatVersion: '2010-09-09'
+Description: Acme web server with SG and Elastic IP
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues: [t3.micro, t3.small, t3.medium]
+    Description: EC2 instance class
+  DBPassword:
+    Type: String
+    NoEcho: true           # hidden in Console & events
+    MinLength: 8
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      HVM64: ami-0abcd1234
+    eu-west-1:
+      HVM64: ami-0fedc5678
+
+Conditions:
+  IsProd: !Equals [!Ref Environment, prod]
+
+Resources:
+  WebServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTP + SSH
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  WebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]
+      SecurityGroupIds: [!Ref WebServerSG]
+
+Outputs:
+  WebServerPublicIp:
+    Description: Public IP of the web server
+    Value: !GetAtt WebServer.PublicIp
+    Export:
+      Name: AcmeWebServerIP</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الـ Intrinsic Functions (لا بدّ من حفظها)</span>
+      <span class="lang-en">Intrinsic functions (must know)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذه الدّوال هي ما يجعل القالب ديناميكياً. الامتحان يركّز كثيراً على <strong>Ref</strong> و <strong>GetAtt</strong> و <strong>Sub</strong> و <strong>FindInMap</strong> و <strong>ImportValue</strong>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">These functions make templates dynamic. Exam heavily tests <strong>Ref</strong>, <strong>GetAtt</strong>, <strong>Sub</strong>, <strong>FindInMap</strong>, and <strong>ImportValue</strong>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الدّالة</span><span class="lang-en">Function</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">ماذا تُرجِع</span><span class="lang-en">Returns</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مثال</span><span class="lang-en">Example</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Ref</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Parameter: قيمته. Resource: المُعرّف الفيزيائيّ (EC2 ID، Bucket Name).</span><span class="lang-en">Parameter: value. Resource: physical ID (EC2 ID, bucket name).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Ref MyVPC</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!GetAtt</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">صفة من مورد (مثل PublicIp، Arn، AvailabilityZone).</span><span class="lang-en">Attribute of a resource (PublicIp, Arn, AvailabilityZone).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!GetAtt EC2.PublicIp</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Sub</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استبدال متغيّرات في سلسلة نصيّة (أشبه بـ template literal).</span><span class="lang-en">Variable substitution in a string (template literal).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Sub 'arn:aws:s3:::${Bucket}/*'</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Join</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">دمج قائمة بقيم بواصل.</span><span class="lang-en">Join list with separator.</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Join ['-', [acme, !Ref Env]]</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!FindInMap</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قراءة قيمة من Mappings بمفتاحين.</span><span class="lang-en">Read from Mappings with two keys.</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!FindInMap [Map, K1, K2]</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!ImportValue</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استيراد قيمة مُصدَّرة من Stack آخر (Cross-Stack).</span><span class="lang-en">Import a value exported from another stack (cross-stack).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!ImportValue SharedVPCId</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!If / !Equals</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تنفيذ شرطيّ (Conditions).</span><span class="lang-en">Conditional (Conditions).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!If [IsProd, m5.large, t3.micro]</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Base64</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ترميز سلسلة إلى Base64 (لـ UserData).</span><span class="lang-en">Base64-encode string (for UserData).</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">!Base64 '#!/bin/bash\nyum ...'</td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># Cross-Stack: shared VPC exported from network stack
+# In network stack:
+Outputs:
+  VpcId:
+    Value: !Ref MyVPC
+    Export:
+      Name: AcmeSharedVPC
+
+# In application stack (separate file):
+Resources:
+  AppInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !ImportValue AcmeSharedVPC
+      # Sub for interpolation
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-app-${Environment}'</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Pseudo Parameters</strong> مُتاحة بدون تعريف: <span dir="ltr" class="font-mono">AWS::AccountId</span>، <span dir="ltr" class="font-mono">AWS::Region</span>، <span dir="ltr" class="font-mono">AWS::StackName</span>، <span dir="ltr" class="font-mono">AWS::StackId</span>، <span dir="ltr" class="font-mono">AWS::NoValue</span>.</span>
+      <span class="lang-en"> <strong>Pseudo parameters</strong> are available without declaration: <span dir="ltr" class="font-mono">AWS::AccountId</span>, <span dir="ltr" class="font-mono">AWS::Region</span>, <span dir="ltr" class="font-mono">AWS::StackName</span>, <span dir="ltr" class="font-mono">AWS::StackId</span>, <span dir="ltr" class="font-mono">AWS::NoValue</span>.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">DeletionPolicy، Rollback، و DependsOn</span>
+      <span class="lang-en">DeletionPolicy, Rollback & DependsOn</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذه السمات تتحكّم بالسّلوك عند الحذف أو الفشل. <strong>DeletionPolicy</strong> قد تمنع فقدان بيانات قواعد البيانات عند حذف الـ Stack. افتراضياً كل المورد يُحذَف.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">These attributes control behavior on delete or failure. <strong>DeletionPolicy</strong> can prevent database data loss on stack delete. Default is that every resource gets deleted.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="archive" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">DeletionPolicy: Retain</span><span class="lang-en">DeletionPolicy: Retain</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يحفظ المورد حتى بعد حذف الـ Stack. مناسب لـ RDS و S3 و DynamoDB في الإنتاج.</p>
+      <p class="text-sm text-surface-700 lang-en">Keeps the resource even after stack delete. Ideal for RDS, S3, DynamoDB in production.</p>
+    </div>
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="camera" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">DeletionPolicy: Snapshot</span><span class="lang-en">DeletionPolicy: Snapshot</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أخذ Snapshot نهائية قبل الحذف. مدعوم لـ EBS، RDS، ElastiCache، Redshift.</p>
+      <p class="text-sm text-surface-700 lang-en">Take a final snapshot before delete. Supported for EBS, RDS, ElastiCache, Redshift.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml">Resources:
+  ProdDatabase:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot       # snapshot on stack delete
+    UpdateReplacePolicy: Snapshot  # snapshot if resource replaced during update
+    Properties:
+      DBInstanceClass: db.t3.small
+      Engine: mysql
+      AllocatedStorage: 20
+      MasterUsername: admin
+      MasterUserPassword: !Ref DBPassword
+
+  DataBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain         # keep bucket on stack delete
+
+  AppInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: ProdDatabase        # wait for DB before creating instance
+    Properties:
+      InstanceType: t3.micro</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> عند فشل إنشاء Stack: افتراضياً يحذف CloudFormation كل الموارد المُنشأة (Rollback). عند فشل تحديث: يُعاد تلقائياً للحالة الصالحة السابقة. إذا فشل الـ Rollback نفسه، يبقى الـ Stack في <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span> وتحتاج <span dir="ltr" class="font-mono">ContinueUpdateRollback</span>.</span>
+      <span class="lang-en"> On create failure: CloudFormation deletes all created resources (rollback). On update failure: auto-reverts to the last working state. If rollback itself fails, stack is stuck in <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span> and you need <span dir="ltr" class="font-mono">ContinueUpdateRollback</span>.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>DeletionPolicy: Delete</strong> على S3 Bucket يفشل لو الـ Bucket غير فارغ. استخدم <strong>Custom Resource + Lambda</strong> لتفريغه قبل الحذف، أو فعّل <span dir="ltr" class="font-mono">AWS::S3::Bucket</span> مع Lambda لإفراغه.</span>
+      <span class="lang-en"> <strong>DeletionPolicy: Delete</strong> on an S3 bucket fails if it isn't empty. Use a <strong>custom resource + Lambda</strong> to empty it first, or a Lambda-backed cleanup.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ChangeSets، Drift، StackSets</span>
+      <span class="lang-en">ChangeSets, Drift, StackSets</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذه المفاهيم متقدّمة لكنّها شائعة في الامتحان. <strong>ChangeSets</strong> معاينة للتغييرات قبل تطبيقها، <strong>Drift Detection</strong> كشف التعديلات اليدويّة خارج CloudFormation، و <strong>StackSets</strong> للنشر على حسابات ومناطق متعدّدة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Advanced but commonly tested. <strong>ChangeSets</strong> preview updates before applying, <strong>drift detection</strong> finds manual changes outside CloudFormation, and <strong>StackSets</strong> deploy to multiple accounts and regions.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="file-diff" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ChangeSets</span><span class="lang-en">ChangeSets</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">قبل أن تطبّق تحديث، CloudFormation يعرض لك ما سيحدث: أيّ مورد سيُعدَّل، يُستبدَل، يُحذَف. تراجَع ثم اعتَمِد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Before applying an update, CloudFormation shows you what will happen: which resources are modified, replaced, or deleted. Review, then execute.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="alert-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Drift Detection</span><span class="lang-en">Drift Detection</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يكشف ما إذا عدّل أحدٌ المورد يدوياً في الـ Console. كلّ <em>Modified</em> أو <em>Deleted</em> هو انحراف.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Detects whether someone manually edited a resource in the Console. Any <em>Modified</em> or <em>Deleted</em> = drift.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="globe" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">StackSets</span><span class="lang-en">StackSets</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نشر نفس القالب عبر <strong>عدّة حسابات و عدّة مناطق</strong> بعمليّة واحدة. مثاليّ للشركات الكبيرة مع AWS Organizations.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Deploy the same template across <strong>multiple accounts and regions</strong> in one operation. Ideal for large orgs with AWS Organizations.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Nested Stacks</span><span class="lang-en">Nested Stacks</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Stack داخل Stack. إعادة استخدام Stack جاهز (مثل Load Balancer) في قوالب متعدّدة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">A stack inside a stack. Reuse a ready stack (like a Load Balancer) in multiple templates.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Preview changes with a ChangeSet
+aws cloudformation create-change-set \
+  --stack-name acme-prod \
+  --change-set-name upgrade-to-v2 \
+  --template-body file://template.yaml
+
+# Review the change set
+aws cloudformation describe-change-set \
+  --change-set-name upgrade-to-v2 --stack-name acme-prod
+
+# Execute if it looks good
+aws cloudformation execute-change-set \
+  --change-set-name upgrade-to-v2 --stack-name acme-prod
+
+# Detect drift on existing stack
+aws cloudformation detect-stack-drift --stack-name acme-prod</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> CloudFormation Service Role يسمح لـ CloudFormation بإنشاء موارد حتى لو لم يكن للمستخدم الصلاحيات المباشرة (مبدأ أقل امتياز). على المستخدم أن يكون لديه <span dir="ltr" class="font-mono">iam:PassRole</span>. إذا القالب يُنشِئ موارد IAM، تحتاج <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> أو <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span>؛ وللـ Nested Stacks أو Macros <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span>
+      <span class="lang-en"> CloudFormation Service Role lets CloudFormation create resources even if the user lacks direct permissions (least privilege). User must have <span dir="ltr" class="font-mono">iam:PassRole</span>. If the template creates IAM resources, you need <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> or <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span>; for nested stacks or macros, <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> نشر Stack بسيط فيه EC2 Instance + Security Group، ثم كشف Drift يدويّ.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Deploy a simple Stack with EC2 + Security Group, then detect a manually introduced drift.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">احفظ القالب في ملفّ YAML</span>
+      <span class="lang-en">Save the template YAML</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">يحتوي على Parameter لنوع الخادم و Resource واحد لـ EC2 Instance.</p><p class="text-surface-600 leading-relaxed lang-en">Contains a parameter for instance type and a single EC2 Instance resource.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-yaml">AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+Resources:
+  DemoSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: demo
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  Demo:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: ami-0abcdef1234567890
+      SecurityGroupIds: [!Ref DemoSG]</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أطلق الـ Stack عبر CLI</span>
+      <span class="lang-en">Deploy via CLI</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudformation create-stack \
+  --stack-name ch21-demo \
+  --template-body file://demo.yaml \
+  --parameters ParameterKey=InstanceType,ParameterValue=t3.micro</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أحدِث انحرافاً يدوياً</span>
+      <span class="lang-en">Introduce manual drift</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من الـ Console، عدّل Security Group وأضف قاعدة port 80 جديدة.</p><p class="text-surface-600 leading-relaxed lang-en">In Console, edit the Security Group and add a port 80 rule.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اكشف الانحراف</span>
+      <span class="lang-en">Detect drift</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudformation detect-stack-drift --stack-name ch21-demo
+aws cloudformation describe-stack-resource-drifts \
+  --stack-name ch21-demo</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">احذف الـ Stack</span>
+      <span class="lang-en">Delete the Stack</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">كلّ الموارد تُحذَف (ما عدا ذات DeletionPolicy: Retain).</p><p class="text-surface-600 leading-relaxed lang-en">All resources deleted (except any with DeletionPolicy: Retain).</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudformation delete-stack --stack-name ch21-demo</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> إذا تركت EC2 بدون حذف، يستمرّ الفوترة. دائماً امسح الـ Stack بعد التجربة.</span>
+    <span class="lang-en"> If you leave EC2 running, billing continues. Always delete the stack after testing.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-code" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Resources فقط إلزامي</span>
+        <span class="lang-en">Only Resources is mandatory</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">باقي الأقسام (Parameters، Mappings، Outputs، Conditions) اختياريّة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">All other sections (Parameters, Mappings, Outputs, Conditions) are optional.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="function-square" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">احفظ ٥ دوالّ أساسيّة</span>
+        <span class="lang-en">Memorize 5 core functions</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Ref، GetAtt، Sub، FindInMap، ImportValue — هذه هي الأكثر في الامتحان.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Ref, GetAtt, Sub, FindInMap, ImportValue — most tested.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="archive" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">DeletionPolicy يُنقذ البيانات</span>
+        <span class="lang-en">DeletionPolicy saves data</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Retain للإبقاء، Snapshot للّقطة النهائيّة. خاصّةً لـ RDS و EBS.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Retain keeps; Snapshot takes a final snapshot. Especially for RDS, EBS.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">StackSets للنشر متعدّد الحسابات</span>
+        <span class="lang-en">StackSets = multi-account deploy</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">قالب واحد، عدّة حسابات، عدّة مناطق. مثاليّ مع AWS Organizations.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">One template, many accounts, many regions. Ideal with AWS Organizations.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>PMROCD</strong>: <span dir="ltr" class="font-mono">Parameters → Mappings → Resources → Outputs → Conditions → DeletionPolicy</span>. للأقسام فكّر: مدخلات، جداول، موارد، مخرجات، شروط، حماية.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>PMROCD</strong>: <span dir="ltr" class="font-mono">Parameters → Mappings → Resources → Outputs → Conditions → DeletionPolicy</span>. Inputs, lookups, resources, exports, conditions, protection.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch20.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(21, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch22.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد قيمة متغيّرة (AMI ID) تتغيّر حسب المنطقة. ما أفضل آليّة في CloudFormation؟</span><span class="lang-en">A developer needs an AMI ID that varies by region. Best CloudFormation feature?</span>",
+        options: [
+          "<span class="lang-ar">Parameters مع AllowedValues</span><span class="lang-en">Parameters with AllowedValues</span>",
+          "<span class="lang-ar">Mappings مع FindInMap</span><span class="lang-en">Mappings with FindInMap</span>",
+          "<span class="lang-ar">Conditions مع If</span><span class="lang-en">Conditions with If</span>",
+          "<span class="lang-ar">Outputs</span><span class="lang-en">Outputs</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Mappings</strong> هي الحل المعياري لتفرّعات ثابتة حسب Region أو Environment. تُقرَأ بـ <span dir="ltr" class="font-mono">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]</span>. Parameters للمدخلات الديناميكيّة من المستخدم، Conditions لإنشاء موارد شرطيّ، Outputs لتصدير قيم.</span><span class="lang-en"><strong>Mappings</strong> is the standard pattern for static lookups by region/environment. Read via <span dir="ltr" class="font-mono">!FindInMap [RegionMap, !Ref 'AWS::Region', HVM64]</span>. Parameters are for dynamic user inputs, Conditions for conditional creation, Outputs for exports.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يصلح لكنّه يتطلّب إدخال المستخدم في كل نشر.</span><span class=\"lang-en\">Works but requires user input on every deploy.</span>", "", "<span class=\"lang-ar\">للإنشاء الشرطيّ لا للقراءة من جدول.</span><span class=\"lang-en\">For conditional creation, not table lookup.</span>", "<span class=\"lang-ar\">لتصدير قيم بعد الإنشاء.</span><span class=\"lang-en\">For exporting values post-create.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — أقسام القالب</span><span class=\"lang-en\">Section 2 — Template sections</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Java Spring Boot يحتاج إلى كلمة مرور قاعدة بيانات كـ Parameter. ما الخاصّية التي تُخفيها في Console والـ Events؟</span><span class="lang-en">A Java Spring Boot app needs a DB password parameter. Which property hides it in the Console and events?</span>",
+        options: [
+          "<span class="lang-ar">Hidden: true</span><span class="lang-en">Hidden: true</span>",
+          "<span class="lang-ar">NoEcho: true</span><span class="lang-en">NoEcho: true</span>",
+          "<span class="lang-ar">Secure: true</span><span class="lang-en">Secure: true</span>",
+          "<span class="lang-ar">Encrypted: true</span><span class="lang-en">Encrypted: true</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">NoEcho: true</span> هي الطريقة المعتمدة في CloudFormation لمنع ظهور القيمة في Console والـ Stack Events والـ API. أفضل حتى من ذلك: استخدم <strong>Secrets Manager</strong> أو <strong>SSM Parameter Store</strong> وارجع إليهما بـ <span dir="ltr" class="font-mono">Type: AWS::SSM::Parameter::Value&lt;String&gt;</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">NoEcho: true</span> is the standard way to mask the value in Console, Stack Events, and API. Even better: store in <strong>Secrets Manager</strong> or <strong>SSM Parameter Store</strong> and reference with <span dir="ltr" class="font-mono">Type: AWS::SSM::Parameter::Value&lt;String&gt;</span>.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme عندها Stack للـ VPC و Stack منفصل للتطبيقات. التطبيق يحتاج مُعرّف VPC. ما الآليّة الصحيحة؟</span><span class="lang-en">Acme has a VPC stack and a separate application stack. The app needs the VPC ID. Correct mechanism?</span>",
+        options: [
+          "<span class="lang-ar">نسخ القيمة يدوياً عند كل تحديث.</span><span class="lang-en">Manually copy the value on every update.</span>",
+          "<span class="lang-ar">استخدام Output مع Export في Stack الأوّل و ImportValue في الثاني.</span><span class="lang-en">Output with Export in the first stack, and ImportValue in the second.</span>",
+          "<span class="lang-ar">Nested Stacks فقط.</span><span class="lang-en">Nested Stacks only.</span>",
+          "<span class="lang-ar">إنشاء Parameter يُدخَل يدوياً.</span><span class="lang-en">A parameter entered manually.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الآليّة الرسميّة للـ <strong>Cross-Stack Reference</strong>: صدّر القيمة بـ <span dir="ltr" class="font-mono">Export: Name: ...</span> ثم استوردها بـ <span dir="ltr" class="font-mono">!ImportValue</span>. لا يمكن حذف Stack مُصدِّر ما دامت قيمه مستوردة في Stack آخر.</span><span class="lang-en">The official <strong>cross-stack reference</strong>: export with <span dir="ltr" class="font-mono">Export: Name: ...</span>, import with <span dir="ltr" class="font-mono">!ImportValue</span>. You can't delete an exporting stack while its values are imported elsewhere.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣ — ImportValue</span><span class=\"lang-en\">Section 3 — ImportValue</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">في قالب يُنشِئ RDS، يريد المطوّر الحفاظ على البيانات حتى لو حُذف الـ Stack. ما الخاصيّة الصحيحة؟</span><span class="lang-en">A template creates RDS. The developer wants data preserved even if the stack is deleted. Correct property?</span>",
+        options: [
+          "<span class="lang-ar">UpdatePolicy: Retain</span><span class="lang-en">UpdatePolicy: Retain</span>",
+          "<span class="lang-ar">DeletionPolicy: Retain أو Snapshot</span><span class="lang-en">DeletionPolicy: Retain or Snapshot</span>",
+          "<span class="lang-ar">TerminationProtection: true</span><span class="lang-en">TerminationProtection: true</span>",
+          "<span class="lang-ar">BackupPolicy: Enabled</span><span class="lang-en">BackupPolicy: Enabled</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>DeletionPolicy</strong> يتحكّم بسلوك الحذف. <strong>Retain</strong> يُبقي المورد، <strong>Snapshot</strong> يأخذ لقطة نهائيّة قبل الحذف (مدعوم لـ RDS، EBS، ElastiCache، Redshift). <strong>TerminationProtection</strong> على مستوى Stack لمنع حذفه بالكامل.</span><span class="lang-en"><strong>DeletionPolicy</strong> controls delete behavior. <strong>Retain</strong> keeps the resource, <strong>Snapshot</strong> takes a final snapshot before delete (supported for RDS, EBS, ElastiCache, Redshift). <strong>TerminationProtection</strong> is at stack level to prevent stack deletion.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يوجد UpdatePolicy: Retain.</span><span class=\"lang-en\">No UpdatePolicy: Retain.</span>", "", "<span class=\"lang-ar\">يمنع حذف الـ Stack كلّه لا مورد واحد.</span><span class=\"lang-en\">Prevents whole-stack delete, not a single resource.</span>", "<span class=\"lang-ar\">غير موجودة.</span><span class=\"lang-en\">Not a property.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">Stack في حالة <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span>. ما الإجراء الصحيح؟</span><span class="lang-en">A stack is in <span dir="ltr" class="font-mono">UPDATE_ROLLBACK_FAILED</span>. Correct action?</span>",
+        options: [
+          "<span class="lang-ar">حذف الـ Stack مباشرةً.</span><span class="lang-en">Immediately delete the stack.</span>",
+          "<span class="lang-ar">إصلاح المورد يدوياً ثم استدعاء ContinueUpdateRollback.</span><span class="lang-en">Manually fix the resource, then call ContinueUpdateRollback.</span>",
+          "<span class="lang-ar">إنشاء Stack جديد فوق القديم.</span><span class="lang-en">Create a new stack on top of the old.</span>",
+          "<span class="lang-ar">تجاهل الخطأ والمتابعة بتحديث جديد.</span><span class="lang-en">Ignore and push a new update.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">عندما يفشل الـ Rollback (غالباً لأنّ Drift حدث على مورد)، الحل الرسميّ هو إصلاح المورد يدوياً في الـ Console ثم استدعاء <span dir="ltr" class="font-mono">ContinueUpdateRollback API</span> من Console أو CLI. لا يمكن تنفيذ تحديث جديد من هذه الحالة.</span><span class="lang-en">When rollback itself fails (often due to drift on a resource), the official fix is to manually repair the resource in Console, then call <span dir="ltr" class="font-mono">ContinueUpdateRollback API</span> from Console or CLI. You cannot push a new update from this state.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤ — Rollbacks</span><span class=\"lang-en\">Section 4 — Rollbacks</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">شركة كبيرة تريد نشر نفس الإعدادات الأمنيّة على ٣٠ حساب AWS في ٣ مناطق مختلفة بعمليّة واحدة. ما الخاصيّة المناسبة؟</span><span class="lang-en">A large company wants to deploy the same security baseline across 30 AWS accounts in 3 regions in one operation. Which feature?</span>",
+        options: [
+          "<span class="lang-ar">Nested Stacks</span><span class="lang-en">Nested Stacks</span>",
+          "<span class="lang-ar">StackSets</span><span class="lang-en">StackSets</span>",
+          "<span class="lang-ar">ChangeSets</span><span class="lang-en">ChangeSets</span>",
+          "<span class="lang-ar">Custom Resources</span><span class="lang-en">Custom Resources</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>StackSets</strong> مصمّمة خصّيصاً للنشر عبر حسابات ومناطق متعدّدة. يمكن تطبيقها على كل حسابات AWS Organizations. Nested Stacks هي Stack داخل Stack (موضوع مختلف). ChangeSets للمعاينة، Custom Resources لموارد غير مدعومة.</span><span class="lang-en"><strong>StackSets</strong> are designed for multi-account, multi-region deployment. They can be applied to all AWS Organizations accounts. Nested Stacks = stack inside a stack (different topic). ChangeSets = preview. Custom Resources = unsupported resources.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">قبل تطبيق تحديث على Stack إنتاج مهمّ، يريد المطوّر رؤية تفاصيل التغييرات. ما الميزة الصحيحة؟</span><span class="lang-en">Before applying an update to a critical prod stack, the developer wants to see exactly what will change. Which feature?</span>",
+        options: [
+          "<span class="lang-ar">Stack Policy</span><span class="lang-en">Stack Policy</span>",
+          "<span class="lang-ar">ChangeSet</span><span class="lang-en">ChangeSet</span>",
+          "<span class="lang-ar">Drift Detection</span><span class="lang-en">Drift Detection</span>",
+          "<span class="lang-ar">Stack Events</span><span class="lang-en">Stack Events</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>ChangeSet</strong> يُنشئ معاينة: أي مورد سيُعدَّل (Modify) أم يُستبدَل (Replace) أم يُحذَف. المطوّر يراجع ثم يُنفّذ. <strong>Stack Policy</strong> يحمي من تحديثات معيّنة. <strong>Drift Detection</strong> يكشف تغييرات يدويّة سابقة.</span><span class="lang-en"><strong>ChangeSet</strong> creates a preview: which resources will be modified, replaced, or deleted. Developer reviews, then executes. <strong>Stack Policy</strong> protects from unwanted updates. <strong>Drift Detection</strong> finds past manual changes.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q8",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن Intrinsic Functions؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about intrinsic functions? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">!Ref على Parameter يُرجِع قيمته.</span><span class="lang-en">!Ref on a Parameter returns its value.</span>",
+          "<span class="lang-ar">!Ref على Resource يُرجِع المُعرّف الفيزيائيّ.</span><span class="lang-en">!Ref on a Resource returns the physical ID.</span>",
+          "<span class="lang-ar">!GetAtt تقرأ صفات المورد (مثل PublicIp).</span><span class="lang-en">!GetAtt reads resource attributes (like PublicIp).</span>",
+          "<span class="lang-ar">!Join و !Sub نفس الشيء.</span><span class="lang-en">!Join and !Sub are identical.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">!Ref</span> على Parameter يُرجِع قيمته، على Resource يُرجِع المُعرّف الفيزيائيّ (EC2 ID مثلاً). <span dir="ltr" class="font-mono">!GetAtt</span> لصفات إضافية كـ <span dir="ltr" class="font-mono">PublicIp</span>. <span dir="ltr" class="font-mono">!Join</span> يدمج قائمة، <span dir="ltr" class="font-mono">!Sub</span> يستبدل متغيّرات في سلسلة — مختلفتان.</span><span class="lang-en"><span dir="ltr" class="font-mono">!Ref</span> on a parameter returns its value; on a resource returns the physical ID. <span dir="ltr" class="font-mono">!GetAtt</span> reads extra attributes like <span dir="ltr" class="font-mono">PublicIp</span>. <span dir="ltr" class="font-mono">!Join</span> joins a list; <span dir="ltr" class="font-mono">!Sub</span> substitutes variables — different functions.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">قالب يُنشِئ EC2 Instance مع UserData لتثبيت Apache. ما الدّالة الصحيحة لترميز النص؟</span><span class="lang-en">A template creates an EC2 Instance with UserData to install Apache. Correct encoding function?</span>",
+        options: [
+          "<span class="lang-ar">!Encode</span><span class="lang-en">!Encode</span>",
+          "<span class="lang-ar">!Base64</span><span class="lang-en">!Base64</span>",
+          "<span class="lang-ar">!Join</span><span class="lang-en">!Join</span>",
+          "<span class="lang-ar">!Sub</span><span class="lang-en">!Sub</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">EC2 UserData يتطلّب Base64 encoding. استخدم <span dir="ltr" class="font-mono">Fn::Base64</span> (أو <span dir="ltr" class="font-mono">!Base64</span>) لإرسال السكربت. يمكن دمجها مع <span dir="ltr" class="font-mono">!Sub</span> لاستبدال متغيّرات قبل الترميز.</span><span class="lang-en">EC2 UserData requires Base64 encoding. Use <span dir="ltr" class="font-mono">Fn::Base64</span> (or <span dir="ltr" class="font-mono">!Base64</span>) to send the script. Combine with <span dir="ltr" class="font-mono">!Sub</span> for variable substitution before encoding.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">قالب CloudFormation يُنشئ IAM Role. عند <span dir="ltr" class="font-mono">create-stack</span> يحصل المطوّر على <span dir="ltr" class="font-mono">InsufficientCapabilitiesException</span>. ما الحل؟</span><span class="lang-en">A CloudFormation template creates an IAM Role. On <span dir="ltr" class="font-mono">create-stack</span>, the developer gets <span dir="ltr" class="font-mono">InsufficientCapabilitiesException</span>. Fix?</span>",
+        options: [
+          "<span class="lang-ar">تمرير --capabilities CAPABILITY_IAM.</span><span class="lang-en">Pass --capabilities CAPABILITY_IAM.</span>",
+          "<span class="lang-ar">تعطيل Rollback.</span><span class="lang-en">Disable rollback.</span>",
+          "<span class="lang-ar">تغيير حساب AWS.</span><span class="lang-en">Change AWS account.</span>",
+          "<span class="lang-ar">استخدام Nested Stacks.</span><span class="lang-en">Use Nested Stacks.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">CloudFormation يطلب <strong>اعتراف صريح</strong> من المطوّر قبل إنشاء موارد IAM (تدبير أمنيّ). مرّر <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> أو <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span> (إذا الموارد بأسماء). للـ Nested Stacks أو Macros مطلوب <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span><span class="lang-en">CloudFormation requires <strong>explicit acknowledgement</strong> before creating IAM resources (security measure). Pass <span dir="ltr" class="font-mono">CAPABILITY_IAM</span> or <span dir="ltr" class="font-mono">CAPABILITY_NAMED_IAM</span> (if resources are named). Nested Stacks or macros need <span dir="ltr" class="font-mono">CAPABILITY_AUTO_EXPAND</span>.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تشغيل دالّة Lambda كجزء من عمليّة CloudFormation (مثل تفريغ S3 Bucket قبل حذفه). أيّ ميزة يستخدم؟</span><span class="lang-en">A developer wants to run a Lambda function as part of a CloudFormation operation (e.g. empty an S3 bucket before delete). Which feature?</span>",
+        options: [
+          "<span class="lang-ar">Metadata</span><span class="lang-en">Metadata</span>",
+          "<span class="lang-ar">Helper Scripts (cfn-init)</span><span class="lang-en">Helper Scripts (cfn-init)</span>",
+          "<span class="lang-ar">Custom Resources</span><span class="lang-en">Custom Resources</span>",
+          "<span class="lang-ar">Outputs</span><span class="lang-en">Outputs</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>Custom Resources</strong> مدعومة بـ Lambda أو SNS، تُستخدَم لتشغيل منطق مخصّص أثناء create/update/delete. النوع <span dir="ltr" class="font-mono">Custom::MyType</span> مع <span dir="ltr" class="font-mono">ServiceToken</span> يشير إلى Lambda ARN. <strong>cfn-init</strong> لإعداد نظام التشغيل داخل EC2.</span><span class="lang-en"><strong>Custom Resources</strong> backed by Lambda or SNS run custom logic during create/update/delete. Type <span dir="ltr" class="font-mono">Custom::MyType</span> with <span dir="ltr" class="font-mono">ServiceToken</span> pointing at a Lambda ARN. <strong>cfn-init</strong> is for OS setup inside EC2.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥ — Custom Resources</span><span class=\"lang-en\">Section 5 — Custom Resources</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مورد A يحتاج إلى المورد B قبله (مثل تطبيق يحتاج RDS). كيف تفرض الترتيب في القالب؟</span><span class="lang-en">Resource A needs resource B first (e.g. an app that requires RDS). How to force the order?</span>",
+        options: [
+          "<span class="lang-ar">ترتيب الظهور في YAML.</span><span class="lang-en">Order in YAML.</span>",
+          "<span class="lang-ar">استخدام DependsOn.</span><span class="lang-en">Use DependsOn.</span>",
+          "<span class="lang-ar">فصل في Stacks منفصلة.</span><span class="lang-en">Separate into different stacks.</span>",
+          "<span class="lang-ar">CloudFormation تُدرك تلقائياً.</span><span class="lang-en">CloudFormation auto-detects.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CloudFormation يُدرك معظم الاعتماديّات تلقائياً عبر <span dir="ltr" class="font-mono">!Ref</span> و <span dir="ltr" class="font-mono">!GetAtt</span>. للاعتماديّات الصريحة (بدون مرجع)، استخدم <span dir="ltr" class="font-mono">DependsOn</span>. ترتيب YAML لا يهمّ لـ CloudFormation.</span><span class="lang-en">CloudFormation auto-detects most dependencies via <span dir="ltr" class="font-mono">!Ref</span> and <span dir="ltr" class="font-mono">!GetAtt</span>. For explicit, non-reference dependencies, use <span dir="ltr" class="font-mono">DependsOn</span>. YAML order doesn't matter.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">عمليّة <span dir="ltr" class="font-mono">cfn-signal</span> تُستخدَم لماذا؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">cfn-signal</span> do?</span>",
+        options: [
+          "<span class="lang-ar">إعادة تشغيل EC2 Instance.</span><span class="lang-en">Reboot EC2 Instance.</span>",
+          "<span class="lang-ar">إخبار CloudFormation أنّ EC2 Instance أصبحت جاهزة (مع CreationPolicy).</span><span class="lang-en">Tell CloudFormation an EC2 Instance is ready (with CreationPolicy).</span>",
+          "<span class="lang-ar">إلغاء Stack.</span><span class="lang-en">Cancel the stack.</span>",
+          "<span class="lang-ar">نشر رسالة SNS.</span><span class="lang-en">Publish SNS message.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cfn-signal</span> يُستخدَم داخل UserData لإخبار CloudFormation أنّ الخادم أكمل إعداده. يعمل مع <span dir="ltr" class="font-mono">CreationPolicy</span> (ينتظر CloudFormation إشارة بدلاً من اعتبار الخادم جاهزاً بمجرّد الإطلاق). <span dir="ltr" class="font-mono">cfn-init</span> لقراءة Metadata، <span dir="ltr" class="font-mono">cfn-hup</span> للتحقّق من تغييرات metadata دوريّاً.</span><span class="lang-en"><span dir="ltr" class="font-mono">cfn-signal</span> is used inside UserData to tell CloudFormation the instance finished setup. Works with <span dir="ltr" class="font-mono">CreationPolicy</span> (CloudFormation waits for the signal instead of assuming ready on boot). <span dir="ltr" class="font-mono">cfn-init</span> reads metadata, <span dir="ltr" class="font-mono">cfn-hup</span> checks metadata changes periodically.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١ — Helper Scripts</span><span class=\"lang-en\">Section 1 — Helper scripts</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تريد حماية Stack الإنتاج من تحديثات غير مقصودة على قاعدة البيانات، بينما يُسمَح بتحديث الباقي. ما الآليّة؟</span><span class="lang-en">Acme wants to protect the prod DB in a stack from accidental updates, while allowing other resources to update. What mechanism?</span>",
+        options: [
+          "<span class="lang-ar">Stack Policy</span><span class="lang-en">Stack Policy</span>",
+          "<span class="lang-ar">DeletionPolicy</span><span class="lang-en">DeletionPolicy</span>",
+          "<span class="lang-ar">TerminationProtection</span><span class="lang-en">TerminationProtection</span>",
+          "<span class="lang-ar">Capabilities</span><span class="lang-en">Capabilities</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>Stack Policy</strong> JSON تحدّد ما يُسمَح به أثناء تحديث الـ Stack. يمكن <span dir="ltr" class="font-mono">Deny Update:*</span> على مورد محدّد (كالـ Production DB) و <span dir="ltr" class="font-mono">Allow Update:*</span> للباقي. <strong>DeletionPolicy</strong> للحذف فقط، <strong>TerminationProtection</strong> يحمي Stack بالكامل من الحذف.</span><span class="lang-en">A <strong>Stack Policy</strong> is a JSON document specifying allowed update actions. You can <span dir="ltr" class="font-mono">Deny Update:*</span> on specific resources (like the prod DB) and <span dir="ltr" class="font-mono">Allow Update:*</span> on others. <strong>DeletionPolicy</strong> is for delete only; <strong>TerminationProtection</strong> prevents full stack deletion.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يشكّ أنّ زميله عدّل Security Group يدويّاً خارج CloudFormation. ما الإجراء الصحيح؟</span><span class="lang-en">A developer suspects a teammate manually edited a Security Group outside CloudFormation. Correct action?</span>",
+        options: [
+          "<span class="lang-ar">تشغيل cfn-init.</span><span class="lang-en">Run cfn-init.</span>",
+          "<span class="lang-ar">تشغيل Drift Detection.</span><span class="lang-en">Run Drift Detection.</span>",
+          "<span class="lang-ar">إنشاء ChangeSet.</span><span class="lang-en">Create a ChangeSet.</span>",
+          "<span class="lang-ar">حذف Stack.</span><span class="lang-en">Delete the stack.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Drift Detection</strong> مخصّصة لهذا الغرض تماماً: تقارن الحالة الفعليّة لكل مورد مع الحالة المُعرَّفة في Stack Template. كل تعديل يدويّ يظهر كـ <span dir="ltr" class="font-mono">MODIFIED</span> أو <span dir="ltr" class="font-mono">DELETED</span>. ChangeSet يُعاين تحديثاً مستقبليّاً لا يكشف Drift.</span><span class="lang-en"><strong>Drift detection</strong> is purpose-built for this: it compares each resource's actual state with what's defined in the stack template. Manual edits show as <span dir="ltr" class="font-mono">MODIFIED</span> or <span dir="ltr" class="font-mono">DELETED</span>. A ChangeSet previews a future update — it doesn't detect drift.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(21, QUESTIONS);
+      if (isChapterComplete(21)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

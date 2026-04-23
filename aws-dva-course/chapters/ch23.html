@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 23 — AWS CDK — Cloud Development Kit | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٣ من ٣٠</span>
+        <span class="lang-en">Chapter 23 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.755-767</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS CDK — Cloud Development Kit</span>
+        <span class="lang-en">AWS CDK — Cloud Development Kit</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">اكتب بنيتك التحتية بلغة برمجة حقيقيّة (Java، TypeScript، Python)، واترك CDK يولّد CloudFormation لك. مثاليّ للـ Spring Boot developer.</span>
+        <span class="lang-en">Write your infrastructure in a real programming language (Java, TypeScript, Python) and let CDK generate CloudFormation. Ideal for Spring Boot devs.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CDK</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">IaC</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Constructs</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">TypeScript</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Java</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Constructs L1/L2/L3</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — الفرق بين مستويات Constructs.</span>
+      <span class="lang-en">Domain 3 — Construct level differences.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk synth / deploy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — دورة حياة CDK.</span>
+      <span class="lang-en">Domain 3 — CDK lifecycle.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Bootstrapping</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — إعداد بيئة CDK.</span>
+      <span class="lang-en">Domain 3 — environment setup.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CDK vs SAM</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — متى أختار كل منهما.</span>
+      <span class="lang-en">Domain 3 — when to use which.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو CDK ولماذا هو مثاليّ لمطوّر Java</span>
+      <span class="lang-en">What is CDK and why it fits Java developers</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">AWS CDK</span> يسمح لك بتعريف بنية AWS التحتية بـ <strong>TypeScript، Python، Java، .NET، Go</strong>. تحصل على <strong>IntelliSense</strong> و <strong>Type Safety</strong> و <strong>Loops</strong> و <strong>Methods</strong>، ثم CDK يُولّد قالب CloudFormation كامل.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">AWS CDK</span> lets you define AWS infrastructure in <strong>TypeScript, Python, Java, .NET, Go</strong>. You get <strong>IntelliSense</strong>, <strong>type safety</strong>, <strong>loops</strong>, and <strong>methods</strong>, then CDK generates a full CloudFormation template.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="file-code" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CloudFormation / SAM</span><span class="lang-en">CloudFormation / SAM</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">YAML/JSON declarative. بسيط لكن: لا loops، لا if عميق، تكرار كثير عند التوسّع.</p>
+      <p class="text-sm text-surface-700 lang-en">Declarative YAML/JSON. Simple but: no loops, shallow if, lots of repetition at scale.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="code-2" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CDK</span><span class="lang-en">CDK</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">لغة برمجة حقيقيّة. يمكنك استخدام loops و classes و libraries. يُنتج CloudFormation. ممتاز للـ Java developer.</p>
+      <p class="text-sm text-surface-700 lang-en">Real programming language. Use loops, classes, libraries. Emits CloudFormation. Excellent for Java devs.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java example: VPC + ECS Fargate Service
+package com.acme;
+
+import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.ec2.Vpc;
+import software.amazon.awscdk.services.ecs.Cluster;
+import software.amazon.awscdk.services.ecs.patterns.*;
+import software.amazon.awscdk.services.ecs.ContainerImage;
+import software.constructs.Construct;
+
+public class AcmeServiceStack extends Stack {
+    public AcmeServiceStack(final Construct scope, final String id, final StackProps props) {
+        super(scope, id, props);
+
+        Vpc vpc = Vpc.Builder.create(this, "AcmeVpc")
+            .maxAzs(2).build();
+
+        Cluster cluster = Cluster.Builder.create(this, "Cluster")
+            .vpc(vpc).build();
+
+        // L3 construct — generates ~20 CloudFormation resources
+        ApplicationLoadBalancedFargateService.Builder.create(this, "Service")
+            .cluster(cluster)
+            .cpu(512).memoryLimitMiB(1024)
+            .desiredCount(2)
+            .taskImageOptions(
+                ApplicationLoadBalancedTaskImageOptions.builder()
+                    .image(ContainerImage.fromRegistry("amazon/amazon-ecs-sample"))
+                    .containerPort(80)
+                    .build())
+            .publicLoadBalancer(true)
+            .build();
+    }
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للـ Java developer: CDK يُضاف عبر <span dir="ltr" class="font-mono">pom.xml</span> كـ dependencies عادية. تستخدم <strong>Maven</strong> للبناء، و <strong>cdk deploy</strong> للنشر. الـ IDE (IntelliJ/VS Code) يقدّم auto-completion كامل لجميع موارد AWS.</span>
+      <span class="lang-en"> For Java devs: CDK is added via <span dir="ltr" class="font-mono">pom.xml</span> like any dependency. Use <strong>Maven</strong> to build, <strong>cdk deploy</strong> to deploy. Your IDE (IntelliJ/VS Code) gives full autocomplete for every AWS resource.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Constructs L1، L2، L3</span>
+      <span class="lang-en">Constructs L1, L2, L3</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Construct هو اللبنة الأساسيّة في CDK. يُمثّل مورداً واحداً أو مجموعة موارد. تأتي بثلاثة مستويات: <strong>L1</strong> (عام، خريطة مباشرة لـ CloudFormation)، <strong>L2</strong> (intent-based، أكثر ذكاءً)، <strong>L3</strong> (Patterns جاهزة).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A Construct is CDK's building block. Represents one resource or a group. Three levels: <strong>L1</strong> (raw, direct CloudFormation mapping), <strong>L2</strong> (intent-based, smarter), <strong>L3</strong> (ready patterns).</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المستوى</span><span class="lang-en">Level</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">البادئة</span><span class="lang-en">Prefix</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المثال</span><span class="lang-en">Example</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">متى تستخدمه</span><span class="lang-en">When to use</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">L1</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Cfn*</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">new CfnBucket(...)</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خريطة 1:1 مع CloudFormation، تحتاج تحديد كل الخصائص يدوياً</span><span class="lang-en">1:1 mapping with CloudFormation, you set every property manually</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">L2</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اسم مباشر</span><span class="lang-en">Direct name</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">new Bucket(...)</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">افتراضات ذكيّة + methods مساعدة مثل bucket.grantRead(user)</span><span class="lang-en">Smart defaults + helper methods like bucket.grantRead(user)</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">L3</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Patterns</span><span class="lang-en">Patterns</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ApplicationLoadBalancedFargateService</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يُولّد عشرات الموارد: VPC + ALB + ECS + IAM</span><span class="lang-en">Generates dozens of resources: VPC + ALB + ECS + IAM</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-typescript">// TypeScript example to contrast L1 vs L2 vs L3
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+
+// L1 — manual, every property required
+const l1Bucket = new s3.CfnBucket(this, 'L1Bucket', {
+  bucketName: 'acme-l1',
+  versioningConfiguration: { status: 'Enabled' },
+  bucketEncryption: {
+    serverSideEncryptionConfiguration: [
+      { serverSideEncryptionByDefault: { sseAlgorithm: 'AES256' } }
+    ]
+  }
+});
+
+// L2 — smart defaults, helper methods
+const l2Bucket = new s3.Bucket(this, 'L2Bucket', {
+  versioned: true,
+  encryption: s3.BucketEncryption.S3_MANAGED,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
+});
+l2Bucket.grantRead(lambdaFn);        // auto-generates IAM policy
+
+// L3 — whole pattern
+new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'Service', {
+  cluster, cpu: 512, memoryLimitMiB: 1024,
+  taskImageOptions: { image: ecs.ContainerImage.fromRegistry('nginx') }
+});
+// Generates: VPC, ECS Cluster, Task Def, Service, ALB, Target Group, SG, IAM — one call</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Construct Hub</strong> (<span dir="ltr" class="font-mono">constructs.dev</span>) يحتوي مكتبة Constructs من AWS ومن المجتمع — يمكن تثبيت أيّ منها كـ package (npm، Maven، pip).</span>
+      <span class="lang-en"> <strong>Construct Hub</strong> (<span dir="ltr" class="font-mono">constructs.dev</span>) hosts Constructs from AWS and the community — install any as a package (npm, Maven, pip).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الأوامر الأساسيّة: synth، deploy، diff</span>
+      <span class="lang-en">Core commands: synth, deploy, diff</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الدورة النموذجيّة: كتابة الكود، <strong>cdk synth</strong> لرؤية CloudFormation الناتج، <strong>cdk diff</strong> لمعاينة التغييرات، <strong>cdk deploy</strong> للتنفيذ. كل هذا فوق CloudFormation تحت الغطاء.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Typical flow: write code, <strong>cdk synth</strong> to see generated CloudFormation, <strong>cdk diff</strong> to preview changes, <strong>cdk deploy</strong> to execute. All on top of CloudFormation under the hood.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الأمر</span><span class="lang-en">Command</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوظيفة</span><span class="lang-en">Purpose</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">npm install -g aws-cdk</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تثبيت CDK CLI</span><span class="lang-en">Install CDK CLI</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk init app --language=java</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إنشاء مشروع جديد</span><span class="lang-en">Scaffold new project</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk synth</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">توليد قالب CloudFormation وطباعته</span><span class="lang-en">Synthesize and print CloudFormation</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk bootstrap</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إنشاء CDKToolkit Stack (S3 Bucket + IAM Roles) — يُشغَّل مرّة لكل account/region</span><span class="lang-en">Creates CDKToolkit stack (S3 + IAM) — run once per account/region</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk diff</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عرض الفروق بين المحلّيّ والمنشور</span><span class="lang-en">Show diff between local and deployed</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk deploy</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نشر Stack</span><span class="lang-en">Deploy the stack</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">cdk destroy</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حذف Stack</span><span class="lang-en">Destroy the stack</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> <strong>Bootstrapping</strong> إلزاميّ قبل أوّل <span dir="ltr" class="font-mono">cdk deploy</span> في أيّ account/region. يُنشِئ Stack باسم <span dir="ltr" class="font-mono">CDKToolkit</span> يحتوي S3 Bucket (لملفات النشر) و IAM Roles. بدونه تحصل على: <em>Policy contains a statement with one or more invalid principal</em>.</span>
+      <span class="lang-en"> <strong>Bootstrapping</strong> is mandatory before the first <span dir="ltr" class="font-mono">cdk deploy</span> in any account/region. Creates a <span dir="ltr" class="font-mono">CDKToolkit</span> stack with an S3 bucket (for deploy files) and IAM roles. Without it you get: <em>Policy contains a statement with one or more invalid principal</em>.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># First time in this account/region
+cdk bootstrap aws://123456789012/us-east-1
+
+# Normal dev cycle
+cdk synth               # see CloudFormation
+cdk diff                # preview changes
+cdk deploy              # apply
+
+# With multiple stacks
+cdk deploy AcmeVpcStack AcmeAppStack
+
+# Use CDK + SAM locally: first synth, then SAM for local invoke
+cdk synth --no-staging > template.json
+sam local invoke MyFunction -t template.json</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Testing، Aspects، و CDK vs SAM</span>
+      <span class="lang-en">Testing, Aspects & CDK vs SAM</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لأنّ CDK كود، يمكن اختباره. <strong>Fine-grained Assertions</strong> يتحقّقون من وجود موارد معيّنة بخصائص معيّنة. <strong>Snapshot Tests</strong> يقارنون الإخراج مع قاعدة مُخزَّنة. <strong>Aspects</strong> تُطبِّق قاعدة على كل الموارد (مثل tagging إلزاميّ).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Since CDK is code, it can be tested. <strong>Fine-grained assertions</strong> verify specific resources with specific properties. <strong>Snapshot tests</strong> compare output with a stored baseline. <strong>Aspects</strong> apply a rule across all resources (e.g. mandatory tagging).</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-typescript">// Jest test for a CDK stack
+import { Template } from 'aws-cdk-lib/assertions';
+import { Stack } from 'aws-cdk-lib';
+import { MyStack } from '../lib/my-stack';
+
+test('Lambda is created with correct runtime', () => {
+  const app = new App();
+  const stack = new MyStack(app, 'Test');
+  const template = Template.fromStack(stack);
+
+  // Fine-grained assertion
+  template.hasResourceProperties('AWS::Lambda::Function', {
+    Handler: 'index.handler',
+    Runtime: 'nodejs20.x',
+  });
+  template.resourceCountIs('AWS::SNS::Topic', 1);
+
+  // Snapshot test
+  expect(template.toJSON()).toMatchSnapshot();
+});</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">SAM — متى تختاره</span><span class="lang-en">SAM — when to pick</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Serverless محض (Lambda + API Gateway + DynamoDB). قالب YAML قصير، بدء سريع.</p>
+      <p class="text-sm text-surface-700 lang-en">Pure serverless (Lambda + API GW + DynamoDB). Short YAML, quick start.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="code-2" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CDK — متى تختاره</span><span class="lang-en">CDK — when to pick</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أي خدمة AWS. بنية تحتية معقّدة. فرق البرمجة التي تفضّل لغة برمجة. Multi-stack و testing.</p>
+      <p class="text-sm text-surface-700 lang-en">Any AWS service. Complex infrastructure. Teams that prefer a real language. Multi-stack and testing.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> يمكن دمجهما: <span dir="ltr" class="font-mono">cdk synth</span> يُنتج CloudFormation template، ثم <span dir="ltr" class="font-mono">sam local invoke -t cdk.out/MyStack.template.json</span> يشغّل Lambda محلياً.</span>
+      <span class="lang-en"> You can combine them: <span dir="ltr" class="font-mono">cdk synth</span> outputs a CloudFormation template, then <span dir="ltr" class="font-mono">sam local invoke -t cdk.out/MyStack.template.json</span> runs Lambda locally.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء ونشر Stack CDK بـ Java يحتوي على S3 Bucket و Lambda.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create and deploy a Java CDK stack with an S3 bucket and a Lambda.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ثبّت CDK CLI</span>
+      <span class="lang-en">Install CDK CLI</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">npm install -g aws-cdk
+cdk --version</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ مشروع Java جديد</span>
+      <span class="lang-en">Scaffold a new Java project</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">mkdir acme-cdk && cd acme-cdk
+cdk init app --language=java
+# Creates pom.xml, src/main/java/com/myorg/AcmeCdkStack.java</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف S3 Bucket و Lambda</span>
+      <span class="lang-en">Add S3 Bucket and Lambda</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-java">import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.Code;
+
+Bucket bucket = Bucket.Builder.create(this, "AcmeBucket")
+    .versioned(true).build();
+
+Function fn = Function.Builder.create(this, "AcmeFn")
+    .runtime(Runtime.JAVA_17)
+    .handler("com.acme.Handler::handleRequest")
+    .code(Code.fromAsset("target/my-jar.jar"))
+    .memorySize(512).build();
+
+bucket.grantRead(fn);  // auto-generates IAM</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">Bootstrap وانشر</span>
+      <span class="lang-en">Bootstrap & deploy</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">cdk bootstrap
+cdk synth           # preview CloudFormation
+cdk diff            # diff against deployed
+cdk deploy          # creates the stack</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">تنظيف</span>
+      <span class="lang-en">Cleanup</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">cdk destroy</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Bootstrap يُنشِئ S3 Bucket يحتاج حذفه يدوياً لو أردت إزالة كل الأثر. يحتاج pom.xml و Maven مثبّت لـ Java.</span>
+    <span class="lang-en"> Bootstrap creates an S3 bucket you must delete manually to wipe every trace. Requires a pom.xml and Maven installed for Java.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٠ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (10 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">CDK = IaC بلغة برمجة</span>
+        <span class="lang-en">CDK = IaC in a real language</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">TS، Python، Java، .NET، Go. يُولّد CloudFormation.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">TS, Python, Java, .NET, Go. Emits CloudFormation.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">L1 خام، L2 ذكيّ، L3 Pattern</span>
+        <span class="lang-en">L1 raw, L2 smart, L3 pattern</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">اختر المستوى حسب حاجتك. L2 الأكثر استخداماً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Pick level per need. L2 is most-used.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="rocket" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">synth → diff → deploy</span>
+        <span class="lang-en">synth → diff → deploy</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">دورة تطوير مألوفة للمطوّرين. cdk bootstrap مرّة واحدة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Familiar dev cycle. cdk bootstrap once per account/region.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="check-circle" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">يُمكن اختبارها كالكود</span>
+        <span class="lang-en">Testable like code</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Jest/JUnit + CDK Assertions = Fine-grained + Snapshot.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Jest/JUnit + CDK Assertions = fine-grained + snapshot.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>"CDK هو Java/TS يولّد YAML"</strong>. إذا سُئلت عن الاختيار: Serverless بسيط ⇒ SAM، بنية معقّدة أو حبّ لغة برمجة ⇒ CDK. كلاهما فوق CloudFormation.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>"CDK is Java/TS that emits YAML"</strong>. If asked to choose: simple serverless ⇒ SAM; complex infra or language preference ⇒ CDK. Both sit on CloudFormation.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch22.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(23, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch24.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">ما الذي يحدث عند تنفيذ <span dir="ltr" class="font-mono">cdk synth</span>؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">cdk synth</span> do?</span>",
+        options: [
+          "<span class="lang-ar">ينشر Stack إلى AWS.</span><span class="lang-en">Deploys the stack to AWS.</span>",
+          "<span class="lang-ar">يحوّل كود CDK إلى قالب CloudFormation ويطبعه (بدون نشر).</span><span class="lang-en">Converts CDK code to a CloudFormation template and prints it (without deploying).</span>",
+          "<span class="lang-ar">يحذف Stack.</span><span class="lang-en">Destroys the stack.</span>",
+          "<span class="lang-ar">يثبّت CDK CLI.</span><span class="lang-en">Installs the CDK CLI.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cdk synth</span> يُنفّذ الكود ويولّد قالب CloudFormation في <span dir="ltr" class="font-mono">cdk.out/</span>. لا ينشر شيئاً. مفيد للتحقّق من الإخراج قبل الـ deploy.</span><span class="lang-en"><span dir="ltr" class="font-mono">cdk synth</span> runs the code and generates a CloudFormation template in <span dir="ltr" class="font-mono">cdk.out/</span>. Deploys nothing. Useful for inspecting output before deploy.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">عند تشغيل <span dir="ltr" class="font-mono">cdk deploy</span> لأوّل مرّة في حساب/منطقة جديدة، يظهر خطأ <em>Policy contains a statement with one or more invalid principal</em>. ما الحل؟</span><span class="lang-en">On first <span dir="ltr" class="font-mono">cdk deploy</span> in a new account/region, error: <em>Policy contains a statement with one or more invalid principal</em>. Fix?</span>",
+        options: [
+          "<span class="lang-ar">تثبيت CDK CLI جديد.</span><span class="lang-en">Install a new CDK CLI.</span>",
+          "<span class="lang-ar">تشغيل cdk bootstrap aws://ACCOUNT/REGION.</span><span class="lang-en">Run cdk bootstrap aws://ACCOUNT/REGION.</span>",
+          "<span class="lang-ar">تغيير إصدار Node.js.</span><span class="lang-en">Change Node.js version.</span>",
+          "<span class="lang-ar">حذف pom.xml.</span><span class="lang-en">Delete pom.xml.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الخطأ الكلاسيكيّ لعدم إجراء <strong>Bootstrap</strong>. CDK يحتاج S3 Bucket و IAM Roles في كل حساب/منطقة لتخزين ملفات النشر. شغّل <span dir="ltr" class="font-mono">cdk bootstrap</span> مرّة واحدة لكل environment.</span><span class="lang-en">Classic missing-<strong>Bootstrap</strong> error. CDK needs an S3 bucket and IAM roles in every account/region to stage deploy files. Run <span dir="ltr" class="font-mono">cdk bootstrap</span> once per environment.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">أيّ Construct يُولّد CloudFormation resources أقل وهو الأقرب إلى CloudFormation الخام؟</span><span class="lang-en">Which construct level generates the fewest CloudFormation resources and is closest to raw CloudFormation?</span>",
+        options: [
+          "<span class="lang-ar">L1 (CFN Resources)</span><span class="lang-en">L1 (CFN Resources)</span>",
+          "<span class="lang-ar">L2 (intent-based)</span><span class="lang-en">L2 (intent-based)</span>",
+          "<span class="lang-ar">L3 (Patterns)</span><span class="lang-en">L3 (Patterns)</span>",
+          "<span class="lang-ar">كلّها متساوية</span><span class="lang-en">All equal</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>L1 (Cfn*)</strong> خريطة 1:1 مع CloudFormation. كل خاصّية يجب تحديدها يدوياً. <strong>L2</strong> يضيف افتراضات ذكية و methods مساعدة. <strong>L3</strong> يُنشئ patterns كاملة (عشرات الموارد).</span><span class="lang-en"><strong>L1 (Cfn*)</strong> is 1:1 with CloudFormation. Every property manual. <strong>L2</strong> adds smart defaults and helper methods. <strong>L3</strong> builds full patterns (dozens of resources).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر Java يفضّل كتابة IaC بـ Java بدلاً من YAML، مع استخدام IntelliJ و Maven. ما الأفضل؟</span><span class="lang-en">A Java developer prefers IaC in Java instead of YAML, using IntelliJ + Maven. Best fit?</span>",
+        options: [
+          "<span class="lang-ar">CloudFormation YAML</span><span class="lang-en">CloudFormation YAML</span>",
+          "<span class="lang-ar">SAM</span><span class="lang-en">SAM</span>",
+          "<span class="lang-ar">CDK بـ Java</span><span class="lang-en">CDK with Java</span>",
+          "<span class="lang-ar">Terraform</span><span class="lang-en">Terraform</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>CDK</strong> مصمّم لهذه الحالة بالتحديد: يدعم Java و TypeScript و Python و C# و Go. يتكامل مع pom.xml و Maven و IntelliJ بسلاسة. يُولّد CloudFormation في الخلفيّة.</span><span class="lang-en"><strong>CDK</strong> is built for this: supports Java, TypeScript, Python, C#, Go. Integrates smoothly with pom.xml, Maven, IntelliJ. Generates CloudFormation behind the scenes.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">للتأكّد من أنّ Stack CDK يحتوي على دالّة Lambda بإعدادات محدّدة، ما النوع الأنسب من الاختبار؟</span><span class="lang-en">To verify a CDK stack contains a Lambda with specific properties, which test type is best?</span>",
+        options: [
+          "<span class="lang-ar">Unit test للمنطق التجاريّ.</span><span class="lang-en">Unit test of business logic.</span>",
+          "<span class="lang-ar">Fine-grained Assertion باستخدام CDK Assertions module.</span><span class="lang-en">Fine-grained assertion with the CDK Assertions module.</span>",
+          "<span class="lang-ar">Integration test بعد النشر.</span><span class="lang-en">Integration test after deploy.</span>",
+          "<span class="lang-ar">Snapshot test فقط.</span><span class="lang-en">Snapshot test only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Fine-grained Assertions</strong> مع <span dir="ltr" class="font-mono">Template.fromStack</span> + <span dir="ltr" class="font-mono">hasResourceProperties</span> يُتيحان فحص موارد محدّدة قبل النشر. Snapshot tests مفيدة لاكتشاف تغييرات غير متوقّعة، لكنّ Fine-grained أدقّ لفحص خاصّيّة بعينها.</span><span class="lang-en"><strong>Fine-grained assertions</strong> with <span dir="ltr" class="font-mono">Template.fromStack</span> + <span dir="ltr" class="font-mono">hasResourceProperties</span> let you check specific resources pre-deploy. Snapshot tests catch surprises but fine-grained is more precise.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد معاينة التغييرات قبل نشر Stack. ما الأمر المناسب في CDK؟</span><span class="lang-en">A company wants to preview changes before deploying a stack. Which CDK command?</span>",
+        options: [
+          "<span class="lang-ar">cdk synth</span><span class="lang-en">cdk synth</span>",
+          "<span class="lang-ar">cdk diff</span><span class="lang-en">cdk diff</span>",
+          "<span class="lang-ar">cdk destroy</span><span class="lang-en">cdk destroy</span>",
+          "<span class="lang-ar">cdk bootstrap</span><span class="lang-en">cdk bootstrap</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">cdk diff</span> يقارن الـ Stack المحلّيّ مع المنشور ويُظهر أيّ الموارد ستضاف، تتغيّر، أو تُحذَف. تحت الغطاء يستخدم CloudFormation ChangeSets. <span dir="ltr" class="font-mono">cdk synth</span> فقط يطبع القالب دون مقارنة.</span><span class="lang-en"><span dir="ltr" class="font-mono">cdk diff</span> compares the local stack to the deployed one, showing what will be added, changed, or deleted. Uses CloudFormation ChangeSets under the hood. <span dir="ltr" class="font-mono">cdk synth</span> only prints the template without comparison.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q7",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن CDK؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about CDK? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">CDK يدعم TypeScript و Python و Java و .NET و Go.</span><span class="lang-en">CDK supports TypeScript, Python, Java, .NET, Go.</span>",
+          "<span class="lang-ar">CDK يُولّد قالب CloudFormation.</span><span class="lang-en">CDK generates a CloudFormation template.</span>",
+          "<span class="lang-ar">CDK يتطلّب Bootstrap مرّة واحدة لكل حساب/منطقة.</span><span class="lang-en">CDK requires one-time bootstrap per account/region.</span>",
+          "<span class="lang-ar">CDK يستبدل CloudFormation ولا يعتمد عليه.</span><span class="lang-en">CDK replaces CloudFormation and doesn't use it.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">CDK يدعم ٥ لغات، يُولّد CloudFormation، ويتطلّب bootstrap. لكنّه <strong>يعتمد</strong> على CloudFormation في النشر الفعليّ لا يستبدله — فقط يعطيك طريقة أذكى للكتابة.</span><span class="lang-en">CDK supports 5 languages, generates CloudFormation, and requires bootstrap. But it <strong>uses</strong> CloudFormation for actual deploys — it doesn't replace it, it just gives you a smarter authoring experience.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١ و٣</span><span class=\"lang-en\">Sections 1 and 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">أيّ Construct يحتوي على جميع البنية الكاملة لتطبيق Fargate خلف ALB مع VPC في سطر واحد؟</span><span class="lang-en">Which construct creates a full Fargate-behind-ALB + VPC stack in one line?</span>",
+        options: [
+          "<span class="lang-ar">L1 CfnService</span><span class="lang-en">L1 CfnService</span>",
+          "<span class="lang-ar">L2 FargateService</span><span class="lang-en">L2 FargateService</span>",
+          "<span class="lang-ar">L3 ApplicationLoadBalancedFargateService</span><span class="lang-en">L3 ApplicationLoadBalancedFargateService</span>",
+          "<span class="lang-ar">L2 Vpc</span><span class="lang-en">L2 Vpc</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>L3 (Patterns)</strong> هي constructs تحتوي <strong>عدّة موارد ذات صلة</strong>. <span dir="ltr" class="font-mono">ApplicationLoadBalancedFargateService</span> يُنشِئ VPC + Cluster + Task Def + Service + ALB + Target Group + Security Groups + IAM في سطر واحد.</span><span class="lang-en"><strong>L3 Patterns</strong> are constructs that wrap <strong>multiple related resources</strong>. <span dir="ltr" class="font-mono">ApplicationLoadBalancedFargateService</span> creates VPC + Cluster + Task Def + Service + ALB + Target Group + SGs + IAM in one line.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">أيّ عبارة <strong>خاطئة</strong> عن الفرق بين CDK و SAM؟</span><span class="lang-en">Which statement about CDK vs SAM is <strong>FALSE</strong>?</span>",
+        options: [
+          "<span class="lang-ar">SAM مخصّص للـ Serverless، CDK عامّ.</span><span class="lang-en">SAM is serverless-focused, CDK is general.</span>",
+          "<span class="lang-ar">CDK يدعم لغات برمجة، SAM YAML فقط.</span><span class="lang-en">CDK supports programming languages, SAM is YAML only.</span>",
+          "<span class="lang-ar">SAM لا يعتمد على CloudFormation.</span><span class="lang-en">SAM does not rely on CloudFormation.</span>",
+          "<span class="lang-ar">يمكن استخدام sam local invoke على قالب ناتج من cdk synth.</span><span class="lang-en">You can use sam local invoke on the template emitted by cdk synth.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">العبارة الخاطئة: <strong>SAM يعتمد على CloudFormation</strong> (يتحوّل إليه عبر Transform). التقارب الصحيح: كلاهما يعتمد على CloudFormation لكنّ CDK بلغة برمجة و SAM بـ YAML مختصر.</span><span class="lang-en">False: <strong>SAM relies on CloudFormation</strong> (transforms into it via the Transform header). Correct view: both use CloudFormation under the hood; CDK uses a language, SAM uses short YAML.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">للحصول على IAM Policy مناسبة تلقائياً عند منح Lambda صلاحية قراءة S3 Bucket في CDK، ما الميزة؟</span><span class="lang-en">To auto-generate a correct IAM policy when granting a Lambda read on an S3 bucket in CDK, which feature?</span>",
+        options: [
+          "<span class="lang-ar">L1 CfnBucketPolicy يدويّاً.</span><span class="lang-en">L1 CfnBucketPolicy manually.</span>",
+          "<span class="lang-ar">L2 methods مثل bucket.grantRead(lambda).</span><span class="lang-en">L2 methods like bucket.grantRead(lambda).</span>",
+          "<span class="lang-ar">L3 Pattern فقط.</span><span class="lang-en">L3 Pattern only.</span>",
+          "<span class="lang-ar">Aspects.</span><span class="lang-en">Aspects.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>L2 Constructs</strong> تقدّم methods مساعدة مثل <span dir="ltr" class="font-mono">bucket.grantRead(lambda)</span> و <span dir="ltr" class="font-mono">table.grantReadWriteData(fn)</span>. هذه تُولّد IAM Policy بأقلّ امتياز تلقائياً. واحدة من أكبر مزايا CDK مقارنة بـ YAML.</span><span class="lang-en"><strong>L2 constructs</strong> provide helper methods like <span dir="ltr" class="font-mono">bucket.grantRead(lambda)</span> and <span dir="ltr" class="font-mono">table.grantReadWriteData(fn)</span>. These auto-generate least-privilege IAM policies. One of CDK's biggest wins over YAML.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(23, QUESTIONS);
+      if (isChapterComplete(23)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

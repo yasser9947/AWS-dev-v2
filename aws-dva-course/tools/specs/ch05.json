@@ -1,0 +1,363 @@
+{
+  "n": 5,
+  "domain": "foundations",
+  "title_ar": "قواعد البيانات المُدارة: RDS و Aurora و ElastiCache",
+  "title_en": "Managed Databases: RDS, Aurora & ElastiCache",
+  "pages": "138-164",
+  "subtitle_ar": "لماذا تترك AWS تدير قواعد بياناتك بدل تشغيلها بنفسك على EC2؟ النسخ الاحتياطيّ التلقائيّ، التصحيح (patching)، الـ Failover، والـ Read Replicas — كلّها دون SSH. هذه الفصل يغطّي الفرق العمليّ بين RDS و Aurora و ElastiCache، ومتى تختار كلّ واحدة.",
+  "subtitle_en": "Why let AWS manage your DB instead of running it yourself on EC2? Automated backups, patching, failover, and read replicas — all without SSH. This chapter covers the practical differences between RDS, Aurora, and ElastiCache, and when to pick each.",
+  "tags": ["RDS", "Aurora", "ElastiCache", "Read Replicas", "Multi-AZ", "Redis", "RDS Proxy"],
+  "objectives": [
+    {"concept": "RDS vs Aurora", "tested_ar": "النطاق الأوّل في اختيار قاعدة البيانات المناسبة وميزات Aurora الإضافيّة.", "tested_en": "Domain 1 — picking the right DB and Aurora's unique features."},
+    {"concept": "Read Replicas vs Multi-AZ", "tested_ar": "النطاقان الأوّل والرابع في التمييز بين التوسعة والإتاحة العالية.", "tested_en": "Domains 1 & 4 — scaling vs High Availability distinction."},
+    {"concept": "ElastiCache (Redis vs Memcached)", "tested_ar": "النطاق الأوّل في أنماط الـ caching واختيار المحرّك.", "tested_en": "Domain 1 — caching patterns and engine choice."},
+    {"concept": "RDS Security and RDS Proxy", "tested_ar": "النطاق الثاني في تشفير قواعد البيانات وإدارة الاتّصالات.", "tested_en": "Domain 2 — DB encryption and connection management."}
+  ],
+  "sections": [
+    {
+      "title_ar": "RDS — قاعدة بيانات مُدارة",
+      "title_en": "RDS — Managed Relational Database Service",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>RDS (Relational Database Service)</strong> يشغّل قاعدة بيانات علائقيّة بالنيابة عنك. يدعم <strong>سبعة محرّكات</strong>: PostgreSQL، MySQL، MariaDB، Oracle، Microsoft SQL Server، IBM DB2، و Aurora (بنكهتَي PostgreSQL و MySQL). بالمقابل: لا تستطيع الدخول عبر SSH (باستثناء RDS Custom).",
+         "en": "<strong>RDS (Relational Database Service)</strong> runs a relational DB on your behalf. Supports <strong>seven engines</strong>: PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, IBM DB2, and Aurora (PostgreSQL and MySQL flavors). In exchange: no SSH access (except RDS Custom)."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "cloud-upload", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "توفير وتصحيح تلقائي", "title_en": "Automated provisioning & patching", "body_ar": "لا حاجة لتثبيت أو تحديث نظام تشغيل.", "body_en": "No OS install or patching required."},
+          {"icon": "rotate-ccw", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Point-in-Time Restore", "title_en": "Point-in-Time Restore", "body_ar": "استعادة إلى أيّ ثانية خلال فترة الاحتفاظ (حتى ٣٥ يوم).", "body_en": "Restore to any second within retention (up to 35 days)."},
+          {"icon": "chart-line", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Monitoring مدمج", "title_en": "Built-in monitoring", "body_ar": "CloudWatch dashboards و Enhanced Monitoring و Performance Insights.", "body_en": "CloudWatch dashboards, Enhanced Monitoring, Performance Insights."},
+          {"icon": "shield-check", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Multi-AZ + Read Replicas", "title_en": "Multi-AZ + Read Replicas", "body_ar": "Failover تلقائيّ وتوسعة القراءة.", "body_en": "Automatic failover and read scaling."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>RDS لا يسمح بـ SSH</strong>. إن احتجت لتثبيت مكتبة أو سكربت نظام (مثلاً Oracle Data Guard المخصّص)، استخدم <strong>RDS Custom</strong> الذي يعطيك وصولاً لـ OS. عدا ذلك، استخدم EC2 وتدير قاعدة البيانات بنفسك — مع فقدان كلّ مزايا الإدارة.",
+         "en": "<strong>RDS doesn't allow SSH</strong>. If you need to install a library or system script (e.g., Oracle Data Guard customizations), use <strong>RDS Custom</strong> which grants OS access. Otherwise, run on EC2 yourself — losing all managed-service benefits."},
+        {"type": "p",
+         "ar": "<strong>RDS Storage Auto Scaling</strong>: يزيد مساحة التخزين تلقائياً عندما تنخفض المساحة الحرّة لـ ١٠٪ ويستمرّ الانخفاض ٥ دقائق و مرّت ٦ ساعات على آخر تعديل. تحدّد أنت الحدّ الأقصى (Maximum Storage Threshold). يُعفيك من مراقبة مساحة التخزين يدوياً.",
+         "en": "<strong>RDS Storage Auto Scaling</strong>: grows storage when free space drops below 10%, stays low 5+ minutes, and 6+ hours since last change. You set the Maximum Storage Threshold. Frees you from manual storage monitoring."}
+      ]
+    },
+    {
+      "title_ar": "Read Replicas vs Multi-AZ — فرق كبير",
+      "title_en": "Read Replicas vs Multi-AZ — a critical distinction",
+      "blocks": [
+        {"type": "p",
+         "ar": "هذا أكثر موضوع يخلطه المرشّحون. <strong>Read Replicas للتوسعة (scale reads)</strong>، و <strong>Multi-AZ للإتاحة العالية (HA / DR)</strong>. لا بديل بينهما — بل كثيراً ما يُستخدمان معاً.",
+         "en": "The most commonly confused topic. <strong>Read Replicas scale reads</strong>, <strong>Multi-AZ provides HA / DR</strong>. They're not alternatives — often used together."},
+        {"type": "compare",
+         "left": {"tone": "emerald", "icon": "copy", "title_ar": "Read Replicas — للقراءة", "title_en": "Read Replicas — for reads",
+                  "body_ar": "حتى <strong>١٥ نسخة قراءة</strong> (RDS) أو <strong>١٥ Aurora Replica</strong> في Aurora. تكرار <strong>غير متزامن (ASYNC)</strong> — القراءة قد تكون قديمة لحظياً (eventually consistent). يمكن وضعها في نفس AZ، AZ مختلفة، أو Region مختلفة. <strong>التطبيق يجب أن يعرف كيف يوجّه reads إلى الـ replica</strong> (connection string مختلف).",
+                  "body_en": "Up to <strong>15 read replicas</strong> (RDS) or <strong>15 Aurora Replicas</strong>. <strong>Asynchronous</strong> replication — reads may be momentarily stale (eventually consistent). Can live in same AZ, different AZ, or different Region. <strong>The app must know to route reads to the replica</strong> (different connection string)."},
+         "right": {"tone": "blue", "icon": "shield", "title_ar": "Multi-AZ — للإتاحة العالية", "title_en": "Multi-AZ — for HA",
+                   "body_ar": "نسخة احتياطيّة واحدة (standby) في AZ مختلفة بتكرار <strong>متزامن (SYNC)</strong>. <strong>DNS endpoint واحد</strong> — عند فشل الـ master، يقع الـ failover تلقائياً إلى الـ standby (دقائق قليلة). <u>لا تستخدم للقراءة</u> — الـ standby غير متاح للاستعلامات. الغرض الوحيد: صمود كارثة AZ.",
+                   "body_en": "One standby in a different AZ, <strong>synchronous</strong> replication. <strong>Single DNS endpoint</strong> — on master failure, auto-failover to standby (few minutes). <u>Not used for reads</u> — standby isn't queryable. Sole purpose: survive an AZ outage."}
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "خدعة شائعة في الامتحان: السؤال يقول \"تطبيق reporting بطيء بسبب استعلامات على قاعدة الإنتاج\". <strong>الجواب: Read Replica</strong> لا Multi-AZ. Multi-AZ يحلّ HA فقط.",
+         "en": "Common exam trap: \"reporting app slow due to queries on prod DB\". <strong>Answer: Read Replica</strong>, not Multi-AZ. Multi-AZ solves HA only."},
+        {"type": "code", "lang": "java",
+         "code": "// Spring Boot — using separate data sources for read/write\n// With RDS: write URL = master, read URL = replica\n@Configuration\npublic class DbConfig {\n    @Bean\n    @ConfigurationProperties(\"spring.datasource.write\")\n    public DataSource writeDataSource() {\n        // jdbc:postgresql://acme-master.xyz.us-east-1.rds.amazonaws.com:5432/acme\n        return DataSourceBuilder.create().build();\n    }\n\n    @Bean\n    @ConfigurationProperties(\"spring.datasource.read\")\n    public DataSource readDataSource() {\n        // jdbc:postgresql://acme-read-replica.xyz.us-east-1.rds.amazonaws.com:5432/acme\n        return DataSourceBuilder.create().build();\n    }\n\n    // AbstractRoutingDataSource picks the right one based on @Transactional(readOnly=true)\n}\n\n// With Aurora: single reader endpoint load-balances across all replicas automatically"},
+        {"type": "callout", "tone": "senior",
+         "ar": "للمطوّر السينيور: Read Replica <strong>غير متزامنة</strong>، لذا قراءة بعد كتابة قد تعيد قيمة قديمة. لا تضع عملية read-after-write على الـ replica إلّا إن كنت تقبل eventually consistent. في Aurora، <code class=\"font-mono\">replica lag</code> أقلّ من ١٠ ميلّي ثانية عادة — أفضل بكثير من RDS.",
+         "en": "Senior note: Read Replicas are <strong>async</strong>, so a read-after-write may see stale data. Don't route read-after-write to a replica unless you accept eventual consistency. In Aurora, <code class=\"font-mono\">replica lag</code> is typically sub-10ms — much better than RDS."}
+      ]
+    },
+    {
+      "title_ar": "Aurora — قاعدة بيانات AWS الخاصّة",
+      "title_en": "Aurora — AWS's proprietary database",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Aurora</strong> محرّك قواعد بيانات ملكيّ من AWS، متوافق wire-protocol مع PostgreSQL و MySQL (driverكَ يعمل بدون تعديل). يدّعي AWS <strong>٥× سرعة MySQL و ٣× سرعة PostgreSQL</strong>، لأنّه مُعاد تصميمه بالكامل ليستفيد من بنية AWS.",
+         "en": "<strong>Aurora</strong> is AWS's proprietary DB engine, wire-compatible with PostgreSQL and MySQL (your existing drivers work). AWS claims <strong>5× MySQL, 3× PostgreSQL performance</strong> — it's entirely re-architected to leverage AWS infrastructure."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "layers", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "تخزين موزّع تلقائياً", "title_en": "Auto-distributed storage", "body_ar": "٦ نسخ عبر ٣ AZs، تنمو تلقائياً من ١٠ GB إلى ١٢٨ TB.", "body_en": "6 copies across 3 AZs, auto-grows from 10 GB to 128 TB."},
+          {"icon": "zap", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Failover فوريّ", "title_en": "Instant failover", "body_ar": "أقلّ من ٣٠ ثانية — HA محليّ.", "body_en": "Under 30 seconds — native HA."},
+          {"icon": "users", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "حتى ١٥ Aurora Replica", "title_en": "Up to 15 Aurora Replicas", "body_ar": "replica lag أقلّ من ١٠ ميلّي ثانية.", "body_en": "Replica lag under 10ms."},
+          {"icon": "globe", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Cross-Region Replication", "title_en": "Cross-Region replication", "body_ar": "لأغراض DR العالميّة.", "body_en": "For global DR."}
+        ]},
+        {"type": "p",
+         "ar": "<strong>Aurora Endpoints</strong>: <strong>Writer Endpoint</strong> يشير للـ master (كتابة). <strong>Reader Endpoint</strong> يوزّع الاتّصالات تلقائياً على replicas (قراءة). بذلك لا تحتاج logic توجيه معقّد في التطبيق كما في RDS.",
+         "en": "<strong>Aurora Endpoints</strong>: <strong>Writer Endpoint</strong> points to master (writes). <strong>Reader Endpoint</strong> load-balances connections across replicas (reads). No need for complex routing logic in the app like with RDS."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "database", "title_ar": "متى تختار RDS؟", "title_en": "When to pick RDS?",
+                  "body_ar": "عندك حِمل متوسّط، تستخدم محرّكاً لا يدعمه Aurora (Oracle, SQL Server, DB2, MariaDB)، أو تريد أقلّ تكلفة. RDS أرخص بـ ٢٠٪ من Aurora في معظم السيناريوهات.",
+                  "body_en": "Moderate load, using an engine Aurora doesn't support (Oracle, SQL Server, DB2, MariaDB), or want minimum cost. RDS is ~20% cheaper than Aurora in most cases."},
+         "right": {"tone": "emerald", "icon": "sparkles", "title_ar": "متى تختار Aurora؟", "title_en": "When to pick Aurora?",
+                   "body_en": "For high throughput, serverless auto-scaling (Aurora Serverless v2), global DR (Aurora Global Database), or zero-downtime maintenance. Choose when MySQL or PostgreSQL and performance matters.",
+                   "body_ar": "عند الحاجة لأداء عالٍ، توسعة تلقائيّة serverless (Aurora Serverless v2)، DR عالميّ (Aurora Global Database)، أو صيانة بدون انقطاع. اختره عندما تستخدم MySQL أو PostgreSQL ويهمّك الأداء."}
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "<strong>Aurora Backtrack</strong>: ميزة فريدة تعيد قاعدة البيانات إلى حالة سابقة في الزمن (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق بدلاً من ساعات. مفيدة جداً للتعافي من قرارات خاطئة (DELETE بدون WHERE).",
+         "en": "<strong>Aurora Backtrack</strong>: unique feature that rewinds the DB to a past state (up to 72 hours) without restoring from backup — minutes instead of hours. Great for recovering from human error (DELETE without WHERE)."}
+      ]
+    },
+    {
+      "title_ar": "أمن RDS/Aurora و RDS Proxy",
+      "title_en": "RDS/Aurora security and RDS Proxy",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>التشفير في الراحة (at-rest)</strong>: عبر AWS KMS. <strong>يجب تفعيله عند إنشاء القاعدة</strong> — لتشفير قاعدة غير مشفَّرة، خذ Snapshot ثمّ أعد الاستعادة كمشفَّرة. التكرار (replicas) يرث نفس إعدادات التشفير من master.",
+         "en": "<strong>At-rest encryption</strong>: via AWS KMS. <strong>Must be enabled at creation</strong> — to encrypt an unencrypted DB, snapshot and restore as encrypted. Replicas inherit the master's encryption setting."},
+        {"type": "table",
+         "headers": {"ar": ["الميزة الأمنيّة", "السلوك"], "en": ["Security feature", "Behavior"]},
+         "rows": [
+           [{"ar": "In-flight encryption", "en": "In-flight encryption"}, {"ar": "TLS جاهز افتراضياً — استخدم AWS TLS root certs في العميل", "en": "TLS on by default — use AWS TLS root certs on the client"}],
+           [{"ar": "IAM Authentication", "en": "IAM Authentication"}, {"ar": "استخدم IAM role بدل username/password — مفضَّل للتطبيقات على AWS", "en": "Use IAM role instead of user/pass — preferred for AWS-resident apps"}],
+           [{"ar": "Security Groups", "en": "Security Groups"}, {"ar": "تتحكّم بالشبكة — اسمح فقط لـ SG التطبيق", "en": "Control network access — only allow app's SG"}],
+           [{"ar": "Audit Logs", "en": "Audit Logs"}, {"ar": "قابلة للإرسال إلى CloudWatch Logs للاحتفاظ الطويل", "en": "Can be shipped to CloudWatch Logs for long retention"}],
+           [{"ar": "SSH Access", "en": "SSH Access"}, {"ar": "غير متاح (عدا RDS Custom)", "en": "Not available (except RDS Custom)"}]
+         ]
+        },
+        {"type": "p",
+         "ar": "<strong>RDS Proxy</strong>: proxy مُدار يجلس بين تطبيقك وRDS. <strong>يجمع الاتّصالات (connection pooling)</strong> ويشاركها بين العملاء، ممّا يقلّل الضغط على قاعدة البيانات. يُخفّض زمن failover بنسبة ٦٦٪. مهمّ جداً لتطبيقات Lambda (كلّ invocation ينشئ اتّصالاً جديداً — Proxy يحلّ هذه المشكلة). <strong>غير متاح للوصول العامّ</strong> — يُستخدم من داخل VPC فقط.",
+         "en": "<strong>RDS Proxy</strong>: a managed proxy between your app and RDS. <strong>Pools connections</strong> and shares them across clients, reducing DB pressure. Cuts failover time by 66%. Critical for Lambda (each invocation opens a connection — Proxy solves this). <strong>Never publicly accessible</strong> — VPC-only."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK — generate an IAM auth token (password-less DB login)\nimport software.amazon.awssdk.services.rds.RdsUtilities;\nimport software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest;\n\nRdsUtilities rdsUtil = RdsUtilities.builder()\n    .region(Region.US_EAST_1)\n    .credentialsProvider(DefaultCredentialsProvider.create())\n    .build();\n\nString token = rdsUtil.generateAuthenticationToken(\n    GenerateAuthenticationTokenRequest.builder()\n        .hostname(\"acme-prod.xyz.us-east-1.rds.amazonaws.com\")\n        .port(5432)\n        .username(\"app_user\")\n        .build());\n\n// Use 'token' as the password — valid for 15 minutes\n// No hardcoded password anywhere"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>IAM Authentication + RDS Proxy</strong> = النمط المثالي للتطبيقات الحديثة: بدون كلمات مرور في الكود، اتّصالات مجمّعة، و failover أسرع. يدعم MySQL و PostgreSQL و MariaDB و SQL Server في RDS، و MySQL/PostgreSQL في Aurora.",
+         "en": "<strong>IAM Authentication + RDS Proxy</strong> = canonical pattern for modern apps: no hardcoded passwords, pooled connections, faster failover. Supports MySQL, PostgreSQL, MariaDB, SQL Server on RDS, and MySQL/PostgreSQL on Aurora."}
+      ]
+    },
+    {
+      "title_ar": "ElastiCache — Redis و Memcached مُدارَين",
+      "title_en": "ElastiCache — managed Redis and Memcached",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>ElastiCache</strong> ل Redis أو Memcached كما RDS لقواعد البيانات العلائقيّة. يخفّض الحِمل على RDS بتخزين نتائج الاستعلامات المتكرّرة في الذاكرة، ويجعل تطبيقك <strong>stateless</strong> بتخزين بيانات الجلسة خارج الخادم.",
+         "en": "<strong>ElastiCache</strong> is to Redis/Memcached what RDS is to relational DBs. Reduces RDS load by caching frequent query results in memory, and makes your app <strong>stateless</strong> by storing session data externally."},
+        {"type": "compare",
+         "left": {"tone": "red", "icon": "zap", "title_ar": "Redis", "title_en": "Redis",
+                  "body_ar": "<strong>Multi-AZ مع Auto-Failover</strong>. Read Replicas لقراءة موسَّعة و HA. <strong>ديمومة (AOF persistence)</strong> — البيانات تبقى حتى بعد إعادة التشغيل. Backup و Restore مدمجَين. يدعم هياكل بيانات غنيّة: Sets, Sorted Sets, Hashes, Lists.",
+                  "body_en": "<strong>Multi-AZ with auto-failover</strong>. Read Replicas for scaled reads + HA. <strong>Durability via AOF persistence</strong> — data survives restart. Built-in backup/restore. Rich data structures: Sets, Sorted Sets, Hashes, Lists."},
+         "right": {"tone": "emerald", "icon": "grid", "title_ar": "Memcached", "title_en": "Memcached",
+                   "body_ar": "<strong>Multi-node sharding</strong> للتقسيم الأفقي. <strong>لا HA</strong> (بدون replication). <strong>لا ديمومة</strong> — البيانات تُفقَد عند إعادة التشغيل. Backup/Restore في الوضع Serverless. معمار multi-threaded. بسيط: key-value فقط.",
+                   "body_en": "<strong>Multi-node sharding</strong> for horizontal partitioning. <strong>No HA</strong> (no replication). <strong>No persistence</strong> — data lost on restart. Backup/Restore in Serverless mode. Multi-threaded. Simple: key-value only."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "الاختيار البسيط: <strong>Redis دائماً</strong> إلّا في حالات محدّدة جداً (حاجة لـ sharding خالص بدون HA، أو كود قديم مرتبط بـ Memcached). Redis أكثر مرونة و HA-capable و يدعم ديمومة.",
+         "en": "Simple rule: <strong>Redis always</strong> unless very specific cases (pure sharding without HA, or legacy code bound to Memcached). Redis is more flexible, HA-capable, and supports persistence."},
+        {"type": "p",
+         "ar": "<strong>أنماط caching شائعة</strong>: <strong>Lazy Loading (Cache-Aside)</strong>: يقرأ التطبيق من الـ cache أوّلاً، إذا miss يقرأ من DB ويخزّن النتيجة. <strong>Write-Through</strong>: كلّ كتابة في DB تُحدّث الـ cache أيضاً. عادة تُستخدم الاستراتيجيّتان معاً.",
+         "en": "<strong>Common caching patterns</strong>: <strong>Lazy Loading (Cache-Aside)</strong>: app reads cache first, on miss reads DB and populates cache. <strong>Write-Through</strong>: every DB write also updates cache. Usually combined."},
+        {"type": "code", "lang": "java",
+         "code": "// Spring Boot — Redis cache-aside with @Cacheable\n@Service\npublic class UserService {\n\n    @Autowired private UserRepository repo;\n\n    // Lazy loading: cache miss → DB query → populate cache\n    @Cacheable(value = \"users\", key = \"#id\")\n    public User findById(Long id) {\n        return repo.findById(id).orElseThrow();\n    }\n\n    // Write-through: every save updates cache\n    @CachePut(value = \"users\", key = \"#user.id\")\n    public User save(User user) {\n        return repo.save(user);\n    }\n\n    // Evict on delete\n    @CacheEvict(value = \"users\", key = \"#id\")\n    public void delete(Long id) {\n        repo.deleteById(id);\n    }\n}\n\n// application.yml points spring.redis.host to the ElastiCache endpoint\n// TTL set via RedisCacheConfiguration.entryTtl(Duration.ofMinutes(10))"},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "trash", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "إبطال صريح (Invalidation)", "title_en": "Explicit invalidation", "body_ar": "أصعب جزء — أنت مسؤول عن مسح الـ cache عند تغيّر البيانات.", "body_en": "Hardest part — your responsibility to evict on data change."},
+          {"icon": "clock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "TTL", "title_en": "TTL (Time-to-Live)", "body_ar": "عنصر يختفي تلقائياً بعد مدّة — أبسط ضمان للاتّساق النهائيّ.", "body_en": "Item auto-expires after a duration — simplest eventual-consistency guarantee."},
+          {"icon": "trending-up", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "LRU Eviction", "title_en": "LRU eviction", "body_ar": "إذا امتلأت الذاكرة، تُحذَف العناصر الأقلّ استخداماً أوّلاً.", "body_en": "When memory fills, least-recently-used items are dropped first."}
+        ]},
+        {"type": "callout", "tone": "tip",
+         "ar": "<strong>Amazon MemoryDB for Redis</strong>: بديل ElastiCache Redis يقدّم Redis <strong>قاعدة بيانات كاملة</strong> (durable + Multi-AZ transactional log)، ويصل لأكثر من ١٦٠ مليون طلب/ثانية. يفيد تطبيقات تحتاج سرعة Redis مع ضمان ديمومة DB.",
+         "en": "<strong>Amazon MemoryDB for Redis</strong>: alternative to ElastiCache Redis, gives Redis as a <strong>full database</strong> (durable + Multi-AZ transactional log), 160M+ RPS. Useful when you need Redis speed with DB-grade durability."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء قاعدة PostgreSQL في RDS مع Multi-AZ، ربطها بـ ElastiCache Redis، ثمّ اختبار نمط Cache-Aside من تطبيق Spring Boot.",
+    "goal_en": "Create a Multi-AZ RDS PostgreSQL, add ElastiCache Redis, and test the Cache-Aside pattern from a Spring Boot app.",
+    "steps": [
+      {"title_ar": "أنشئ RDS PostgreSQL", "title_en": "Create RDS PostgreSQL",
+       "body_ar": "RDS → Create → PostgreSQL → Multi-AZ (Production). اضبط Storage Auto Scaling بحدّ أقصى ١٠٠ GiB.",
+       "body_en": "RDS → Create → PostgreSQL → Multi-AZ (Production). Set Storage Auto Scaling max 100 GiB."},
+      {"title_ar": "أضف Read Replica", "title_en": "Add a Read Replica",
+       "body_ar": "Actions → Create Read Replica في AZ مختلفة. استخدمه للاستعلامات reporting.",
+       "body_en": "Actions → Create Read Replica in a different AZ. Use it for reporting queries."},
+      {"title_ar": "أنشئ ElastiCache Redis", "title_en": "Create ElastiCache Redis",
+       "body_ar": "Cluster mode disabled، Multi-AZ مُفعَّل، cache.t3.micro للتجربة.",
+       "body_en": "Cluster mode disabled, Multi-AZ on, cache.t3.micro for testing."},
+      {"title_ar": "اضبط Security Groups", "title_en": "Configure Security Groups",
+       "body_ar": "",
+       "body_en": "",
+       "code": "# RDS SG: allow port 5432 only from app SG\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-rds --protocol tcp --port 5432 --source-group sg-app\n\n# ElastiCache SG: allow port 6379 only from app SG\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-redis --protocol tcp --port 6379 --source-group sg-app"},
+      {"title_ar": "اختبر من Spring Boot", "title_en": "Test from Spring Boot",
+       "body_ar": "شغّل الخدمة، اطلب <span dir=\"ltr\" class=\"font-mono\">GET /users/1</span> مرّتين — الأولى تضرب DB، الثانية cache hit. تحقّق من logs.",
+       "body_en": "Run the service, hit <span dir=\"ltr\" class=\"font-mono\">GET /users/1</span> twice — first hits DB, second is a cache hit. Check logs."}
+    ],
+    "warning_ar": "RDS Multi-AZ و ElastiCache Redis يكلّفان بالساعة حتى وهما في وضع الخمول. احذف كلّ شيء بعد انتهاء التجربة.",
+    "warning_en": "RDS Multi-AZ and ElastiCache Redis bill hourly even when idle. Delete everything after testing."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق Acme reporting يسبّب بطءاً على قاعدة الإنتاج (RDS PostgreSQL Multi-AZ). أفضل حلّ؟",
+      "question_en": "Acme's reporting app slows down production (RDS PostgreSQL Multi-AZ). Best fix?",
+      "options_ar": ["ترقية instance type لقاعدة الإنتاج.", "إنشاء Read Replica وتوجيه reporting إليه.", "تفعيل Multi-AZ مرّة أخرى.", "تشغيل RDS Proxy."],
+      "options_en": ["Upgrade the prod instance type.", "Create a Read Replica and route reporting to it.", "Enable Multi-AZ again.", "Turn on RDS Proxy."],
+      "correct": 1,
+      "explanation_ar": "الحالة النموذجيّة لـ <strong>Read Replica</strong>: أحمال قراءة ثقيلة (reporting, analytics) تزاحِم الإنتاج. الـ replica يعزلها. Multi-AZ لا يساعد في القراءة — الـ standby غير قابل للاستعلام. الترقية حلّ عموديّ مكلف.",
+      "explanation_en": "Canonical <strong>Read Replica</strong> case: heavy read workloads (reporting, analytics) crowding prod. Replica isolates them. Multi-AZ doesn't help reads — the standby isn't queryable. Vertical upgrade is costly.",
+      "wrong_ar": ["مكلف ولا يعالج الازدحام جذرياً.", "", "Multi-AZ لا يخدم القراءة.", "RDS Proxy لاتّصالات، لا لتقسيم الحِمل."],
+      "wrong_en": ["Costly, doesn't address contention.", "", "Multi-AZ doesn't serve reads.", "RDS Proxy is for connections, not load splitting."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "Acme تحتاج DR تلقائيّ لقاعدة RDS MySQL ضدّ فشل AZ كامل. ما الحلّ؟",
+      "question_en": "Acme needs automatic DR for RDS MySQL against a full AZ outage. Solution?",
+      "options_ar": ["Read Replicas في AZ ثانية.", "Multi-AZ Deployment.", "Cross-Region replication.", "نسخ احتياطيّة يدويّة يوميّة."],
+      "options_en": ["Read Replicas in a 2nd AZ.", "Multi-AZ Deployment.", "Cross-Region replication.", "Manual daily backups."],
+      "correct": 1,
+      "explanation_ar": "<strong>Multi-AZ</strong> هو الحلّ لفشل AZ: نسخ متزامن إلى standby في AZ أخرى، failover تلقائيّ خلال دقائق، نفس DNS endpoint. Read Replicas أساسيّة للقراءة لا للـ DR (تكرار async). Cross-Region لفشل Region كامل (أسئلة أخرى).",
+      "explanation_en": "<strong>Multi-AZ</strong> is the AZ-failure fix: sync replica to standby in another AZ, auto-failover in minutes, same DNS. Read Replicas are for reads (async). Cross-Region is for full-Region failure (different question).",
+      "wrong_ar": ["تكرار async، ليست DR حقيقيّة.", "", "لكارثة Region كاملة — ليست السؤال.", "غير تلقائيّ، يفقد البيانات."],
+      "wrong_en": ["Async replication, not true DR.", "", "For full-Region disaster — not the question.", "Manual, loses data."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "تطبيق Lambda يتّصل بـ RDS PostgreSQL. مع ارتفاع معدّل الـ invocations، قاعدة البيانات تشكو من \"too many connections\". ما الحلّ الأمثل؟",
+      "question_en": "A Lambda connects to RDS PostgreSQL. As invocations rise, the DB reports \"too many connections\". Best fix?",
+      "options_ar": ["ترقية حجم قاعدة البيانات.", "تفعيل <strong>RDS Proxy</strong> أمام RDS — يجمع الاتّصالات ويشاركها بين الـ invocations.", "إنشاء Read Replicas.", "إعادة كتابة Lambda بـ Go."],
+      "options_en": ["Upgrade DB size.", "Enable <strong>RDS Proxy</strong> in front of RDS — pools and shares connections across invocations.", "Add Read Replicas.", "Rewrite Lambda in Go."],
+      "correct": 1,
+      "explanation_ar": "مشكلة كلاسيكيّة لـ Lambda: كلّ invocation يفتح اتّصالاً جديداً، وقاعدة البيانات لديها حدّ اتّصالات. <strong>RDS Proxy</strong> يحلّها بتجميع الاتّصالات (connection pooling) وتقليل failover بـ ٦٦٪. الترقية تؤجّل المشكلة. Read Replicas تزيد التعقيد دون حلّ الاتّصالات.",
+      "explanation_en": "Classic Lambda problem: each invocation opens a new connection, DB has a connection cap. <strong>RDS Proxy</strong> solves it via pooling and cuts failover by 66%. Upgrade only postpones. Replicas don't solve the connection issue.",
+      "wrong_ar": ["يؤجّل المشكلة فقط.", "", "Replicas لا تحلّ الاتّصالات.", "اللغة ليست السبب."],
+      "wrong_en": ["Only delays the issue.", "", "Replicas don't fix connection count.", "Language isn't the cause."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ العبارات صحيحة عن <strong>Aurora</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about <strong>Aurora</strong>? Select all that apply.",
+      "options_ar": ["متوافق wire-protocol مع PostgreSQL و MySQL.", "يحتفظ بـ ٦ نسخ من البيانات عبر ٣ AZs.", "Failover أقلّ من ٣٠ ثانية.", "يدعم Backtrack للعودة في الزمن دون backup.", "Aurora هو المحرّك الوحيد الذي يعمل على AWS — لا يوجد MySQL آخر."],
+      "options_en": ["Wire-protocol compatible with PostgreSQL and MySQL.", "Stores 6 copies across 3 AZs.", "Failover in under 30 seconds.", "Supports Backtrack to rewind without a backup.", "Aurora is the only engine on AWS — no other MySQL exists."],
+      "correct": [0, 1, 2, 3],
+      "explanation_ar": "Aurora متوافق مع PG/MySQL، يحتفظ بـ ٦ نسخ في ٣ AZs، failover تحت ٣٠ ثانية، ويدعم Backtrack. لكن AWS تقدّم MySQL الكلاسيكيّ و MariaDB أيضاً عبر RDS — Aurora ليس الوحيد.",
+      "explanation_en": "Aurora is PG/MySQL-compatible, keeps 6 copies in 3 AZs, failover under 30s, supports Backtrack. But AWS also offers classic MySQL and MariaDB via RDS — Aurora isn't the only one.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "فريق Acme يريد تخزين بيانات جلسات المستخدمين بشكل مشترك بين خوادم ASG. الخيار الأفضل للأداء؟",
+      "question_en": "Acme wants to share user session data across ASG instances. Best performance option?",
+      "options_ar": ["RDS PostgreSQL.", "DynamoDB.", "ElastiCache Redis.", "S3."],
+      "options_en": ["RDS PostgreSQL.", "DynamoDB.", "ElastiCache Redis.", "S3."],
+      "correct": 2,
+      "explanation_ar": "<strong>ElastiCache Redis</strong> هو المعياريّ لتخزين الجلسات: ذاكرة فائقة السرعة (ميلّي ثانية واحدة)، HA مع Multi-AZ، ديمومة اختياريّة (AOF). DynamoDB خيار جيد أيضاً (خاصّة للـ serverless) لكن أبطأ قليلاً. RDS زائد التعقيد. S3 بطيء لجلسات.",
+      "explanation_en": "<strong>ElastiCache Redis</strong> is canonical for sessions: in-memory (~1ms), HA via Multi-AZ, optional durability (AOF). DynamoDB is also fine (esp. serverless) but slightly slower. RDS is overkill. S3 is slow for sessions.",
+      "wrong_ar": ["بطيء لجلسات.", "جيد لكنّ Redis أسرع لأداء الجلسات.", "", "latency بالمئات من الميلّي ثانية — غير مقبول لجلسات."],
+      "wrong_en": ["Slow for sessions.", "Good, but Redis is faster.", "", "Hundreds-of-ms latency — too slow for sessions."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "مطوّر يريد أعلى أمان: كلمة مرور لا تُخزَّن في الكود ولا في config files لاتّصال التطبيق بـ RDS. ما الطريقة؟",
+      "question_en": "A dev wants max security: no password in code or config for the app→RDS connection. How?",
+      "options_ar": ["نقل كلمة المرور إلى S3 مشفّرة.", "<strong>IAM Database Authentication</strong> — التطبيق يولّد token مؤقّت (١٥ دقيقة) عبر IAM role.", "استخدام AWS Secrets Manager فقط (هو نفس IAM Auth).", "كتابة كلمة المرور في User Data."],
+      "options_en": ["Put password in S3 encrypted.", "<strong>IAM Database Authentication</strong> — app generates a 15-minute token via IAM role.", "Use AWS Secrets Manager only (same as IAM Auth).", "Put password in User Data."],
+      "correct": 1,
+      "explanation_ar": "<strong>IAM Database Authentication</strong> يلغي كلمات المرور تماماً: التطبيق يستخدم IAM role ليولّد token مؤقّت (١٥ دقيقة) يُستخدم ككلمة مرور. Secrets Manager مختلف — يخزّن كلمات المرور مع rotation تلقائي، لكنّه ليس نفس IAM Auth. S3 و User Data ممارسات خطيرة.",
+      "explanation_en": "<strong>IAM Database Authentication</strong> eliminates passwords: app uses IAM role to generate a 15-min token as the password. Secrets Manager is different — stores passwords with auto-rotation, but not IAM Auth. S3/User Data are poor practices.",
+      "wrong_ar": ["يُخزِّن كلمة المرور، لا يلغيها.", "", "Secrets Manager حلّ مختلف (لا يولّد token).", "عرضة لأيّ من يقرأ User Data."],
+      "wrong_en": ["Stores the password, doesn't eliminate it.", "", "Secrets Manager is different (no token generation).", "Exposed to anyone reading User Data."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "فريق Acme ينفّذ <span dir=\"ltr\" class=\"font-mono\">DELETE</span> خاطئ في Aurora MySQL. يريدون استعادة قاعدة البيانات إلى حالتها قبل الحذف بـ ساعتين. الأسرع؟",
+      "question_en": "Acme accidentally runs a bad <span dir=\"ltr\" class=\"font-mono\">DELETE</span> on Aurora MySQL. They want to restore to 2 hours before the delete. Fastest?",
+      "options_ar": ["Point-in-Time Restore من snapshot.", "<strong>Aurora Backtrack</strong> — ترجع بالقاعدة في الزمن بدقائق.", "استعادة من نسخة احتياطيّة يدويّة.", "إعادة إنشاء كلّ البيانات يدوياً."],
+      "options_en": ["Point-in-Time Restore from snapshot.", "<strong>Aurora Backtrack</strong> — rewinds the DB in minutes.", "Restore from a manual backup.", "Recreate all data manually."],
+      "correct": 1,
+      "explanation_ar": "<strong>Aurora Backtrack</strong> ميزة فريدة: يعيد القاعدة إلى وقت سابق (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق. Point-in-Time Restore يعمل لكنّه أبطأ (ساعات لاستعادة قاعدة كبيرة). Backtrack متاح فقط في Aurora MySQL.",
+      "explanation_en": "<strong>Aurora Backtrack</strong> is unique: rewinds DB to a past state (up to 72h) without restore — minutes. PITR works but is slower (hours for a large DB). Backtrack is Aurora MySQL only.",
+      "wrong_ar": ["أبطأ بكثير من Backtrack.", "", "أبطأ — ينشئ قاعدة جديدة.", "غير واقعيّ."],
+      "wrong_en": ["Much slower than Backtrack.", "", "Slow — creates a new DB.", "Impractical."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "تطبيق microservice يستخدم ElastiCache Redis. بعد إعادة تشغيل خادم Redis، تصبح الـ cache فارغة ويلاحظ المطوّرون ضغطاً مفاجئاً على RDS. لماذا؟",
+      "question_en": "A microservice uses ElastiCache Redis. After a Redis restart, the cache is empty and devs notice sudden RDS pressure. Why?",
+      "options_ar": ["Redis لا يحتفظ بالبيانات افتراضياً.", "عاصفة cache-miss: كلّ الطلبات تذهب إلى RDS معاً حتى تُملأ الـ cache — الحلّ هو تفعيل <strong>Redis AOF persistence</strong> أو استراتيجيّة warm-up للـ cache.", "RDS به مشكلة.", "إعادة التشغيل حذفت RDS أيضاً."],
+      "options_en": ["Redis doesn't persist by default.", "Cache-miss storm: all traffic hits RDS until cache warms — fix: enable <strong>Redis AOF persistence</strong> or a warm-up strategy.", "RDS has an issue.", "Restart wiped RDS too."],
+      "correct": 1,
+      "explanation_ar": "<strong>عاصفة Cache-miss (thundering herd)</strong> من أصعب مشاكل caching: عند إعادة تشغيل Redis، كلّ الطلبات تصبح cache-miss وتُرسَل إلى DB. الحلول: تفعيل AOF persistence (Redis يحفظ على القرص)، أو استراتيجيّة warm-up (تحميل مسبق للـ cache). Redis <strong>يدعم الديمومة</strong> على عكس Memcached.",
+      "explanation_en": "<strong>Thundering herd cache-miss</strong> is a tough caching issue: on Redis restart, every request becomes a miss and hits the DB. Fix: AOF persistence (Redis persists to disk), or a warm-up strategy. Redis <strong>does support durability</strong>, unlike Memcached.",
+      "wrong_ar": ["Redis يدعم الديمومة إن فُعِّلت.", "", "RDS سليم — السبب الـ cache.", "إعادة Redis لا تؤثّر على RDS."],
+      "wrong_en": ["Redis does support persistence if enabled.", "", "RDS is fine — cache is the cause.", "Redis restart doesn't touch RDS."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "Acme تستخدم قاعدة RDS Oracle ٢ TB. التخزين يقترب من الامتلاء في منتصف الليل. الحلّ الأقلّ تدخّلاً؟",
+      "question_en": "Acme uses a 2 TB RDS Oracle DB. Storage is filling up at midnight. Lowest-touch fix?",
+      "options_ar": ["زيادة حجم التخزين يدوياً كلّ أسبوع.", "تفعيل <strong>RDS Storage Auto Scaling</strong> مع Maximum Storage Threshold.", "ترقية نوع الخادم.", "حذف بيانات قديمة يدوياً."],
+      "options_en": ["Manually resize storage weekly.", "Enable <strong>RDS Storage Auto Scaling</strong> with a Maximum Storage Threshold.", "Upgrade instance type.", "Manually delete old data."],
+      "correct": 1,
+      "explanation_ar": "<strong>RDS Storage Auto Scaling</strong> مخصّص لهذه الحالة بالضبط: يزيد التخزين تلقائياً عندما تنخفض المساحة الحرّة لأقلّ من ١٠٪ لمدّة ٥ دقائق. أنت تحدّد الحدّ الأقصى. يعمل مع كلّ محرّكات RDS بما فيها Oracle.",
+      "explanation_en": "<strong>RDS Storage Auto Scaling</strong> is designed exactly for this: auto-grows storage when free space stays below 10% for 5+ minutes. You set the cap. Works on all RDS engines including Oracle.",
+      "wrong_ar": ["يدويّ — مرهق.", "", "ترقية الخادم لا تعالج التخزين.", "حلّ مؤقّت وعمليّ متعب."],
+      "wrong_en": ["Manual — exhausting.", "", "Instance upgrade doesn't fix storage.", "Temporary and painful."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "مطوّر Spring Boot أنشأ تطبيقاً stateful يحفظ سلّة المشتريات في ذاكرة الخادم المحلّيّة. ما أسوأ عواقب هذا القرار في معمار ASG + ALB؟",
+      "question_en": "A Spring Boot dev built a stateful app storing shopping carts in local instance memory. Worst consequence in an ASG + ALB stack?",
+      "options_ar": ["ارتفاع تكلفة CPU.", "فقدان الجلسات عند استبدال خادم (scale-in، unhealthy) وكسر تجربة المستخدم.", "بطء في DNS.", "فشل Multi-AZ."],
+      "options_en": ["Higher CPU cost.", "Session loss when instances are replaced (scale-in, unhealthy), breaking UX.", "Slow DNS.", "Multi-AZ failure."],
+      "correct": 1,
+      "explanation_ar": "الحالة في الذاكرة المحلّيّة = <strong>عدم مرونة</strong>: أيّ استبدال خادم (scale-in، failed health check، instance refresh) يمسح جلسات المستخدمين ويضطرّهم لإعادة تسجيل الدخول. الحلّ: externalize state إلى ElastiCache/DynamoDB. هذه مشكلة السينيور الكلاسيكيّة.",
+      "explanation_en": "Local in-memory state = <strong>no elasticity</strong>: any replacement (scale-in, failed health check, instance refresh) wipes sessions and forces re-login. Fix: externalize state to ElastiCache/DynamoDB. Classic senior-level anti-pattern.",
+      "wrong_ar": ["ليس السبب الرئيس.", "", "لا علاقة.", "لا علاقة."],
+      "wrong_en": ["Not the main issue.", "", "Unrelated.", "Unrelated."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "أيّ من التالي صحيح عن تكرار RDS Read Replica؟",
+      "question_en": "Which is true about RDS Read Replica replication?",
+      "options_ar": ["تكرار متزامن — القراءة دائماً حديثة.", "تكرار <strong>غير متزامن (ASYNC)</strong> — القراءة قد تكون قديمة (eventually consistent).", "يمكن الكتابة على Read Replica مباشرةً.", "Replica تستبدل master تلقائياً عند الفشل."],
+      "options_en": ["Synchronous — reads always fresh.", "<strong>Asynchronous (ASYNC)</strong> — reads may be stale (eventually consistent).", "Can write directly to a Read Replica.", "Replica auto-promotes on master failure."],
+      "correct": 1,
+      "explanation_ar": "Read Replicas تستخدم تكراراً <strong>غير متزامن</strong> — هناك lag صغير. لا يمكن الكتابة عليها مباشرةً (read-only). لا تُرقَّى تلقائياً — لذلك Multi-AZ ضروريّ للـ HA. الـ replica يمكن ترقيتها يدوياً إلى standalone DB.",
+      "explanation_en": "Read Replicas use <strong>async</strong> replication — small lag exists. Cannot write directly to them (read-only). No auto-promotion — that's why Multi-AZ is needed for HA. Replica can be manually promoted to a standalone DB.",
+      "wrong_ar": ["Async لا Sync.", "", "read-only.", "Multi-AZ وحده تلقائيّ الـ failover."],
+      "wrong_en": ["Async, not sync.", "", "Read-only.", "Only Multi-AZ auto-fails over."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "Acme تحتاج قاعدة بيانات Redis مع ديمومة DB-grade (لا تفقد البيانات عند failure)، ومتوافقة مع Redis API. ما الخدمة؟",
+      "question_en": "Acme needs a Redis-API DB with DB-grade durability (no data loss on failure). Which service?",
+      "options_ar": ["ElastiCache for Redis.", "ElastiCache for Memcached.", "<strong>Amazon MemoryDB for Redis</strong>.", "DynamoDB."],
+      "options_en": ["ElastiCache for Redis.", "ElastiCache for Memcached.", "<strong>Amazon MemoryDB for Redis</strong>.", "DynamoDB."],
+      "correct": 2,
+      "explanation_ar": "<strong>MemoryDB for Redis</strong> هو Redis مع ضمان DB-grade: Multi-AZ transactional log، ديمومة تامّة، سرعة ذاكرة (٢٫٥× ElastiCache). ElastiCache Redis سريع لكن ليس بنفس ضمانات DB. Memcached بدون ديمومة. DynamoDB ليس Redis API.",
+      "explanation_en": "<strong>MemoryDB for Redis</strong> is Redis with DB-grade guarantees: Multi-AZ transactional log, full durability, in-memory speed (2.5× ElastiCache). ElastiCache Redis is fast but not DB-grade. Memcached has no persistence. DynamoDB isn't Redis API.",
+      "wrong_ar": ["ديمومته عبر AOF ليست DB-grade.", "بدون ديمومة.", "", "مختلف تماماً — لا Redis API."],
+      "wrong_en": ["AOF durability isn't DB-grade.", "No persistence.", "", "Different service — no Redis API."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "database", "title_ar": "RDS = DB مُدارة لكن بدون SSH", "title_en": "RDS = managed DBs, no SSH",
+     "body_ar": "٧ محرّكات، نسخ احتياطيّة تلقائيّة، PITR ٣٥ يوم. تقبل الـ RDS Custom للـ OS access.",
+     "body_en": "7 engines, auto backups, PITR 35 days. RDS Custom for OS access."},
+    {"icon": "copy", "title_ar": "Read Replicas ≠ Multi-AZ", "title_en": "Read Replicas ≠ Multi-AZ",
+     "body_ar": "Replicas للقراءة (ASYNC). Multi-AZ للـ HA (SYNC). يتكاملان.",
+     "body_en": "Replicas scale reads (ASYNC). Multi-AZ = HA (SYNC). They complement."},
+    {"icon": "sparkles", "title_ar": "Aurora: أسرع و HA أصليّة", "title_en": "Aurora: faster, native HA",
+     "body_ar": "٦ نسخ / ٣ AZs، Failover <٣٠s، Backtrack، يدعم PG/MySQL فقط.",
+     "body_en": "6 copies / 3 AZs, failover <30s, Backtrack, PG/MySQL only."},
+    {"icon": "zap", "title_ar": "ElastiCache: Redis الخيار الافتراضيّ", "title_en": "ElastiCache: Redis is default",
+     "body_ar": "Multi-AZ, AOF, بنى بيانات غنيّة. Memcached للـ sharding البحت فقط.",
+     "body_en": "Multi-AZ, AOF, rich structures. Memcached only for pure sharding."}
+  ],
+  "mnemonic_ar": "للتمييز بين Multi-AZ و Read Replicas: \"<strong>Multi-AZ = Many Zones للنجاة (HA)، Replicas = Reads للتوسعة</strong>\". وللـ caching: \"Redis = Robust، Memcached = Mere sharding\".",
+  "mnemonic_en": "Multi-AZ vs Replicas: \"<strong>Multi-AZ = Many zones for survival (HA), Replicas = Reads for scale</strong>\". Caching: \"Redis = Robust, Memcached = Mere sharding\".",
+  "prev": 4,
+  "next": 6
+}

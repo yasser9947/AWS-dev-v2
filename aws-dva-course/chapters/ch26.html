@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 26 — AWS CI/CD — CodeCommit, CodeBuild, CodeDeploy, CodePipeline | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٦ من ٣٠</span>
+        <span class="lang-en">Chapter 26 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.706-742</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS CI/CD — CodeCommit، CodeBuild، CodeDeploy، CodePipeline</span>
+        <span class="lang-en">AWS CI/CD — CodeCommit, CodeBuild, CodeDeploy, CodePipeline</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">أتمتة الدورة من الـ Commit إلى الإنتاج: Git، Build، Test، Deploy. buildspec.yml و appspec.yml هما الملفّان المركزيّان للامتحان.</span>
+        <span class="lang-en">Automate the cycle from commit to production: Git, build, test, deploy. buildspec.yml and appspec.yml are the core exam files.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodePipeline</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodeBuild</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodeDeploy</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">buildspec</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">appspec</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodeArtifact</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CodePipeline Stages</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Source، Build، Test، Deploy، Invoke.</span>
+      <span class="lang-en">Domain 3 — Source, Build, Test, Deploy, Invoke.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">buildspec.yml</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — install، pre_build، build، post_build، artifacts، cache.</span>
+      <span class="lang-en">Domain 3 — install, pre_build, build, post_build, artifacts, cache.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">appspec.yml & Hooks</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — EC2 hooks (BeforeInstall...) و Lambda hooks (BeforeAllowTraffic).</span>
+      <span class="lang-en">Domain 3 — EC2 hooks (BeforeInstall...) and Lambda hooks (BeforeAllowTraffic).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CodeDeploy Strategies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Canary/Linear/AllAtOnce لـ Lambda، AllAtOnce/Half/One لـ EC2.</span>
+      <span class="lang-en">Domain 3 — Canary/Linear/AllAtOnce for Lambda; AllAtOnce/Half/One for EC2.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">نظرة عامّة على AWS CI/CD</span>
+      <span class="lang-en">AWS CI/CD overview</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">أتمتة الدورة من الـ Commit إلى الإنتاج تسمح بـ <strong>Deployment متكرّر وآمن</strong>. AWS تقدّم خدمات مدمجة لكل مرحلة: <strong>CodeCommit</strong> للتخزين، <strong>CodeBuild</strong> للبناء، <strong>CodeDeploy</strong> للنشر، <strong>CodePipeline</strong> لتنسيق الكل.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Automating commit-to-prod enables <strong>frequent, safe deployments</strong>. AWS provides integrated services for each stage: <strong>CodeCommit</strong> for storage, <strong>CodeBuild</strong> for building, <strong>CodeDeploy</strong> for deploying, <strong>CodePipeline</strong> to orchestrate.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="git-branch" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeCommit</span><span class="lang-en">CodeCommit</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Git مستضاف، خاص، مدعوم بـ KMS. IAM للصلاحيات، SSH/HTTPS للوصول. بديل GitHub/GitLab.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Managed Git, private, KMS-encrypted. IAM permissions, SSH/HTTPS access. Alternative to GitHub/GitLab.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="hammer" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeBuild</span><span class="lang-en">CodeBuild</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">خدمة CI مُدارة. تُشغّل buildspec.yml في Docker. فوترة بالدقيقة. بديل Jenkins.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Managed CI service. Runs buildspec.yml in Docker. Per-minute billing. Jenkins alternative.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="rocket" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeDeploy</span><span class="lang-en">CodeDeploy</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نشر إلى EC2 / On-prem / Lambda / ECS. Hooks لتخصيص كل مرحلة. Rollback تلقائيّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Deploy to EC2 / on-prem / Lambda / ECS. Hooks customize each phase. Auto-rollback.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="git-pull-request" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodePipeline</span><span class="lang-en">CodePipeline</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ينسّق كل المراحل (Source → Build → Test → Deploy). يمكن دمجه مع GitHub، Jenkins، أدوات خارجيّة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Orchestrates all stages (Source → Build → Test → Deploy). Integrates with GitHub, Jenkins, 3rd-party tools.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>CodeArtifact</strong> لتخزين حزم البرمجة (Maven، npm، pip، NuGet). <strong>CodeGuru</strong> (ML) لمراجعة الكود آلياً. <strong>CodeStar</strong> عرض مُوحَّد لكل ما سبق.</span>
+      <span class="lang-en"> <strong>CodeArtifact</strong> stores software packages (Maven, npm, pip, NuGet). <strong>CodeGuru</strong> (ML) automates code review. <strong>CodeStar</strong> is a unified view of all the above.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">buildspec.yml — قلب CodeBuild</span>
+      <span class="lang-en">buildspec.yml — the heart of CodeBuild</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الملف <strong>buildspec.yml</strong> يقع في جذر مستودع الكود. يُخبر CodeBuild بكيفيّة البناء. الأقسام الأساسيّة: <strong>env</strong> (متغيّرات)، <strong>phases</strong> (الخطوات)، <strong>artifacts</strong> (المخرجات)، <strong>cache</strong> (للتسريع).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>buildspec.yml</strong> lives at the code root. Tells CodeBuild how to build. Key sections: <strong>env</strong> (variables), <strong>phases</strong> (steps), <strong>artifacts</strong> (outputs), <strong>cache</strong> (for speed).</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المرحلة</span><span class="lang-en">Phase</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الغرض</span><span class="lang-en">Purpose</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">install</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تثبيت الـ runtime أو الحزم (apt/yum install...)</span><span class="lang-en">Install runtime or packages (apt/yum install...)</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">pre_build</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خطوات قبل البناء (Docker login إلى ECR، تحميل deps)</span><span class="lang-en">Before build (Docker login to ECR, deps download)</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">build</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أمر البناء الفعليّ (mvn clean package، npm run build)</span><span class="lang-en">The actual build command (mvn clean package, npm run build)</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">post_build</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اللمسات الأخيرة (Docker push، تغليف ZIP، نشر تقارير)</span><span class="lang-en">Finishing touches (Docker push, zip packaging, publish reports)</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml">version: 0.2
+
+env:
+  variables:
+    JAVA_HOME: /usr/lib/jvm/java-17-amazon-corretto
+  parameter-store:                  # from SSM Parameter Store
+    DOCKERHUB_TOKEN: /acme/dockerhub/token
+  secrets-manager:                  # from Secrets Manager
+    DB_PASSWORD: prod/db-creds:password
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+    commands:
+      - echo "Installing extras..."
+      - apt-get install -y jq
+  pre_build:
+    commands:
+      - echo "Logging into ECR..."
+      - aws ecr get-login-password | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - mvn clean package -DskipTests=false
+      - docker build -t acme-api:${CODEBUILD_RESOLVED_SOURCE_VERSION} .
+  post_build:
+    commands:
+      - docker tag  acme-api:${CODEBUILD_RESOLVED_SOURCE_VERSION} \
+                    123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:latest
+      - docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:latest
+
+reports:
+  junit-reports:
+    files: ['target/surefire-reports/*.xml']
+    file-format: JUNITXML
+
+artifacts:
+  files:
+    - target/acme-*.jar
+    - appspec.yml
+    - scripts/**/*
+
+cache:
+  paths:
+    - '/root/.m2/**/*'              # cache Maven dependencies</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> الـ <strong>cache</strong> قسم مهمّ: تخزين <span dir="ltr" class="font-mono">.m2/</span> (Maven) أو <span dir="ltr" class="font-mono">node_modules/</span> (npm) في S3 يُقلّل وقت البناء من ٥ دقائق إلى ٣٠ ثانية.</span>
+      <span class="lang-en"> The <strong>cache</strong> section matters: storing <span dir="ltr" class="font-mono">.m2/</span> (Maven) or <span dir="ltr" class="font-mono">node_modules/</span> (npm) in S3 cuts build time from 5 minutes to 30 seconds.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> الخطأ الشائع: <strong>CodeBuild يبني ولكن الـ Artifacts لا تصل إلى S3</strong>. السبب: قسم <span dir="ltr" class="font-mono">artifacts:</span> مفقود أو يُحدّد ملفّات غير موجودة. تحقّق من مسارات الإخراج في <span dir="ltr" class="font-mono">files:</span>.</span>
+      <span class="lang-en"> Common error: <strong>CodeBuild succeeds but artifacts don't reach S3</strong>. Cause: missing <span dir="ltr" class="font-mono">artifacts:</span> section or wrong paths. Check <span dir="ltr" class="font-mono">files:</span> entries.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">CodeDeploy — Configurations و Strategies</span>
+      <span class="lang-en">CodeDeploy — configurations and strategies</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>CodeDeploy</strong> ينشر إلى ٤ منصّات: <strong>EC2/On-prem</strong>، <strong>Lambda</strong>، <strong>ECS</strong>. لكل منصّة استراتيجيّات مختلفة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CodeDeploy</strong> deploys to 4 platforms: <strong>EC2/on-prem</strong>, <strong>Lambda</strong>, <strong>ECS</strong>. Each platform has its own strategies.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المنصّة</span><span class="lang-en">Platform</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Configurations المتاحة</span><span class="lang-en">Available configurations</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الأسلوب</span><span class="lang-en">Style</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EC2 / On-prem</span><span class="lang-en">EC2 / On-prem</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AllAtOnce, HalfAtATime, OneAtATime, Custom</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">In-place أو Blue/Green</span><span class="lang-en">In-place or Blue/Green</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Canary (10%5/10%30), Linear (10%/1min, 10%/10min), AllAtOnce</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Traffic shift بـ Alias</span><span class="lang-en">Traffic shift via alias</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ECS</span><span class="lang-en">ECS</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Canary, Linear, AllAtOnce</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Blue/Green فقط (عبر ALB + Target Groups)</span><span class="lang-en">Blue/Green only (via ALB + Target Groups)</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="server" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EC2: In-place</span><span class="lang-en">EC2: In-place</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يُحدَّث الكود على Instances القائمة. يتطلّب <strong>CodeDeploy Agent</strong> على EC2.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Code updates on existing instances. Requires <strong>CodeDeploy Agent</strong> on EC2.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="copy-plus" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EC2: Blue/Green</span><span class="lang-en">EC2: Blue/Green</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ينشئ ASG جديد بـ V2، يحوّل ترافيك ALB، ثمّ يهدم القديم.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Spawns a new ASG with V2, shifts ALB traffic, then tears down the old.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Lambda: Traffic shift</span><span class="lang-en">Lambda: Traffic shift</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يغيّر Alias لتحويل Traffic إلى Version جديدة. Canary سريع، Linear تدريجيّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Changes alias to shift traffic to a new version. Canary = fast, Linear = gradual.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="repeat" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ECS: Blue/Green (ALB)</span><span class="lang-en">ECS: Blue/Green (ALB)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ALB مع Target Group لكل لون. CodeDeploy يُحوّل الترافيك تدريجياً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ALB with one Target Group per color. CodeDeploy shifts traffic gradually.</p>
+  </div>
+</div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">appspec.yml — لماذا يختلف حسب المنصّة</span>
+      <span class="lang-en">appspec.yml — why it differs by platform</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الملف <strong>appspec.yml</strong> يُوجِّه CodeDeploy. صيغته تختلف بين EC2 و Lambda. الـ <strong>Hooks</strong> هي نقاط تحكّم بين مراحل النشر.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>appspec.yml</strong> drives CodeDeploy. Its schema differs between EC2 and Lambda. <strong>Hooks</strong> are control points between deploy phases.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="server" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">appspec.yml لـ EC2</span><span class="lang-en">appspec.yml for EC2</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أقسام: files (ما يُنسَخ)، hooks (scripts)، Hooks: <span dir="ltr" class="font-mono">ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</span>.</p>
+      <p class="text-sm text-surface-700 lang-en">Sections: files (what to copy), hooks (scripts). Hooks: <span dir="ltr" class="font-mono">ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</span>.</p>
+    </div>
+    <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">appspec.yml لـ Lambda</span><span class="lang-en">appspec.yml for Lambda</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Resources يحدّد Function و Alias و Versions. Hooks: <span dir="ltr" class="font-mono">BeforeAllowTraffic → AfterAllowTraffic</span> (اثنان فقط).</p>
+      <p class="text-sm text-surface-700 lang-en">Resources specifies Function, alias, versions. Hooks: <span dir="ltr" class="font-mono">BeforeAllowTraffic → AfterAllowTraffic</span> (just two).</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># EC2 appspec.yml
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/html
+hooks:
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 60
+      runas: root
+  BeforeInstall:
+    - location: scripts/install_deps.sh
+  AfterInstall:
+    - location: scripts/change_permissions.sh
+  ApplicationStart:
+    - location: scripts/start_server.sh
+  ValidateService:
+    - location: scripts/smoke_test.sh
+      timeout: 30</code></pre>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># Lambda appspec.yml
+version: 0.0
+Resources:
+  - myFunction:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: acme-api
+        Alias: live
+        CurrentVersion: "3"
+        TargetVersion:  "4"
+Hooks:
+  - BeforeAllowTraffic: PreTrafficValidationFn    # run before shift
+  - AfterAllowTraffic:  SmokeTestFn               # run after shift</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> ترتيب hooks الـ EC2 مهمّ في الامتحان: <strong>ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</strong>. الـ <strong>ValidateService</strong> يمكنه إلغاء النشر لو فشل.</span>
+      <span class="lang-en"> EC2 hooks order matters on the exam: <strong>ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</strong>. <strong>ValidateService</strong> can abort a deploy on failure.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">CodePipeline، CodeArtifact، و Troubleshooting</span>
+      <span class="lang-en">CodePipeline, CodeArtifact & troubleshooting</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>CodePipeline</strong> ينسّق كل ما سبق. يتكوّن من <strong>Stages</strong> (Source، Build، Test، Deploy، Invoke)، كل Stage به <strong>Actions</strong> متوازية أو متسلسلة. الـ <strong>Artifacts</strong> تُخزَّن في S3 وتنتقل بين Stages.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CodePipeline</strong> orchestrates everything. Made of <strong>Stages</strong> (Source, Build, Test, Deploy, Invoke), each with parallel or sequential <strong>Actions</strong>. <strong>Artifacts</strong> are stored in S3 and flow between stages.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Simplified CodePipeline stages
+{
+  "stages": [
+    { "name": "Source",
+      "actions": [{ "actionTypeId": "Source", "provider": "CodeCommit", ... }] },
+    { "name": "Build",
+      "actions": [{ "actionTypeId": "Build", "provider": "CodeBuild", ... }] },
+    { "name": "Approval",
+      "actions": [{ "actionTypeId": "Approval", "provider": "Manual", ... }] },
+    { "name": "Deploy",
+      "actions": [
+        { "actionTypeId": "Deploy", "provider": "CodeDeploy", ... },
+        { "actionTypeId": "Deploy", "provider": "CloudFormation", ... }
+      ]
+    }
+  ]
+}</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeArtifact</span><span class="lang-en">CodeArtifact</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">مستودع حزم (Maven، npm، pip، NuGet). يتكامل مع CodeBuild و IDE. يمكن أن يعمل كـ Proxy لـ Maven Central.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Package repository (Maven, npm, pip, NuGet). Integrates with CodeBuild and IDEs. Can proxy Maven Central.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="brain-circuit" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeGuru</span><span class="lang-en">CodeGuru</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Reviewer (مراجعة كود آلية) و Profiler (تحليل أداء Runtime). يدعم Java و Python.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Reviewer (automated code review) + Profiler (runtime performance). Supports Java and Python.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="star" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeStar</span><span class="lang-en">CodeStar</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">منصّة مُوحّدة لإدارة Projects (Source + Build + Deploy + Issues + Monitoring) من dashboard واحد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Unified project console (Source + Build + Deploy + Issues + Monitoring) in one dashboard.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="search" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Troubleshooting</span><span class="lang-en">Troubleshooting</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">EventBridge للإشعارات عند فشل Stage. CloudTrail للـ Audit. IAM Service Role صحيح ضروريّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">EventBridge for stage-failure notifications. CloudTrail for audit. Correct IAM service role is essential.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> فشل شائع: <strong>CodePipeline can't perform action</strong>. السبب الأوّل دائماً: الـ <strong>IAM Service Role</strong> المُرتَبط بالـ Pipeline ناقصه أذونات (مثل <span dir="ltr" class="font-mono">codebuild:StartBuild</span> أو <span dir="ltr" class="font-mono">s3:PutObject</span>).</span>
+      <span class="lang-en"> Common failure: <strong>CodePipeline can't perform action</strong>. #1 cause: the <strong>IAM service role</strong> attached to the pipeline is missing permissions (like <span dir="ltr" class="font-mono">codebuild:StartBuild</span> or <span dir="ltr" class="font-mono">s3:PutObject</span>).</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> معمارية CI/CD نموذجيّة لـ Spring Boot: <strong>CodeCommit</strong> (Git) → <strong>CodeBuild</strong> (mvn + Docker build + Push ECR) → <strong>CodeDeploy ECS</strong> (Blue/Green عبر ALB). مع <strong>Manual Approval</strong> قبل Prod و Rollback تلقائيّ بـ CloudWatch Alarms.</span>
+      <span class="lang-en"> A canonical Spring Boot CI/CD: <strong>CodeCommit</strong> (Git) → <strong>CodeBuild</strong> (mvn + Docker build + ECR push) → <strong>CodeDeploy ECS</strong> (Blue/Green via ALB). With <strong>manual approval</strong> before prod and CloudWatch-alarm-triggered rollback.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء CodePipeline لتطبيق Spring Boot: CodeCommit → CodeBuild → CodeDeploy إلى EC2.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a CodePipeline for a Spring Boot app: CodeCommit → CodeBuild → CodeDeploy to EC2.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ CodeCommit repo وادفع الكود</span>
+      <span class="lang-en">Create CodeCommit repo and push code</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws codecommit create-repository --repository-name acme-api
+git remote add origin codecommit::us-east-1://acme-api
+git push -u origin main</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف buildspec.yml</span>
+      <span class="lang-en">Add buildspec.yml</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احفظه في جذر المشروع.</p><p class="text-surface-600 leading-relaxed lang-en">Save at project root.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-yaml">version: 0.2
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  build:
+    commands:
+      - mvn clean package
+  post_build:
+    commands:
+      - echo Build completed
+artifacts:
+  files:
+    - target/acme-*.jar
+    - appspec.yml
+    - scripts/**/*
+cache:
+  paths:
+    - /root/.m2/**/*</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف appspec.yml و scripts</span>
+      <span class="lang-en">Add appspec.yml and scripts</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-yaml">version: 0.0
+os: linux
+files:
+  - source: target/acme-*.jar
+    destination: /opt/acme/
+hooks:
+  ApplicationStop:
+    - location: scripts/stop.sh
+      runas: root
+  ApplicationStart:
+    - location: scripts/start.sh
+      runas: root
+  ValidateService:
+    - location: scripts/healthcheck.sh
+      timeout: 30</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">جهّز EC2 مع CodeDeploy Agent</span>
+      <span class="lang-en">Prepare EC2 with CodeDeploy Agent</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># On the EC2 instance (Amazon Linux 2):
+sudo yum install -y ruby wget
+wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+chmod +x ./install && sudo ./install auto
+# Tag the instance: Name=acme-api, Environment=prod
+# Attach IAM role with CodeDeploy + S3 permissions</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ CodeDeploy Application و Deployment Group</span>
+      <span class="lang-en">Create CodeDeploy application and deployment group</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من Console: Deployment Group → In-place → Tag filter (Environment=prod) → Service Role.</p><p class="text-surface-600 leading-relaxed lang-en">In Console: Deployment Group → In-place → Tag filter (Environment=prod) → service role.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ CodePipeline</span>
+      <span class="lang-en">Create the CodePipeline</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Console → Create Pipeline → Source: CodeCommit، Build: CodeBuild (buildspec.yml)، Deploy: CodeDeploy. Service Role يُولَّد تلقائياً.</p><p class="text-surface-600 leading-relaxed lang-en">Console → Create Pipeline → Source: CodeCommit; Build: CodeBuild (buildspec.yml); Deploy: CodeDeploy. Service role generated automatically.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٧</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ادفع تغييراً وراقب</span>
+      <span class="lang-en">Push a change and watch</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أي git push سيُطلِق الـ Pipeline. راقب المراحل من Console.</p><p class="text-surface-600 leading-relaxed lang-en">Any git push triggers the pipeline. Watch stages in Console.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">echo 'Updated' >> README.md
+git commit -am 'trigger' && git push</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> CodePipeline يستخدم S3 لتخزين Artifacts — تأكّد من حذف الـ Bucket بعد الانتهاء. CodeBuild per-minute billing، و EC2 تستمرّ.</span>
+    <span class="lang-en"> CodePipeline uses S3 for artifact storage — delete the bucket after. CodeBuild is per-minute billing, EC2 keeps running until stopped.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="git-branch" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٤ خدمات CI/CD</span>
+        <span class="lang-en">4 CI/CD services</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">CodeCommit (Git) + CodeBuild (buildspec) + CodeDeploy (appspec) + CodePipeline (أوركسترا).</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">CodeCommit (Git) + CodeBuild (buildspec) + CodeDeploy (appspec) + CodePipeline (orchestrator).</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-code" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">buildspec = 4 phases</span>
+        <span class="lang-en">buildspec = 4 phases</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">install → pre_build → build → post_build، مع artifacts و cache.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">install → pre_build → build → post_build, plus artifacts and cache.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="git-compare" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">appspec يختلف حسب المنصّة</span>
+        <span class="lang-en">appspec differs by platform</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">EC2: ٦ hooks؛ Lambda: 2 (BeforeAllowTraffic/AfterAllowTraffic).</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">EC2: 6 hooks; Lambda: 2 (BeforeAllowTraffic/AfterAllowTraffic).</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">CodeArtifact لإدارة الحزم</span>
+        <span class="lang-en">CodeArtifact for package management</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Maven/npm/pip/NuGet Proxy + cache. متكامل مع IAM.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Maven/npm/pip/NuGet proxy + cache. IAM-integrated.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>"SPBP"</strong> لـ buildspec: <strong>S</strong>etup (install) → <strong>P</strong>re_build → <strong>B</strong>uild → <strong>P</strong>ost_build. للـ EC2 Hooks: <strong>"Stop، Install، Start، Validate"</strong> (ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService).</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>"SPBP"</strong> for buildspec: <strong>S</strong>etup (install) → <strong>P</strong>re_build → <strong>B</strong>uild → <strong>P</strong>ost_build. EC2 hooks shorthand: <strong>"Stop, Install, Start, Validate"</strong> (ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService).</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch25.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(26, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch27.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">في ملف <span dir="ltr" class="font-mono">buildspec.yml</span>، أين توضع أوامر Docker login إلى ECR قبل البناء؟</span><span class="lang-en">In <span dir="ltr" class="font-mono">buildspec.yml</span>, where do you put Docker login commands for ECR before building?</span>",
+        options: [
+          "<span class="lang-ar">install</span><span class="lang-en">install</span>",
+          "<span class="lang-ar">pre_build</span><span class="lang-en">pre_build</span>",
+          "<span class="lang-ar">build</span><span class="lang-en">build</span>",
+          "<span class="lang-ar">post_build</span><span class="lang-en">post_build</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>pre_build</strong> للأوامر التي تُنفَّذ قبل البناء مباشرةً (Docker login، تحضير المتغيّرات الديناميكيّة، تحميل deps). <strong>install</strong> لتثبيت runtime/packages، <strong>post_build</strong> لما بعد البناء (push).</span><span class="lang-en"><strong>pre_build</strong> is for commands run immediately before build (Docker login, dynamic var prep, deps download). <strong>install</strong> installs runtime/packages, <strong>post_build</strong> happens after build (push).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">CodeDeploy EC2 In-place: ما الـ Hook الذي يعمل <strong>قبل</strong> إيقاف التطبيق القديم؟</span><span class="lang-en">CodeDeploy EC2 In-place: which hook runs <strong>before</strong> stopping the old app?</span>",
+        options: [
+          "<span class="lang-ar">BeforeInstall</span><span class="lang-en">BeforeInstall</span>",
+          "<span class="lang-ar">ApplicationStop</span><span class="lang-en">ApplicationStop</span>",
+          "<span class="lang-ar">ApplicationStart</span><span class="lang-en">ApplicationStart</span>",
+          "<span class="lang-ar">ValidateService</span><span class="lang-en">ValidateService</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">ترتيب EC2 Hooks: <strong>ApplicationStop</strong> (قبل إيقاف التطبيق) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop أوّل Hook يُنفَّذ. Script هنا يعالج connections draining.</span><span class="lang-en">EC2 hooks order: <strong>ApplicationStop</strong> (before stopping the app) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop is the first hook. Script here handles connection draining.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">في CodeDeploy لـ Lambda، ما الـ Hook الذي يعمل <strong>قبل</strong> تحويل الترافيك؟</span><span class="lang-en">In CodeDeploy for Lambda, which hook runs <strong>before</strong> traffic shift?</span>",
+        options: [
+          "<span class="lang-ar">BeforeInstall</span><span class="lang-en">BeforeInstall</span>",
+          "<span class="lang-ar">BeforeAllowTraffic</span><span class="lang-en">BeforeAllowTraffic</span>",
+          "<span class="lang-ar">AfterAllowTraffic</span><span class="lang-en">AfterAllowTraffic</span>",
+          "<span class="lang-ar">ValidateService</span><span class="lang-en">ValidateService</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Lambda hooks اثنان فقط: <strong>BeforeAllowTraffic</strong> (قبل تحويل الترافيك — للتحقّق من الإصدار الجديد) و <strong>AfterAllowTraffic</strong> (بعد التحويل — للـ smoke tests). BeforeInstall و ValidateService لـ EC2 لا Lambda.</span><span class="lang-en">Lambda has only two hooks: <strong>BeforeAllowTraffic</strong> (before traffic shift — validate the new version) and <strong>AfterAllowTraffic</strong> (after shift — smoke tests). BeforeInstall and ValidateService are EC2, not Lambda.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد نشر Lambda بـ ١٠٪ ترافيك فوراً ثمّ الباقي بعد ٣٠ دقيقة. ما الـ Deployment Configuration؟</span><span class="lang-en">A developer wants Lambda deploy with 10% traffic immediately, then the rest after 30 minutes. Configuration?</span>",
+        options: [
+          "<span class="lang-ar">LambdaAllAtOnce</span><span class="lang-en">LambdaAllAtOnce</span>",
+          "<span class="lang-ar">LambdaCanary10Percent30Minutes</span><span class="lang-en">LambdaCanary10Percent30Minutes</span>",
+          "<span class="lang-ar">LambdaLinear10PercentEvery30Minutes</span><span class="lang-en">LambdaLinear10PercentEvery30Minutes</span>",
+          "<span class="lang-ar">LambdaCanary10Percent5Minutes</span><span class="lang-en">LambdaCanary10Percent5Minutes</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Canary</strong> = ١٠٪ فوراً ثمّ قفزة للـ ٩٠٪ الباقية. <strong>Linear</strong> = زيادة تدريجيّة متساوية. <span dir="ltr" class="font-mono">Canary10Percent30Minutes</span> يطابق الطلب بالضبط: ١٠٪ فوراً، الانتظار ٣٠ دقيقة، ثمّ التحويل الكامل.</span><span class="lang-en"><strong>Canary</strong> = 10% immediately then jump to remaining 90%. <strong>Linear</strong> = equal gradual steps. <span dir="ltr" class="font-mono">Canary10Percent30Minutes</span> matches exactly: 10% now, wait 30 min, full shift.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">عند فشل مرحلة في CodePipeline، كيف يُشعَر الفريق تلقائياً؟</span><span class="lang-en">When a CodePipeline stage fails, how is the team notified automatically?</span>",
+        options: [
+          "<span class="lang-ar">CodePipeline يُرسل إيميل تلقائيّ.</span><span class="lang-en">CodePipeline auto-emails.</span>",
+          "<span class="lang-ar">EventBridge Rule على CodePipeline events → SNS.</span><span class="lang-en">EventBridge rule on CodePipeline events → SNS.</span>",
+          "<span class="lang-ar">Manual refresh من Console.</span><span class="lang-en">Manual refresh in Console.</span>",
+          "<span class="lang-ar">CloudTrail فقط.</span><span class="lang-en">CloudTrail only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CodePipeline لا يُرسل إشعارات تلقائياً. النمط المعياريّ: <strong>EventBridge Rule</strong> يراقب events من CodePipeline (Failed State Change) → SNS Topic → الفريق. يمكن نفس النمط للـ CodeBuild و CodeDeploy.</span><span class="lang-en">CodePipeline doesn't email by itself. Standard pattern: <strong>EventBridge rule</strong> watches CodePipeline events (Failed State Change) → SNS topic → team. Same pattern applies to CodeBuild and CodeDeploy.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر Java يحتاج لتخزين حزم Maven خاصّة بالشركة (Proxy لـ Maven Central). ما الخدمة؟</span><span class="lang-en">A Java developer needs a company-private Maven package store (proxying Maven Central). Which service?</span>",
+        options: [
+          "<span class="lang-ar">CodeCommit</span><span class="lang-en">CodeCommit</span>",
+          "<span class="lang-ar">CodeArtifact</span><span class="lang-en">CodeArtifact</span>",
+          "<span class="lang-ar">CodeBuild Cache</span><span class="lang-en">CodeBuild Cache</span>",
+          "<span class="lang-ar">S3</span><span class="lang-en">S3</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>CodeArtifact</strong> هو حلّ AWS لإدارة الحزم: Maven، npm، pip، NuGet، twine. يعمل كـ Proxy لـ Maven Central ويخزّن نسخة محليّة (يُسرّع builds). متكامل مع IAM و Resource Policies.</span><span class="lang-en"><strong>CodeArtifact</strong> is AWS's package management: Maven, npm, pip, NuGet, twine. Proxies Maven Central and caches locally (speeds up builds). IAM and resource-policy integrated.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">أيّ عبارة صحيحة عن CodeBuild Source options؟</span><span class="lang-en">Which is TRUE about CodeBuild source options?</span>",
+        options: [
+          "<span class="lang-ar">يدعم CodeCommit فقط.</span><span class="lang-en">Supports CodeCommit only.</span>",
+          "<span class="lang-ar">يدعم CodeCommit، S3، Bitbucket، GitHub، GitHub Enterprise.</span><span class="lang-en">Supports CodeCommit, S3, Bitbucket, GitHub, GitHub Enterprise.</span>",
+          "<span class="lang-ar">يحتاج VPC دائماً.</span><span class="lang-en">Always needs VPC.</span>",
+          "<span class="lang-ar">لا يدعم webhooks.</span><span class="lang-en">No webhook support.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CodeBuild يدعم مصادر متعدّدة. يمكن الـ webhook من GitHub/Bitbucket لتشغيل builds تلقائياً. VPC اختياريّ (للوصول إلى موارد خاصّة كـ RDS).</span><span class="lang-en">CodeBuild supports multiple sources. Can webhook from GitHub/Bitbucket to auto-trigger builds. VPC is optional (for private resource access like RDS).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">عند نشر إلى EC2 مع CodeDeploy، يفشل الـ Task بخطأ <em>"Downloading app bundle failed"</em>. ما الأسباب الأرجح؟</span><span class="lang-en">Deploying to EC2 via CodeDeploy fails with <em>"Downloading app bundle failed"</em>. Most likely causes?</span>",
+        options: [
+          "<span class="lang-ar">كود التطبيق خاطئ.</span><span class="lang-en">App code has bugs.</span>",
+          "<span class="lang-ar">CodeDeploy Agent غير مثبّت على EC2، أو IAM Role لـ EC2 لا يمتلك صلاحيات S3.</span><span class="lang-en">CodeDeploy Agent not installed on EC2, or EC2 IAM role lacks S3 permissions.</span>",
+          "<span class="lang-ar">EC2 stopped.</span><span class="lang-en">EC2 stopped.</span>",
+          "<span class="lang-ar">Security Group لا يسمح HTTP.</span><span class="lang-en">Security Group blocks HTTP.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الأسباب المعياريّة: ١) CodeDeploy Agent غير موجود أو غير مُحدَّث (ثبّته عبر Systems Manager)، ٢) IAM Role المرفق بـ EC2 ناقصه <span dir="ltr" class="font-mono">s3:Get*</span> لتحميل الـ bundle من S3 الذي وضعه CodePipeline.</span><span class="lang-en">Canonical causes: 1) CodeDeploy Agent missing or outdated (install via Systems Manager), 2) EC2's IAM role missing <span dir="ltr" class="font-mono">s3:Get*</span> to pull the bundle from S3 where CodePipeline placed it.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">لتمرير إصدار محدّد من Lambda إلى CodeDeploy في <span dir="ltr" class="font-mono">appspec.yml</span>، أي مفاتيح مطلوبة؟</span><span class="lang-en">To pass a specific Lambda version to CodeDeploy in <span dir="ltr" class="font-mono">appspec.yml</span>, which keys are required?</span>",
+        options: [
+          "<span class="lang-ar">Name و Alias فقط.</span><span class="lang-en">Name and Alias only.</span>",
+          "<span class="lang-ar">Name، Alias، CurrentVersion، TargetVersion.</span><span class="lang-en">Name, Alias, CurrentVersion, TargetVersion.</span>",
+          "<span class="lang-ar">FunctionArn فقط.</span><span class="lang-en">FunctionArn only.</span>",
+          "<span class="lang-ar">Runtime و Handler.</span><span class="lang-en">Runtime and Handler.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">appspec.yml</span> لـ Lambda يحتاج: <strong>Name</strong> (اسم الدالّة)، <strong>Alias</strong> (مثل live)، <strong>CurrentVersion</strong> (الإصدار الحاليّ)، <strong>TargetVersion</strong> (الإصدار الجديد). CodeDeploy يُحوّل الـ Alias من Current إلى Target تدريجياً.</span><span class="lang-en">Lambda <span dir="ltr" class="font-mono">appspec.yml</span> needs: <strong>Name</strong> (function name), <strong>Alias</strong> (e.g. live), <strong>CurrentVersion</strong>, <strong>TargetVersion</strong>. CodeDeploy shifts the alias from Current to Target gradually.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q10",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن CodePipeline؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about CodePipeline? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">Stages متسلسلة، Actions داخل Stage يمكن أن تكون متوازية.</span><span class="lang-en">Stages are sequential; actions within a stage can be parallel.</span>",
+          "<span class="lang-ar">Artifacts تُخزَّن في S3 وتنتقل بين Stages.</span><span class="lang-en">Artifacts live in S3 and flow between stages.</span>",
+          "<span class="lang-ar">Manual Approval Action يُوقف Pipeline حتى تتمّ الموافقة.</span><span class="lang-en">A manual-approval action pauses the pipeline until approved.</span>",
+          "<span class="lang-ar">CodePipeline لا يدعم GitHub.</span><span class="lang-en">CodePipeline doesn't support GitHub.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">CodePipeline يدعم GitHub و Bitbucket و CodeCommit و S3 و ECR كمصادر. Stages متسلسلة، Actions في كل Stage قد تكون متوازية. Artifacts في S3 Bucket خاصّ بالـ Pipeline. Manual Approval Action هو ميزة قياسيّة.</span><span class="lang-en">CodePipeline supports GitHub, Bitbucket, CodeCommit, S3, ECR as sources. Stages are sequential, actions inside a stage can be parallel. Artifacts live in a pipeline-specific S3 bucket. Manual approval is a standard action type.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">CodeBuild يحتاج الوصول إلى RDS خاصّة في VPC للتحقّق من Schema. ما الإعداد؟</span><span class="lang-en">CodeBuild needs access to a private RDS in VPC to validate schema. Configuration?</span>",
+        options: [
+          "<span class="lang-ar">إضافة RDS إلى Public Subnet.</span><span class="lang-en">Move RDS to a public subnet.</span>",
+          "<span class="lang-ar">تشغيل CodeBuild داخل VPC (VPC ID + Subnet + Security Group).</span><span class="lang-en">Run CodeBuild inside the VPC (VPC ID + Subnet + Security Group).</span>",
+          "<span class="lang-ar">تعطيل RDS.</span><span class="lang-en">Disable RDS.</span>",
+          "<span class="lang-ar">استخدام Lambda بدلاً منه.</span><span class="lang-en">Use Lambda instead.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CodeBuild يمكن تشغيله داخل VPC بتحديد VPC ID و Subnets و Security Groups في Project config. حينها يحصل Container CodeBuild على ENI داخل VPC ويمكنه الوصول إلى RDS الخاصّة. بدون VPC، يعمل في شبكة AWS العامّة.</span><span class="lang-en">CodeBuild can run inside a VPC by specifying VPC ID, subnets, and SGs in the project config. The CodeBuild container then gets an ENI in the VPC and can reach private RDS. Without VPC, it runs in AWS's public network.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد مراجعة تلقائيّة للكود لاكتشاف ثغرات أمنيّة. ما الخدمة؟</span><span class="lang-en">A developer wants automated code review for security issues. Which service?</span>",
+        options: [
+          "<span class="lang-ar">CodeGuru Reviewer</span><span class="lang-en">CodeGuru Reviewer</span>",
+          "<span class="lang-ar">CodeBuild</span><span class="lang-en">CodeBuild</span>",
+          "<span class="lang-ar">CodeArtifact</span><span class="lang-en">CodeArtifact</span>",
+          "<span class="lang-ar">CodeStar</span><span class="lang-en">CodeStar</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>CodeGuru Reviewer</strong> يستخدم ML لمراجعة الكود تلقائياً: ثغرات أمنيّة، AWS best practices، resource leaks، input validation. يدعم Java و Python. يتكامل مع GitHub، Bitbucket، CodeCommit. <strong>Profiler</strong> للأداء في Runtime.</span><span class="lang-en"><strong>CodeGuru Reviewer</strong> uses ML to auto-review code: security issues, AWS best practices, resource leaks, input validation. Supports Java and Python. Integrates with GitHub, Bitbucket, CodeCommit. <strong>Profiler</strong> targets runtime performance.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">في EC2 CodeDeploy، أيّ <em>Deployment Configuration</em> يحافظ على ٥٠٪ من السعة دائماً؟</span><span class="lang-en">In EC2 CodeDeploy, which <em>deployment configuration</em> always keeps 50% capacity?</span>",
+        options: [
+          "<span class="lang-ar">CodeDeployDefault.AllAtOnce</span><span class="lang-en">CodeDeployDefault.AllAtOnce</span>",
+          "<span class="lang-ar">CodeDeployDefault.HalfAtATime</span><span class="lang-en">CodeDeployDefault.HalfAtATime</span>",
+          "<span class="lang-ar">CodeDeployDefault.OneAtATime</span><span class="lang-en">CodeDeployDefault.OneAtATime</span>",
+          "<span class="lang-ar">Custom</span><span class="lang-en">Custom</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>HalfAtATime</strong> يُحدّث نصف Instances بينما الباقي يعمل (السعة تبقى ٥٠٪). <strong>AllAtOnce</strong> يُحدّث كل شيء (downtime). <strong>OneAtATime</strong> الأبطأ لكن أكثر أماناً (١/n downtime).</span><span class="lang-en"><strong>HalfAtATime</strong> updates half while the rest serve (50% capacity). <strong>AllAtOnce</strong> updates everything (downtime). <strong>OneAtATime</strong> is slowest but safest (1/n capacity hit).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">عند Rollback في CodeDeploy، ماذا يحدث فعلياً؟</span><span class="lang-en">When CodeDeploy rolls back, what actually happens?</span>",
+        options: [
+          "<span class="lang-ar">يستعيد نسخة قديمة من Snapshot.</span><span class="lang-en">Restores an old snapshot.</span>",
+          "<span class="lang-ar">يعيد نشر آخر إصدار سليم كنشر جديد.</span><span class="lang-en">Redeploys the last known-good revision as a new deployment.</span>",
+          "<span class="lang-ar">يُعكَس الوقت.</span><span class="lang-en">Reverses time.</span>",
+          "<span class="lang-ar">لا شيء، يحتاج تدخّل يدويّ.</span><span class="lang-en">Nothing — needs manual intervention.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>CodeDeploy Rollback = إعادة نشر</strong> آخر إصدار صالح كعمليّة نشر جديدة. لا يُعاد "استعادة" النسخة القديمة. يمكن تشغيله تلقائياً عند فشل النشر أو عند تجاوز عتبة CloudWatch Alarm.</span><span class="lang-en"><strong>CodeDeploy rollback = redeploy</strong> of the last known-good revision as a brand-new deployment. No "restoring" of an old snapshot. Can trigger automatically on failure or a breached CloudWatch Alarm.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">في CodeBuild، أين تُخزَّن متغيّرات حسّاسة مثل DB_PASSWORD؟</span><span class="lang-en">In CodeBuild, where should sensitive variables like DB_PASSWORD be stored?</span>",
+        options: [
+          "<span class="lang-ar">env:variables في buildspec.yml.</span><span class="lang-en">env:variables in buildspec.yml.</span>",
+          "<span class="lang-ar">env:parameter-store أو env:secrets-manager.</span><span class="lang-en">env:parameter-store or env:secrets-manager.</span>",
+          "<span class="lang-ar">في الكود مباشرة.</span><span class="lang-en">Hardcoded in source.</span>",
+          "<span class="lang-ar">في cache section.</span><span class="lang-en">In the cache section.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">env:variables</span> نصّ مكشوف وبالتالي غير آمن. استخدم <span dir="ltr" class="font-mono">env:parameter-store</span> (SSM SecureString) أو <span dir="ltr" class="font-mono">env:secrets-manager</span> (Secrets Manager). CodeBuild يسحبها عند البناء ويحقنها كمتغيّرات بيئة. IAM Role لـ CodeBuild يحتاج صلاحيّة قراءة.</span><span class="lang-en"><span dir="ltr" class="font-mono">env:variables</span> is plaintext and thus insecure. Use <span dir="ltr" class="font-mono">env:parameter-store</span> (SSM SecureString) or <span dir="ltr" class="font-mono">env:secrets-manager</span>. CodeBuild fetches at build time and injects as env vars. The CodeBuild IAM role needs read permission.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(26, QUESTIONS);
+      if (isChapterComplete(26)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

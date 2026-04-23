@@ -1,0 +1,283 @@
+{
+  "n": 23,
+  "domain": "deployment",
+  "title_ar": "AWS CDK — Cloud Development Kit",
+  "title_en": "AWS CDK — Cloud Development Kit",
+  "pages": "755-767",
+  "subtitle_ar": "اكتب بنيتك التحتية بلغة برمجة حقيقيّة (Java، TypeScript، Python)، واترك CDK يولّد CloudFormation لك. مثاليّ للـ Spring Boot developer.",
+  "subtitle_en": "Write your infrastructure in a real programming language (Java, TypeScript, Python) and let CDK generate CloudFormation. Ideal for Spring Boot devs.",
+  "tags": ["CDK", "IaC", "Constructs", "TypeScript", "Java"],
+  "objectives": [
+    {"concept": "Constructs L1/L2/L3", "tested_ar": "النطاق الثالث — الفرق بين مستويات Constructs.", "tested_en": "Domain 3 — Construct level differences."},
+    {"concept": "cdk synth / deploy", "tested_ar": "النطاق الثالث — دورة حياة CDK.", "tested_en": "Domain 3 — CDK lifecycle."},
+    {"concept": "Bootstrapping", "tested_ar": "النطاق الثالث — إعداد بيئة CDK.", "tested_en": "Domain 3 — environment setup."},
+    {"concept": "CDK vs SAM", "tested_ar": "النطاق الثالث — متى أختار كل منهما.", "tested_en": "Domain 3 — when to use which."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو CDK ولماذا هو مثاليّ لمطوّر Java",
+      "title_en": "What is CDK and why it fits Java developers",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS CDK</span> يسمح لك بتعريف بنية AWS التحتية بـ <strong>TypeScript، Python، Java، .NET، Go</strong>. تحصل على <strong>IntelliSense</strong> و <strong>Type Safety</strong> و <strong>Loops</strong> و <strong>Methods</strong>، ثم CDK يُولّد قالب CloudFormation كامل.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS CDK</span> lets you define AWS infrastructure in <strong>TypeScript, Python, Java, .NET, Go</strong>. You get <strong>IntelliSense</strong>, <strong>type safety</strong>, <strong>loops</strong>, and <strong>methods</strong>, then CDK generates a full CloudFormation template."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "file-code", "title_ar": "CloudFormation / SAM", "title_en": "CloudFormation / SAM",
+                  "body_ar": "YAML/JSON declarative. بسيط لكن: لا loops، لا if عميق، تكرار كثير عند التوسّع.",
+                  "body_en": "Declarative YAML/JSON. Simple but: no loops, shallow if, lots of repetition at scale."},
+         "right": {"tone": "emerald", "icon": "code-2", "title_ar": "CDK", "title_en": "CDK",
+                   "body_ar": "لغة برمجة حقيقيّة. يمكنك استخدام loops و classes و libraries. يُنتج CloudFormation. ممتاز للـ Java developer.",
+                   "body_en": "Real programming language. Use loops, classes, libraries. Emits CloudFormation. Excellent for Java devs."}
+        },
+        {"type": "code", "lang": "java",
+         "code": "// Java example: VPC + ECS Fargate Service\npackage com.acme;\n\nimport software.amazon.awscdk.*;\nimport software.amazon.awscdk.services.ec2.Vpc;\nimport software.amazon.awscdk.services.ecs.Cluster;\nimport software.amazon.awscdk.services.ecs.patterns.*;\nimport software.amazon.awscdk.services.ecs.ContainerImage;\nimport software.constructs.Construct;\n\npublic class AcmeServiceStack extends Stack {\n    public AcmeServiceStack(final Construct scope, final String id, final StackProps props) {\n        super(scope, id, props);\n\n        Vpc vpc = Vpc.Builder.create(this, \"AcmeVpc\")\n            .maxAzs(2).build();\n\n        Cluster cluster = Cluster.Builder.create(this, \"Cluster\")\n            .vpc(vpc).build();\n\n        // L3 construct — generates ~20 CloudFormation resources\n        ApplicationLoadBalancedFargateService.Builder.create(this, \"Service\")\n            .cluster(cluster)\n            .cpu(512).memoryLimitMiB(1024)\n            .desiredCount(2)\n            .taskImageOptions(\n                ApplicationLoadBalancedTaskImageOptions.builder()\n                    .image(ContainerImage.fromRegistry(\"amazon/amazon-ecs-sample\"))\n                    .containerPort(80)\n                    .build())\n            .publicLoadBalancer(true)\n            .build();\n    }\n}"},
+        {"type": "callout", "tone": "senior",
+         "ar": "للـ Java developer: CDK يُضاف عبر <span dir=\"ltr\" class=\"font-mono\">pom.xml</span> كـ dependencies عادية. تستخدم <strong>Maven</strong> للبناء، و <strong>cdk deploy</strong> للنشر. الـ IDE (IntelliJ/VS Code) يقدّم auto-completion كامل لجميع موارد AWS.",
+         "en": "For Java devs: CDK is added via <span dir=\"ltr\" class=\"font-mono\">pom.xml</span> like any dependency. Use <strong>Maven</strong> to build, <strong>cdk deploy</strong> to deploy. Your IDE (IntelliJ/VS Code) gives full autocomplete for every AWS resource."}
+      ]
+    },
+    {
+      "title_ar": "Constructs L1، L2، L3",
+      "title_en": "Constructs L1, L2, L3",
+      "blocks": [
+        {"type": "p",
+         "ar": "Construct هو اللبنة الأساسيّة في CDK. يُمثّل مورداً واحداً أو مجموعة موارد. تأتي بثلاثة مستويات: <strong>L1</strong> (عام، خريطة مباشرة لـ CloudFormation)، <strong>L2</strong> (intent-based، أكثر ذكاءً)، <strong>L3</strong> (Patterns جاهزة).",
+         "en": "A Construct is CDK's building block. Represents one resource or a group. Three levels: <strong>L1</strong> (raw, direct CloudFormation mapping), <strong>L2</strong> (intent-based, smarter), <strong>L3</strong> (ready patterns)."},
+        {"type": "table",
+         "headers": {"ar": ["المستوى", "البادئة", "المثال", "متى تستخدمه"], "en": ["Level", "Prefix", "Example", "When to use"]},
+         "rows": [
+           [{"mono": true, "value": "L1"}, {"mono": true, "value": "Cfn*"}, {"mono": true, "value": "new CfnBucket(...)"}, {"ar": "خريطة 1:1 مع CloudFormation، تحتاج تحديد كل الخصائص يدوياً", "en": "1:1 mapping with CloudFormation, you set every property manually"}],
+           [{"mono": true, "value": "L2"}, {"ar": "اسم مباشر", "en": "Direct name"}, {"mono": true, "value": "new Bucket(...)"}, {"ar": "افتراضات ذكيّة + methods مساعدة مثل bucket.grantRead(user)", "en": "Smart defaults + helper methods like bucket.grantRead(user)"}],
+           [{"mono": true, "value": "L3"}, {"ar": "Patterns", "en": "Patterns"}, {"mono": true, "value": "ApplicationLoadBalancedFargateService"}, {"ar": "يُولّد عشرات الموارد: VPC + ALB + ECS + IAM", "en": "Generates dozens of resources: VPC + ALB + ECS + IAM"}]
+         ]
+        },
+        {"type": "code", "lang": "typescript",
+         "code": "// TypeScript example to contrast L1 vs L2 vs L3\nimport * as s3 from 'aws-cdk-lib/aws-s3';\nimport * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';\n\n// L1 — manual, every property required\nconst l1Bucket = new s3.CfnBucket(this, 'L1Bucket', {\n  bucketName: 'acme-l1',\n  versioningConfiguration: { status: 'Enabled' },\n  bucketEncryption: {\n    serverSideEncryptionConfiguration: [\n      { serverSideEncryptionByDefault: { sseAlgorithm: 'AES256' } }\n    ]\n  }\n});\n\n// L2 — smart defaults, helper methods\nconst l2Bucket = new s3.Bucket(this, 'L2Bucket', {\n  versioned: true,\n  encryption: s3.BucketEncryption.S3_MANAGED,\n  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL\n});\nl2Bucket.grantRead(lambdaFn);        // auto-generates IAM policy\n\n// L3 — whole pattern\nnew ecs_patterns.ApplicationLoadBalancedFargateService(this, 'Service', {\n  cluster, cpu: 512, memoryLimitMiB: 1024,\n  taskImageOptions: { image: ecs.ContainerImage.fromRegistry('nginx') }\n});\n// Generates: VPC, ECS Cluster, Task Def, Service, ALB, Target Group, SG, IAM — one call"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Construct Hub</strong> (<span dir=\"ltr\" class=\"font-mono\">constructs.dev</span>) يحتوي مكتبة Constructs من AWS ومن المجتمع — يمكن تثبيت أيّ منها كـ package (npm، Maven، pip).",
+         "en": "<strong>Construct Hub</strong> (<span dir=\"ltr\" class=\"font-mono\">constructs.dev</span>) hosts Constructs from AWS and the community — install any as a package (npm, Maven, pip)."}
+      ]
+    },
+    {
+      "title_ar": "الأوامر الأساسيّة: synth، deploy، diff",
+      "title_en": "Core commands: synth, deploy, diff",
+      "blocks": [
+        {"type": "p",
+         "ar": "الدورة النموذجيّة: كتابة الكود، <strong>cdk synth</strong> لرؤية CloudFormation الناتج، <strong>cdk diff</strong> لمعاينة التغييرات، <strong>cdk deploy</strong> للتنفيذ. كل هذا فوق CloudFormation تحت الغطاء.",
+         "en": "Typical flow: write code, <strong>cdk synth</strong> to see generated CloudFormation, <strong>cdk diff</strong> to preview changes, <strong>cdk deploy</strong> to execute. All on top of CloudFormation under the hood."},
+        {"type": "table",
+         "headers": {"ar": ["الأمر", "الوظيفة"], "en": ["Command", "Purpose"]},
+         "rows": [
+           [{"mono": true, "value": "npm install -g aws-cdk"}, {"ar": "تثبيت CDK CLI", "en": "Install CDK CLI"}],
+           [{"mono": true, "value": "cdk init app --language=java"}, {"ar": "إنشاء مشروع جديد", "en": "Scaffold new project"}],
+           [{"mono": true, "value": "cdk synth"}, {"ar": "توليد قالب CloudFormation وطباعته", "en": "Synthesize and print CloudFormation"}],
+           [{"mono": true, "value": "cdk bootstrap"}, {"ar": "إنشاء CDKToolkit Stack (S3 Bucket + IAM Roles) — يُشغَّل مرّة لكل account/region", "en": "Creates CDKToolkit stack (S3 + IAM) — run once per account/region"}],
+           [{"mono": true, "value": "cdk diff"}, {"ar": "عرض الفروق بين المحلّيّ والمنشور", "en": "Show diff between local and deployed"}],
+           [{"mono": true, "value": "cdk deploy"}, {"ar": "نشر Stack", "en": "Deploy the stack"}],
+           [{"mono": true, "value": "cdk destroy"}, {"ar": "حذف Stack", "en": "Destroy the stack"}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>Bootstrapping</strong> إلزاميّ قبل أوّل <span dir=\"ltr\" class=\"font-mono\">cdk deploy</span> في أيّ account/region. يُنشِئ Stack باسم <span dir=\"ltr\" class=\"font-mono\">CDKToolkit</span> يحتوي S3 Bucket (لملفات النشر) و IAM Roles. بدونه تحصل على: <em>Policy contains a statement with one or more invalid principal</em>.",
+         "en": "<strong>Bootstrapping</strong> is mandatory before the first <span dir=\"ltr\" class=\"font-mono\">cdk deploy</span> in any account/region. Creates a <span dir=\"ltr\" class=\"font-mono\">CDKToolkit</span> stack with an S3 bucket (for deploy files) and IAM roles. Without it you get: <em>Policy contains a statement with one or more invalid principal</em>."},
+        {"type": "code", "lang": "bash",
+         "code": "# First time in this account/region\ncdk bootstrap aws://123456789012/us-east-1\n\n# Normal dev cycle\ncdk synth               # see CloudFormation\ncdk diff                # preview changes\ncdk deploy              # apply\n\n# With multiple stacks\ncdk deploy AcmeVpcStack AcmeAppStack\n\n# Use CDK + SAM locally: first synth, then SAM for local invoke\ncdk synth --no-staging > template.json\nsam local invoke MyFunction -t template.json"}
+      ]
+    },
+    {
+      "title_ar": "Testing، Aspects، و CDK vs SAM",
+      "title_en": "Testing, Aspects & CDK vs SAM",
+      "blocks": [
+        {"type": "p",
+         "ar": "لأنّ CDK كود، يمكن اختباره. <strong>Fine-grained Assertions</strong> يتحقّقون من وجود موارد معيّنة بخصائص معيّنة. <strong>Snapshot Tests</strong> يقارنون الإخراج مع قاعدة مُخزَّنة. <strong>Aspects</strong> تُطبِّق قاعدة على كل الموارد (مثل tagging إلزاميّ).",
+         "en": "Since CDK is code, it can be tested. <strong>Fine-grained assertions</strong> verify specific resources with specific properties. <strong>Snapshot tests</strong> compare output with a stored baseline. <strong>Aspects</strong> apply a rule across all resources (e.g. mandatory tagging)."},
+        {"type": "code", "lang": "typescript",
+         "code": "// Jest test for a CDK stack\nimport { Template } from 'aws-cdk-lib/assertions';\nimport { Stack } from 'aws-cdk-lib';\nimport { MyStack } from '../lib/my-stack';\n\ntest('Lambda is created with correct runtime', () => {\n  const app = new App();\n  const stack = new MyStack(app, 'Test');\n  const template = Template.fromStack(stack);\n\n  // Fine-grained assertion\n  template.hasResourceProperties('AWS::Lambda::Function', {\n    Handler: 'index.handler',\n    Runtime: 'nodejs20.x',\n  });\n  template.resourceCountIs('AWS::SNS::Topic', 1);\n\n  // Snapshot test\n  expect(template.toJSON()).toMatchSnapshot();\n});"},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "zap", "title_ar": "SAM — متى تختاره", "title_en": "SAM — when to pick",
+                  "body_ar": "Serverless محض (Lambda + API Gateway + DynamoDB). قالب YAML قصير، بدء سريع.",
+                  "body_en": "Pure serverless (Lambda + API GW + DynamoDB). Short YAML, quick start."},
+         "right": {"tone": "emerald", "icon": "code-2", "title_ar": "CDK — متى تختاره", "title_en": "CDK — when to pick",
+                   "body_ar": "أي خدمة AWS. بنية تحتية معقّدة. فرق البرمجة التي تفضّل لغة برمجة. Multi-stack و testing.",
+                   "body_en": "Any AWS service. Complex infrastructure. Teams that prefer a real language. Multi-stack and testing."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "يمكن دمجهما: <span dir=\"ltr\" class=\"font-mono\">cdk synth</span> يُنتج CloudFormation template، ثم <span dir=\"ltr\" class=\"font-mono\">sam local invoke -t cdk.out/MyStack.template.json</span> يشغّل Lambda محلياً.",
+         "en": "You can combine them: <span dir=\"ltr\" class=\"font-mono\">cdk synth</span> outputs a CloudFormation template, then <span dir=\"ltr\" class=\"font-mono\">sam local invoke -t cdk.out/MyStack.template.json</span> runs Lambda locally."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء ونشر Stack CDK بـ Java يحتوي على S3 Bucket و Lambda.",
+    "goal_en": "Create and deploy a Java CDK stack with an S3 bucket and a Lambda.",
+    "steps": [
+      {"title_ar": "ثبّت CDK CLI", "title_en": "Install CDK CLI",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "npm install -g aws-cdk\ncdk --version"},
+      {"title_ar": "أنشئ مشروع Java جديد", "title_en": "Scaffold a new Java project",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "mkdir acme-cdk && cd acme-cdk\ncdk init app --language=java\n# Creates pom.xml, src/main/java/com/myorg/AcmeCdkStack.java"},
+      {"title_ar": "أضف S3 Bucket و Lambda", "title_en": "Add S3 Bucket and Lambda",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "java",
+       "code": "import software.amazon.awscdk.services.s3.Bucket;\nimport software.amazon.awscdk.services.lambda.Function;\nimport software.amazon.awscdk.services.lambda.Runtime;\nimport software.amazon.awscdk.services.lambda.Code;\n\nBucket bucket = Bucket.Builder.create(this, \"AcmeBucket\")\n    .versioned(true).build();\n\nFunction fn = Function.Builder.create(this, \"AcmeFn\")\n    .runtime(Runtime.JAVA_17)\n    .handler(\"com.acme.Handler::handleRequest\")\n    .code(Code.fromAsset(\"target/my-jar.jar\"))\n    .memorySize(512).build();\n\nbucket.grantRead(fn);  // auto-generates IAM"},
+      {"title_ar": "Bootstrap وانشر", "title_en": "Bootstrap & deploy",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "cdk bootstrap\ncdk synth           # preview CloudFormation\ncdk diff            # diff against deployed\ncdk deploy          # creates the stack"},
+      {"title_ar": "تنظيف", "title_en": "Cleanup",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "cdk destroy"}
+    ],
+    "warning_ar": "Bootstrap يُنشِئ S3 Bucket يحتاج حذفه يدوياً لو أردت إزالة كل الأثر. يحتاج pom.xml و Maven مثبّت لـ Java.",
+    "warning_en": "Bootstrap creates an S3 bucket you must delete manually to wipe every trace. Requires a pom.xml and Maven installed for Java."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "ما الذي يحدث عند تنفيذ <span dir=\"ltr\" class=\"font-mono\">cdk synth</span>؟",
+      "question_en": "What does <span dir=\"ltr\" class=\"font-mono\">cdk synth</span> do?",
+      "options_ar": ["ينشر Stack إلى AWS.", "يحوّل كود CDK إلى قالب CloudFormation ويطبعه (بدون نشر).", "يحذف Stack.", "يثبّت CDK CLI."],
+      "options_en": ["Deploys the stack to AWS.", "Converts CDK code to a CloudFormation template and prints it (without deploying).", "Destroys the stack.", "Installs the CDK CLI."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">cdk synth</span> يُنفّذ الكود ويولّد قالب CloudFormation في <span dir=\"ltr\" class=\"font-mono\">cdk.out/</span>. لا ينشر شيئاً. مفيد للتحقّق من الإخراج قبل الـ deploy.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">cdk synth</span> runs the code and generates a CloudFormation template in <span dir=\"ltr\" class=\"font-mono\">cdk.out/</span>. Deploys nothing. Useful for inspecting output before deploy.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "عند تشغيل <span dir=\"ltr\" class=\"font-mono\">cdk deploy</span> لأوّل مرّة في حساب/منطقة جديدة، يظهر خطأ <em>Policy contains a statement with one or more invalid principal</em>. ما الحل؟",
+      "question_en": "On first <span dir=\"ltr\" class=\"font-mono\">cdk deploy</span> in a new account/region, error: <em>Policy contains a statement with one or more invalid principal</em>. Fix?",
+      "options_ar": ["تثبيت CDK CLI جديد.", "تشغيل cdk bootstrap aws://ACCOUNT/REGION.", "تغيير إصدار Node.js.", "حذف pom.xml."],
+      "options_en": ["Install a new CDK CLI.", "Run cdk bootstrap aws://ACCOUNT/REGION.", "Change Node.js version.", "Delete pom.xml."],
+      "correct": 1,
+      "explanation_ar": "الخطأ الكلاسيكيّ لعدم إجراء <strong>Bootstrap</strong>. CDK يحتاج S3 Bucket و IAM Roles في كل حساب/منطقة لتخزين ملفات النشر. شغّل <span dir=\"ltr\" class=\"font-mono\">cdk bootstrap</span> مرّة واحدة لكل environment.",
+      "explanation_en": "Classic missing-<strong>Bootstrap</strong> error. CDK needs an S3 bucket and IAM roles in every account/region to stage deploy files. Run <span dir=\"ltr\" class=\"font-mono\">cdk bootstrap</span> once per environment.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "أيّ Construct يُولّد CloudFormation resources أقل وهو الأقرب إلى CloudFormation الخام؟",
+      "question_en": "Which construct level generates the fewest CloudFormation resources and is closest to raw CloudFormation?",
+      "options_ar": ["L1 (CFN Resources)", "L2 (intent-based)", "L3 (Patterns)", "كلّها متساوية"],
+      "options_en": ["L1 (CFN Resources)", "L2 (intent-based)", "L3 (Patterns)", "All equal"],
+      "correct": 0,
+      "explanation_ar": "<strong>L1 (Cfn*)</strong> خريطة 1:1 مع CloudFormation. كل خاصّية يجب تحديدها يدوياً. <strong>L2</strong> يضيف افتراضات ذكية و methods مساعدة. <strong>L3</strong> يُنشئ patterns كاملة (عشرات الموارد).",
+      "explanation_en": "<strong>L1 (Cfn*)</strong> is 1:1 with CloudFormation. Every property manual. <strong>L2</strong> adds smart defaults and helper methods. <strong>L3</strong> builds full patterns (dozens of resources).",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "مطوّر Java يفضّل كتابة IaC بـ Java بدلاً من YAML، مع استخدام IntelliJ و Maven. ما الأفضل؟",
+      "question_en": "A Java developer prefers IaC in Java instead of YAML, using IntelliJ + Maven. Best fit?",
+      "options_ar": ["CloudFormation YAML", "SAM", "CDK بـ Java", "Terraform"],
+      "options_en": ["CloudFormation YAML", "SAM", "CDK with Java", "Terraform"],
+      "correct": 2,
+      "explanation_ar": "<strong>CDK</strong> مصمّم لهذه الحالة بالتحديد: يدعم Java و TypeScript و Python و C# و Go. يتكامل مع pom.xml و Maven و IntelliJ بسلاسة. يُولّد CloudFormation في الخلفيّة.",
+      "explanation_en": "<strong>CDK</strong> is built for this: supports Java, TypeScript, Python, C#, Go. Integrates smoothly with pom.xml, Maven, IntelliJ. Generates CloudFormation behind the scenes.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "للتأكّد من أنّ Stack CDK يحتوي على دالّة Lambda بإعدادات محدّدة، ما النوع الأنسب من الاختبار؟",
+      "question_en": "To verify a CDK stack contains a Lambda with specific properties, which test type is best?",
+      "options_ar": ["Unit test للمنطق التجاريّ.", "Fine-grained Assertion باستخدام CDK Assertions module.", "Integration test بعد النشر.", "Snapshot test فقط."],
+      "options_en": ["Unit test of business logic.", "Fine-grained assertion with the CDK Assertions module.", "Integration test after deploy.", "Snapshot test only."],
+      "correct": 1,
+      "explanation_ar": "<strong>Fine-grained Assertions</strong> مع <span dir=\"ltr\" class=\"font-mono\">Template.fromStack</span> + <span dir=\"ltr\" class=\"font-mono\">hasResourceProperties</span> يُتيحان فحص موارد محدّدة قبل النشر. Snapshot tests مفيدة لاكتشاف تغييرات غير متوقّعة، لكنّ Fine-grained أدقّ لفحص خاصّيّة بعينها.",
+      "explanation_en": "<strong>Fine-grained assertions</strong> with <span dir=\"ltr\" class=\"font-mono\">Template.fromStack</span> + <span dir=\"ltr\" class=\"font-mono\">hasResourceProperties</span> let you check specific resources pre-deploy. Snapshot tests catch surprises but fine-grained is more precise.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "شركة تريد معاينة التغييرات قبل نشر Stack. ما الأمر المناسب في CDK؟",
+      "question_en": "A company wants to preview changes before deploying a stack. Which CDK command?",
+      "options_ar": ["cdk synth", "cdk diff", "cdk destroy", "cdk bootstrap"],
+      "options_en": ["cdk synth", "cdk diff", "cdk destroy", "cdk bootstrap"],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">cdk diff</span> يقارن الـ Stack المحلّيّ مع المنشور ويُظهر أيّ الموارد ستضاف، تتغيّر، أو تُحذَف. تحت الغطاء يستخدم CloudFormation ChangeSets. <span dir=\"ltr\" class=\"font-mono\">cdk synth</span> فقط يطبع القالب دون مقارنة.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">cdk diff</span> compares the local stack to the deployed one, showing what will be added, changed, or deleted. Uses CloudFormation ChangeSets under the hood. <span dir=\"ltr\" class=\"font-mono\">cdk synth</span> only prints the template without comparison.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q7", "type": "multi",
+      "question_ar": "أيّ من الآتي صحيح عن CDK؟ اختر كل ما ينطبق.",
+      "question_en": "Which are TRUE about CDK? Select all that apply.",
+      "options_ar": ["CDK يدعم TypeScript و Python و Java و .NET و Go.", "CDK يُولّد قالب CloudFormation.", "CDK يتطلّب Bootstrap مرّة واحدة لكل حساب/منطقة.", "CDK يستبدل CloudFormation ولا يعتمد عليه."],
+      "options_en": ["CDK supports TypeScript, Python, Java, .NET, Go.", "CDK generates a CloudFormation template.", "CDK requires one-time bootstrap per account/region.", "CDK replaces CloudFormation and doesn't use it."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "CDK يدعم ٥ لغات، يُولّد CloudFormation، ويتطلّب bootstrap. لكنّه <strong>يعتمد</strong> على CloudFormation في النشر الفعليّ لا يستبدله — فقط يعطيك طريقة أذكى للكتابة.",
+      "explanation_en": "CDK supports 5 languages, generates CloudFormation, and requires bootstrap. But it <strong>uses</strong> CloudFormation for actual deploys — it doesn't replace it, it just gives you a smarter authoring experience.",
+      "reference_ar": "القسم ١ و٣",
+      "reference_en": "Sections 1 and 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "أيّ Construct يحتوي على جميع البنية الكاملة لتطبيق Fargate خلف ALB مع VPC في سطر واحد؟",
+      "question_en": "Which construct creates a full Fargate-behind-ALB + VPC stack in one line?",
+      "options_ar": ["L1 CfnService", "L2 FargateService", "L3 ApplicationLoadBalancedFargateService", "L2 Vpc"],
+      "options_en": ["L1 CfnService", "L2 FargateService", "L3 ApplicationLoadBalancedFargateService", "L2 Vpc"],
+      "correct": 2,
+      "explanation_ar": "<strong>L3 (Patterns)</strong> هي constructs تحتوي <strong>عدّة موارد ذات صلة</strong>. <span dir=\"ltr\" class=\"font-mono\">ApplicationLoadBalancedFargateService</span> يُنشِئ VPC + Cluster + Task Def + Service + ALB + Target Group + Security Groups + IAM في سطر واحد.",
+      "explanation_en": "<strong>L3 Patterns</strong> are constructs that wrap <strong>multiple related resources</strong>. <span dir=\"ltr\" class=\"font-mono\">ApplicationLoadBalancedFargateService</span> creates VPC + Cluster + Task Def + Service + ALB + Target Group + SGs + IAM in one line.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "أيّ عبارة <strong>خاطئة</strong> عن الفرق بين CDK و SAM؟",
+      "question_en": "Which statement about CDK vs SAM is <strong>FALSE</strong>?",
+      "options_ar": ["SAM مخصّص للـ Serverless، CDK عامّ.", "CDK يدعم لغات برمجة، SAM YAML فقط.", "SAM لا يعتمد على CloudFormation.", "يمكن استخدام sam local invoke على قالب ناتج من cdk synth."],
+      "options_en": ["SAM is serverless-focused, CDK is general.", "CDK supports programming languages, SAM is YAML only.", "SAM does not rely on CloudFormation.", "You can use sam local invoke on the template emitted by cdk synth."],
+      "correct": 2,
+      "explanation_ar": "العبارة الخاطئة: <strong>SAM يعتمد على CloudFormation</strong> (يتحوّل إليه عبر Transform). التقارب الصحيح: كلاهما يعتمد على CloudFormation لكنّ CDK بلغة برمجة و SAM بـ YAML مختصر.",
+      "explanation_en": "False: <strong>SAM relies on CloudFormation</strong> (transforms into it via the Transform header). Correct view: both use CloudFormation under the hood; CDK uses a language, SAM uses short YAML.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "للحصول على IAM Policy مناسبة تلقائياً عند منح Lambda صلاحية قراءة S3 Bucket في CDK، ما الميزة؟",
+      "question_en": "To auto-generate a correct IAM policy when granting a Lambda read on an S3 bucket in CDK, which feature?",
+      "options_ar": ["L1 CfnBucketPolicy يدويّاً.", "L2 methods مثل bucket.grantRead(lambda).", "L3 Pattern فقط.", "Aspects."],
+      "options_en": ["L1 CfnBucketPolicy manually.", "L2 methods like bucket.grantRead(lambda).", "L3 Pattern only.", "Aspects."],
+      "correct": 1,
+      "explanation_ar": "<strong>L2 Constructs</strong> تقدّم methods مساعدة مثل <span dir=\"ltr\" class=\"font-mono\">bucket.grantRead(lambda)</span> و <span dir=\"ltr\" class=\"font-mono\">table.grantReadWriteData(fn)</span>. هذه تُولّد IAM Policy بأقلّ امتياز تلقائياً. واحدة من أكبر مزايا CDK مقارنة بـ YAML.",
+      "explanation_en": "<strong>L2 constructs</strong> provide helper methods like <span dir=\"ltr\" class=\"font-mono\">bucket.grantRead(lambda)</span> and <span dir=\"ltr\" class=\"font-mono\">table.grantReadWriteData(fn)</span>. These auto-generate least-privilege IAM policies. One of CDK's biggest wins over YAML.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    }
+  ],
+  "summary": [
+    {"icon": "code-2", "title_ar": "CDK = IaC بلغة برمجة", "title_en": "CDK = IaC in a real language",
+     "body_ar": "TS، Python، Java، .NET، Go. يُولّد CloudFormation.",
+     "body_en": "TS, Python, Java, .NET, Go. Emits CloudFormation."},
+    {"icon": "layers", "title_ar": "L1 خام، L2 ذكيّ، L3 Pattern", "title_en": "L1 raw, L2 smart, L3 pattern",
+     "body_ar": "اختر المستوى حسب حاجتك. L2 الأكثر استخداماً.",
+     "body_en": "Pick level per need. L2 is most-used."},
+    {"icon": "rocket", "title_ar": "synth → diff → deploy", "title_en": "synth → diff → deploy",
+     "body_ar": "دورة تطوير مألوفة للمطوّرين. cdk bootstrap مرّة واحدة.",
+     "body_en": "Familiar dev cycle. cdk bootstrap once per account/region."},
+    {"icon": "check-circle", "title_ar": "يُمكن اختبارها كالكود", "title_en": "Testable like code",
+     "body_ar": "Jest/JUnit + CDK Assertions = Fine-grained + Snapshot.",
+     "body_en": "Jest/JUnit + CDK Assertions = fine-grained + snapshot."}
+  ],
+  "mnemonic_ar": "<strong>\"CDK هو Java/TS يولّد YAML\"</strong>. إذا سُئلت عن الاختيار: Serverless بسيط ⇒ SAM، بنية معقّدة أو حبّ لغة برمجة ⇒ CDK. كلاهما فوق CloudFormation.",
+  "mnemonic_en": "<strong>\"CDK is Java/TS that emits YAML\"</strong>. If asked to choose: simple serverless ⇒ SAM; complex infra or language preference ⇒ CDK. Both sit on CloudFormation.",
+  "prev": 22,
+  "next": 24
+}

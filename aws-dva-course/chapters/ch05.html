@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 05 — Managed Databases: RDS, Aurora & ElastiCache | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-surface-500/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>
+          <span class="lang-ar">أساسيات</span>
+          <span class="lang-en">Foundations</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٥ من ٣٠</span>
+        <span class="lang-en">Chapter 5 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.138-164</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">قواعد البيانات المُدارة: RDS و Aurora و ElastiCache</span>
+        <span class="lang-en">Managed Databases: RDS, Aurora & ElastiCache</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">لماذا تترك AWS تدير قواعد بياناتك بدل تشغيلها بنفسك على EC2؟ النسخ الاحتياطيّ التلقائيّ، التصحيح (patching)، الـ Failover، والـ Read Replicas — كلّها دون SSH. هذه الفصل يغطّي الفرق العمليّ بين RDS و Aurora و ElastiCache، ومتى تختار كلّ واحدة.</span>
+        <span class="lang-en">Why let AWS manage your DB instead of running it yourself on EC2? Automated backups, patching, failover, and read replicas — all without SSH. This chapter covers the practical differences between RDS, Aurora, and ElastiCache, and when to pick each.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">RDS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Aurora</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">ElastiCache</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Read Replicas</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Multi-AZ</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Redis</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">RDS Proxy</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">RDS vs Aurora</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل في اختيار قاعدة البيانات المناسبة وميزات Aurora الإضافيّة.</span>
+      <span class="lang-en">Domain 1 — picking the right DB and Aurora's unique features.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Read Replicas vs Multi-AZ</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاقان الأوّل والرابع في التمييز بين التوسعة والإتاحة العالية.</span>
+      <span class="lang-en">Domains 1 & 4 — scaling vs High Availability distinction.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ElastiCache (Redis vs Memcached)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل في أنماط الـ caching واختيار المحرّك.</span>
+      <span class="lang-en">Domain 1 — caching patterns and engine choice.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">RDS Security and RDS Proxy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في تشفير قواعد البيانات وإدارة الاتّصالات.</span>
+      <span class="lang-en">Domain 2 — DB encryption and connection management.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">RDS — قاعدة بيانات مُدارة</span>
+      <span class="lang-en">RDS — Managed Relational Database Service</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>RDS (Relational Database Service)</strong> يشغّل قاعدة بيانات علائقيّة بالنيابة عنك. يدعم <strong>سبعة محرّكات</strong>: PostgreSQL، MySQL، MariaDB، Oracle، Microsoft SQL Server، IBM DB2، و Aurora (بنكهتَي PostgreSQL و MySQL). بالمقابل: لا تستطيع الدخول عبر SSH (باستثناء RDS Custom).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>RDS (Relational Database Service)</strong> runs a relational DB on your behalf. Supports <strong>seven engines</strong>: PostgreSQL, MySQL, MariaDB, Oracle, Microsoft SQL Server, IBM DB2, and Aurora (PostgreSQL and MySQL flavors). In exchange: no SSH access (except RDS Custom).</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="cloud-upload" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">توفير وتصحيح تلقائي</span><span class="lang-en">Automated provisioning & patching</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لا حاجة لتثبيت أو تحديث نظام تشغيل.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">No OS install or patching required.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Point-in-Time Restore</span><span class="lang-en">Point-in-Time Restore</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">استعادة إلى أيّ ثانية خلال فترة الاحتفاظ (حتى ٣٥ يوم).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Restore to any second within retention (up to 35 days).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="chart-line" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Monitoring مدمج</span><span class="lang-en">Built-in monitoring</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">CloudWatch dashboards و Enhanced Monitoring و Performance Insights.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">CloudWatch dashboards, Enhanced Monitoring, Performance Insights.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Multi-AZ + Read Replicas</span><span class="lang-en">Multi-AZ + Read Replicas</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Failover تلقائيّ وتوسعة القراءة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Automatic failover and read scaling.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>RDS لا يسمح بـ SSH</strong>. إن احتجت لتثبيت مكتبة أو سكربت نظام (مثلاً Oracle Data Guard المخصّص)، استخدم <strong>RDS Custom</strong> الذي يعطيك وصولاً لـ OS. عدا ذلك، استخدم EC2 وتدير قاعدة البيانات بنفسك — مع فقدان كلّ مزايا الإدارة.</span>
+      <span class="lang-en"> <strong>RDS doesn't allow SSH</strong>. If you need to install a library or system script (e.g., Oracle Data Guard customizations), use <strong>RDS Custom</strong> which grants OS access. Otherwise, run on EC2 yourself — losing all managed-service benefits.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>RDS Storage Auto Scaling</strong>: يزيد مساحة التخزين تلقائياً عندما تنخفض المساحة الحرّة لـ ١٠٪ ويستمرّ الانخفاض ٥ دقائق و مرّت ٦ ساعات على آخر تعديل. تحدّد أنت الحدّ الأقصى (Maximum Storage Threshold). يُعفيك من مراقبة مساحة التخزين يدوياً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>RDS Storage Auto Scaling</strong>: grows storage when free space drops below 10%, stays low 5+ minutes, and 6+ hours since last change. You set the Maximum Storage Threshold. Frees you from manual storage monitoring.</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Read Replicas vs Multi-AZ — فرق كبير</span>
+      <span class="lang-en">Read Replicas vs Multi-AZ — a critical distinction</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذا أكثر موضوع يخلطه المرشّحون. <strong>Read Replicas للتوسعة (scale reads)</strong>، و <strong>Multi-AZ للإتاحة العالية (HA / DR)</strong>. لا بديل بينهما — بل كثيراً ما يُستخدمان معاً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">The most commonly confused topic. <strong>Read Replicas scale reads</strong>, <strong>Multi-AZ provides HA / DR</strong>. They're not alternatives — often used together.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="copy" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Read Replicas — للقراءة</span><span class="lang-en">Read Replicas — for reads</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">حتى <strong>١٥ نسخة قراءة</strong> (RDS) أو <strong>١٥ Aurora Replica</strong> في Aurora. تكرار <strong>غير متزامن (ASYNC)</strong> — القراءة قد تكون قديمة لحظياً (eventually consistent). يمكن وضعها في نفس AZ، AZ مختلفة، أو Region مختلفة. <strong>التطبيق يجب أن يعرف كيف يوجّه reads إلى الـ replica</strong> (connection string مختلف).</p>
+      <p class="text-sm text-surface-700 lang-en">Up to <strong>15 read replicas</strong> (RDS) or <strong>15 Aurora Replicas</strong>. <strong>Asynchronous</strong> replication — reads may be momentarily stale (eventually consistent). Can live in same AZ, different AZ, or different Region. <strong>The app must know to route reads to the replica</strong> (different connection string).</p>
+    </div>
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Multi-AZ — للإتاحة العالية</span><span class="lang-en">Multi-AZ — for HA</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">نسخة احتياطيّة واحدة (standby) في AZ مختلفة بتكرار <strong>متزامن (SYNC)</strong>. <strong>DNS endpoint واحد</strong> — عند فشل الـ master، يقع الـ failover تلقائياً إلى الـ standby (دقائق قليلة). <u>لا تستخدم للقراءة</u> — الـ standby غير متاح للاستعلامات. الغرض الوحيد: صمود كارثة AZ.</p>
+      <p class="text-sm text-surface-700 lang-en">One standby in a different AZ, <strong>synchronous</strong> replication. <strong>Single DNS endpoint</strong> — on master failure, auto-failover to standby (few minutes). <u>Not used for reads</u> — standby isn't queryable. Sole purpose: survive an AZ outage.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> خدعة شائعة في الامتحان: السؤال يقول "تطبيق reporting بطيء بسبب استعلامات على قاعدة الإنتاج". <strong>الجواب: Read Replica</strong> لا Multi-AZ. Multi-AZ يحلّ HA فقط.</span>
+      <span class="lang-en"> Common exam trap: "reporting app slow due to queries on prod DB". <strong>Answer: Read Replica</strong>, not Multi-AZ. Multi-AZ solves HA only.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Spring Boot — using separate data sources for read/write
+// With RDS: write URL = master, read URL = replica
+@Configuration
+public class DbConfig {
+    @Bean
+    @ConfigurationProperties("spring.datasource.write")
+    public DataSource writeDataSource() {
+        // jdbc:postgresql://acme-master.xyz.us-east-1.rds.amazonaws.com:5432/acme
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.read")
+    public DataSource readDataSource() {
+        // jdbc:postgresql://acme-read-replica.xyz.us-east-1.rds.amazonaws.com:5432/acme
+        return DataSourceBuilder.create().build();
+    }
+
+    // AbstractRoutingDataSource picks the right one based on @Transactional(readOnly=true)
+}
+
+// With Aurora: single reader endpoint load-balances across all replicas automatically</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للمطوّر السينيور: Read Replica <strong>غير متزامنة</strong>، لذا قراءة بعد كتابة قد تعيد قيمة قديمة. لا تضع عملية read-after-write على الـ replica إلّا إن كنت تقبل eventually consistent. في Aurora، <code class="font-mono">replica lag</code> أقلّ من ١٠ ميلّي ثانية عادة — أفضل بكثير من RDS.</span>
+      <span class="lang-en"> Senior note: Read Replicas are <strong>async</strong>, so a read-after-write may see stale data. Don't route read-after-write to a replica unless you accept eventual consistency. In Aurora, <code class="font-mono">replica lag</code> is typically sub-10ms — much better than RDS.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Aurora — قاعدة بيانات AWS الخاصّة</span>
+      <span class="lang-en">Aurora — AWS's proprietary database</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Aurora</strong> محرّك قواعد بيانات ملكيّ من AWS، متوافق wire-protocol مع PostgreSQL و MySQL (driverكَ يعمل بدون تعديل). يدّعي AWS <strong>٥× سرعة MySQL و ٣× سرعة PostgreSQL</strong>، لأنّه مُعاد تصميمه بالكامل ليستفيد من بنية AWS.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Aurora</strong> is AWS's proprietary DB engine, wire-compatible with PostgreSQL and MySQL (your existing drivers work). AWS claims <strong>5× MySQL, 3× PostgreSQL performance</strong> — it's entirely re-architected to leverage AWS infrastructure.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">تخزين موزّع تلقائياً</span><span class="lang-en">Auto-distributed storage</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">٦ نسخ عبر ٣ AZs، تنمو تلقائياً من ١٠ GB إلى ١٢٨ TB.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">6 copies across 3 AZs, auto-grows from 10 GB to 128 TB.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Failover فوريّ</span><span class="lang-en">Instant failover</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أقلّ من ٣٠ ثانية — HA محليّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Under 30 seconds — native HA.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">حتى ١٥ Aurora Replica</span><span class="lang-en">Up to 15 Aurora Replicas</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">replica lag أقلّ من ١٠ ميلّي ثانية.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Replica lag under 10ms.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="globe" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Cross-Region Replication</span><span class="lang-en">Cross-Region replication</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لأغراض DR العالميّة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">For global DR.</p>
+  </div>
+</div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Aurora Endpoints</strong>: <strong>Writer Endpoint</strong> يشير للـ master (كتابة). <strong>Reader Endpoint</strong> يوزّع الاتّصالات تلقائياً على replicas (قراءة). بذلك لا تحتاج logic توجيه معقّد في التطبيق كما في RDS.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Aurora Endpoints</strong>: <strong>Writer Endpoint</strong> points to master (writes). <strong>Reader Endpoint</strong> load-balances connections across replicas (reads). No need for complex routing logic in the app like with RDS.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">متى تختار RDS؟</span><span class="lang-en">When to pick RDS?</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">عندك حِمل متوسّط، تستخدم محرّكاً لا يدعمه Aurora (Oracle, SQL Server, DB2, MariaDB)، أو تريد أقلّ تكلفة. RDS أرخص بـ ٢٠٪ من Aurora في معظم السيناريوهات.</p>
+      <p class="text-sm text-surface-700 lang-en">Moderate load, using an engine Aurora doesn't support (Oracle, SQL Server, DB2, MariaDB), or want minimum cost. RDS is ~20% cheaper than Aurora in most cases.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">متى تختار Aurora؟</span><span class="lang-en">When to pick Aurora?</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">عند الحاجة لأداء عالٍ، توسعة تلقائيّة serverless (Aurora Serverless v2)، DR عالميّ (Aurora Global Database)، أو صيانة بدون انقطاع. اختره عندما تستخدم MySQL أو PostgreSQL ويهمّك الأداء.</p>
+      <p class="text-sm text-surface-700 lang-en">For high throughput, serverless auto-scaling (Aurora Serverless v2), global DR (Aurora Global Database), or zero-downtime maintenance. Choose when MySQL or PostgreSQL and performance matters.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> <strong>Aurora Backtrack</strong>: ميزة فريدة تعيد قاعدة البيانات إلى حالة سابقة في الزمن (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق بدلاً من ساعات. مفيدة جداً للتعافي من قرارات خاطئة (DELETE بدون WHERE).</span>
+      <span class="lang-en"> <strong>Aurora Backtrack</strong>: unique feature that rewinds the DB to a past state (up to 72 hours) without restoring from backup — minutes instead of hours. Great for recovering from human error (DELETE without WHERE).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أمن RDS/Aurora و RDS Proxy</span>
+      <span class="lang-en">RDS/Aurora security and RDS Proxy</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>التشفير في الراحة (at-rest)</strong>: عبر AWS KMS. <strong>يجب تفعيله عند إنشاء القاعدة</strong> — لتشفير قاعدة غير مشفَّرة، خذ Snapshot ثمّ أعد الاستعادة كمشفَّرة. التكرار (replicas) يرث نفس إعدادات التشفير من master.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>At-rest encryption</strong>: via AWS KMS. <strong>Must be enabled at creation</strong> — to encrypt an unencrypted DB, snapshot and restore as encrypted. Replicas inherit the master's encryption setting.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الميزة الأمنيّة</span><span class="lang-en">Security feature</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السلوك</span><span class="lang-en">Behavior</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">In-flight encryption</span><span class="lang-en">In-flight encryption</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">TLS جاهز افتراضياً — استخدم AWS TLS root certs في العميل</span><span class="lang-en">TLS on by default — use AWS TLS root certs on the client</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IAM Authentication</span><span class="lang-en">IAM Authentication</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استخدم IAM role بدل username/password — مفضَّل للتطبيقات على AWS</span><span class="lang-en">Use IAM role instead of user/pass — preferred for AWS-resident apps</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Security Groups</span><span class="lang-en">Security Groups</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تتحكّم بالشبكة — اسمح فقط لـ SG التطبيق</span><span class="lang-en">Control network access — only allow app's SG</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Audit Logs</span><span class="lang-en">Audit Logs</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قابلة للإرسال إلى CloudWatch Logs للاحتفاظ الطويل</span><span class="lang-en">Can be shipped to CloudWatch Logs for long retention</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SSH Access</span><span class="lang-en">SSH Access</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">غير متاح (عدا RDS Custom)</span><span class="lang-en">Not available (except RDS Custom)</span></td></tr></tbody>
+    </table>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>RDS Proxy</strong>: proxy مُدار يجلس بين تطبيقك وRDS. <strong>يجمع الاتّصالات (connection pooling)</strong> ويشاركها بين العملاء، ممّا يقلّل الضغط على قاعدة البيانات. يُخفّض زمن failover بنسبة ٦٦٪. مهمّ جداً لتطبيقات Lambda (كلّ invocation ينشئ اتّصالاً جديداً — Proxy يحلّ هذه المشكلة). <strong>غير متاح للوصول العامّ</strong> — يُستخدم من داخل VPC فقط.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>RDS Proxy</strong>: a managed proxy between your app and RDS. <strong>Pools connections</strong> and shares them across clients, reducing DB pressure. Cuts failover time by 66%. Critical for Lambda (each invocation opens a connection — Proxy solves this). <strong>Never publicly accessible</strong> — VPC-only.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK — generate an IAM auth token (password-less DB login)
+import software.amazon.awssdk.services.rds.RdsUtilities;
+import software.amazon.awssdk.services.rds.model.GenerateAuthenticationTokenRequest;
+
+RdsUtilities rdsUtil = RdsUtilities.builder()
+    .region(Region.US_EAST_1)
+    .credentialsProvider(DefaultCredentialsProvider.create())
+    .build();
+
+String token = rdsUtil.generateAuthenticationToken(
+    GenerateAuthenticationTokenRequest.builder()
+        .hostname("acme-prod.xyz.us-east-1.rds.amazonaws.com")
+        .port(5432)
+        .username("app_user")
+        .build());
+
+// Use 'token' as the password — valid for 15 minutes
+// No hardcoded password anywhere</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>IAM Authentication + RDS Proxy</strong> = النمط المثالي للتطبيقات الحديثة: بدون كلمات مرور في الكود، اتّصالات مجمّعة، و failover أسرع. يدعم MySQL و PostgreSQL و MariaDB و SQL Server في RDS، و MySQL/PostgreSQL في Aurora.</span>
+      <span class="lang-en"> <strong>IAM Authentication + RDS Proxy</strong> = canonical pattern for modern apps: no hardcoded passwords, pooled connections, faster failover. Supports MySQL, PostgreSQL, MariaDB, SQL Server on RDS, and MySQL/PostgreSQL on Aurora.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ElastiCache — Redis و Memcached مُدارَين</span>
+      <span class="lang-en">ElastiCache — managed Redis and Memcached</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>ElastiCache</strong> ل Redis أو Memcached كما RDS لقواعد البيانات العلائقيّة. يخفّض الحِمل على RDS بتخزين نتائج الاستعلامات المتكرّرة في الذاكرة، ويجعل تطبيقك <strong>stateless</strong> بتخزين بيانات الجلسة خارج الخادم.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>ElastiCache</strong> is to Redis/Memcached what RDS is to relational DBs. Reduces RDS load by caching frequent query results in memory, and makes your app <strong>stateless</strong> by storing session data externally.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-red-50 to-white border-2 border-red-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Redis</span><span class="lang-en">Redis</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar"><strong>Multi-AZ مع Auto-Failover</strong>. Read Replicas لقراءة موسَّعة و HA. <strong>ديمومة (AOF persistence)</strong> — البيانات تبقى حتى بعد إعادة التشغيل. Backup و Restore مدمجَين. يدعم هياكل بيانات غنيّة: Sets, Sorted Sets, Hashes, Lists.</p>
+      <p class="text-sm text-surface-700 lang-en"><strong>Multi-AZ with auto-failover</strong>. Read Replicas for scaled reads + HA. <strong>Durability via AOF persistence</strong> — data survives restart. Built-in backup/restore. Rich data structures: Sets, Sorted Sets, Hashes, Lists.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="grid" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Memcached</span><span class="lang-en">Memcached</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar"><strong>Multi-node sharding</strong> للتقسيم الأفقي. <strong>لا HA</strong> (بدون replication). <strong>لا ديمومة</strong> — البيانات تُفقَد عند إعادة التشغيل. Backup/Restore في الوضع Serverless. معمار multi-threaded. بسيط: key-value فقط.</p>
+      <p class="text-sm text-surface-700 lang-en"><strong>Multi-node sharding</strong> for horizontal partitioning. <strong>No HA</strong> (no replication). <strong>No persistence</strong> — data lost on restart. Backup/Restore in Serverless mode. Multi-threaded. Simple: key-value only.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> الاختيار البسيط: <strong>Redis دائماً</strong> إلّا في حالات محدّدة جداً (حاجة لـ sharding خالص بدون HA، أو كود قديم مرتبط بـ Memcached). Redis أكثر مرونة و HA-capable و يدعم ديمومة.</span>
+      <span class="lang-en"> Simple rule: <strong>Redis always</strong> unless very specific cases (pure sharding without HA, or legacy code bound to Memcached). Redis is more flexible, HA-capable, and supports persistence.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>أنماط caching شائعة</strong>: <strong>Lazy Loading (Cache-Aside)</strong>: يقرأ التطبيق من الـ cache أوّلاً، إذا miss يقرأ من DB ويخزّن النتيجة. <strong>Write-Through</strong>: كلّ كتابة في DB تُحدّث الـ cache أيضاً. عادة تُستخدم الاستراتيجيّتان معاً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Common caching patterns</strong>: <strong>Lazy Loading (Cache-Aside)</strong>: app reads cache first, on miss reads DB and populates cache. <strong>Write-Through</strong>: every DB write also updates cache. Usually combined.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Spring Boot — Redis cache-aside with @Cacheable
+@Service
+public class UserService {
+
+    @Autowired private UserRepository repo;
+
+    // Lazy loading: cache miss → DB query → populate cache
+    @Cacheable(value = "users", key = "#id")
+    public User findById(Long id) {
+        return repo.findById(id).orElseThrow();
+    }
+
+    // Write-through: every save updates cache
+    @CachePut(value = "users", key = "#user.id")
+    public User save(User user) {
+        return repo.save(user);
+    }
+
+    // Evict on delete
+    @CacheEvict(value = "users", key = "#id")
+    public void delete(Long id) {
+        repo.deleteById(id);
+    }
+}
+
+// application.yml points spring.redis.host to the ElastiCache endpoint
+// TTL set via RedisCacheConfiguration.entryTtl(Duration.ofMinutes(10))</code></pre>
+  </div>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="trash" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">إبطال صريح (Invalidation)</span><span class="lang-en">Explicit invalidation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أصعب جزء — أنت مسؤول عن مسح الـ cache عند تغيّر البيانات.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Hardest part — your responsibility to evict on data change.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">TTL</span><span class="lang-en">TTL (Time-to-Live)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">عنصر يختفي تلقائياً بعد مدّة — أبسط ضمان للاتّساق النهائيّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Item auto-expires after a duration — simplest eventual-consistency guarantee.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">LRU Eviction</span><span class="lang-en">LRU eviction</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">إذا امتلأت الذاكرة، تُحذَف العناصر الأقلّ استخداماً أوّلاً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">When memory fills, least-recently-used items are dropped first.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> <strong>Amazon MemoryDB for Redis</strong>: بديل ElastiCache Redis يقدّم Redis <strong>قاعدة بيانات كاملة</strong> (durable + Multi-AZ transactional log)، ويصل لأكثر من ١٦٠ مليون طلب/ثانية. يفيد تطبيقات تحتاج سرعة Redis مع ضمان ديمومة DB.</span>
+      <span class="lang-en"> <strong>Amazon MemoryDB for Redis</strong>: alternative to ElastiCache Redis, gives Redis as a <strong>full database</strong> (durable + Multi-AZ transactional log), 160M+ RPS. Useful when you need Redis speed with DB-grade durability.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء قاعدة PostgreSQL في RDS مع Multi-AZ، ربطها بـ ElastiCache Redis، ثمّ اختبار نمط Cache-Aside من تطبيق Spring Boot.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a Multi-AZ RDS PostgreSQL, add ElastiCache Redis, and test the Cache-Aside pattern from a Spring Boot app.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ RDS PostgreSQL</span>
+      <span class="lang-en">Create RDS PostgreSQL</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">RDS → Create → PostgreSQL → Multi-AZ (Production). اضبط Storage Auto Scaling بحدّ أقصى ١٠٠ GiB.</p><p class="text-surface-600 leading-relaxed lang-en">RDS → Create → PostgreSQL → Multi-AZ (Production). Set Storage Auto Scaling max 100 GiB.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف Read Replica</span>
+      <span class="lang-en">Add a Read Replica</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Actions → Create Read Replica في AZ مختلفة. استخدمه للاستعلامات reporting.</p><p class="text-surface-600 leading-relaxed lang-en">Actions → Create Read Replica in a different AZ. Use it for reporting queries.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ ElastiCache Redis</span>
+      <span class="lang-en">Create ElastiCache Redis</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Cluster mode disabled، Multi-AZ مُفعَّل، cache.t3.micro للتجربة.</p><p class="text-surface-600 leading-relaxed lang-en">Cluster mode disabled, Multi-AZ on, cache.t3.micro for testing.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اضبط Security Groups</span>
+      <span class="lang-en">Configure Security Groups</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># RDS SG: allow port 5432 only from app SG
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-rds --protocol tcp --port 5432 --source-group sg-app
+
+# ElastiCache SG: allow port 6379 only from app SG
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-redis --protocol tcp --port 6379 --source-group sg-app</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختبر من Spring Boot</span>
+      <span class="lang-en">Test from Spring Boot</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">شغّل الخدمة، اطلب <span dir="ltr" class="font-mono">GET /users/1</span> مرّتين — الأولى تضرب DB، الثانية cache hit. تحقّق من logs.</p><p class="text-surface-600 leading-relaxed lang-en">Run the service, hit <span dir="ltr" class="font-mono">GET /users/1</span> twice — first hits DB, second is a cache hit. Check logs.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> RDS Multi-AZ و ElastiCache Redis يكلّفان بالساعة حتى وهما في وضع الخمول. احذف كلّ شيء بعد انتهاء التجربة.</span>
+    <span class="lang-en"> RDS Multi-AZ and ElastiCache Redis bill hourly even when idle. Delete everything after testing.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">RDS = DB مُدارة لكن بدون SSH</span>
+        <span class="lang-en">RDS = managed DBs, no SSH</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">٧ محرّكات، نسخ احتياطيّة تلقائيّة، PITR ٣٥ يوم. تقبل الـ RDS Custom للـ OS access.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">7 engines, auto backups, PITR 35 days. RDS Custom for OS access.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="copy" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Read Replicas ≠ Multi-AZ</span>
+        <span class="lang-en">Read Replicas ≠ Multi-AZ</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Replicas للقراءة (ASYNC). Multi-AZ للـ HA (SYNC). يتكاملان.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Replicas scale reads (ASYNC). Multi-AZ = HA (SYNC). They complement.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Aurora: أسرع و HA أصليّة</span>
+        <span class="lang-en">Aurora: faster, native HA</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">٦ نسخ / ٣ AZs، Failover <٣٠s، Backtrack، يدعم PG/MySQL فقط.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">6 copies / 3 AZs, failover <30s, Backtrack, PG/MySQL only.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">ElastiCache: Redis الخيار الافتراضيّ</span>
+        <span class="lang-en">ElastiCache: Redis is default</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Multi-AZ, AOF, بنى بيانات غنيّة. Memcached للـ sharding البحت فقط.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Multi-AZ, AOF, rich structures. Memcached only for pure sharding.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للتمييز بين Multi-AZ و Read Replicas: "<strong>Multi-AZ = Many Zones للنجاة (HA)، Replicas = Reads للتوسعة</strong>". وللـ caching: "Redis = Robust، Memcached = Mere sharding".</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Multi-AZ vs Replicas: "<strong>Multi-AZ = Many zones for survival (HA), Replicas = Reads for scale</strong>". Caching: "Redis = Robust, Memcached = Mere sharding".</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch04.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(5, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch06.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Acme reporting يسبّب بطءاً على قاعدة الإنتاج (RDS PostgreSQL Multi-AZ). أفضل حلّ؟</span><span class="lang-en">Acme's reporting app slows down production (RDS PostgreSQL Multi-AZ). Best fix?</span>",
+        options: [
+          "<span class="lang-ar">ترقية instance type لقاعدة الإنتاج.</span><span class="lang-en">Upgrade the prod instance type.</span>",
+          "<span class="lang-ar">إنشاء Read Replica وتوجيه reporting إليه.</span><span class="lang-en">Create a Read Replica and route reporting to it.</span>",
+          "<span class="lang-ar">تفعيل Multi-AZ مرّة أخرى.</span><span class="lang-en">Enable Multi-AZ again.</span>",
+          "<span class="lang-ar">تشغيل RDS Proxy.</span><span class="lang-en">Turn on RDS Proxy.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الحالة النموذجيّة لـ <strong>Read Replica</strong>: أحمال قراءة ثقيلة (reporting, analytics) تزاحِم الإنتاج. الـ replica يعزلها. Multi-AZ لا يساعد في القراءة — الـ standby غير قابل للاستعلام. الترقية حلّ عموديّ مكلف.</span><span class="lang-en">Canonical <strong>Read Replica</strong> case: heavy read workloads (reporting, analytics) crowding prod. Replica isolates them. Multi-AZ doesn't help reads — the standby isn't queryable. Vertical upgrade is costly.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف ولا يعالج الازدحام جذرياً.</span><span class=\"lang-en\">Costly, doesn't address contention.</span>", "", "<span class=\"lang-ar\">Multi-AZ لا يخدم القراءة.</span><span class=\"lang-en\">Multi-AZ doesn't serve reads.</span>", "<span class=\"lang-ar\">RDS Proxy لاتّصالات، لا لتقسيم الحِمل.</span><span class=\"lang-en\">RDS Proxy is for connections, not load splitting.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">Acme تحتاج DR تلقائيّ لقاعدة RDS MySQL ضدّ فشل AZ كامل. ما الحلّ؟</span><span class="lang-en">Acme needs automatic DR for RDS MySQL against a full AZ outage. Solution?</span>",
+        options: [
+          "<span class="lang-ar">Read Replicas في AZ ثانية.</span><span class="lang-en">Read Replicas in a 2nd AZ.</span>",
+          "<span class="lang-ar">Multi-AZ Deployment.</span><span class="lang-en">Multi-AZ Deployment.</span>",
+          "<span class="lang-ar">Cross-Region replication.</span><span class="lang-en">Cross-Region replication.</span>",
+          "<span class="lang-ar">نسخ احتياطيّة يدويّة يوميّة.</span><span class="lang-en">Manual daily backups.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Multi-AZ</strong> هو الحلّ لفشل AZ: نسخ متزامن إلى standby في AZ أخرى، failover تلقائيّ خلال دقائق، نفس DNS endpoint. Read Replicas أساسيّة للقراءة لا للـ DR (تكرار async). Cross-Region لفشل Region كامل (أسئلة أخرى).</span><span class="lang-en"><strong>Multi-AZ</strong> is the AZ-failure fix: sync replica to standby in another AZ, auto-failover in minutes, same DNS. Read Replicas are for reads (async). Cross-Region is for full-Region failure (different question).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكرار async، ليست DR حقيقيّة.</span><span class=\"lang-en\">Async replication, not true DR.</span>", "", "<span class=\"lang-ar\">لكارثة Region كاملة — ليست السؤال.</span><span class=\"lang-en\">For full-Region disaster — not the question.</span>", "<span class=\"lang-ar\">غير تلقائيّ، يفقد البيانات.</span><span class=\"lang-en\">Manual, loses data.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Lambda يتّصل بـ RDS PostgreSQL. مع ارتفاع معدّل الـ invocations، قاعدة البيانات تشكو من "too many connections". ما الحلّ الأمثل؟</span><span class="lang-en">A Lambda connects to RDS PostgreSQL. As invocations rise, the DB reports "too many connections". Best fix?</span>",
+        options: [
+          "<span class="lang-ar">ترقية حجم قاعدة البيانات.</span><span class="lang-en">Upgrade DB size.</span>",
+          "<span class="lang-ar">تفعيل <strong>RDS Proxy</strong> أمام RDS — يجمع الاتّصالات ويشاركها بين الـ invocations.</span><span class="lang-en">Enable <strong>RDS Proxy</strong> in front of RDS — pools and shares connections across invocations.</span>",
+          "<span class="lang-ar">إنشاء Read Replicas.</span><span class="lang-en">Add Read Replicas.</span>",
+          "<span class="lang-ar">إعادة كتابة Lambda بـ Go.</span><span class="lang-en">Rewrite Lambda in Go.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">مشكلة كلاسيكيّة لـ Lambda: كلّ invocation يفتح اتّصالاً جديداً، وقاعدة البيانات لديها حدّ اتّصالات. <strong>RDS Proxy</strong> يحلّها بتجميع الاتّصالات (connection pooling) وتقليل failover بـ ٦٦٪. الترقية تؤجّل المشكلة. Read Replicas تزيد التعقيد دون حلّ الاتّصالات.</span><span class="lang-en">Classic Lambda problem: each invocation opens a new connection, DB has a connection cap. <strong>RDS Proxy</strong> solves it via pooling and cuts failover by 66%. Upgrade only postpones. Replicas don't solve the connection issue.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يؤجّل المشكلة فقط.</span><span class=\"lang-en\">Only delays the issue.</span>", "", "<span class=\"lang-ar\">Replicas لا تحلّ الاتّصالات.</span><span class=\"lang-en\">Replicas don't fix connection count.</span>", "<span class=\"lang-ar\">اللغة ليست السبب.</span><span class=\"lang-en\">Language isn't the cause.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العبارات صحيحة عن <strong>Aurora</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about <strong>Aurora</strong>? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">متوافق wire-protocol مع PostgreSQL و MySQL.</span><span class="lang-en">Wire-protocol compatible with PostgreSQL and MySQL.</span>",
+          "<span class="lang-ar">يحتفظ بـ ٦ نسخ من البيانات عبر ٣ AZs.</span><span class="lang-en">Stores 6 copies across 3 AZs.</span>",
+          "<span class="lang-ar">Failover أقلّ من ٣٠ ثانية.</span><span class="lang-en">Failover in under 30 seconds.</span>",
+          "<span class="lang-ar">يدعم Backtrack للعودة في الزمن دون backup.</span><span class="lang-en">Supports Backtrack to rewind without a backup.</span>",
+          "<span class="lang-ar">Aurora هو المحرّك الوحيد الذي يعمل على AWS — لا يوجد MySQL آخر.</span><span class="lang-en">Aurora is the only engine on AWS — no other MySQL exists.</span>"
+        ],
+        correct: [0,1,2,3],
+        explanation: "<span class="lang-ar">Aurora متوافق مع PG/MySQL، يحتفظ بـ ٦ نسخ في ٣ AZs، failover تحت ٣٠ ثانية، ويدعم Backtrack. لكن AWS تقدّم MySQL الكلاسيكيّ و MariaDB أيضاً عبر RDS — Aurora ليس الوحيد.</span><span class="lang-en">Aurora is PG/MySQL-compatible, keeps 6 copies in 3 AZs, failover under 30s, supports Backtrack. But AWS also offers classic MySQL and MariaDB via RDS — Aurora isn't the only one.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">فريق Acme يريد تخزين بيانات جلسات المستخدمين بشكل مشترك بين خوادم ASG. الخيار الأفضل للأداء؟</span><span class="lang-en">Acme wants to share user session data across ASG instances. Best performance option?</span>",
+        options: [
+          "<span class="lang-ar">RDS PostgreSQL.</span><span class="lang-en">RDS PostgreSQL.</span>",
+          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>",
+          "<span class="lang-ar">ElastiCache Redis.</span><span class="lang-en">ElastiCache Redis.</span>",
+          "<span class="lang-ar">S3.</span><span class="lang-en">S3.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>ElastiCache Redis</strong> هو المعياريّ لتخزين الجلسات: ذاكرة فائقة السرعة (ميلّي ثانية واحدة)، HA مع Multi-AZ، ديمومة اختياريّة (AOF). DynamoDB خيار جيد أيضاً (خاصّة للـ serverless) لكن أبطأ قليلاً. RDS زائد التعقيد. S3 بطيء لجلسات.</span><span class="lang-en"><strong>ElastiCache Redis</strong> is canonical for sessions: in-memory (~1ms), HA via Multi-AZ, optional durability (AOF). DynamoDB is also fine (esp. serverless) but slightly slower. RDS is overkill. S3 is slow for sessions.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بطيء لجلسات.</span><span class=\"lang-en\">Slow for sessions.</span>", "<span class=\"lang-ar\">جيد لكنّ Redis أسرع لأداء الجلسات.</span><span class=\"lang-en\">Good, but Redis is faster.</span>", "", "<span class=\"lang-ar\">latency بالمئات من الميلّي ثانية — غير مقبول لجلسات.</span><span class=\"lang-en\">Hundreds-of-ms latency — too slow for sessions.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد أعلى أمان: كلمة مرور لا تُخزَّن في الكود ولا في config files لاتّصال التطبيق بـ RDS. ما الطريقة؟</span><span class="lang-en">A dev wants max security: no password in code or config for the app→RDS connection. How?</span>",
+        options: [
+          "<span class="lang-ar">نقل كلمة المرور إلى S3 مشفّرة.</span><span class="lang-en">Put password in S3 encrypted.</span>",
+          "<span class="lang-ar"><strong>IAM Database Authentication</strong> — التطبيق يولّد token مؤقّت (١٥ دقيقة) عبر IAM role.</span><span class="lang-en"><strong>IAM Database Authentication</strong> — app generates a 15-minute token via IAM role.</span>",
+          "<span class="lang-ar">استخدام AWS Secrets Manager فقط (هو نفس IAM Auth).</span><span class="lang-en">Use AWS Secrets Manager only (same as IAM Auth).</span>",
+          "<span class="lang-ar">كتابة كلمة المرور في User Data.</span><span class="lang-en">Put password in User Data.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>IAM Database Authentication</strong> يلغي كلمات المرور تماماً: التطبيق يستخدم IAM role ليولّد token مؤقّت (١٥ دقيقة) يُستخدم ككلمة مرور. Secrets Manager مختلف — يخزّن كلمات المرور مع rotation تلقائي، لكنّه ليس نفس IAM Auth. S3 و User Data ممارسات خطيرة.</span><span class="lang-en"><strong>IAM Database Authentication</strong> eliminates passwords: app uses IAM role to generate a 15-min token as the password. Secrets Manager is different — stores passwords with auto-rotation, but not IAM Auth. S3/User Data are poor practices.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُخزِّن كلمة المرور، لا يلغيها.</span><span class=\"lang-en\">Stores the password, doesn't eliminate it.</span>", "", "<span class=\"lang-ar\">Secrets Manager حلّ مختلف (لا يولّد token).</span><span class=\"lang-en\">Secrets Manager is different (no token generation).</span>", "<span class=\"lang-ar\">عرضة لأيّ من يقرأ User Data.</span><span class=\"lang-en\">Exposed to anyone reading User Data.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">فريق Acme ينفّذ <span dir="ltr" class="font-mono">DELETE</span> خاطئ في Aurora MySQL. يريدون استعادة قاعدة البيانات إلى حالتها قبل الحذف بـ ساعتين. الأسرع؟</span><span class="lang-en">Acme accidentally runs a bad <span dir="ltr" class="font-mono">DELETE</span> on Aurora MySQL. They want to restore to 2 hours before the delete. Fastest?</span>",
+        options: [
+          "<span class="lang-ar">Point-in-Time Restore من snapshot.</span><span class="lang-en">Point-in-Time Restore from snapshot.</span>",
+          "<span class="lang-ar"><strong>Aurora Backtrack</strong> — ترجع بالقاعدة في الزمن بدقائق.</span><span class="lang-en"><strong>Aurora Backtrack</strong> — rewinds the DB in minutes.</span>",
+          "<span class="lang-ar">استعادة من نسخة احتياطيّة يدويّة.</span><span class="lang-en">Restore from a manual backup.</span>",
+          "<span class="lang-ar">إعادة إنشاء كلّ البيانات يدوياً.</span><span class="lang-en">Recreate all data manually.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Aurora Backtrack</strong> ميزة فريدة: يعيد القاعدة إلى وقت سابق (حتى ٧٢ ساعة) بدون استعادة من backup — عمليّة دقائق. Point-in-Time Restore يعمل لكنّه أبطأ (ساعات لاستعادة قاعدة كبيرة). Backtrack متاح فقط في Aurora MySQL.</span><span class="lang-en"><strong>Aurora Backtrack</strong> is unique: rewinds DB to a past state (up to 72h) without restore — minutes. PITR works but is slower (hours for a large DB). Backtrack is Aurora MySQL only.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أبطأ بكثير من Backtrack.</span><span class=\"lang-en\">Much slower than Backtrack.</span>", "", "<span class=\"lang-ar\">أبطأ — ينشئ قاعدة جديدة.</span><span class=\"lang-en\">Slow — creates a new DB.</span>", "<span class=\"lang-ar\">غير واقعيّ.</span><span class=\"lang-en\">Impractical.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق microservice يستخدم ElastiCache Redis. بعد إعادة تشغيل خادم Redis، تصبح الـ cache فارغة ويلاحظ المطوّرون ضغطاً مفاجئاً على RDS. لماذا؟</span><span class="lang-en">A microservice uses ElastiCache Redis. After a Redis restart, the cache is empty and devs notice sudden RDS pressure. Why?</span>",
+        options: [
+          "<span class="lang-ar">Redis لا يحتفظ بالبيانات افتراضياً.</span><span class="lang-en">Redis doesn't persist by default.</span>",
+          "<span class="lang-ar">عاصفة cache-miss: كلّ الطلبات تذهب إلى RDS معاً حتى تُملأ الـ cache — الحلّ هو تفعيل <strong>Redis AOF persistence</strong> أو استراتيجيّة warm-up للـ cache.</span><span class="lang-en">Cache-miss storm: all traffic hits RDS until cache warms — fix: enable <strong>Redis AOF persistence</strong> or a warm-up strategy.</span>",
+          "<span class="lang-ar">RDS به مشكلة.</span><span class="lang-en">RDS has an issue.</span>",
+          "<span class="lang-ar">إعادة التشغيل حذفت RDS أيضاً.</span><span class="lang-en">Restart wiped RDS too.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>عاصفة Cache-miss (thundering herd)</strong> من أصعب مشاكل caching: عند إعادة تشغيل Redis، كلّ الطلبات تصبح cache-miss وتُرسَل إلى DB. الحلول: تفعيل AOF persistence (Redis يحفظ على القرص)، أو استراتيجيّة warm-up (تحميل مسبق للـ cache). Redis <strong>يدعم الديمومة</strong> على عكس Memcached.</span><span class="lang-en"><strong>Thundering herd cache-miss</strong> is a tough caching issue: on Redis restart, every request becomes a miss and hits the DB. Fix: AOF persistence (Redis persists to disk), or a warm-up strategy. Redis <strong>does support durability</strong>, unlike Memcached.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Redis يدعم الديمومة إن فُعِّلت.</span><span class=\"lang-en\">Redis does support persistence if enabled.</span>", "", "<span class=\"lang-ar\">RDS سليم — السبب الـ cache.</span><span class=\"lang-en\">RDS is fine — cache is the cause.</span>", "<span class=\"lang-ar\">إعادة Redis لا تؤثّر على RDS.</span><span class=\"lang-en\">Redis restart doesn't touch RDS.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">Acme تستخدم قاعدة RDS Oracle ٢ TB. التخزين يقترب من الامتلاء في منتصف الليل. الحلّ الأقلّ تدخّلاً؟</span><span class="lang-en">Acme uses a 2 TB RDS Oracle DB. Storage is filling up at midnight. Lowest-touch fix?</span>",
+        options: [
+          "<span class="lang-ar">زيادة حجم التخزين يدوياً كلّ أسبوع.</span><span class="lang-en">Manually resize storage weekly.</span>",
+          "<span class="lang-ar">تفعيل <strong>RDS Storage Auto Scaling</strong> مع Maximum Storage Threshold.</span><span class="lang-en">Enable <strong>RDS Storage Auto Scaling</strong> with a Maximum Storage Threshold.</span>",
+          "<span class="lang-ar">ترقية نوع الخادم.</span><span class="lang-en">Upgrade instance type.</span>",
+          "<span class="lang-ar">حذف بيانات قديمة يدوياً.</span><span class="lang-en">Manually delete old data.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>RDS Storage Auto Scaling</strong> مخصّص لهذه الحالة بالضبط: يزيد التخزين تلقائياً عندما تنخفض المساحة الحرّة لأقلّ من ١٠٪ لمدّة ٥ دقائق. أنت تحدّد الحدّ الأقصى. يعمل مع كلّ محرّكات RDS بما فيها Oracle.</span><span class="lang-en"><strong>RDS Storage Auto Scaling</strong> is designed exactly for this: auto-grows storage when free space stays below 10% for 5+ minutes. You set the cap. Works on all RDS engines including Oracle.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يدويّ — مرهق.</span><span class=\"lang-en\">Manual — exhausting.</span>", "", "<span class=\"lang-ar\">ترقية الخادم لا تعالج التخزين.</span><span class=\"lang-en\">Instance upgrade doesn't fix storage.</span>", "<span class=\"lang-ar\">حلّ مؤقّت وعمليّ متعب.</span><span class=\"lang-en\">Temporary and painful.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر Spring Boot أنشأ تطبيقاً stateful يحفظ سلّة المشتريات في ذاكرة الخادم المحلّيّة. ما أسوأ عواقب هذا القرار في معمار ASG + ALB؟</span><span class="lang-en">A Spring Boot dev built a stateful app storing shopping carts in local instance memory. Worst consequence in an ASG + ALB stack?</span>",
+        options: [
+          "<span class="lang-ar">ارتفاع تكلفة CPU.</span><span class="lang-en">Higher CPU cost.</span>",
+          "<span class="lang-ar">فقدان الجلسات عند استبدال خادم (scale-in، unhealthy) وكسر تجربة المستخدم.</span><span class="lang-en">Session loss when instances are replaced (scale-in, unhealthy), breaking UX.</span>",
+          "<span class="lang-ar">بطء في DNS.</span><span class="lang-en">Slow DNS.</span>",
+          "<span class="lang-ar">فشل Multi-AZ.</span><span class="lang-en">Multi-AZ failure.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الحالة في الذاكرة المحلّيّة = <strong>عدم مرونة</strong>: أيّ استبدال خادم (scale-in، failed health check، instance refresh) يمسح جلسات المستخدمين ويضطرّهم لإعادة تسجيل الدخول. الحلّ: externalize state إلى ElastiCache/DynamoDB. هذه مشكلة السينيور الكلاسيكيّة.</span><span class="lang-en">Local in-memory state = <strong>no elasticity</strong>: any replacement (scale-in, failed health check, instance refresh) wipes sessions and forces re-login. Fix: externalize state to ElastiCache/DynamoDB. Classic senior-level anti-pattern.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس السبب الرئيس.</span><span class=\"lang-en\">Not the main issue.</span>", "", "<span class=\"lang-ar\">لا علاقة.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">لا علاقة.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">أيّ من التالي صحيح عن تكرار RDS Read Replica؟</span><span class="lang-en">Which is true about RDS Read Replica replication?</span>",
+        options: [
+          "<span class="lang-ar">تكرار متزامن — القراءة دائماً حديثة.</span><span class="lang-en">Synchronous — reads always fresh.</span>",
+          "<span class="lang-ar">تكرار <strong>غير متزامن (ASYNC)</strong> — القراءة قد تكون قديمة (eventually consistent).</span><span class="lang-en"><strong>Asynchronous (ASYNC)</strong> — reads may be stale (eventually consistent).</span>",
+          "<span class="lang-ar">يمكن الكتابة على Read Replica مباشرةً.</span><span class="lang-en">Can write directly to a Read Replica.</span>",
+          "<span class="lang-ar">Replica تستبدل master تلقائياً عند الفشل.</span><span class="lang-en">Replica auto-promotes on master failure.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Read Replicas تستخدم تكراراً <strong>غير متزامن</strong> — هناك lag صغير. لا يمكن الكتابة عليها مباشرةً (read-only). لا تُرقَّى تلقائياً — لذلك Multi-AZ ضروريّ للـ HA. الـ replica يمكن ترقيتها يدوياً إلى standalone DB.</span><span class="lang-en">Read Replicas use <strong>async</strong> replication — small lag exists. Cannot write directly to them (read-only). No auto-promotion — that's why Multi-AZ is needed for HA. Replica can be manually promoted to a standalone DB.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Async لا Sync.</span><span class=\"lang-en\">Async, not sync.</span>", "", "<span class=\"lang-ar\">read-only.</span><span class=\"lang-en\">Read-only.</span>", "<span class=\"lang-ar\">Multi-AZ وحده تلقائيّ الـ failover.</span><span class=\"lang-en\">Only Multi-AZ auto-fails over.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">Acme تحتاج قاعدة بيانات Redis مع ديمومة DB-grade (لا تفقد البيانات عند failure)، ومتوافقة مع Redis API. ما الخدمة؟</span><span class="lang-en">Acme needs a Redis-API DB with DB-grade durability (no data loss on failure). Which service?</span>",
+        options: [
+          "<span class="lang-ar">ElastiCache for Redis.</span><span class="lang-en">ElastiCache for Redis.</span>",
+          "<span class="lang-ar">ElastiCache for Memcached.</span><span class="lang-en">ElastiCache for Memcached.</span>",
+          "<span class="lang-ar"><strong>Amazon MemoryDB for Redis</strong>.</span><span class="lang-en"><strong>Amazon MemoryDB for Redis</strong>.</span>",
+          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>MemoryDB for Redis</strong> هو Redis مع ضمان DB-grade: Multi-AZ transactional log، ديمومة تامّة، سرعة ذاكرة (٢٫٥× ElastiCache). ElastiCache Redis سريع لكن ليس بنفس ضمانات DB. Memcached بدون ديمومة. DynamoDB ليس Redis API.</span><span class="lang-en"><strong>MemoryDB for Redis</strong> is Redis with DB-grade guarantees: Multi-AZ transactional log, full durability, in-memory speed (2.5× ElastiCache). ElastiCache Redis is fast but not DB-grade. Memcached has no persistence. DynamoDB isn't Redis API.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ديمومته عبر AOF ليست DB-grade.</span><span class=\"lang-en\">AOF durability isn't DB-grade.</span>", "<span class=\"lang-ar\">بدون ديمومة.</span><span class=\"lang-en\">No persistence.</span>", "", "<span class=\"lang-ar\">مختلف تماماً — لا Redis API.</span><span class=\"lang-en\">Different service — no Redis API.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(5, QUESTIONS);
+      if (isChapterComplete(5)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

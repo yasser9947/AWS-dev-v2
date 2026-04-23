@@ -1,0 +1,57 @@
+{
+  "slug": "step-functions",
+  "name": "AWS Step Functions",
+  "icon": "git-branch",
+  "color": "purple",
+  "tagline_ar": "خدمة تنسيق سير العمل بلا خوادم تُبنى سير عمل (state machines) باستخدام ASL لربط Lambda وخدمات AWS بمنطق قوي.",
+  "tagline_en": "Serverless workflow orchestration using ASL to compose Lambda and AWS services into reliable state machines.",
+  "key_concepts": [
+    {"concept": "State Machine", "desc_ar": "تعريف سير العمل بلغة Amazon States Language (JSON).", "desc_en": "Workflow definition authored in Amazon States Language (JSON)."},
+    {"concept": "Standard Workflow", "desc_ar": "exactly-once، مدّة حتى سنة، مثالي للأعمال الطويلة والمدقّقة.", "desc_en": "Exactly-once, up to 1 year duration, ideal for long-running audited jobs."},
+    {"concept": "Express Workflow", "desc_ar": "at-least-once، مدّة حتى 5 دقائق، ذو معدل عالٍ وتكلفة أقل لكل تنفيذ.", "desc_en": "At-least-once, up to 5 min duration, high TPS and lower per-execution cost."},
+    {"concept": "Task State", "desc_ar": "يستدعي Lambda/خدمة AWS عبر SDK أو Optimized integration.", "desc_en": "Invokes Lambda/AWS service via SDK or optimized integration."},
+    {"concept": "Choice / Parallel / Map", "desc_ar": "Choice للتفرع، Parallel للفروع المتزامنة، Map للتكرار على مصفوفة.", "desc_en": "Choice for branching, Parallel for concurrent branches, Map for array iteration."},
+    {"concept": "Wait / Pass / Succeed / Fail", "desc_ar": "حالات للتأخير، تمرير البيانات، إنهاء ناجح، أو فشل صريح.", "desc_en": "States for delay, data passing, success termination, or explicit failure."},
+    {"concept": "Retry & Catch", "desc_ar": "إعادة محاولة مع backoff وتقاط الأخطاء لمسار بديل.", "desc_en": "Retry with backoff and Catch errors to alternate paths."},
+    {"concept": "Callback pattern (.waitForTaskToken)", "desc_ar": "انتظار حتى يستدعي عامل خارجي SendTaskSuccess/Failure.", "desc_en": "Pause until an external worker calls SendTaskSuccess/Failure."},
+    {"concept": "Activities", "desc_ar": "مهام تُنفَّذ بواسطة عمال خارج AWS عبر long polling.", "desc_en": "Tasks executed by external workers via long polling."}
+  ],
+  "limits": [
+    {"limit": "Standard execution duration", "limit_en": "Standard execution duration", "value": "1 year"},
+    {"limit": "Express execution duration", "limit_en": "Express execution duration", "value": "5 min"},
+    {"limit": "Max request size (input/output)", "limit_en": "Max input/output size", "value": "256 KB"},
+    {"limit": "State transitions (Standard)", "limit_en": "State transitions (Standard)", "value": "25,000/s account"},
+    {"limit": "Express TPS", "limit_en": "Express TPS", "value": "100,000 exec/s"},
+    {"limit": "Execution history retention", "limit_en": "Execution history retention", "value": "90 days (Standard)"},
+    {"limit": "Map concurrency (Distributed)", "limit_en": "Distributed Map concurrency", "value": "10,000 child exec"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء state machine من ملف تعريف.", "desc_en": "Create a state machine from a definition file.", "cmd": "aws stepfunctions create-state-machine --name order-flow --definition file://asl.json --role-arn arn:aws:iam::123:role/StepFnRole --type STANDARD"},
+    {"desc_ar": "بدء تنفيذ مع إدخال JSON.", "desc_en": "Start execution with JSON input.", "cmd": "aws stepfunctions start-execution --state-machine-arn arn:aws:states:...:order-flow --input '{\"orderId\":\"123\"}'"},
+    {"desc_ar": "متابعة حالة تنفيذ.", "desc_en": "Describe execution state.", "cmd": "aws stepfunctions describe-execution --execution-arn arn:aws:states:...:exec-1"},
+    {"desc_ar": "إرسال نجاح مهمة callback.", "desc_en": "Send task success for callback.", "cmd": "aws stepfunctions send-task-success --task-token $TOKEN --output '{\"status\":\"ok\"}'"},
+    {"desc_ar": "بدء تنفيذ Express متزامن.", "desc_en": "Start synchronous Express execution.", "cmd": "aws stepfunctions start-sync-execution --state-machine-arn arn:aws:states:...:express-sm --input '{}'"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تنسيق عدة Lambdas بمنطق معقد مع إعادة المحاولة", "scenario_en": "Orchestrate multiple Lambdas with complex retry logic", "choice": "Standard workflow"},
+    {"scenario_ar": "مسارات قصيرة عالية التردد (IoT/Streaming)", "scenario_en": "Short high-volume flows (IoT/streaming)", "choice": "Express workflow"},
+    {"scenario_ar": "انتظار موافقة إنسان أو webhook خارجي", "scenario_en": "Wait for human approval or external webhook", "choice": "Callback pattern (waitForTaskToken)"},
+    {"scenario_ar": "معالجة مصفوفة كبيرة بالتوازي", "scenario_en": "Process large arrays in parallel", "choice": "Distributed Map"},
+    {"scenario_ar": "ETL متعدد الخطوات مع تدقيق", "scenario_en": "Multi-step audited ETL", "choice": "Standard + CloudWatch Logs"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Duration", "feature_ar": "مدّة التنفيذ", "this": "Up to 1 year (Standard)", "alt": "15 min max per invocation", "alt_name": "Lambda chains"},
+    {"feature": "Error handling", "feature_ar": "معالجة الأخطاء", "this": "Built-in Retry/Catch", "alt": "Custom code per function", "alt_name": "Lambda chains"},
+    {"feature": "Visibility", "feature_ar": "الرؤية", "this": "Visual graph + execution history", "alt": "Fragmented logs across services", "alt_name": "Lambda chains"},
+    {"feature": "State management", "feature_ar": "إدارة الحالة", "this": "Managed input/output between states", "alt": "Manual via DynamoDB/SQS", "alt_name": "Lambda chains"},
+    {"feature": "Cost model", "feature_ar": "نموذج التسعير", "this": "Per state transition (Std) / duration (Exp)", "alt": "Per invocation + duration", "alt_name": "Lambda chains"},
+    {"feature": "Exactly-once", "feature_ar": "exactly-once", "this": "Yes (Standard)", "alt": "Requires idempotency logic", "alt_name": "Lambda chains"}
+  ],
+  "exam_tips": [
+    {"ar": "Standard = exactly-once حتى سنة؛ Express = at-least-once حتى 5 دقائق. السؤال غالباً يختبر الفرق.", "en": "Standard = exactly-once up to 1 year; Express = at-least-once up to 5 min. Commonly tested distinction."},
+    {"ar": "لاستدعاء إنسان/API خارجي بانتظار طويل استخدم .waitForTaskToken مع SendTaskSuccess.", "en": "For long external/human callbacks use .waitForTaskToken with SendTaskSuccess."},
+    {"ar": "Map Distributed يوزّع حتى 10,000 تنفيذ فرعي ممتاز لمعالجة S3 الكبيرة.", "en": "Distributed Map scales to 10,000 child executions for large S3 processing."},
+    {"ar": "Express لا يحفظ تاريخاً مفصلاً — اعتمد على CloudWatch Logs/X-Ray.", "en": "Express keeps no detailed history — rely on CloudWatch Logs/X-Ray."},
+    {"ar": "Retry يستخدم exponential backoff؛ Catch ينقل إلى حالة ErrorHandler.", "en": "Retry uses exponential backoff; Catch routes to an ErrorHandler state."}
+  ]
+}

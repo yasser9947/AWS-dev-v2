@@ -1,0 +1,415 @@
+{
+  "n": 4,
+  "domain": "foundations",
+  "title_ar": "الإتاحة العالية والتوسعة: ELB و Auto Scaling Groups",
+  "title_en": "High Availability & Scalability: ELB and Auto Scaling Groups",
+  "pages": "95-137",
+  "subtitle_ar": "كيف تصمم طبقة تطبيقات تصمد أمام فشل AZ كاملة وتتوسّع مع الحِمل دون تدخّل يدويّ؟ الإجابة زوج لا ينفصل: Elastic Load Balancer يوزّع الطلبات، و Auto Scaling Group يضمن وجود العدد المطلوب من الخوادم السليمة.",
+  "subtitle_en": "How do you build an application tier that survives a full-AZ outage and scales with load without manual intervention? The answer is an inseparable pair: Elastic Load Balancer distributes requests, Auto Scaling Group maintains the right number of healthy instances.",
+  "tags": ["ELB", "ALB", "NLB", "ASG", "Target Groups", "Scaling Policies", "Sticky Sessions"],
+  "objectives": [
+    {"concept": "Load Balancer types (ALB/NLB/CLB/GWLB)", "tested_ar": "النطاق الأول في اختيار نوع LB المناسب للحمل (HTTP مقابل TCP مقابل UDP).", "tested_en": "Domain 1 — choosing LB type for the traffic pattern (HTTP vs TCP vs UDP)."},
+    {"concept": "Auto Scaling Groups", "tested_ar": "النطاقان الأول والرابع في سياسات التوسعة ومقاييسها.", "tested_en": "Domains 1 & 4 — scaling policies and metrics."},
+    {"concept": "Target Groups and Health Checks", "tested_ar": "النطاق الأول في توجيه الطلبات وتتبّع صحّة الخوادم.", "tested_en": "Domain 1 — request routing and instance health tracking."},
+    {"concept": "Sticky Sessions and Cross-Zone LB", "tested_ar": "النطاق الثاني في ربط المستخدم بخادم معيّن، وسلوك التوزيع عبر AZs.", "tested_en": "Domain 2 — session affinity and AZ-level distribution behavior."}
+  ],
+  "sections": [
+    {
+      "title_ar": "الفرق بين التوسعة العموديّة والأفقيّة والإتاحة العالية",
+      "title_en": "Vertical vs horizontal scaling vs High Availability",
+      "blocks": [
+        {"type": "p",
+         "ar": "هذه ثلاثة مفاهيم يخلط الكثيرون بينها في الامتحان. <strong>التوسعة العموديّة (Vertical)</strong> تعني تكبير حجم الخادم الواحد. <strong>التوسعة الأفقيّة (Horizontal)</strong> تعني زيادة عدد الخوادم. <strong>الإتاحة العالية (High Availability)</strong> تعني توزيع النظام عبر عدّة AZs ليصمد أمام فشل إحداها.",
+         "en": "Three concepts the exam loves to conflate. <strong>Vertical scaling</strong> = bigger instance. <strong>Horizontal scaling</strong> = more instances. <strong>High Availability</strong> = spread across multiple AZs to survive one AZ failure."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "trending-up", "title_ar": "Vertical Scaling — Scale Up", "title_en": "Vertical — Scale Up",
+                  "body_ar": "تكبير نفس الخادم (مثلاً <span dir=\"ltr\" class=\"font-mono\">t3.micro → r5.4xlarge</span>). شائع للأنظمة غير الموزَّعة مثل قواعد البيانات. <strong>RDS و ElastiCache</strong> تتوسّع عموديّاً. الحدّ يفرضه أقصى حجم خادم (حالياً <span dir=\"ltr\" class=\"font-mono\">u-12tb1.metal</span> بـ ١٢.٣ TB ذاكرة).",
+                  "body_en": "Bigger same instance (e.g., <span dir=\"ltr\" class=\"font-mono\">t3.micro → r5.4xlarge</span>). Common for non-distributed systems like DBs. <strong>RDS and ElastiCache</strong> scale vertically. Limit = max instance size (currently <span dir=\"ltr\" class=\"font-mono\">u-12tb1.metal</span>, 12.3 TB RAM)."},
+         "right": {"tone": "emerald", "icon": "users", "title_ar": "Horizontal Scaling — Scale Out", "title_en": "Horizontal — Scale Out",
+                   "body_ar": "زيادة عدد الخوادم. <strong>مرونة (elasticity)</strong> حقيقيّة. يفترض أنّ التطبيق موزَّع (stateless أو state خارجيّ). يحقّقه <strong>Auto Scaling Group</strong> مع Load Balancer. حدّه هو حدود الحساب (حصص Service Quotas).",
+                   "body_en": "More instances. True <strong>elasticity</strong>. Requires a distributed (stateless or external-state) app. Achieved with <strong>Auto Scaling Group + Load Balancer</strong>. Limit is account quotas."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>الإتاحة العالية تأتي \"مجاناً\" مع التوسعة الأفقيّة إن وزّعت الخوادم عبر عدّة AZs</strong>. ASG + Multi-AZ + ELB = معمار HA كلاسيكيّ. لكن انتبه: Multi-AZ وحده لا يكفي إذا كانت جميع الخوادم في Region واحدة — لكارثة على مستوى Region تحتاج Multi-Region (موضوع Route 53).",
+         "en": "<strong>HA comes \"for free\" with horizontal scaling if you span multiple AZs</strong>. ASG + Multi-AZ + ELB = classic HA stack. But Multi-AZ alone doesn't protect against a Region-wide outage — that needs Multi-Region (Route 53 chapter)."}
+      ]
+    },
+    {
+      "title_ar": "أنواع Elastic Load Balancer الأربعة",
+      "title_en": "The 4 Elastic Load Balancer types",
+      "blocks": [
+        {"type": "p",
+         "ar": "AWS تقدّم ٤ أنواع من الـ Load Balancer المُدار. الاختيار بينها يعتمد على <strong>طبقة OSI</strong> ونوع البروتوكول. الامتحان يسأل هذا كثيراً ضمن سيناريوهات الاختيار.",
+         "en": "AWS offers 4 types of managed load balancers. The choice depends on <strong>OSI layer</strong> and protocol. The exam asks this in choice scenarios constantly."},
+        {"type": "table",
+         "headers": {"ar": ["النوع", "الطبقة", "البروتوكول", "حالة الاستخدام"], "en": ["Type", "Layer", "Protocol", "Use case"]},
+         "rows": [
+           [{"mono": true, "value": "ALB (Application LB)"}, {"ar": "Layer 7", "en": "Layer 7"}, {"ar": "HTTP، HTTPS، WebSocket، HTTP/2", "en": "HTTP, HTTPS, WebSocket, HTTP/2"}, {"ar": "تطبيقات الويب، microservices، توجيه مبنيّ على المسار أو الـ host", "en": "Web apps, microservices, path/host-based routing"}],
+           [{"mono": true, "value": "NLB (Network LB)"}, {"ar": "Layer 4", "en": "Layer 4"}, {"ar": "TCP، UDP، TLS", "en": "TCP, UDP, TLS"}, {"ar": "أداء فائق (ملايين RPS)، زمن استجابة دقيق، IP ثابت", "en": "Ultra-high perf (millions RPS), low latency, static IP"}],
+           [{"mono": true, "value": "GWLB (Gateway LB)"}, {"ar": "Layer 3", "en": "Layer 3"}, {"ar": "IP، GENEVE على المنفذ ٦٠٨١", "en": "IP, GENEVE on port 6081"}, {"ar": "نشر firewall/IDS/IPS من طرف ثالث على مستوى الشبكة", "en": "Deploy 3rd-party firewall/IDS/IPS at the network layer"}],
+           [{"mono": true, "value": "CLB (Classic LB)"}, {"ar": "L4 + L7", "en": "L4 + L7"}, {"ar": "HTTP، HTTPS، TCP، SSL", "en": "HTTP, HTTPS, TCP, SSL"}, {"ar": "الجيل القديم (٢٠٠٩) — تجنّبه في التطبيقات الجديدة", "en": "Legacy (2009) — avoid for new apps"}]
+         ]
+        },
+        {"type": "compare",
+         "left": {"tone": "purple", "icon": "code", "title_ar": "ALB — ذكاء الطبقة ٧", "title_en": "ALB — Layer 7 intelligence",
+                  "body_ar": "يفهم محتوى HTTP. يوجّه بناءً على <strong>المسار</strong> (<span dir=\"ltr\" class=\"font-mono\">/users → backend A</span>)، أو <strong>الـ hostname</strong> (<span dir=\"ltr\" class=\"font-mono\">api.acme.com</span>)، أو <strong>Query String / Headers</strong>. ممتاز للـ microservices والـ containers (ECS/Fargate). يدعم WebSocket و redirects و Lambda كـ target. العميل لا يرى IP الخادم — يُضاف في <span dir=\"ltr\" class=\"font-mono\">X-Forwarded-For</span>.",
+                  "body_en": "Understands HTTP content. Routes on <strong>path</strong> (<span dir=\"ltr\" class=\"font-mono\">/users → backend A</span>), <strong>hostname</strong> (<span dir=\"ltr\" class=\"font-mono\">api.acme.com</span>), or <strong>query string/headers</strong>. Ideal for microservices and containers (ECS/Fargate). Supports WebSocket, redirects, Lambda as target. Client IP not visible — passed via <span dir=\"ltr\" class=\"font-mono\">X-Forwarded-For</span>."},
+         "right": {"tone": "blue", "icon": "zap", "title_ar": "NLB — السرعة الخام", "title_en": "NLB — raw speed",
+                   "body_ar": "يعمل على TCP/UDP مباشرةً. ملايين الطلبات في الثانية، زمن استجابة بالميكروثانية. <strong>يحصل على static IP لكلّ AZ</strong>، ويدعم Elastic IP — مفيد لحالات whitelisting العملاء. يمرّر IP العميل مباشرةً (لا يحتاج X-Forwarded-For).",
+                   "body_en": "Works directly on TCP/UDP. Millions RPS, microsecond latency. <strong>Static IP per AZ</strong>, supports Elastic IP — useful for client whitelisting. Preserves client IP directly (no X-Forwarded-For needed)."}
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "الامتحان يربط الأنواع بحالات محدّدة: <strong>WebSocket/HTTP/2/redirect/path routing → ALB</strong>. <strong>IP ثابت/UDP/أداء قصوى → NLB</strong>. <strong>firewall/IDS من طرف ثالث → GWLB</strong>. Lambda targets يدعمها ALB فقط (NLB لا يدعم Lambda).",
+         "en": "Exam links types to specifics: <strong>WebSocket/HTTP/2/redirect/path routing → ALB</strong>. <strong>Static IP/UDP/extreme perf → NLB</strong>. <strong>3rd-party firewall/IDS → GWLB</strong>. Lambda as target = ALB only (NLB doesn't support Lambda)."}
+      ]
+    },
+    {
+      "title_ar": "Target Groups وفحص الصحّة (Health Checks)",
+      "title_en": "Target Groups and Health Checks",
+      "blocks": [
+        {"type": "p",
+         "ar": "الـ Load Balancer لا يرسل الطلبات مباشرةً إلى خوادم — بل إلى <strong>Target Group</strong>. كلّ Target Group يحدّد مجموعة من الأهداف (instances, IPs, Lambda, ALB nested) ومعاييرها للصحّة (health check). Load Balancer واحد يمكن أن يوجّه إلى عدّة Target Groups بناءً على قواعد التوجيه.",
+         "en": "The LB doesn't send requests directly to instances — it sends them to a <strong>Target Group</strong>. Each Target Group defines targets (instances, IPs, Lambda, nested ALB) and health-check criteria. One LB can route to multiple Target Groups via routing rules."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "server", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EC2 Instances", "title_en": "EC2 Instances", "body_ar": "الهدف الأكثر شيوعاً. يعمل مع ASG للـ elasticity.", "body_en": "Most common target. Pairs with ASG for elasticity."},
+          {"icon": "globe", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "IP Addresses", "title_en": "IP Addresses", "body_ar": "IPs خاصّة فقط. مفيد لأهداف on-premises عبر VPN/Direct Connect.", "body_en": "Private IPs only. Useful for on-premises targets via VPN/Direct Connect."},
+          {"icon": "box", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Lambda (ALB فقط)", "title_en": "Lambda (ALB only)", "body_ar": "HTTP يُترجَم إلى JSON event. خدمات serverless خلف ALB.", "body_en": "HTTP translated to JSON event. Serverless behind ALB."},
+          {"icon": "share-2", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "ALB (لـ NLB)", "title_en": "ALB (for NLB)", "body_ar": "NLB يمكنه توجيه إلى ALB — مفيد لخلط أنماط HTTP و TCP.", "body_en": "NLB can target an ALB — useful for mixing HTTP + TCP patterns."}
+        ]},
+        {"type": "p",
+         "ar": "<strong>فحص الصحّة</strong> هو الكيفيّة التي يعرف بها LB إن كان الهدف جاهزاً لاستقبال الطلبات. يضبط على بروتوكول (HTTP/HTTPS/TCP)، منفذ، ومسار (شائع <code class=\"font-mono\">/health</code>). استجابة خارج نطاق 200-399 → unhealthy → يتوقّف إرسال الطلبات.",
+         "en": "<strong>Health checks</strong> are how the LB knows a target is ready. Configured per protocol (HTTP/HTTPS/TCP), port, and path (<code class=\"font-mono\">/health</code> common). Response outside 200-399 → unhealthy → traffic stops."},
+        {"type": "code", "lang": "java",
+         "code": "// Spring Boot health endpoint — standard pattern\n@RestController\npublic class HealthController {\n\n    private final DataSource ds;\n    private final RedisTemplate<String,String> redis;\n\n    public HealthController(DataSource ds, RedisTemplate<String,String> redis) {\n        this.ds = ds;\n        this.redis = redis;\n    }\n\n    // Shallow check — for ALB target group health\n    @GetMapping(\"/health\")\n    public ResponseEntity<Map<String,String>> health() {\n        return ResponseEntity.ok(Map.of(\"status\", \"UP\"));\n    }\n\n    // Deep check — for internal monitoring (DO NOT use for ALB)\n    // Using deep checks for ALB causes cascading failures when DB is slow\n    @GetMapping(\"/health/deep\")\n    public ResponseEntity<?> deep() {\n        try (var conn = ds.getConnection()) {\n            conn.isValid(1);\n            redis.opsForValue().get(\"healthcheck\");\n            return ResponseEntity.ok(Map.of(\"status\", \"UP\"));\n        } catch (Exception e) {\n            return ResponseEntity.status(503).body(Map.of(\"status\", \"DOWN\"));\n        }\n    }\n}"},
+        {"type": "callout", "tone": "senior",
+         "ar": "فخّ كلاسيكيّ للـ seniors: جعل <code class=\"font-mono\">/health</code> يفحص قاعدة البيانات و Redis يتسبّب في <strong>cascading failure</strong>. عند بطء قاعدة البيانات، كلّ الخوادم تفشل في الـ health check، فتُخرَج من ALB → يصبح النظام كلّه down. اجعل <code class=\"font-mono\">/health</code> للـ ALB سطحياً (liveness)، والفحص العميق (readiness) لأدوات المراقبة الداخلية فقط.",
+         "en": "Classic senior pitfall: making <code class=\"font-mono\">/health</code> hit the DB and Redis causes <strong>cascading failure</strong>. When the DB slows, every instance fails the health check and ALB pulls them all → full outage. Keep <code class=\"font-mono\">/health</code> shallow (liveness) for ALB; deep (readiness) goes to internal monitoring only."}
+      ]
+    },
+    {
+      "title_ar": "Sticky Sessions و Cross-Zone Load Balancing",
+      "title_en": "Sticky Sessions and Cross-Zone Load Balancing",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Sticky Sessions (Session Affinity)</strong> تجعل طلبات مستخدم معيّن تعود دائماً إلى نفس الخادم. مفيد لتطبيقات لا تضع حالة الجلسة في مخزن مشترك. تعمل عبر cookie (ALB/CLB) أو hash على 5-tuple (NLB).",
+         "en": "<strong>Sticky Sessions</strong> pin a user's requests to the same instance. Useful when session state isn't in a shared store. Works via cookie (ALB/CLB) or 5-tuple hash (NLB)."},
+        {"type": "table",
+         "headers": {"ar": ["نوع الـ Cookie", "المولّد", "الاسم", "ملاحظة"], "en": ["Cookie type", "Generator", "Name", "Note"]},
+         "rows": [
+           [{"ar": "Duration-based", "en": "Duration-based"}, {"ar": "Load Balancer", "en": "Load Balancer"}, {"mono": true, "value": "AWSALB (ALB) / AWSELB (CLB)"}, {"ar": "مدّة تحدّدها أنت", "en": "TTL you control"}],
+           [{"ar": "Application-based (app cookie)", "en": "App-based (app cookie)"}, {"ar": "Load Balancer", "en": "Load Balancer"}, {"mono": true, "value": "AWSALBAPP"}, {"ar": "يلحق معلومات التطبيق", "en": "Wraps app's info"}],
+           [{"ar": "Application-based (custom)", "en": "App-based (custom)"}, {"ar": "التطبيق نفسه", "en": "The application"}, {"ar": "أيّ اسم — ليس AWSALB/APP/TG", "en": "Any — NOT AWSALB/APP/TG"}, {"ar": "الأسماء المحجوزة ممنوعة", "en": "Reserved names forbidden"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>أسماء الـ cookies محجوزة</strong>: <span dir=\"ltr\" class=\"font-mono\">AWSALB</span>, <span dir=\"ltr\" class=\"font-mono\">AWSALBAPP</span>, <span dir=\"ltr\" class=\"font-mono\">AWSALBTG</span> ممنوعة للـ custom cookies. Stickiness ممكن أن يسبّب عدم توازن في الحِمل على الخوادم الخلفية — خوادم قليلة قد تستقبل معظم الحِمل إذا كانت جلسات المستخدمين طويلة.",
+         "en": "<strong>Reserved cookie names</strong>: <span dir=\"ltr\" class=\"font-mono\">AWSALB</span>, <span dir=\"ltr\" class=\"font-mono\">AWSALBAPP</span>, <span dir=\"ltr\" class=\"font-mono\">AWSALBTG</span> are forbidden for custom. Stickiness can cause backend imbalance — a few instances may get most traffic if user sessions are long."},
+        {"type": "compare",
+         "left": {"tone": "emerald", "icon": "network", "title_ar": "With Cross-Zone LB", "title_en": "With Cross-Zone LB",
+                  "body_ar": "كلّ عقدة LB في كلّ AZ توزّع على <strong>كلّ الخوادم في كلّ AZs</strong>. التوزيع متساوٍ حتى لو كان عدد الخوادم مختلف بين AZs. <strong>ALB</strong>: مُفعَّل افتراضياً، لا رسوم بين AZs. <strong>NLB/GWLB</strong>: مُعطَّل افتراضياً، رسوم بين AZs عند التفعيل.",
+                  "body_en": "Each LB node in each AZ distributes across <strong>all instances in all AZs</strong>. Even distribution regardless of uneven AZ capacity. <strong>ALB</strong>: enabled by default, no inter-AZ charges. <strong>NLB/GWLB</strong>: disabled by default, inter-AZ charges when enabled."},
+         "right": {"tone": "amber", "icon": "columns", "title_ar": "Without Cross-Zone LB", "title_en": "Without Cross-Zone LB",
+                   "body_ar": "عقدة LB في كلّ AZ توزّع <strong>فقط على خوادم نفس الـ AZ</strong>. يؤدّي إلى توزيع غير متوازن إذا كان عدد الخوادم مختلف. مثال: AZ1 بخادمين يستقبل ٥٠٪ من الحِمل، AZ2 بأربعة يستقبل ٥٠٪ — الخادم في AZ1 يعمل ضعف الخادم في AZ2.",
+                   "body_en": "Each LB node in an AZ routes <strong>only to that AZ's instances</strong>. Creates imbalance if AZ counts differ. Example: AZ1 (2 instances) gets 50%, AZ2 (4) gets 50% — AZ1 instance works 2× harder."}
+        }
+      ]
+    },
+    {
+      "title_ar": "Auto Scaling Group (ASG) وسياسات التوسعة",
+      "title_en": "Auto Scaling Groups (ASG) and scaling policies",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>ASG</strong> يضمن أنّ لديك دائماً عدد الخوادم الذي تحتاجه. يُعرَّف بـ <strong>Launch Template</strong> (AMI، نوع الخادم، User Data، Security Groups، IAM Role، ...) و حدود <strong>Min/Desired/Max</strong>. عند فشل خادم (failed health check) يستبدله ASG تلقائياً. ASG نفسه مجاني — تدفع فقط للخوادم.",
+         "en": "<strong>ASG</strong> ensures you always have the number of instances you need. Defined by a <strong>Launch Template</strong> (AMI, instance type, User Data, SGs, IAM Role, ...) and <strong>Min/Desired/Max</strong> bounds. On instance failure, ASG replaces it automatically. ASG itself is free — you only pay for instances."},
+        {"type": "table",
+         "headers": {"ar": ["نوع السياسة", "المتى", "مثال"], "en": ["Policy type", "When", "Example"]},
+         "rows": [
+           [{"ar": "Target Tracking", "en": "Target Tracking"}, {"ar": "أبسط — تحدّد هدفاً لمقياس وASG يدير الباقي", "en": "Simplest — set a metric target, ASG manages"}, {"ar": "CPU المتوسّط = ٤٠٪", "en": "Avg CPU = 40%"}],
+           [{"ar": "Simple / Step Scaling", "en": "Simple / Step Scaling"}, {"ar": "تحدّد قواعد بناءً على CloudWatch Alarm", "en": "Rules based on CloudWatch Alarms"}, {"ar": "CPU > 70% → أضف ٢. CPU < 30% → احذف ١", "en": "CPU > 70% → add 2. CPU < 30% → remove 1"}],
+           [{"ar": "Scheduled", "en": "Scheduled"}, {"ar": "بناءً على أنماط معروفة مسبقاً", "en": "Based on known usage patterns"}, {"ar": "زد Min إلى ١٠ كلّ جمعة الساعة ٥ مساءً", "en": "Set Min = 10 every Friday 5pm"}],
+           [{"ar": "Predictive", "en": "Predictive"}, {"ar": "ML يحلّل الحِمل التاريخيّ ويتوقّع مسبقاً", "en": "ML analyzes past load and forecasts ahead"}, {"ar": "يتنبّأ بازدياد الصباح ويضيف خوادم قبل الـ rush", "en": "Predicts morning surge, adds instances before the rush"}]
+         ]
+        },
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — create an ASG with a Target Tracking policy\nimport software.amazon.awssdk.services.autoscaling.AutoScalingClient;\nimport software.amazon.awssdk.services.autoscaling.model.*;\n\nAutoScalingClient asg = AutoScalingClient.create();\n\n// 1. Create the ASG (Launch Template assumed pre-existing)\nasg.createAutoScalingGroup(CreateAutoScalingGroupRequest.builder()\n    .autoScalingGroupName(\"acme-web-asg\")\n    .launchTemplate(LaunchTemplateSpecification.builder()\n        .launchTemplateId(\"lt-0abc123\").version(\"$Latest\").build())\n    .minSize(2).desiredCapacity(4).maxSize(10)\n    .vpcZoneIdentifier(\"subnet-a,subnet-b,subnet-c\") // 3 AZs for HA\n    .targetGroupARNs(\"arn:aws:elasticloadbalancing:...:targetgroup/acme-tg/...\")\n    .healthCheckType(\"ELB\") // use ALB health checks, not only EC2\n    .healthCheckGracePeriod(120) // grace period for app warmup\n    .build());\n\n// 2. Attach a Target Tracking policy — keep CPU around 50%\nasg.putScalingPolicy(PutScalingPolicyRequest.builder()\n    .autoScalingGroupName(\"acme-web-asg\")\n    .policyName(\"cpu-at-50\")\n    .policyType(\"TargetTrackingScaling\")\n    .targetTrackingConfiguration(TargetTrackingConfiguration.builder()\n        .predefinedMetricSpecification(p -> p.predefinedMetricType(\n            MetricType.ASG_AVERAGE_CPU_UTILIZATION))\n        .targetValue(50.0)\n        .build())\n    .build());"},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "activity", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "مقاييس التوسعة المفضَّلة", "title_en": "Preferred scaling metrics", "body_ar": "<span dir=\"ltr\" class=\"font-mono\">CPUUtilization</span>، <span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget</span> (من ALB)، <span dir=\"ltr\" class=\"font-mono\">NetworkIn/Out</span>، أو أيّ Custom Metric.", "body_en": "<span dir=\"ltr\" class=\"font-mono\">CPUUtilization</span>, <span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget</span> (from ALB), <span dir=\"ltr\" class=\"font-mono\">NetworkIn/Out</span>, or any custom metric."},
+          {"icon": "clock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Cooldown (default 300s)", "title_en": "Cooldown (default 300s)", "body_ar": "بعد كلّ عمليّة توسعة، ASG ينتظر ٥ دقائق قبل عمليّة أخرى. لا تقلّله إلى أقلّ من زمن بدء تشغيل الخادم.", "body_en": "After each scaling action, ASG waits 5 min before the next. Don't set it lower than instance warm-up time."}
+        ]},
+        {"type": "callout", "tone": "tip",
+         "ar": "<strong>Instance Refresh</strong> (ميزة ASG) تسمح بتحديث launch template ثمّ إعادة إنشاء كلّ الخوادم بنسبة صحّية دنيا (Min Healthy Percentage). طريقة رسميّة لتطبيق rolling updates بدون down-time — بديل rolling CodeDeploy عندما لا تحتاج تعقيداته.",
+         "en": "<strong>Instance Refresh</strong> (ASG feature) lets you update the launch template and re-create all instances respecting a minimum healthy percentage. The official no-downtime rolling update — a leaner alternative to CodeDeploy rolling when you don't need its complexity."}
+      ]
+    },
+    {
+      "title_ar": "Security Groups و Connection Draining",
+      "title_en": "Security Groups and Connection Draining",
+      "blocks": [
+        {"type": "p",
+         "ar": "النمط المعياريّ: Security Group لـ Load Balancer يسمح بـ HTTP/HTTPS من الإنترنت (<code class=\"font-mono\">0.0.0.0/0</code>). Security Group للخوادم خلفه يسمح <strong>فقط</strong> بحركة من Security Group الـ LB (لا من IP الإنترنت). هذه هي الطريقة الصحيحة لـ isolation.",
+         "en": "Canonical pattern: LB Security Group allows HTTP/HTTPS from the Internet (<code class=\"font-mono\">0.0.0.0/0</code>). Backend SG allows <strong>only</strong> traffic from the LB's SG (not from Internet IPs). This is the correct isolation pattern."},
+        {"type": "code", "lang": "bash",
+         "code": "# LB Security Group: accept from anyone\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-lb-0abc --protocol tcp --port 443 --cidr 0.0.0.0/0\n\n# Backend Security Group: accept only from LB's SG (NOT from Internet)\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-app-0xyz --protocol tcp --port 8080 \\\n  --source-group sg-lb-0abc"},
+        {"type": "p",
+         "ar": "<strong>Connection Draining (CLB) / Deregistration Delay (ALB/NLB)</strong> هو الوقت الذي تنتظره LB للطلبات الجارية على خادم يُحذَف قبل قطع الاتّصال. الافتراضي ٣٠٠ ثانية، المدى ١-٣٦٠٠. ضع قيمة منخفضة (٢٠-٣٠ ثانية) إن كانت طلباتك قصيرة.",
+         "en": "<strong>Connection Draining (CLB) / Deregistration Delay (ALB/NLB)</strong> is the time the LB waits for in-flight requests on a deregistering instance before closing. Default 300s, range 1-3600. Set low (20-30s) if your requests are short."},
+        {"type": "callout", "tone": "warn",
+         "ar": "عند استخدام <strong>SSL/TLS</strong> على ALB/NLB: خدمة ACM (Certificate Manager) توفّر الشهادات مجاناً مع تجديد تلقائيّ. <strong>SNI (Server Name Indication)</strong> يسمح بعدّة شهادات على نفس الـ listener — مدعوم في ALB و NLB، لكن <u>غير مدعوم في CLB</u>.",
+         "en": "For <strong>SSL/TLS</strong> on ALB/NLB: ACM (Certificate Manager) provides free auto-renewing certs. <strong>SNI (Server Name Indication)</strong> allows multiple certs on one listener — supported in ALB and NLB, <u>not in CLB</u>."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء معمار HA لتطبيق Acme: ASG بخادمين عبر ٢ AZs، ALB أمامه، فحص صحّة، وتوسعة تلقائيّة عند ارتفاع CPU.",
+    "goal_en": "Build an HA stack for Acme: ASG with 2 instances across 2 AZs, ALB in front, health checks, and auto-scaling on CPU.",
+    "steps": [
+      {"title_ar": "أنشئ Launch Template", "title_en": "Create a Launch Template",
+       "body_ar": "EC2 → Launch Templates → Create. اختر Amazon Linux 2023، <span dir=\"ltr\" class=\"font-mono\">t3.micro</span>، User Data يثبّت nginx ويبدأها.",
+       "body_en": "EC2 → Launch Templates → Create. Pick Amazon Linux 2023, <span dir=\"ltr\" class=\"font-mono\">t3.micro</span>, User Data that installs and starts nginx."},
+      {"title_ar": "أنشئ Target Group للـ ALB", "title_en": "Create the ALB's Target Group",
+       "body_ar": "Type: instance، Protocol: HTTP، Port: 80، Health check path: <span dir=\"ltr\" class=\"font-mono\">/</span>.",
+       "body_en": "Type: instance, Protocol: HTTP, Port: 80, Health check path: <span dir=\"ltr\" class=\"font-mono\">/</span>."},
+      {"title_ar": "أنشئ ALB", "title_en": "Create the ALB",
+       "body_ar": "Internet-facing، اختر ٢ subnets في AZs مختلفة، Listener: HTTP على 80 → Target Group.",
+       "body_en": "Internet-facing, pick 2 subnets in different AZs, Listener: HTTP 80 → Target Group."},
+      {"title_ar": "أنشئ ASG", "title_en": "Create the ASG",
+       "body_ar": "Launch Template السابق، Subnets نفس الـ AZs، Min=2 / Desired=2 / Max=6، Attach to existing Target Group.",
+       "body_en": "Use the Launch Template, same AZs, Min=2 / Desired=2 / Max=6, attach to existing Target Group."},
+      {"title_ar": "اضبط Target Tracking على CPU=50%", "title_en": "Configure Target Tracking at CPU=50%",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws autoscaling put-scaling-policy \\\n  --auto-scaling-group-name acme-lab-asg \\\n  --policy-name cpu50 --policy-type TargetTrackingScaling \\\n  --target-tracking-configuration \\\n    'PredefinedMetricSpecification={PredefinedMetricType=ASGAverageCPUUtilization},TargetValue=50'"},
+      {"title_ar": "اختبر الإتاحة", "title_en": "Test availability",
+       "body_ar": "أنهِ أحد الخوادم يدوياً — ASG يطلق بديلاً تلقائياً في دقيقتين. حمّل النظام بـ <span dir=\"ltr\" class=\"font-mono\">ab</span> أو <span dir=\"ltr\" class=\"font-mono\">wrk</span> حتى يرتفع CPU — لاحظ إضافة خوادم.",
+       "body_en": "Terminate an instance manually — ASG launches a replacement within ~2 min. Load-test with <span dir=\"ltr\" class=\"font-mono\">ab</span> or <span dir=\"ltr\" class=\"font-mono\">wrk</span> until CPU rises — watch instances get added."}
+    ],
+    "warning_ar": "احذف ASG قبل Launch Template قبل Target Group قبل ALB. ترك ASG شغّالاً بـ Min=2 يعني تكلفة مستمرّة.",
+    "warning_en": "Delete ASG first, then Launch Template, then Target Group, then ALB. Leaving ASG at Min=2 = ongoing cost."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق Spring Boot في Acme يحتاج إلى <strong>توجيه</strong> الطلبات حسب المسار: <span dir=\"ltr\" class=\"font-mono\">/api/*</span> إلى خوادم API، و <span dir=\"ltr\" class=\"font-mono\">/web/*</span> إلى خوادم الويب. ما الـ Load Balancer المناسب؟",
+      "question_en": "An Acme Spring Boot app needs <strong>path-based routing</strong>: <span dir=\"ltr\" class=\"font-mono\">/api/*</span> to API servers, <span dir=\"ltr\" class=\"font-mono\">/web/*</span> to web servers. Which LB?",
+      "options_ar": ["Classic Load Balancer", "Application Load Balancer", "Network Load Balancer", "Gateway Load Balancer"],
+      "options_en": ["Classic Load Balancer", "Application Load Balancer", "Network Load Balancer", "Gateway Load Balancer"],
+      "correct": 1,
+      "explanation_ar": "توجيه المسارات (path-based routing) ميزة <strong>ALB (Layer 7)</strong> الأساسيّة. يمكنك توجيه المسارات أو hostnames أو headers إلى Target Groups مختلفة. CLB و NLB يعملان على Layer 4 ولا يفهمان محتوى HTTP. GWLB للـ appliances الأمنيّة.",
+      "explanation_en": "Path-based routing is a core <strong>ALB (Layer 7)</strong> feature. Route on paths, hostnames, or headers to different Target Groups. CLB/NLB are Layer 4 and don't understand HTTP. GWLB is for security appliances.",
+      "wrong_ar": ["جيل قديم لا يدعم path routing الحديث.", "", "Layer 4 — لا يفهم HTTP.", "لـ firewall appliances لا للتطبيقات."],
+      "wrong_en": ["Legacy, lacks modern path routing.", "", "Layer 4 — can't inspect HTTP.", "For firewall appliances, not apps."],
+      "reference_ar": "القسم ٢ — أنواع LB",
+      "reference_en": "Section 2 — LB types"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "شركة تقدّم لعبة online تستخدم UDP وتحتاج IP ثابتاً لعملائها ضمن ACL. ما الـ Load Balancer المناسب؟",
+      "question_en": "A gaming company uses UDP and needs a static IP to whitelist at customer ACLs. Which LB?",
+      "options_ar": ["Application Load Balancer", "Network Load Balancer", "Classic Load Balancer", "Gateway Load Balancer"],
+      "options_en": ["Application Load Balancer", "Network Load Balancer", "Classic Load Balancer", "Gateway Load Balancer"],
+      "correct": 1,
+      "explanation_ar": "<strong>NLB</strong> هو الوحيد الذي يدعم UDP (و TCP/TLS)، ويحصل على <strong>IP ثابت لكلّ AZ</strong> مع دعم Elastic IP. ALB يدعم HTTP/WebSocket فقط ولا يعطي IP ثابت. CLB ممنوع للأحمال الحديثة. GWLB لـ firewall.",
+      "explanation_en": "<strong>NLB</strong> is the only one supporting UDP (and TCP/TLS), and gets a <strong>static IP per AZ</strong> with EIP support. ALB is HTTP/WebSocket only and has no static IP. CLB is legacy. GWLB is for firewalls.",
+      "wrong_ar": ["يدعم HTTP/HTTPS/WebSocket فقط — لا UDP.", "", "قديم، ولا يعطي static IP.", "مخصّص لـ firewalls."],
+      "wrong_en": ["HTTP/HTTPS/WebSocket only — no UDP.", "", "Legacy, no static IP.", "For firewalls."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q3", "type": "multi",
+      "question_ar": "أيّ العبارات صحيحة عن Auto Scaling Groups؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about Auto Scaling Groups? Select all that apply.",
+      "options_ar": ["ASG نفسه مجانيّ — تدفع فقط للخوادم.", "يستبدل خوادماً فاشلة تلقائياً بناءً على فحص الصحّة.", "يدعم Target Tracking و Step و Scheduled و Predictive scaling.", "يمكنه استخدام مقاييس مخصّصة (Custom Metrics) من CloudWatch.", "Launch Configurations الجديدة ما تزال مفضَّلة على Launch Templates."],
+      "options_en": ["ASG itself is free — you only pay for instances.", "Auto-replaces failed instances based on health checks.", "Supports Target Tracking, Step, Scheduled, and Predictive scaling.", "Can scale on custom CloudWatch metrics.", "New Launch Configurations are preferred over Launch Templates."],
+      "correct": [0, 1, 2, 3],
+      "explanation_ar": "ASG مجانيّ ويستبدل الفاشلين ويدعم كلّ أنواع سياسات التوسعة، بما فيها custom metrics. <strong>Launch Configurations مُهمَلة (deprecated)</strong> — Launch Templates هي المعياريّة.",
+      "explanation_en": "ASG is free, auto-replaces failed instances, supports all policy types including custom metrics. <strong>Launch Configurations are deprecated</strong> — Launch Templates are standard.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "فريق Acme يلاحظ أنّ خوادم AZ-A تعمل بـ ٨٠٪ CPU بينما AZ-B بـ ٢٠٪. ASG له ٢ خادم في AZ-A و ٤ في AZ-B، والـ ALB بدون Cross-Zone. ما السبب؟",
+      "question_en": "Acme sees AZ-A instances at 80% CPU while AZ-B are at 20%. ASG has 2 instances in AZ-A, 4 in AZ-B, and ALB has no Cross-Zone. Why?",
+      "options_ar": ["ASG لا يوزّع بالتساوي.", "الـ ALB بدون Cross-Zone يوجّه ٥٠٪ لكلّ AZ — فالخادمان في AZ-A يتقاسمان نفس حِمل الأربعة في AZ-B.", "AZ-A فيها مشكلة في الشبكة.", "Security Group يحدّ من AZ-B."],
+      "options_en": ["ASG doesn't distribute evenly.", "With no Cross-Zone, ALB routes 50% per AZ — so 2 instances in AZ-A share the same load as 4 in AZ-B.", "AZ-A has network trouble.", "A Security Group is throttling AZ-B."],
+      "correct": 1,
+      "explanation_ar": "<strong>بدون Cross-Zone</strong> (معطَّل افتراضياً في NLB/GWLB، يمكن تعطيله في ALB أيضاً)، كلّ عقدة LB توجّه لخوادم AZ نفسها فقط. عقدة AZ-A تستقبل ٥٠٪ من الحِمل لخادمين فقط. الحلّ: فعِّل Cross-Zone أو وازن عدد الخوادم بين AZs.",
+      "explanation_en": "<strong>Without Cross-Zone</strong> (default off on NLB/GWLB, can be toggled on ALB too), each LB node only sends to its own AZ's instances. AZ-A's node gets 50% of traffic for just 2 instances. Fix: enable Cross-Zone or balance instance counts.",
+      "wrong_ar": ["ASG يوزّع بالتساوي حسب الإعدادات.", "", "لا علاقة لفشل AZ هنا.", "SG يسمح أو يمنع — لا يخنق (throttle)."],
+      "wrong_en": ["ASG distributes per config.", "", "No AZ failure involved.", "SGs allow/deny, don't throttle."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "مطوّر يريد تشغيل Lambda خلف Load Balancer كـ backend. ما الخيار الوحيد الممكن؟",
+      "question_en": "A dev wants Lambda behind a Load Balancer as backend. Which is the only possible option?",
+      "options_ar": ["Classic Load Balancer.", "Application Load Balancer.", "Network Load Balancer.", "Gateway Load Balancer."],
+      "options_en": ["Classic Load Balancer.", "Application Load Balancer.", "Network Load Balancer.", "Gateway Load Balancer."],
+      "correct": 1,
+      "explanation_ar": "<strong>فقط ALB يدعم Lambda كـ target</strong>. الـ HTTP request يُترجَم إلى JSON event. NLB لا يدعم Lambda (Layer 4 لا يعرف HTTP ولا يمكنه تحويل الطلب إلى event). CLB قديم. GWLB للـ appliances.",
+      "explanation_en": "<strong>Only ALB supports Lambda targets</strong>. HTTP request is translated to a JSON event. NLB doesn't (Layer 4, no HTTP-to-event translation). CLB is legacy. GWLB is for appliances.",
+      "wrong_ar": ["لا يدعم Lambda.", "", "NLB على Layer 4 — لا يفهم HTTP ولا يحوّله إلى event.", "ليست هذه حالة استخدامه."],
+      "wrong_en": ["Doesn't support Lambda.", "", "NLB is Layer 4 — no HTTP-to-event translation.", "Not its use case."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "مطوّر ضبط <span dir=\"ltr\" class=\"font-mono\">/health</span> في Spring Boot ليفحص قاعدة بيانات RDS. بعد ارتفاع الحِمل على RDS، كلّ الخوادم أصبحت unhealthy في ALB فجأة والنظام تعطّل. ما الخطأ؟",
+      "question_en": "A dev made Spring Boot's <span dir=\"ltr\" class=\"font-mono\">/health</span> check RDS. Under RDS load, all instances became unhealthy in ALB at once and the system went down. What went wrong?",
+      "options_ar": ["ALB health check يجب أن يفحص كلّ التبعيّات.", "RDS لم يكن Multi-AZ.", "فحص الصحّة العميق تسبّب في cascading failure — اجعل <span dir=\"ltr\" class=\"font-mono\">/health</span> للـ ALB سطحياً، واحتفظ بالفحص العميق لأدوات المراقبة الداخليّة.", "يجب إعادة تشغيل الخوادم."],
+      "options_en": ["ALB health checks must verify all dependencies.", "RDS wasn't Multi-AZ.", "Deep health checks caused cascading failure — keep <span dir=\"ltr\" class=\"font-mono\">/health</span> for ALB shallow; deep checks go to internal monitoring only.", "Restart the instances."],
+      "correct": 2,
+      "explanation_ar": "خطأ معماريّ كلاسيكيّ: عندما يفحص <span dir=\"ltr\" class=\"font-mono\">/health</span> تبعيّة خارجيّة (DB, Redis)، أيّ بطء فيها يُسقِط كلّ الخوادم معاً، ممّا يجعل ALB يزيلها كلّها من Target Group. القاعدة: <strong>liveness سطحيّ للـ LB، readiness عميق للمراقبة الداخليّة</strong>.",
+      "explanation_en": "Classic architectural mistake: when <span dir=\"ltr\" class=\"font-mono\">/health</span> checks external deps (DB, Redis), any slowness cascades through all instances and ALB drops them all. Rule: <strong>shallow liveness for LB, deep readiness for internal monitoring</strong>.",
+      "wrong_ar": ["عكس الصحيح — هذا هو سبب المشكلة.", "RDS Multi-AZ لا يحلّ مشكلة التصميم.", "", "إعادة تشغيل دون تصحيح السبب سيتكرّر."],
+      "wrong_en": ["Opposite of the right answer — this caused the bug.", "Multi-AZ doesn't fix the design flaw.", "", "Restart without fixing will recur."],
+      "reference_ar": "القسم ٣ — فخّ السينيور",
+      "reference_en": "Section 3 — Senior pitfall"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "Acme تريد تحديث AMI لجميع خوادم ASG من 100 خادم بدون انقطاع. الطريقة الأمثل؟",
+      "question_en": "Acme wants to update the AMI on a 100-instance ASG with no downtime. Best approach?",
+      "options_ar": ["تعديل كلّ خادم يدوياً.", "إنهاء كلّ الخوادم دفعة واحدة — ASG سيعيد الإنشاء.", "تحديث Launch Template ثم <strong>Instance Refresh</strong> مع Min Healthy Percentage = 70٪.", "بناء ASG جديد وحذف القديم."],
+      "options_en": ["Modify each instance manually.", "Terminate all at once — ASG will recreate.", "Update Launch Template, then <strong>Instance Refresh</strong> with Min Healthy Percentage = 70%.", "Create a new ASG and delete the old."],
+      "correct": 2,
+      "explanation_ar": "<strong>Instance Refresh</strong> هي الطريقة الرسميّة: تحدّث Launch Template ثمّ يستبدل ASG الخوادم تدريجياً مع الاحتفاظ بنسبة صحّية دنيا. يتحكّم بـ warm-up time لكلّ خادم جديد. إنهاء الكلّ دفعة واحدة يتسبّب في انقطاع كامل.",
+      "explanation_en": "<strong>Instance Refresh</strong> is the official path: update the Launch Template and ASG replaces instances gradually while honoring a minimum healthy percentage. Controls warm-up per new instance. Terminate-all causes a full outage.",
+      "wrong_ar": ["لا يتوسّع ويخالف immutable infra.", "انقطاع كامل.", "", "تعقيد بلا فائدة — Instance Refresh أبسط."],
+      "wrong_en": ["Doesn't scale, breaks immutable infra.", "Full outage.", "", "Needless complexity — Instance Refresh is simpler."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "تطبيق e-commerce يستخدم sticky sessions ويضع بيانات السلّة في الذاكرة المحلّية للخادم. مطوّر يريد تحسين المعمار. ما النصيحة السينيورية؟",
+      "question_en": "An e-commerce app uses sticky sessions and keeps cart data in instance memory. A dev wants to improve the architecture. Senior advice?",
+      "options_ar": ["زيادة مدّة الـ cookie لستّة أشهر.", "نقل بيانات السلّة إلى <strong>ElastiCache/Redis</strong> وجعل الخوادم stateless — بذلك تستطيع تعطيل stickiness وتحقيق توازن أفضل ومرونة حقيقيّة.", "استخدام CLB بدل ALB.", "إضافة EBS Multi-Attach."],
+      "options_en": ["Extend cookie lifetime to 6 months.", "Move cart data to <strong>ElastiCache/Redis</strong>, make instances stateless — then stickiness can be off, balancing improves, and true elasticity.", "Switch to CLB.", "Add EBS Multi-Attach."],
+      "correct": 1,
+      "explanation_ar": "الحالة (session state) في ذاكرة الخادم تقيّد المرونة: لا يمكن استبدال خادم بدون فقدان جلسات، و stickiness تسبّب عدم توازن الحِمل. الحلّ المعياريّ: <strong>نقل الحالة إلى مخزن خارجيّ مشترك</strong> (ElastiCache، DynamoDB). هذا مبدأ الـ 12-factor app.",
+      "explanation_en": "In-memory session state kills elasticity: instances can't be replaced without losing sessions, and stickiness causes load imbalance. Canonical fix: <strong>externalize state</strong> (ElastiCache, DynamoDB). 12-factor app principle.",
+      "wrong_ar": ["يعمّق المشكلة، لا يحلّها.", "", "CLB قديم ولا يحلّ مشكلة التصميم.", "Multi-Attach للتخزين لا لحالة الجلسة."],
+      "wrong_en": ["Makes it worse, not better.", "", "CLB is legacy and doesn't fix the design.", "Multi-Attach is storage, not session."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "ALB يحمل SSL لنطاقَين مختلفَين (<span dir=\"ltr\" class=\"font-mono\">acme.com</span> و <span dir=\"ltr\" class=\"font-mono\">shop.acme.com</span>). كيف يعرف أيّ شهادة يقدّم لكلّ طلب؟",
+      "question_en": "An ALB serves SSL for two domains (<span dir=\"ltr\" class=\"font-mono\">acme.com</span> and <span dir=\"ltr\" class=\"font-mono\">shop.acme.com</span>). How does it know which cert to serve?",
+      "options_ar": ["عبر Route 53.", "عبر <strong>SNI (Server Name Indication)</strong> — العميل يرسل اسم المضيف المطلوب في TLS handshake.", "عبر IP العميل.", "عبر path في URL."],
+      "options_en": ["Via Route 53.", "Via <strong>SNI (Server Name Indication)</strong> — client sends the hostname in the TLS handshake.", "Via client IP.", "Via URL path."],
+      "correct": 1,
+      "explanation_ar": "<strong>SNI</strong> يسمح بعدّة شهادات على نفس listener. العميل يرسل اسم المضيف في بداية TLS handshake، والخادم يختار الشهادة المناسبة. مدعوم في ALB و NLB و CloudFront، <u>غير مدعوم في CLB</u>. Route 53 للـ DNS لا للـ SSL. الـ path يظهر بعد فكّ التشفير — متأخّر جداً لاختيار الشهادة.",
+      "explanation_en": "<strong>SNI</strong> allows multiple certs on one listener. The client sends the hostname at the start of the TLS handshake; the server picks the matching cert. Supported in ALB, NLB, CloudFront; <u>not in CLB</u>. Route 53 is DNS. Path is visible only after decryption — too late to pick the cert.",
+      "wrong_ar": ["Route 53 يحلّ الأسماء لا يختار SSL.", "", "الـ IP لا يحدّد النطاق.", "الـ path خلف SSL — مجهول قبل فكّ التشفير."],
+      "wrong_en": ["Route 53 resolves names, doesn't pick SSL.", "", "IP doesn't identify the domain.", "Path is post-SSL — unknown before decryption."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "Acme تريد توسعة ASG عندما يزيد معدّل الطلبات لكلّ خادم. ما المقياس الأفضل؟",
+      "question_en": "Acme wants to scale ASG when requests per instance rise. Best metric?",
+      "options_ar": ["CPUUtilization", "NetworkIn", "<span class=\"font-mono\">RequestCountPerTarget</span> (من ALB)", "DiskReadOps"],
+      "options_en": ["CPUUtilization", "NetworkIn", "<span class=\"font-mono\">RequestCountPerTarget</span> (from ALB)", "DiskReadOps"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget</span> يقيس عدد الطلبات لكلّ خادم بالضبط، وهو الأدقّ لحالة \"طلبات لكلّ خادم\". CPUUtilization قد لا يرتبط بعدد الطلبات (تطبيقات IO-bound)، و NetworkIn قياس خام لا يعكس الحِمل الفعليّ.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">RequestCountPerTarget</span> precisely measures requests per instance — the right fit. CPUUtilization may not correlate with request volume (IO-bound apps). NetworkIn is raw and doesn't reflect actual load.",
+      "wrong_ar": ["غير دقيق لأنّه يعتمد على نوع التطبيق.", "قياس خام، لا يعبّر عن الحِمل الحقيقيّ.", "", "لا علاقة بعدد الطلبات."],
+      "wrong_en": ["Imprecise — depends on app type.", "Raw bytes, not true load.", "", "Unrelated to request count."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "multi",
+      "question_ar": "أيّ الأهداف (targets) يدعمها <strong>ALB</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which targets does <strong>ALB</strong> support? Select all that apply.",
+      "options_ar": ["EC2 Instances (بما فيها المُدارة عبر ASG).", "Lambda functions.", "IP addresses (خاصّة).", "تطبيقات on-premises مباشرةً دون VPN.", "ECS tasks."],
+      "options_en": ["EC2 instances (incl. ASG-managed).", "Lambda functions.", "IP addresses (private).", "On-premises directly without VPN.", "ECS tasks."],
+      "correct": [0, 1, 2, 4],
+      "explanation_ar": "ALB يدعم EC2, Lambda, IP addresses (خاصّة فقط), و ECS tasks. الوصول لـ on-premises يتطلّب VPN أو Direct Connect لأنّ الـ IPs الخاصّة يجب أن تكون قابلة للوصول من الـ VPC.",
+      "explanation_en": "ALB supports EC2, Lambda, private IPs, and ECS tasks. On-premises needs VPN or Direct Connect because private IPs must be reachable from the VPC.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "ASG مُنشأ على 3 AZs بـ Desired=6. فجأة AZ-A تتعطّل. ماذا يحدث؟",
+      "question_en": "An ASG spans 3 AZs with Desired=6. AZ-A suddenly fails. What happens?",
+      "options_ar": ["ASG يتوقّف تماماً.", "ASG يُعيد توزيع الخوادم المفقودة على AZ-B و AZ-C تلقائياً ليحافظ على Desired=6.", "يجب إعادة إنشاء ASG.", "الخوادم في AZ-A تبقى pending إلى أن تعود AZ-A."],
+      "options_en": ["ASG stops entirely.", "ASG automatically redistributes lost instances across AZ-B and AZ-C to maintain Desired=6.", "Must recreate the ASG.", "AZ-A's instances stay pending until AZ-A returns."],
+      "correct": 1,
+      "explanation_ar": "ASG مصمَّم للإتاحة العالية: يفقد خوادم AZ-A، فيُنشئ بدائل في AZ-B و AZ-C ليحافظ على Desired. ALB كذلك يحوّل الحِمل إلى الـ AZs السليمة تلقائياً. لذا تنتشر دائماً عبر <strong>٣ AZs</strong> على الأقلّ في الإنتاج.",
+      "explanation_en": "ASG is built for HA: loses AZ-A instances and launches replacements in AZ-B and AZ-C to maintain Desired. ALB also diverts traffic to healthy AZs. That's why prod always spans <strong>at least 3 AZs</strong>.",
+      "wrong_ar": ["ASG صامد للفشل.", "", "غير ضروريّ — ASG ذاتيّ الشفاء.", "ASG لا ينتظر AZ — يستبدل فوراً."],
+      "wrong_en": ["ASG is failure-resilient.", "", "Not needed — ASG self-heals.", "ASG doesn't wait — it replaces."],
+      "reference_ar": "القسم ١ — HA",
+      "reference_en": "Section 1 — HA"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "لماذا يُفضَّل ALB على CLB في التطبيقات الجديدة؟",
+      "question_en": "Why is ALB preferred over CLB for new applications?",
+      "options_ar": ["ALB أرخص فقط.", "ALB يدعم path/host routing و WebSocket و HTTP/2 و Lambda و container port mapping و SNI، وهي ميزات لا يدعمها CLB.", "CLB أسرع من ALB.", "لا يوجد فرق حقيقيّ."],
+      "options_en": ["ALB is only cheaper.", "ALB supports path/host routing, WebSocket, HTTP/2, Lambda, container port mapping, SNI — all unsupported by CLB.", "CLB is faster than ALB.", "No real difference."],
+      "correct": 1,
+      "explanation_ar": "CLB من ٢٠٠٩ — لا يدعم المعماريات الحديثة. ALB (٢٠١٦) أُنشئ للـ microservices و containers و serverless. أهمّ الميزات: توجيه Layer 7 الذكيّ، دعم Lambda، SNI لعدّة شهادات، ودعم HTTP/2 و WebSocket.",
+      "explanation_en": "CLB is from 2009 — lacks modern features. ALB (2016) was built for microservices, containers, serverless. Key wins: smart Layer 7 routing, Lambda support, SNI for multiple certs, HTTP/2 and WebSocket.",
+      "wrong_ar": ["ليست النقطة الأساس.", "", "عكس الحقيقة — ALB أسرع وأذكى.", "الفرق ضخم."],
+      "wrong_en": ["Not the main point.", "", "Opposite — ALB is faster and smarter.", "Huge difference exists."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "NLB بدون Cross-Zone LB، Acme لديه خادم في AZ-A وخادمان في AZ-B. ما نسبة الحِمل على كلّ خادم؟",
+      "question_en": "NLB without Cross-Zone LB. Acme has 1 instance in AZ-A and 2 in AZ-B. Load distribution?",
+      "options_ar": ["كلّ خادم يستقبل ٣٣٪ بالتساوي.", "خادم AZ-A يستقبل ٥٠٪، وكلّ خادم في AZ-B يستقبل ٢٥٪.", "خادم AZ-B يستقبل ٥٠٪ وكلّ واحد في AZ-A ٥٠٪.", "التوزيع عشوائيّ."],
+      "options_en": ["Each instance gets 33%.", "AZ-A's instance gets 50%, each AZ-B instance gets 25%.", "AZ-B gets 50%, AZ-A instance 50%.", "Random."],
+      "correct": 1,
+      "explanation_ar": "بدون Cross-Zone، كلّ عقدة LB تأخذ ٥٠٪ من الحِمل وتوزّعها على خوادم AZ الخاصّة بها. AZ-A بخادم واحد → ٥٠٪ له. AZ-B بخادمين → ٢٥٪ لكلّ واحد. هذا يسبّب \"إرهاق\" الخادم الوحيد في AZ-A.",
+      "explanation_en": "Without Cross-Zone, each LB node takes 50% and distributes only to its AZ's instances. AZ-A (1 instance) → 50% on it. AZ-B (2) → 25% each. AZ-A's lone instance is overworked.",
+      "wrong_ar": ["هذا التوزيع مع Cross-Zone مُفعَّل.", "", "معكوس.", "LB يتّبع قواعد، ليس عشوائياً."],
+      "wrong_en": ["That's what Cross-Zone enabled does.", "", "Reversed.", "LB follows rules, not random."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "فريق Acme يستخدم ASG مع Scheduled Scaling لرفع Min=10 كلّ جمعة ٥ مساءً. مطوّر يقترح استبدال Scheduled بـ Predictive. متى يكون Predictive أفضل؟",
+      "question_en": "Acme uses Scheduled Scaling to set Min=10 every Friday 5pm. A dev suggests Predictive instead. When is Predictive better?",
+      "options_ar": ["دائماً — Predictive أفضل من Scheduled.", "عندما تكون أنماط الحِمل متكرّرة لكن غير معروفة بشكل مسبق دقيق — يحلّلها ML من التاريخ ويتنبّأ مسبقاً.", "عند الحِمل البسيط والثابت.", "Predictive لا يستخدم ML."],
+      "options_en": ["Always — Predictive beats Scheduled.", "When load patterns are recurring but not precisely known — ML analyzes history and forecasts ahead.", "For simple constant loads.", "Predictive doesn't use ML."],
+      "correct": 1,
+      "explanation_ar": "<strong>Scheduled</strong> مثاليّ للأنماط المعروفة بدقّة (\"كلّ جمعة ٥ مساءً\"). <strong>Predictive</strong> يستخدم ML لتحليل أنماط تاريخيّة معقّدة والتنبّؤ بها — مفيد عندما لا يمكنك كتابة جدول ثابت. الاثنان متكاملان لا متنافسان. Predictive ليس دائماً أفضل — فقط عند التعقيد.",
+      "explanation_en": "<strong>Scheduled</strong> is perfect for precisely known patterns (\"every Friday 5pm\"). <strong>Predictive</strong> uses ML for complex recurring patterns you can't hand-schedule. They complement, not compete. Predictive isn't always better — only for complexity.",
+      "wrong_ar": ["غير صحيح — لكلّ حالة استخدامها.", "", "Scheduled كافٍ وأبسط.", "Predictive يستخدم ML."],
+      "wrong_en": ["Not so — each has its case.", "", "Scheduled is simpler and enough.", "Predictive does use ML."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "share-2", "title_ar": "ALB = L7 HTTP، NLB = L4 TCP/UDP", "title_en": "ALB = L7 HTTP, NLB = L4 TCP/UDP",
+     "body_ar": "ALB لـ path/host/WebSocket/Lambda. NLB لـ IP ثابت وUDP وأداء قصوى.",
+     "body_en": "ALB: path/host/WebSocket/Lambda. NLB: static IP, UDP, peak perf."},
+    {"icon": "repeat", "title_ar": "ASG يحفظ Desired ويوسّع تلقائياً", "title_en": "ASG maintains Desired, scales automatically",
+     "body_ar": "Target Tracking أبسط. Instance Refresh للتحديث بدون انقطاع.",
+     "body_en": "Target Tracking is easiest. Instance Refresh for rolling updates."},
+    {"icon": "heart-pulse", "title_ar": "Health checks = سطحيّة للـ LB", "title_en": "Health checks = shallow for LB",
+     "body_ar": "لا تفحص DB/Redis في <span dir=\"ltr\" class=\"font-mono\">/health</span> للـ ALB — تتسبّب cascading failure.",
+     "body_en": "Don't hit DB/Redis in <span dir=\"ltr\" class=\"font-mono\">/health</span> for ALB — causes cascading failure."},
+    {"icon": "layers", "title_ar": "3 AZs على الأقلّ للإنتاج", "title_en": "3+ AZs for production",
+     "body_ar": "ASG يوزّع بين AZs ويستبدل الفاشلين. Cross-Zone LB يوازن الحِمل.",
+     "body_en": "ASG spans AZs and replaces failures. Cross-Zone LB balances traffic."}
+  ],
+  "mnemonic_ar": "لاختيار نوع الـ LB: \"<strong>A</strong>LB لـ <strong>A</strong>pp (HTTP)، <strong>N</strong>LB لـ <strong>N</strong>etwork (TCP/UDP)، <strong>G</strong>WLB لـ <strong>G</strong>uard (firewalls)، <strong>C</strong>LB لـ <strong>C</strong>lassic (لا تستخدمه)\".",
+  "mnemonic_en": "Picking an LB: \"<strong>A</strong>LB for <strong>A</strong>pp (HTTP), <strong>N</strong>LB for <strong>N</strong>etwork (TCP/UDP), <strong>G</strong>WLB for <strong>G</strong>uard (firewalls), <strong>C</strong>LB for <strong>C</strong>lassic (don't use)\".",
+  "prev": 3,
+  "next": 5
+}

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Step Functions — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-purple-600 via-purple-700 to-purple-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="git-branch" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-purple-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">AWS Step Functions</h1>
+        </div>
+      </div>
+      <p class="text-lg text-purple-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">خدمة تنسيق سير العمل بلا خوادم تُبنى سير عمل (state machines) باستخدام ASL لربط Lambda وخدمات AWS بمنطق قوي.</span>
+        <span class="lang-en">Serverless workflow orchestration using ASL to compose Lambda and AWS services into reliable state machines.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-purple-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">State Machine</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تعريف سير العمل بلغة Amazon States Language (JSON).</span>
+      <span class="lang-en">Workflow definition authored in Amazon States Language (JSON).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Standard Workflow</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">exactly-once، مدّة حتى سنة، مثالي للأعمال الطويلة والمدقّقة.</span>
+      <span class="lang-en">Exactly-once, up to 1 year duration, ideal for long-running audited jobs.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Express Workflow</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">at-least-once، مدّة حتى 5 دقائق، ذو معدل عالٍ وتكلفة أقل لكل تنفيذ.</span>
+      <span class="lang-en">At-least-once, up to 5 min duration, high TPS and lower per-execution cost.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Task State</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يستدعي Lambda/خدمة AWS عبر SDK أو Optimized integration.</span>
+      <span class="lang-en">Invokes Lambda/AWS service via SDK or optimized integration.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Choice / Parallel / Map</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Choice للتفرع، Parallel للفروع المتزامنة، Map للتكرار على مصفوفة.</span>
+      <span class="lang-en">Choice for branching, Parallel for concurrent branches, Map for array iteration.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Wait / Pass / Succeed / Fail</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">حالات للتأخير، تمرير البيانات، إنهاء ناجح، أو فشل صريح.</span>
+      <span class="lang-en">States for delay, data passing, success termination, or explicit failure.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Retry & Catch</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">إعادة محاولة مع backoff وتقاط الأخطاء لمسار بديل.</span>
+      <span class="lang-en">Retry with backoff and Catch errors to alternate paths.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Callback pattern (.waitForTaskToken)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">انتظار حتى يستدعي عامل خارجي SendTaskSuccess/Failure.</span>
+      <span class="lang-en">Pause until an external worker calls SendTaskSuccess/Failure.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-purple-700" dir="ltr">Activities</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">مهام تُنفَّذ بواسطة عمال خارج AWS عبر long polling.</span>
+      <span class="lang-en">Tasks executed by external workers via long polling.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-purple-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Standard execution duration</span>
+      <span class="lang-en">Standard execution duration</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1 year</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Express execution duration</span>
+      <span class="lang-en">Express execution duration</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">5 min</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Max request size (input/output)</span>
+      <span class="lang-en">Max input/output size</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">256 KB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">State transitions (Standard)</span>
+      <span class="lang-en">State transitions (Standard)</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">25,000/s account</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Express TPS</span>
+      <span class="lang-en">Express TPS</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">100,000 exec/s</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Execution history retention</span>
+      <span class="lang-en">Execution history retention</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">90 days (Standard)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Map concurrency (Distributed)</span>
+      <span class="lang-en">Distributed Map concurrency</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">10,000 child exec</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-purple-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء state machine من ملف تعريف.</span>
+    <span class="lang-en">Create a state machine from a definition file.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws stepfunctions create-state-machine --name order-flow --definition file://asl.json --role-arn arn:aws:iam::123:role/StepFnRole --type STANDARD</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">بدء تنفيذ مع إدخال JSON.</span>
+    <span class="lang-en">Start execution with JSON input.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws stepfunctions start-execution --state-machine-arn arn:aws:states:...:order-flow --input '{"orderId":"123"}'</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">متابعة حالة تنفيذ.</span>
+    <span class="lang-en">Describe execution state.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws stepfunctions describe-execution --execution-arn arn:aws:states:...:exec-1</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إرسال نجاح مهمة callback.</span>
+    <span class="lang-en">Send task success for callback.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws stepfunctions send-task-success --task-token $TOKEN --output '{"status":"ok"}'</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">بدء تنفيذ Express متزامن.</span>
+    <span class="lang-en">Start synchronous Express execution.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws stepfunctions start-sync-execution --state-machine-arn arn:aws:states:...:express-sm --input '{}'</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-purple-600"></i>
+        <span class="lang-ar">متى تستخدم AWS Step Functions؟</span>
+        <span class="lang-en">When to use AWS Step Functions</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تنسيق عدة Lambdas بمنطق معقد مع إعادة المحاولة</span>
+      <span class="lang-en">Orchestrate multiple Lambdas with complex retry logic</span>
+    </p>
+    <p class="text-xs text-purple-700 font-mono">Standard workflow</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">مسارات قصيرة عالية التردد (IoT/Streaming)</span>
+      <span class="lang-en">Short high-volume flows (IoT/streaming)</span>
+    </p>
+    <p class="text-xs text-purple-700 font-mono">Express workflow</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">انتظار موافقة إنسان أو webhook خارجي</span>
+      <span class="lang-en">Wait for human approval or external webhook</span>
+    </p>
+    <p class="text-xs text-purple-700 font-mono">Callback pattern (waitForTaskToken)</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">معالجة مصفوفة كبيرة بالتوازي</span>
+      <span class="lang-en">Process large arrays in parallel</span>
+    </p>
+    <p class="text-xs text-purple-700 font-mono">Distributed Map</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">ETL متعدد الخطوات مع تدقيق</span>
+      <span class="lang-en">Multi-step audited ETL</span>
+    </p>
+    <p class="text-xs text-purple-700 font-mono">Standard + CloudWatch Logs</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+<section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+    <h2 class="font-bold text-surface-800 flex items-center gap-2">
+      <i data-lucide="git-compare" class="w-4 h-4"></i>
+      <span class="lang-ar">مقارنة مع البدائل</span>
+      <span class="lang-en">Vs Alternatives</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+        <tr>
+          <th class="text-start px-4 py-2">
+            <span class="lang-ar">الخاصّية</span>
+            <span class="lang-en">Feature</span>
+          </th>
+          <th class="text-start px-4 py-2">AWS Step Functions</th>
+          <th class="text-start px-4 py-2">Lambda chains</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">مدّة التنفيذ</span>
+      <span class="lang-en">Duration</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Up to 1 year (Standard)</td>
+    <td class="px-4 py-2 text-surface-600">15 min max per invocation</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">معالجة الأخطاء</span>
+      <span class="lang-en">Error handling</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Built-in Retry/Catch</td>
+    <td class="px-4 py-2 text-surface-600">Custom code per function</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">الرؤية</span>
+      <span class="lang-en">Visibility</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Visual graph + execution history</td>
+    <td class="px-4 py-2 text-surface-600">Fragmented logs across services</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">إدارة الحالة</span>
+      <span class="lang-en">State management</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Managed input/output between states</td>
+    <td class="px-4 py-2 text-surface-600">Manual via DynamoDB/SQS</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">نموذج التسعير</span>
+      <span class="lang-en">Cost model</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Per state transition (Std) / duration (Exp)</td>
+    <td class="px-4 py-2 text-surface-600">Per invocation + duration</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">exactly-once</span>
+      <span class="lang-en">Exactly-once</span>
+    </td>
+    <td class="px-4 py-2 text-purple-700 font-semibold">Yes (Standard)</td>
+    <td class="px-4 py-2 text-surface-600">Requires idempotency logic</td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Standard = exactly-once حتى سنة؛ Express = at-least-once حتى 5 دقائق. السؤال غالباً يختبر الفرق.</span>
+    <span class="lang-en">Standard = exactly-once up to 1 year; Express = at-least-once up to 5 min. Commonly tested distinction.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لاستدعاء إنسان/API خارجي بانتظار طويل استخدم .waitForTaskToken مع SendTaskSuccess.</span>
+    <span class="lang-en">For long external/human callbacks use .waitForTaskToken with SendTaskSuccess.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Map Distributed يوزّع حتى 10,000 تنفيذ فرعي ممتاز لمعالجة S3 الكبيرة.</span>
+    <span class="lang-en">Distributed Map scales to 10,000 child executions for large S3 processing.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Express لا يحفظ تاريخاً مفصلاً — اعتمد على CloudWatch Logs/X-Ray.</span>
+    <span class="lang-en">Express keeps no detailed history — rely on CloudWatch Logs/X-Ray.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Retry يستخدم exponential backoff؛ Catch ينقل إلى حالة ErrorHandler.</span>
+    <span class="lang-en">Retry uses exponential backoff; Catch routes to an ErrorHandler state.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

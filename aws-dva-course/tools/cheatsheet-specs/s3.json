@@ -1,0 +1,52 @@
+{
+  "slug": "s3",
+  "name": "Amazon S3",
+  "icon": "database",
+  "color": "emerald",
+  "tagline_ar": "تخزين كائنات متدرّج بدرجة متانة 11 تسعات، فئات تخزين متعدّدة، ونسخ متماثل وأحداث حسب الطلب.",
+  "tagline_en": "Durable (11 9s) object storage with multiple storage classes, replication, and event-driven integrations.",
+  "key_concepts": [
+    {"concept": "Buckets & Objects", "desc_ar": "السطل (Bucket) حاوية عالمية الاسم، والكائن (Object) هو البيانات مع مفتاح وبيانات وصفية.", "desc_en": "Bucket is a globally unique container; object = data + key + metadata."},
+    {"concept": "Storage Classes", "desc_ar": "Standard، Intelligent-Tiering، Standard-IA، One Zone-IA، Glacier Instant/Flexible، Deep Archive.", "desc_en": "Standard, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier Instant/Flexible, Deep Archive."},
+    {"concept": "Versioning & MFA Delete", "desc_ar": "حفظ نسخ متعدّدة للكائن لحماية البيانات من الحذف/الكتابة فوقها، ويمكن اشتراط MFA للحذف الدائم.", "desc_en": "Keep multiple versions to protect against overwrite/delete; MFA Delete adds extra protection."},
+    {"concept": "Server-Side Encryption", "desc_ar": "SSE-S3 (AES-256)، SSE-KMS (مفاتيح KMS)، SSE-C (عميل يرسل المفتاح)، DSSE-KMS للتشفير المزدوج.", "desc_en": "SSE-S3 (AES-256), SSE-KMS, SSE-C, DSSE-KMS for dual-layer encryption."},
+    {"concept": "Presigned URLs", "desc_ar": "روابط موقّعة مؤقتًا تسمح بتحميل/رفع كائن دون الحاجة لصلاحيات AWS مباشرة.", "desc_en": "Time-limited signed URLs that allow get/put object without AWS credentials."},
+    {"concept": "Lifecycle Policies", "desc_ar": "قواعد لنقل الكائنات بين الفئات أو حذفها تلقائيًا بعد مدّة محدّدة.", "desc_en": "Rules that transition objects between classes or expire them automatically."},
+    {"concept": "Cross/Same-Region Replication", "desc_ar": "CRR/SRR لنسخ الكائنات إلى سطل آخر؛ يتطلّب تفعيل الإصدار على الطرفين.", "desc_en": "CRR/SRR replicate objects to another bucket; requires versioning on both buckets."},
+    {"concept": "Event Notifications", "desc_ar": "إطلاق أحداث عند الإنشاء/الحذف إلى SNS، SQS، Lambda، أو EventBridge.", "desc_en": "Fire events on create/delete to SNS, SQS, Lambda, or EventBridge."},
+    {"concept": "Object Lock & Glacier Vault Lock", "desc_ar": "وضع WORM لمنع الحذف/التعديل (Governance/Compliance) لأغراض الامتثال.", "desc_en": "WORM mode to prevent delete/modify (Governance/Compliance) for compliance."},
+    {"concept": "Transfer Acceleration & Multipart", "desc_ar": "تسريع الرفع عبر نقاط حافّة CloudFront، والرفع متعدّد الأجزاء للملفات الكبيرة.", "desc_en": "Upload via CloudFront edge (TA); multipart upload for large objects."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم كائن", "limit_en": "Max object size", "value": "5 TB", "note_ar": "لكل كائن مفرد في S3.", "note_en": "Per single object."},
+    {"limit": "أقصى حجم لرفع PUT واحد", "limit_en": "Max single PUT upload", "value": "5 GB", "note_ar": "لما يزيد استخدم Multipart Upload.", "note_en": "Above 5 GB use Multipart Upload."},
+    {"limit": "أقل حجم جزء في Multipart", "limit_en": "Min multipart part size", "value": "5 MB", "note_ar": "باستثناء الجزء الأخير.", "note_en": "Except the last part."},
+    {"limit": "عدد الأسطال لكل حساب", "limit_en": "Buckets per account", "value": "100 (soft) / 1000 (max)", "note_ar": "الحدّ الافتراضي 100 وقابل للزيادة حتى 1000.", "note_en": "Default 100, can be raised to 1000."},
+    {"limit": "طلبات PUT/COPY/POST/DELETE", "limit_en": "PUT/COPY/POST/DELETE rate", "value": "3,500 / prefix / s", "note_ar": "لكل بادئة (prefix) في السطل.", "note_en": "Per prefix per bucket."},
+    {"limit": "طلبات GET/HEAD", "limit_en": "GET/HEAD rate", "value": "5,500 / prefix / s", "note_ar": "لا حدّ إجمالي على السطل نفسه.", "note_en": "No total bucket-level cap."},
+    {"limit": "بيانات الوصف", "limit_en": "User metadata size", "value": "2 KB", "note_ar": "بيانات x-amz-meta-* في رؤوس HTTP.", "note_en": "x-amz-meta-* HTTP header size."},
+    {"limit": "استرجاع Glacier Deep Archive", "limit_en": "Deep Archive retrieval", "value": "12 h (Standard) / 48 h (Bulk)", "note_ar": "الأقل تكلفة والأبطأ في الاسترجاع.", "note_en": "Cheapest class, slowest retrieval."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء سطل في منطقة محدّدة.", "desc_en": "Create a bucket in a specific region.", "cmd": "aws s3api create-bucket --bucket my-app-data --region us-east-1"},
+    {"desc_ar": "رفع ملف مع فئة تخزين Intelligent-Tiering.", "desc_en": "Upload a file with Intelligent-Tiering storage class.", "cmd": "aws s3 cp report.pdf s3://my-app-data/ --storage-class INTELLIGENT_TIERING"},
+    {"desc_ar": "مزامنة مجلّد محلّي مع سطل.", "desc_en": "Sync a local folder with a bucket.", "cmd": "aws s3 sync ./build s3://my-app-data/build --delete"},
+    {"desc_ar": "تفعيل الإصدارات على السطل.", "desc_en": "Enable versioning on the bucket.", "cmd": "aws s3api put-bucket-versioning --bucket my-app-data --versioning-configuration Status=Enabled"},
+    {"desc_ar": "إنشاء رابط موقّع يصلح لمدّة ساعة.", "desc_en": "Generate a presigned URL valid for 1 hour.", "cmd": "aws s3 presign s3://my-app-data/report.pdf --expires-in 3600"},
+    {"desc_ar": "ضبط سياسة دورة حياة من ملف JSON.", "desc_en": "Apply lifecycle policy from a JSON file.", "cmd": "aws s3api put-bucket-lifecycle-configuration --bucket my-app-data --lifecycle-configuration file://lifecycle.json"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "أصول ثابتة لموقع ويب أو تطبيق جوال.", "scenario_en": "Static assets for a web or mobile app.", "choice": "S3 Standard + CloudFront"},
+    {"scenario_ar": "أرشفة سجلات طويلة الأجل بأقل تكلفة.", "scenario_en": "Long-term log archives at lowest cost.", "choice": "S3 Glacier Deep Archive"},
+    {"scenario_ar": "ملفات نادرة الوصول لكن تحتاج استرجاعًا فوريًا.", "scenario_en": "Infrequent access but instant retrieval.", "choice": "S3 Standard-IA / Glacier Instant Retrieval"},
+    {"scenario_ar": "بحيرة بيانات لتحليلات Athena أو EMR.", "scenario_en": "Data lake for Athena / EMR analytics.", "choice": "S3 + Parquet + partitioning"},
+    {"scenario_ar": "بيانات بأنماط وصول غير متوقعة.", "scenario_en": "Data with unpredictable access patterns.", "choice": "S3 Intelligent-Tiering"}
+  ],
+  "exam_tips": [
+    {"ar": "افصل بين العمليات: Multipart إلزامي لأكثر من 5 GB ومُوصى به لأكبر من 100 MB.", "en": "Multipart upload is required for >5 GB and recommended for >100 MB objects."},
+    {"ar": "Cross-Region Replication يتطلّب تفعيل الإصدار على السطل المصدر والهدف معًا.", "en": "CRR requires versioning enabled on both source and destination buckets."},
+    {"ar": "لتجاوز حدّ 3500 PUT/s وزّع الكائنات على بادئات متعدّدة.", "en": "To exceed 3,500 PUT/s, distribute objects across multiple prefixes."},
+    {"ar": "Presigned URLs تحمل صلاحيات الموقّع؛ إن انتهت جلسته تنتهي الروابط أيضًا.", "en": "Presigned URLs inherit signer permissions; they expire with the signer session."},
+    {"ar": "S3 Object Lock يتطلّب تفعيل الإصدار ولا يمكن تعطيله بعد إنشاء السطل في وضع Compliance.", "en": "Object Lock needs versioning; Compliance mode cannot be disabled after enabling."}
+  ]
+}

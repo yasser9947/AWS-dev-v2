@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 24 — Elastic Beanstalk | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٤ من ٣٠</span>
+        <span class="lang-en">Chapter 24 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.359-383</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Elastic Beanstalk</span>
+        <span class="lang-en">Elastic Beanstalk</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">PaaS من AWS: ارفع ملف ZIP أو JAR، يُجهّز Beanstalk البنية التحتية (EC2 + ASG + ALB + RDS). تركيز الامتحان على سياسات النشر الأربع.</span>
+        <span class="lang-en">AWS's PaaS: upload a ZIP or JAR, Beanstalk provisions the infrastructure (EC2 + ASG + ALB + RDS). Exam focus: the four deployment policies.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Beanstalk</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">PaaS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Deployment Policies</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Blue/Green</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">.ebextensions</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Environment Tiers</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Web Server vs Worker tier.</span>
+      <span class="lang-en">Domain 3 — Web Server vs Worker tier.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Deployment Policies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — الأربع سياسات الكلاسيكيّة والـ Blue/Green.</span>
+      <span class="lang-en">Domain 3 — the four classic policies plus Blue/Green.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">.ebextensions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — تخصيص البيئة بـ config files.</span>
+      <span class="lang-en">Domain 3 — customizing the environment with config files.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">RDS Decoupling</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — فصل قاعدة البيانات للإنتاج.</span>
+      <span class="lang-en">Domain 3 — decoupling the DB for production.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو Elastic Beanstalk</span>
+      <span class="lang-en">What is Elastic Beanstalk</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">Elastic Beanstalk</span> خدمة PaaS (Platform as a Service). ارفع ZIP أو JAR (مثل Spring Boot fat jar)، و Beanstalk يُجهّز <strong>EC2 + Auto Scaling + ALB + RDS (اختياريّ)</strong> تلقائياً. أنت تركّز على الكود فقط، AWS تدير البنية التحتية.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">Elastic Beanstalk</span> is AWS's PaaS. Upload a ZIP or JAR (like a Spring Boot fat jar) and Beanstalk provisions <strong>EC2 + Auto Scaling + ALB + RDS (optional)</strong> automatically. You focus on code; AWS manages infra.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="coffee" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">منصات مدعومة</span><span class="lang-en">Supported platforms</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Go، Java SE، Java+Tomcat، .NET Core، Node.js، PHP، Python، Ruby، Docker (Single/Multi).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Go, Java SE, Java+Tomcat, .NET Core, Node.js, PHP, Python, Ruby, Docker (single/multi).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Beanstalk مجاني</span><span class="lang-en">Beanstalk is free</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تدفع فقط مقابل الموارد الأساسيّة (EC2، ELB، RDS، S3). الخدمة نفسها لا تكلّف شيئاً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">You pay only for underlying resources (EC2, ELB, RDS, S3). The service itself is free.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="layers-2" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Environment Tiers</span><span class="lang-en">Environment tiers</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Web Server (ALB + EC2 لـ HTTP) أو Worker (SQS + EC2 للمعالجة الخلفيّة).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Web Server (ALB + EC2 for HTTP) or Worker (SQS + EC2 for background work).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="cloud" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">خلف الكواليس: CloudFormation</span><span class="lang-en">Under the hood: CloudFormation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل Beanstalk environment هو Stack CloudFormation. يمكنك إضافة موارد بـ .ebextensions.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Every Beanstalk environment is a CloudFormation stack. Add extra resources via .ebextensions.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>المفاهيم الثلاثة</strong>: Application (مجموع مكوّنات Beanstalk)، Application Version (إصدار من كودك)، Environment (موارد AWS تشغّل Version واحدة).</span>
+      <span class="lang-en"> <strong>Three concepts</strong>: Application (collection of Beanstalk components), Application Version (one version of your code), Environment (AWS resources running one Version).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">سياسات النشر الأربع (الأكثر في الامتحان)</span>
+      <span class="lang-en">The 4 deployment policies (heavily tested)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذا الموضوع الأوّل للامتحان في Beanstalk. عليك معرفة <strong>كل سياسة: الوقت، التكلفة، Downtime، Rollback</strong>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">This is the #1 Beanstalk exam topic. You must know <strong>each policy: duration, cost, downtime, rollback</strong>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السياسة</span><span class="lang-en">Policy</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Downtime</span><span class="lang-en">Downtime</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">تكلفة</span><span class="lang-en">Cost</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السرعة</span><span class="lang-en">Speed</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">All at once</span><span class="lang-en">All at once</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>نعم</strong> — كل الخوادم تُحدَّث دفعة واحدة</span><span class="lang-en"><strong>Yes</strong> — all instances at once</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مجانيّ</span><span class="lang-en">Free</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأسرع</span><span class="lang-en">Fastest</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Dev فقط، عند تحمّل الانقطاع</span><span class="lang-en">Dev only, when downtime is OK</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا، لكن سعة أقل</span><span class="lang-en">No, but reduced capacity</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مجانيّ</span><span class="lang-en">Free</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">متوسط</span><span class="lang-en">Medium</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يعمل نسختان V1 و V2 في آن، تحت السعة</span><span class="lang-en">V1 and V2 run together, below capacity</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Rolling with additional batches</span><span class="lang-en">Rolling with additional batches</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا، السعة الكاملة</span><span class="lang-en">No, full capacity</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قليل إضافي مؤقّت</span><span class="lang-en">Small temporary extra</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أبطأ</span><span class="lang-en">Slower</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إنتاج، مع الحفاظ على السعة</span><span class="lang-en">Prod, keeps full capacity</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا — صفر Downtime</span><span class="lang-en">No — zero downtime</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عالي (مضاعفة مؤقّتة)</span><span class="lang-en">High (temp double)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأبطأ</span><span class="lang-en">Slowest</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إنتاج حسّاس، Rollback سريع</span><span class="lang-en">Critical prod, fast rollback</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">All at once — Downtime!</span><span class="lang-en">All at once — has downtime!</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل الخوادم تُنزَل، تُحدَّث، تعود. الأسرع، لكن التطبيق غير متاح لثوانٍ/دقائق. مناسب فقط لـ Dev.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All instances drop, update, come back. Fastest but app offline for seconds/minutes. Dev only.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Rolling — سعة مخفّضة</span><span class="lang-en">Rolling — reduced capacity</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يُحدَّث bucket (دفعة) تلو الأخرى. التطبيق يعمل لكن بعدد خوادم أقل مؤقّتاً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Update bucket by bucket. App runs but fewer instances temporarily.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="plus-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Rolling + additional — سعة كاملة</span><span class="lang-en">Rolling + additional — full capacity</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يُشغّل Instances جديدة قبل إنهاء القديمة. سعة كاملة طوال الوقت. جيّد للإنتاج.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Spins up new instances before killing old. Full capacity throughout. Good for prod.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="shield" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Immutable — الأكثر أماناً</span><span class="lang-en">Immutable — safest</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ينشئ ASG جديد كامل بـ V2، يتحقّق من الصحّة، ثمّ يستبدل. Rollback فوري بحذف الـ ASG الجديد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Creates a new ASG with V2, health-checks it, then swaps. Rollback = just kill the new ASG.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Blue/Green</strong> ليس سياسة Beanstalk مباشرة. الطريقة: إنشاء Environment ثانٍ، النشر عليه، ثم <strong>Swap URLs</strong>. Rollback = إعادة Swap.</span>
+      <span class="lang-en"> <strong>Blue/Green</strong> isn't a direct Beanstalk policy. Method: create a second environment, deploy there, then <strong>Swap URLs</strong>. Rollback = swap back.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> <strong>Traffic Splitting (Canary)</strong>: Beanstalk ينشر V2 على ASG مؤقّت ويُرسِل ٪ صغير من الترافيك إليه. إذا فشل، Rollback تلقائيّ سريع.</span>
+      <span class="lang-en"> <strong>Traffic Splitting (Canary)</strong>: Beanstalk deploys V2 to a temporary ASG and sends a small % of traffic. On failure, automatic fast rollback.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Web Server Tier vs Worker Tier</span>
+      <span class="lang-en">Web Server Tier vs Worker Tier</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Beanstalk يدعم نوعين من البيئات. الاختيار الصحيح مهمّ لأسئلة السيناريو.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Beanstalk supports two environment types. Picking the right one matters for scenario questions.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Web Server Environment</span><span class="lang-en">Web Server Environment</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">HTTP/HTTPS مع ELB. للـ REST APIs و web apps. الـ URL من شكل <span dir="ltr" class="font-mono">myapp.us-east-1.elasticbeanstalk.com</span>.</p>
+      <p class="text-sm text-surface-700 lang-en">HTTP/HTTPS with ELB. For REST APIs and web apps. URL like <span dir="ltr" class="font-mono">myapp.us-east-1.elasticbeanstalk.com</span>.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="inbox" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Worker Environment</span><span class="lang-en">Worker Environment</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">EC2 + SQS Queue. للمعالجة الخلفيّة (معالجة الصور، إرسال الإيميلات). يتسع تلقائياً حسب عدد الرسائل في Queue.</p>
+      <p class="text-sm text-surface-700 lang-en">EC2 + SQS Queue. For background jobs (image processing, emails). Scales on queue depth.</p>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>نمط شائع</strong>: Web Server Tier يستقبل الطلبات السريعة، ثمّ يُرسِل رسالة SQS، و Worker Tier يلتقطها لاحقاً لإتمام المعالجة الثقيلة (معالجة ملفات، تصدير تقارير).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Common pattern</strong>: Web tier handles fast requests, pushes an SQS message, and the Worker tier picks it up for heavy work (file processing, report export).</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">.ebextensions و RDS Decoupling</span>
+      <span class="lang-en">.ebextensions & RDS decoupling</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لتخصيص البيئة (إعدادات الخادم، موارد إضافيّة، تثبيت حزم)، استخدم ملفّات <strong>.ebextensions/</strong> في جذر ZIP. الملفات YAML/JSON بامتداد <span dir="ltr" class="font-mono">.config</span>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">To customize the environment (server settings, extra resources, package install), use <strong>.ebextensions/</strong> files in the ZIP root. YAML/JSON files with <span dir="ltr" class="font-mono">.config</span> extension.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># .ebextensions/01-options.config
+option_settings:
+  aws:elasticbeanstalk:application:environment:
+    SPRING_PROFILES_ACTIVE: prod
+    JAVA_OPTS: '-Xmx1g -XX:+UseG1GC'
+  aws:autoscaling:asg:
+    MinSize: 2
+    MaxSize: 6
+
+# .ebextensions/02-elasticache.config
+Resources:
+  CacheCluster:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      Engine: redis
+      CacheNodeType: cache.t3.micro
+      NumCacheNodes: 1</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> الموارد المُدارة بـ <span dir="ltr" class="font-mono">.ebextensions</span> تُحذَف مع حذف الـ Environment (لأنّ Beanstalk هو CloudFormation Stack). لذلك <strong>لا تُنشئ RDS بـ .ebextensions لبيئة إنتاج</strong>.</span>
+      <span class="lang-en"> Resources managed by <span dir="ltr" class="font-mono">.ebextensions</span> are deleted when the environment is deleted (because Beanstalk = CloudFormation stack). So <strong>don't create RDS via .ebextensions for production</strong>.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-red-50 to-white border-2 border-red-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center">
+          <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">RDS داخل Beanstalk (خطأ للـ Prod)</span><span class="lang-en">RDS inside Beanstalk (bad for prod)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">حياة قاعدة البيانات مرتبطة بالـ Environment. حذف Environment = حذف RDS والبيانات.</p>
+      <p class="text-sm text-surface-700 lang-en">DB lifecycle tied to environment. Delete env = delete RDS and data.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">RDS منفصل (الصحيح للـ Prod)</span><span class="lang-en">Separate RDS (correct for prod)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أنشِئ RDS بـ Stack منفصل. مرِّر Connection String للتطبيق عبر Environment Variables.</p>
+      <p class="text-sm text-surface-700 lang-en">Create RDS in a separate stack. Pass connection string to the app via env vars.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للترحيل من Beanstalk + RDS مدمج إلى منفصل: ١) خذ Snapshot، ٢) فعّل Deletion Protection على RDS، ٣) أنشئ Environment جديد بدون RDS يشير إلى RDS القديم، ٤) Swap URLs، ٥) احذف Environment القديم (RDS سيبقى).</span>
+      <span class="lang-en"> To migrate from Beanstalk + embedded RDS to separate: 1) take a snapshot, 2) enable RDS deletion protection, 3) create a new env without RDS pointing to the old RDS, 4) swap URLs, 5) delete old env (RDS remains).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">EB CLI، Lifecycle Policy، و Cloning</span>
+      <span class="lang-en">EB CLI, lifecycle policy & cloning</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>EB CLI</strong> أداة سطر أوامر مخصّصة لـ Beanstalk (مختلفة عن AWS CLI). مفيدة للـ CI/CD pipelines.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>EB CLI</strong> is a Beanstalk-specific command-line tool (different from the AWS CLI). Useful for CI/CD pipelines.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Install EB CLI
+pip install awsebcli
+
+# Initialize in project directory
+eb init            # sets up app + region
+eb create prod     # creates an environment called 'prod'
+eb deploy          # deploys current code
+eb status
+eb logs            # fetch logs
+eb open            # open in browser
+eb config          # edit environment config
+eb terminate       # destroy environment</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="history" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Lifecycle Policy</span><span class="lang-en">Lifecycle Policy</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Beanstalk يحتفظ بأقصى ١٠٠٠ إصدار. تستخدم Lifecycle Policy لحذف القديم بالوقت أو العدد (لكن ليس المستخدمة حالياً).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Beanstalk stores up to 1000 versions. Use a lifecycle policy to drop old ones by age or count (but not ones currently in use).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="copy" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Cloning</span><span class="lang-en">Cloning</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نسخ Environment بنفس الإعدادات. مفيد لإنشاء test env مطابق لـ prod. البيانات في RDS <em>لا تُنسَخ</em>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Clone an environment with identical config. Useful for creating a test env mirroring prod. RDS data is <em>not</em> cloned.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="scale" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Load Balancer Type</span><span class="lang-en">Load Balancer Type</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لا يمكن تغيير نوع ELB بعد إنشاء Environment (ALB، NLB، CLB). الحل: Environment جديد + CNAME Swap.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ELB type (ALB, NLB, CLB) cannot change after env creation. Solution: new env + CNAME swap.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Deployment Bundle</span><span class="lang-en">Deployment Bundle</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ZIP يحتوي على كودك + pom/package.json + أي .ebextensions. الحجم الأقصى ٥١٢ MB.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ZIP with your code + pom/package.json + any .ebextensions. 512 MB max.</p>
+  </div>
+</div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> نشر تطبيق Spring Boot على Beanstalk مع Rolling with additional batches، ثم ترقيته لنسخة جديدة.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Deploy a Spring Boot app on Beanstalk with 'Rolling with additional batches', then upgrade to a new version.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">جهّز Spring Boot JAR</span>
+      <span class="lang-en">Prepare the Spring Boot JAR</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">mvn clean package
+# produces target/acme-app-1.0.jar (fat jar)</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ثبّت EB CLI وأنشئ البيئة</span>
+      <span class="lang-en">Install EB CLI and create env</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">pip install awsebcli
+eb init acme-app --region=us-east-1 --platform='Corretto 17'
+eb create prod --instance-type=t3.small --min-instances=2 --max-instances=4</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف .ebextensions للإعدادات</span>
+      <span class="lang-en">Add .ebextensions for config</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احفظ الملف في جذر مشروع Spring Boot تحت .ebextensions/01-env.config</p><p class="text-surface-600 leading-relaxed lang-en">Save file in Spring Boot project root under .ebextensions/01-env.config</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-yaml">option_settings:
+  aws:elasticbeanstalk:application:environment:
+    SPRING_PROFILES_ACTIVE: prod
+    JAVA_OPTS: '-Xmx1g'
+  aws:elasticbeanstalk:command:
+    DeploymentPolicy: RollingWithAdditionalBatch
+    BatchSizeType: Percentage
+    BatchSize: 25</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">انشر الإصدار الأوّل</span>
+      <span class="lang-en">Deploy first version</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">eb deploy
+eb open  # open browser on the URL</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">حدّث الكود وأعِد النشر</span>
+      <span class="lang-en">Update code and redeploy</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Beanstalk سيُطبّق Rolling with additional batches: ٢٥٪ في كل batch مع Instances جديدة مؤقّتة.</p><p class="text-surface-600 leading-relaxed lang-en">Beanstalk applies Rolling with additional batches: 25% per batch with temporary new instances.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Change version in pom.xml, rebuild, redeploy
+mvn clean package
+eb deploy</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">تنظيف</span>
+      <span class="lang-en">Cleanup</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">eb terminate prod</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> لا تُنشئ RDS من داخل Beanstalk في بيئات الإنتاج. استخدم Stack منفصل أو AWS Console، ومرّر Connection String للتطبيق عبر Environment Variables.</span>
+    <span class="lang-en"> Don't create RDS from inside Beanstalk for production. Use a separate stack or AWS Console, and pass the connection string to the app via env vars.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="cloud" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">PaaS على EC2 + ELB + ASG</span>
+        <span class="lang-en">PaaS on EC2 + ELB + ASG</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">ارفع ZIP/JAR؛ Beanstalk يُجهّز البنية تلقائياً. الخدمة مجانية.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Upload ZIP/JAR; Beanstalk provisions automatically. Service is free.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٤ سياسات نشر + Blue/Green</span>
+        <span class="lang-en">4 deployment policies + Blue/Green</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">All/Rolling/Rolling+batches/Immutable. Blue/Green بـ Swap URLs.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">All/Rolling/Rolling+batches/Immutable. Blue/Green via Swap URLs.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-cog" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">.ebextensions للتخصيص</span>
+        <span class="lang-en">.ebextensions for customization</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">YAML/JSON بامتداد .config لخيارات و موارد إضافيّة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">YAML/JSON with .config extension for options and extra resources.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">افصل RDS للإنتاج</span>
+        <span class="lang-en">Decouple RDS for prod</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">RDS داخل .ebextensions يُحذَف مع Environment — لا للإنتاج.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">RDS inside .ebextensions dies with the env — never for prod.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للسياسات تذكّر <strong>"ARRI"</strong>: <strong>A</strong>ll at once (Downtime) → <strong>R</strong>olling (reduced) → <strong>R</strong>olling+batches (full cap) → <strong>I</strong>mmutable (safest). حسب سرعة → أمان.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Policies mnemonic <strong>"ARRI"</strong>: <strong>A</strong>ll at once (downtime) → <strong>R</strong>olling (reduced) → <strong>R</strong>olling+batches (full cap) → <strong>I</strong>mmutable (safest). Speed → safety order.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch23.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(24, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch25.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد نشر إصدار جديد في الإنتاج <strong>بدون Downtime</strong> وبأقل سعة ممكنة (سعة كاملة طوال الوقت) مع خيار Rollback سريع. أيّ سياسة؟</span><span class="lang-en">A company wants to deploy a new version in prod <strong>with zero downtime</strong>, full capacity throughout, and fast rollback. Which policy?</span>",
+        options: [
+          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>",
+          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
+          "<span class="lang-ar">Rolling with additional batches</span><span class="lang-en">Rolling with additional batches</span>",
+          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>"
+        ],
+        correct: 3,
+        explanation: "<span class="lang-ar"><strong>Immutable</strong> هو الأمثل: ينشئ ASG جديد بـ V2، يتحقّق من الصحّة، ثمّ يستبدل الـ ASG القديم. صفر Downtime، سعة كاملة، و Rollback سريع (حذف الـ ASG الجديد فقط). التكلفة أعلى لكن في الإنتاج الحرج تستحقّ.</span><span class="lang-en"><strong>Immutable</strong> is ideal: creates a new ASG with V2, health-checks, then swaps. Zero downtime, full capacity, fast rollback (kill the new ASG). Higher cost but worth it for critical prod.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Downtime.</span><span class=\"lang-en\">Has downtime.</span>", "<span class=\"lang-ar\">سعة مخفّضة مؤقّتاً.</span><span class=\"lang-en\">Temporarily reduced capacity.</span>", "<span class=\"lang-ar\">سعة كاملة لكنّ Rollback يدويّ أبطأ من Immutable.</span><span class=\"lang-en\">Full capacity but rollback is manually slower than Immutable.</span>", ""],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">أيّ سياسة تُسبّب Downtime؟</span><span class="lang-en">Which policy causes downtime?</span>",
+        options: [
+          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>",
+          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
+          "<span class="lang-ar">Rolling with additional batches</span><span class="lang-en">Rolling with additional batches</span>",
+          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>All at once</strong> تُحدِّث كل Instances دفعة واحدة، فالتطبيق غير متاح خلال التحديث. مناسبة فقط للـ Dev أو عند قبول الانقطاع. Rolling (Reduced capacity) لا يسبّب Downtime بل سعة أقل مؤقّتاً.</span><span class="lang-en"><strong>All at once</strong> updates every instance in one batch — app is offline during the update. Suitable only for dev or when downtime is acceptable. Rolling (reduced capacity) causes no downtime, just less capacity temporarily.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد <strong>Blue/Green Deployment</strong> على Beanstalk. ما الطريقة الصحيحة؟</span><span class="lang-en">A developer wants a <strong>Blue/Green deployment</strong> on Beanstalk. Correct approach?</span>",
+        options: [
+          "<span class="lang-ar">استخدام سياسة Blue/Green من Beanstalk مباشرة.</span><span class="lang-en">Use the Blue/Green policy directly in Beanstalk.</span>",
+          "<span class="lang-ar">إنشاء Environment ثانٍ، النشر عليه، ثم Swap URLs.</span><span class="lang-en">Create a second environment, deploy there, then Swap URLs.</span>",
+          "<span class="lang-ar">تعديل ELB يدوياً.</span><span class="lang-en">Manually edit the ELB.</span>",
+          "<span class="lang-ar">استخدام Rolling فقط.</span><span class="lang-en">Use Rolling only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Beanstalk لا يوفّر Blue/Green مباشرة. النمط: أنشئ Environment جديد (green)، انشر عليه V2، اختبر، ثم <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). صفر Downtime، Rollback بسيط بـ Swap مُعاكس.</span><span class="lang-en">Beanstalk doesn't provide Blue/Green directly. Pattern: create a new environment (green), deploy V2, test, then <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). Zero downtime, rollback is a reverse swap.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يستخدم <strong>.ebextensions</strong> لإنشاء RDS داخل Beanstalk environment للإنتاج. ما المشكلة؟</span><span class="lang-en">A developer uses <strong>.ebextensions</strong> to create an RDS inside a production Beanstalk environment. What's the issue?</span>",
+        options: [
+          "<span class="lang-ar">لا توجد مشكلة، هذا الحلّ المُعتمَد.</span><span class="lang-en">No issue, this is the standard.</span>",
+          "<span class="lang-ar">عند حذف الـ Environment، RDS يُحذَف مع كل البيانات.</span><span class="lang-en">When the environment is deleted, RDS is deleted with all data.</span>",
+          "<span class="lang-ar">RDS لا يعمل مع .ebextensions.</span><span class="lang-en">RDS doesn't work with .ebextensions.</span>",
+          "<span class="lang-ar">RDS يتطلّب نسخة Beanstalk المدفوعة.</span><span class="lang-en">RDS requires a paid Beanstalk edition.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الموارد المُدارة بـ <span dir="ltr" class="font-mono">.ebextensions</span> جزء من Stack الـ Environment. حذف Environment (أو إعادة إنشاءه) يحذف RDS. لإنتاج، أنشئ RDS <strong>منفصلاً</strong> ومرّر Connection String عبر Environment Variables.</span><span class="lang-en">Resources managed by <span dir="ltr" class="font-mono">.ebextensions</span> are part of the environment's stack. Deleting (or recreating) the env deletes RDS. For prod, create a <strong>separate</strong> RDS and pass its connection string via env vars.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يستقبل طلبات HTTP سريعة لكنّ بعضها يتطلّب معالجة طويلة (مثل تصدير تقارير PDF). ما المعماريّة المناسبة؟</span><span class="lang-en">An app receives fast HTTP requests but some need long processing (e.g. PDF report export). Right architecture?</span>",
+        options: [
+          "<span class="lang-ar">Web Server Tier واحد فقط.</span><span class="lang-en">A single Web Server Tier.</span>",
+          "<span class="lang-ar">Web Server Tier لاستقبال الطلبات + Worker Tier مع SQS للمعالجة الطويلة.</span><span class="lang-en">Web Server Tier for requests + Worker Tier with SQS for long work.</span>",
+          "<span class="lang-ar">Worker Tier فقط.</span><span class="lang-en">Worker Tier only.</span>",
+          "<span class="lang-ar">Lambda فقط.</span><span class="lang-en">Lambda only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">النمط المعياريّ: <strong>Web Tier</strong> يستقبل طلبات HTTP ويرسل رسائل SQS للمعالجة الثقيلة. <strong>Worker Tier</strong> يسحب الرسائل من SQS ويعالجها. Worker Tier يتسع تلقائياً بناءً على عمق Queue.</span><span class="lang-en">Canonical pattern: <strong>Web Tier</strong> accepts HTTP requests and pushes SQS messages for heavy work. <strong>Worker Tier</strong> polls SQS and processes. Worker Tier scales on queue depth.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">فريق ينشر إصداراً جديداً بسياسة <strong>Rolling</strong>، batch size = ٢٥٪، ٤ خوادم. ما الذي يحدث؟</span><span class="lang-en">A team deploys with <strong>Rolling</strong>, batch size 25%, 4 instances. What happens?</span>",
+        options: [
+          "<span class="lang-ar">كل الخوادم تتوقف في آن.</span><span class="lang-en">All instances stop at once.</span>",
+          "<span class="lang-ar">الـ Beanstalk يحدّث خادماً واحداً (٢٥٪) في كل batch، السعة تتقلّص مؤقّتاً.</span><span class="lang-en">Beanstalk updates 1 instance (25%) per batch; capacity is temporarily reduced.</span>",
+          "<span class="lang-ar">يُنشئ ٤ خوادم جديدة أوّلاً.</span><span class="lang-en">Creates 4 new instances first.</span>",
+          "<span class="lang-ar">يتطلّب Downtime.</span><span class="lang-en">Requires downtime.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Rolling</strong> لا يُنشئ Instances جديدة — يُحدّث القائمة batch by batch. في كل batch، Instances تلك الدفعة غير متاحة مؤقّتاً، فالسعة تنخفض من ٤ إلى ٣ (٧٥٪) حتى يكتمل الـ batch ثمّ ينتقل للتالية.</span><span class="lang-en"><strong>Rolling</strong> doesn't create new instances — it updates existing ones batch by batch. During each batch those instances are unavailable, so capacity drops from 4 to 3 (75%) until the batch completes, then moves on.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">أيّ امتداد ملفّ ومجلد مطلوبان لتخصيص Beanstalk عبر config files؟</span><span class="lang-en">Which folder + file extension is needed to customize Beanstalk via config files?</span>",
+        options: [
+          "<span class="lang-ar">.elasticbeanstalk/ مع .yml</span><span class="lang-en">.elasticbeanstalk/ with .yml</span>",
+          "<span class="lang-ar">.ebextensions/ مع .config</span><span class="lang-en">.ebextensions/ with .config</span>",
+          "<span class="lang-ar">ebsettings/ مع .json</span><span class="lang-en">ebsettings/ with .json</span>",
+          "<span class="lang-ar">.eb/ مع .env</span><span class="lang-en">.eb/ with .env</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">المجلّد المطلوب هو <span dir="ltr" class="font-mono">.ebextensions/</span> في جذر ZIP، والملفات بامتداد <span dir="ltr" class="font-mono">.config</span> بصيغة YAML أو JSON. داخلها: <span dir="ltr" class="font-mono">option_settings</span> و <span dir="ltr" class="font-mono">Resources</span> و <span dir="ltr" class="font-mono">files</span> و <span dir="ltr" class="font-mono">commands</span>.</span><span class="lang-en">Folder: <span dir="ltr" class="font-mono">.ebextensions/</span> in the ZIP root; files end with <span dir="ltr" class="font-mono">.config</span> in YAML or JSON. Inside: <span dir="ltr" class="font-mono">option_settings</span>, <span dir="ltr" class="font-mono">Resources</span>, <span dir="ltr" class="font-mono">files</span>, <span dir="ltr" class="font-mono">commands</span>.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تغيير نوع ELB من Classic إلى Application على Beanstalk environment قائم. ما الحل؟</span><span class="lang-en">A developer wants to change ELB type from Classic to Application on an existing Beanstalk env. Solution?</span>",
+        options: [
+          "<span class="lang-ar">تعديل الإعدادات من Console مباشرة.</span><span class="lang-en">Edit settings in Console directly.</span>",
+          "<span class="lang-ar">لا يمكن تغيير النوع. أنشئ Environment جديد ثمّ قم بـ CNAME Swap.</span><span class="lang-en">Cannot change type. Create a new env, then do a CNAME swap.</span>",
+          "<span class="lang-ar">تحديث .ebextensions.</span><span class="lang-en">Update .ebextensions.</span>",
+          "<span class="lang-ar">eb config set --lb=alb.</span><span class="lang-en">eb config set --lb=alb.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">نوع ELB (ALB، NLB، CLB) <strong>ثابت بعد إنشاء Environment</strong>. يمكن تعديل الإعدادات الداخليّة للـ ELB لكن ليس نوعه. الحل: Environment جديد بنوع ELB المطلوب، نشر التطبيق، ثمّ Swap.</span><span class="lang-en">ELB type (ALB, NLB, CLB) is <strong>locked at env creation</strong>. You can change ELB internals, not its type. Solution: new env with the desired ELB type, deploy, then swap.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q9",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن Elastic Beanstalk؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about Elastic Beanstalk? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">خدمة Beanstalk مجانيّة — تدفع فقط مقابل الموارد الأساسيّة.</span><span class="lang-en">Beanstalk service is free — you pay only for underlying resources.</span>",
+          "<span class="lang-ar">Beanstalk يستخدم CloudFormation خلف الكواليس.</span><span class="lang-en">Beanstalk uses CloudFormation under the hood.</span>",
+          "<span class="lang-ar">Beanstalk مخصّص لـ Lambda فقط.</span><span class="lang-en">Beanstalk is only for Lambda.</span>",
+          "<span class="lang-ar">Worker Tier يتسع بناءً على رسائل SQS.</span><span class="lang-en">Worker tier scales based on SQS messages.</span>"
+        ],
+        correct: [0,1,3],
+        explanation: "<span class="lang-ar">Beanstalk يعمل مع EC2 (ليس Lambda)، يدعم عدّة منصّات (Java، Node.js، Python، Docker...). مجانيّ (تدفع للموارد)، يبني CloudFormation Stack خلف الكواليس، و Worker Tier يتسع على عمق SQS Queue.</span><span class="lang-en">Beanstalk runs on EC2 (not Lambda), supports multiple platforms (Java, Node.js, Python, Docker...). Service itself is free (pay for resources), builds a CloudFormation stack, and Worker Tier scales on SQS queue depth.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">فريق يواجه خطأ <em>"No space left on application versions"</em> عند النشر. ما السبب والحل؟</span><span class="lang-en">A team gets <em>"No space left on application versions"</em> on deploy. Cause & fix?</span>",
+        options: [
+          "<span class="lang-ar">EC2 disk full، وسّع EBS.</span><span class="lang-en">EC2 disk full; expand EBS.</span>",
+          "<span class="lang-ar">Beanstalk بلغ حد ١٠٠٠ Application Version؛ فعّل Lifecycle Policy.</span><span class="lang-en">Beanstalk hit the 1000 Application Version limit; enable a lifecycle policy.</span>",
+          "<span class="lang-ar">Environment في حالة خطأ، أعد إنشاءه.</span><span class="lang-en">Env is in error state; recreate.</span>",
+          "<span class="lang-ar">Region ممتلئة.</span><span class="lang-en">Region is full.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Beanstalk يخزّن حد أقصى <strong>١٠٠٠ Application Version</strong>. عند البلوغ، لا يمكن النشر. الحل: <strong>Lifecycle Policy</strong> لحذف النسخ القديمة بالوقت أو بالعدد (لا تُحذَف النسخة المستخدمة حاليّاً). اختياريّاً: احتفظ بـ Source Bundle في S3.</span><span class="lang-en">Beanstalk caps at <strong>1000 Application Versions</strong>. When reached, deploys fail. Fix: a <strong>lifecycle policy</strong> to phase out old versions by age or count (currently used versions aren't deleted). Optional: keep the source bundle in S3.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">أيّ سياسة توفّر الـ <strong>Canary testing</strong> (إرسال ٪ صغير من الترافيك للنسخة الجديدة مع Rollback تلقائيّ)؟</span><span class="lang-en">Which Beanstalk policy provides <strong>Canary testing</strong> (small % traffic to new version with auto-rollback)?</span>",
+        options: [
+          "<span class="lang-ar">Immutable</span><span class="lang-en">Immutable</span>",
+          "<span class="lang-ar">Traffic Splitting</span><span class="lang-en">Traffic Splitting</span>",
+          "<span class="lang-ar">Rolling</span><span class="lang-en">Rolling</span>",
+          "<span class="lang-ar">All at once</span><span class="lang-en">All at once</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Traffic Splitting</strong> هو Canary Testing في Beanstalk: ينشر V2 على ASG مؤقّت ويُحوّل ٪ صغير من الترافيك (مثل ١٠٪). يراقب صحّة النشر، عند الفشل Rollback تلقائيّ سريع. Immutable ينشر بالكامل ثمّ يستبدل.</span><span class="lang-en"><strong>Traffic Splitting</strong> is Beanstalk's canary: deploys V2 to a temporary ASG and routes a small % (e.g. 10%) of traffic. Monitors health; on failure, fast auto-rollback. Immutable deploys fully, then swaps.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد اختبار بيئة مطابقة للإنتاج قبل Rollout. ما الميزة المناسبة؟</span><span class="lang-en">A developer wants a production-identical test env before rollout. Best feature?</span>",
+        options: [
+          "<span class="lang-ar">.ebextensions</span><span class="lang-en">.ebextensions</span>",
+          "<span class="lang-ar">Cloning</span><span class="lang-en">Cloning</span>",
+          "<span class="lang-ar">Lifecycle Policy</span><span class="lang-en">Lifecycle Policy</span>",
+          "<span class="lang-ar">Traffic Splitting</span><span class="lang-en">Traffic Splitting</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Cloning</strong> يُنشئ Environment جديد بنفس إعدادات الأصل (Load Balancer config، Environment Variables، ASG settings، نوع RDS — <u>لكن البيانات لا تُنسَخ</u>). مثاليّ لاختبار تغيير في بيئة مطابقة.</span><span class="lang-en"><strong>Cloning</strong> creates a new env with identical settings to the source (LB config, env vars, ASG settings, RDS type — <u>but data isn't copied</u>). Ideal for testing a change in a mirror env.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(24, QUESTIONS);
+      if (isChapterComplete(24)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

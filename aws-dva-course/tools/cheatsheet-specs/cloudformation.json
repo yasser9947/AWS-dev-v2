@@ -1,0 +1,50 @@
+{
+  "slug": "cloudformation",
+  "name": "AWS CloudFormation",
+  "icon": "file-code",
+  "color": "green",
+  "tagline_ar": "Infrastructure as Code مُدار: يصف الموارد في قوالب JSON/YAML وينفّذها كـ Stack مع قدرات Drift Detection وChange Sets.",
+  "tagline_en": "Managed Infrastructure as Code: describe resources in JSON/YAML templates and deploy as Stacks with Change Sets and Drift Detection.",
+  "key_concepts": [
+    {"concept": "Template", "desc_ar": "ملف JSON/YAML يصف Parameters, Resources, Outputs, Mappings, Conditions.", "desc_en": "JSON/YAML file describing Parameters, Resources, Outputs, Mappings, Conditions."},
+    {"concept": "Stack", "desc_ar": "تجميعة موارد مُنشأة من قالب؛ تُحدَّث أو تُحذَف ككتلة واحدة.", "desc_en": "Collection of resources from a template managed as a unit."},
+    {"concept": "Change Set", "desc_ar": "معاينة التغييرات قبل تنفيذ update لتجنّب المفاجآت.", "desc_en": "Preview changes before executing update to avoid surprises."},
+    {"concept": "Stack Policy", "desc_ar": "JSON لحماية موارد حساسة من التحديث/الحذف غير المقصود.", "desc_en": "JSON protecting sensitive resources from accidental update/delete."},
+    {"concept": "Nested / Cross-Stack", "desc_ar": "Nested = طفل داخل والد عبر AWS::CloudFormation::Stack؛ Cross-Stack = Export/ImportValue.", "desc_en": "Nested = child resource via AWS::CloudFormation::Stack; Cross-Stack = Export/ImportValue."},
+    {"concept": "StackSets", "desc_ar": "نشر نفس القالب عبر حسابات ومناطق متعددة.", "desc_en": "Deploy the same template across multiple accounts and regions."},
+    {"concept": "Drift Detection", "desc_ar": "يكتشف التغييرات اليدوية خارج CloudFormation.", "desc_en": "Detects manual changes made outside CloudFormation."},
+    {"concept": "DeletionPolicy / UpdateReplacePolicy", "desc_ar": "Retain/Snapshot/Delete لحماية البيانات عند الحذف أو الاستبدال.", "desc_en": "Retain/Snapshot/Delete to protect data on delete or replace."},
+    {"concept": "Intrinsic Functions", "desc_ar": "Ref, Fn::GetAtt, Fn::Sub, Fn::Join, Fn::ImportValue, Fn::If, Fn::FindInMap.", "desc_en": "Ref, Fn::GetAtt, Fn::Sub, Fn::Join, Fn::ImportValue, Fn::If, Fn::FindInMap."}
+  ],
+  "limits": [
+    {"limit": "Template body size (inline)", "limit_en": "Inline template size", "value": "51,200 bytes"},
+    {"limit": "Template from S3", "limit_en": "Template via S3", "value": "1 MB"},
+    {"limit": "Resources per stack", "limit_en": "Resources per stack", "value": "500"},
+    {"limit": "Parameters per template", "limit_en": "Parameters per template", "value": "200"},
+    {"limit": "Outputs per template", "limit_en": "Outputs per template", "value": "200"},
+    {"limit": "Mappings per template", "limit_en": "Mappings per template", "value": "200"},
+    {"limit": "Stack name length", "limit_en": "Stack name length", "value": "128 chars"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء stack من قالب.", "desc_en": "Create stack from template.", "cmd": "aws cloudformation create-stack --stack-name prod --template-body file://tmpl.yaml --parameters ParameterKey=Env,ParameterValue=prod --capabilities CAPABILITY_NAMED_IAM"},
+    {"desc_ar": "معاينة تغيير قبل التنفيذ.", "desc_en": "Preview a change before executing.", "cmd": "aws cloudformation create-change-set --stack-name prod --change-set-name v2 --template-body file://tmpl.yaml"},
+    {"desc_ar": "تحديث stack.", "desc_en": "Update stack.", "cmd": "aws cloudformation update-stack --stack-name prod --template-body file://tmpl.yaml --capabilities CAPABILITY_IAM"},
+    {"desc_ar": "تحقّق من القالب.", "desc_en": "Validate template.", "cmd": "aws cloudformation validate-template --template-body file://tmpl.yaml"},
+    {"desc_ar": "كشف الانجراف.", "desc_en": "Detect drift.", "cmd": "aws cloudformation detect-stack-drift --stack-name prod"},
+    {"desc_ar": "حذف stack.", "desc_en": "Delete stack.", "cmd": "aws cloudformation delete-stack --stack-name prod"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "البنية التحتية القابلة للتكرار في حسابات متعددة", "scenario_en": "Repeatable infrastructure across accounts", "choice": "StackSets"},
+    {"scenario_ar": "معاينة التغييرات قبل النشر لبيئة الإنتاج", "scenario_en": "Preview changes before production deploy", "choice": "Change Sets"},
+    {"scenario_ar": "مشاركة قيم بين stacks (VPC ID, ARNs)", "scenario_en": "Share values between stacks (VPC ID, ARNs)", "choice": "Export + Fn::ImportValue"},
+    {"scenario_ar": "حماية DB/S3 من الحذف", "scenario_en": "Protect DB/S3 from deletion", "choice": "DeletionPolicy: Retain"},
+    {"scenario_ar": "تنظيم موارد كبيرة في ملفات منطقية", "scenario_en": "Organize large resource sets into logical files", "choice": "Nested stacks"}
+  ],
+  "exam_tips": [
+    {"ar": "Ref على resource = ID؛ على parameter = القيمة. GetAtt = سمة معيّنة (مثل Arn).", "en": "Ref on resource = ID; on parameter = value. GetAtt = specific attribute (e.g. Arn)."},
+    {"ar": "Fn::Sub أبسط وأوضح من Fn::Join عند بناء سلاسل تحتوي على متغيرات.", "en": "Fn::Sub is cleaner than Fn::Join when interpolating variables."},
+    {"ar": "CAPABILITY_IAM/CAPABILITY_NAMED_IAM مطلوب لإنشاء IAM resources؛ CAPABILITY_AUTO_EXPAND للـ macros/SAM.", "en": "CAPABILITY_IAM/NAMED_IAM required for IAM resources; CAPABILITY_AUTO_EXPAND for macros/SAM."},
+    {"ar": "DeletionPolicy: Retain يُحتَفَظ بالمورد حتى بعد حذف الـ stack — مفيد للبيانات.", "en": "DeletionPolicy: Retain keeps resource even after stack deletion — useful for data."},
+    {"ar": "Export/Import مقيّد بنفس region؛ لعبور regions استخدم StackSets أو SSM Parameter Store.", "en": "Export/Import is region-scoped; cross-region needs StackSets or SSM Parameter Store."}
+  ]
+}

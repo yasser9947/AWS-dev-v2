@@ -1,0 +1,332 @@
+{
+  "n": 24,
+  "domain": "deployment",
+  "title_ar": "Elastic Beanstalk",
+  "title_en": "Elastic Beanstalk",
+  "pages": "359-383",
+  "subtitle_ar": "PaaS من AWS: ارفع ملف ZIP أو JAR، يُجهّز Beanstalk البنية التحتية (EC2 + ASG + ALB + RDS). تركيز الامتحان على سياسات النشر الأربع.",
+  "subtitle_en": "AWS's PaaS: upload a ZIP or JAR, Beanstalk provisions the infrastructure (EC2 + ASG + ALB + RDS). Exam focus: the four deployment policies.",
+  "tags": ["Beanstalk", "PaaS", "Deployment Policies", "Blue/Green", ".ebextensions"],
+  "objectives": [
+    {"concept": "Environment Tiers", "tested_ar": "النطاق الثالث — Web Server vs Worker tier.", "tested_en": "Domain 3 — Web Server vs Worker tier."},
+    {"concept": "Deployment Policies", "tested_ar": "النطاق الثالث — الأربع سياسات الكلاسيكيّة والـ Blue/Green.", "tested_en": "Domain 3 — the four classic policies plus Blue/Green."},
+    {"concept": ".ebextensions", "tested_ar": "النطاق الثالث — تخصيص البيئة بـ config files.", "tested_en": "Domain 3 — customizing the environment with config files."},
+    {"concept": "RDS Decoupling", "tested_ar": "النطاق الثالث — فصل قاعدة البيانات للإنتاج.", "tested_en": "Domain 3 — decoupling the DB for production."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو Elastic Beanstalk",
+      "title_en": "What is Elastic Beanstalk",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">Elastic Beanstalk</span> خدمة PaaS (Platform as a Service). ارفع ZIP أو JAR (مثل Spring Boot fat jar)، و Beanstalk يُجهّز <strong>EC2 + Auto Scaling + ALB + RDS (اختياريّ)</strong> تلقائياً. أنت تركّز على الكود فقط، AWS تدير البنية التحتية.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">Elastic Beanstalk</span> is AWS's PaaS. Upload a ZIP or JAR (like a Spring Boot fat jar) and Beanstalk provisions <strong>EC2 + Auto Scaling + ALB + RDS (optional)</strong> automatically. You focus on code; AWS manages infra."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "coffee", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "منصات مدعومة", "title_en": "Supported platforms", "body_ar": "Go، Java SE، Java+Tomcat، .NET Core، Node.js، PHP، Python، Ruby، Docker (Single/Multi).", "body_en": "Go, Java SE, Java+Tomcat, .NET Core, Node.js, PHP, Python, Ruby, Docker (single/multi)."},
+          {"icon": "dollar-sign", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Beanstalk مجاني", "title_en": "Beanstalk is free", "body_ar": "تدفع فقط مقابل الموارد الأساسيّة (EC2، ELB، RDS، S3). الخدمة نفسها لا تكلّف شيئاً.", "body_en": "You pay only for underlying resources (EC2, ELB, RDS, S3). The service itself is free."},
+          {"icon": "layers-2", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Environment Tiers", "title_en": "Environment tiers", "body_ar": "Web Server (ALB + EC2 لـ HTTP) أو Worker (SQS + EC2 للمعالجة الخلفيّة).", "body_en": "Web Server (ALB + EC2 for HTTP) or Worker (SQS + EC2 for background work)."},
+          {"icon": "cloud", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "خلف الكواليس: CloudFormation", "title_en": "Under the hood: CloudFormation", "body_ar": "كل Beanstalk environment هو Stack CloudFormation. يمكنك إضافة موارد بـ .ebextensions.", "body_en": "Every Beanstalk environment is a CloudFormation stack. Add extra resources via .ebextensions."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>المفاهيم الثلاثة</strong>: Application (مجموع مكوّنات Beanstalk)، Application Version (إصدار من كودك)، Environment (موارد AWS تشغّل Version واحدة).",
+         "en": "<strong>Three concepts</strong>: Application (collection of Beanstalk components), Application Version (one version of your code), Environment (AWS resources running one Version)."}
+      ]
+    },
+    {
+      "title_ar": "سياسات النشر الأربع (الأكثر في الامتحان)",
+      "title_en": "The 4 deployment policies (heavily tested)",
+      "blocks": [
+        {"type": "p",
+         "ar": "هذا الموضوع الأوّل للامتحان في Beanstalk. عليك معرفة <strong>كل سياسة: الوقت، التكلفة، Downtime، Rollback</strong>.",
+         "en": "This is the #1 Beanstalk exam topic. You must know <strong>each policy: duration, cost, downtime, rollback</strong>."},
+        {"type": "table",
+         "headers": {"ar": ["السياسة", "Downtime", "تكلفة", "السرعة", "الاستخدام"], "en": ["Policy", "Downtime", "Cost", "Speed", "Use case"]},
+         "rows": [
+           [{"ar": "All at once", "en": "All at once"}, {"ar": "<strong>نعم</strong> — كل الخوادم تُحدَّث دفعة واحدة", "en": "<strong>Yes</strong> — all instances at once"}, {"ar": "مجانيّ", "en": "Free"}, {"ar": "الأسرع", "en": "Fastest"}, {"ar": "Dev فقط، عند تحمّل الانقطاع", "en": "Dev only, when downtime is OK"}],
+           [{"ar": "Rolling", "en": "Rolling"}, {"ar": "لا، لكن سعة أقل", "en": "No, but reduced capacity"}, {"ar": "مجانيّ", "en": "Free"}, {"ar": "متوسط", "en": "Medium"}, {"ar": "يعمل نسختان V1 و V2 في آن، تحت السعة", "en": "V1 and V2 run together, below capacity"}],
+           [{"ar": "Rolling with additional batches", "en": "Rolling with additional batches"}, {"ar": "لا، السعة الكاملة", "en": "No, full capacity"}, {"ar": "قليل إضافي مؤقّت", "en": "Small temporary extra"}, {"ar": "أبطأ", "en": "Slower"}, {"ar": "إنتاج، مع الحفاظ على السعة", "en": "Prod, keeps full capacity"}],
+           [{"ar": "Immutable", "en": "Immutable"}, {"ar": "لا — صفر Downtime", "en": "No — zero downtime"}, {"ar": "عالي (مضاعفة مؤقّتة)", "en": "High (temp double)"}, {"ar": "الأبطأ", "en": "Slowest"}, {"ar": "إنتاج حسّاس، Rollback سريع", "en": "Critical prod, fast rollback"}]
+         ]
+        },
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "zap", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "All at once — Downtime!", "title_en": "All at once — has downtime!", "body_ar": "كل الخوادم تُنزَل، تُحدَّث، تعود. الأسرع، لكن التطبيق غير متاح لثوانٍ/دقائق. مناسب فقط لـ Dev.", "body_en": "All instances drop, update, come back. Fastest but app offline for seconds/minutes. Dev only."},
+          {"icon": "refresh-cw", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Rolling — سعة مخفّضة", "title_en": "Rolling — reduced capacity", "body_ar": "يُحدَّث bucket (دفعة) تلو الأخرى. التطبيق يعمل لكن بعدد خوادم أقل مؤقّتاً.", "body_en": "Update bucket by bucket. App runs but fewer instances temporarily."},
+          {"icon": "plus-circle", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Rolling + additional — سعة كاملة", "title_en": "Rolling + additional — full capacity", "body_ar": "يُشغّل Instances جديدة قبل إنهاء القديمة. سعة كاملة طوال الوقت. جيّد للإنتاج.", "body_en": "Spins up new instances before killing old. Full capacity throughout. Good for prod."},
+          {"icon": "shield", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Immutable — الأكثر أماناً", "title_en": "Immutable — safest", "body_ar": "ينشئ ASG جديد كامل بـ V2، يتحقّق من الصحّة، ثمّ يستبدل. Rollback فوري بحذف الـ ASG الجديد.", "body_en": "Creates a new ASG with V2, health-checks it, then swaps. Rollback = just kill the new ASG."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Blue/Green</strong> ليس سياسة Beanstalk مباشرة. الطريقة: إنشاء Environment ثانٍ، النشر عليه، ثم <strong>Swap URLs</strong>. Rollback = إعادة Swap.",
+         "en": "<strong>Blue/Green</strong> isn't a direct Beanstalk policy. Method: create a second environment, deploy there, then <strong>Swap URLs</strong>. Rollback = swap back."},
+        {"type": "callout", "tone": "senior",
+         "ar": "<strong>Traffic Splitting (Canary)</strong>: Beanstalk ينشر V2 على ASG مؤقّت ويُرسِل ٪ صغير من الترافيك إليه. إذا فشل، Rollback تلقائيّ سريع.",
+         "en": "<strong>Traffic Splitting (Canary)</strong>: Beanstalk deploys V2 to a temporary ASG and sends a small % of traffic. On failure, automatic fast rollback."}
+      ]
+    },
+    {
+      "title_ar": "Web Server Tier vs Worker Tier",
+      "title_en": "Web Server Tier vs Worker Tier",
+      "blocks": [
+        {"type": "p",
+         "ar": "Beanstalk يدعم نوعين من البيئات. الاختيار الصحيح مهمّ لأسئلة السيناريو.",
+         "en": "Beanstalk supports two environment types. Picking the right one matters for scenario questions."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "globe", "title_ar": "Web Server Environment", "title_en": "Web Server Environment",
+                  "body_ar": "HTTP/HTTPS مع ELB. للـ REST APIs و web apps. الـ URL من شكل <span dir=\"ltr\" class=\"font-mono\">myapp.us-east-1.elasticbeanstalk.com</span>.",
+                  "body_en": "HTTP/HTTPS with ELB. For REST APIs and web apps. URL like <span dir=\"ltr\" class=\"font-mono\">myapp.us-east-1.elasticbeanstalk.com</span>."},
+         "right": {"tone": "emerald", "icon": "inbox", "title_ar": "Worker Environment", "title_en": "Worker Environment",
+                   "body_ar": "EC2 + SQS Queue. للمعالجة الخلفيّة (معالجة الصور، إرسال الإيميلات). يتسع تلقائياً حسب عدد الرسائل في Queue.",
+                   "body_en": "EC2 + SQS Queue. For background jobs (image processing, emails). Scales on queue depth."}
+        },
+        {"type": "p",
+         "ar": "<strong>نمط شائع</strong>: Web Server Tier يستقبل الطلبات السريعة، ثمّ يُرسِل رسالة SQS، و Worker Tier يلتقطها لاحقاً لإتمام المعالجة الثقيلة (معالجة ملفات، تصدير تقارير).",
+         "en": "<strong>Common pattern</strong>: Web tier handles fast requests, pushes an SQS message, and the Worker tier picks it up for heavy work (file processing, report export)."}
+      ]
+    },
+    {
+      "title_ar": ".ebextensions و RDS Decoupling",
+      "title_en": ".ebextensions & RDS decoupling",
+      "blocks": [
+        {"type": "p",
+         "ar": "لتخصيص البيئة (إعدادات الخادم، موارد إضافيّة، تثبيت حزم)، استخدم ملفّات <strong>.ebextensions/</strong> في جذر ZIP. الملفات YAML/JSON بامتداد <span dir=\"ltr\" class=\"font-mono\">.config</span>.",
+         "en": "To customize the environment (server settings, extra resources, package install), use <strong>.ebextensions/</strong> files in the ZIP root. YAML/JSON files with <span dir=\"ltr\" class=\"font-mono\">.config</span> extension."},
+        {"type": "code", "lang": "yaml",
+         "code": "# .ebextensions/01-options.config\noption_settings:\n  aws:elasticbeanstalk:application:environment:\n    SPRING_PROFILES_ACTIVE: prod\n    JAVA_OPTS: '-Xmx1g -XX:+UseG1GC'\n  aws:autoscaling:asg:\n    MinSize: 2\n    MaxSize: 6\n\n# .ebextensions/02-elasticache.config\nResources:\n  CacheCluster:\n    Type: AWS::ElastiCache::CacheCluster\n    Properties:\n      Engine: redis\n      CacheNodeType: cache.t3.micro\n      NumCacheNodes: 1"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "الموارد المُدارة بـ <span dir=\"ltr\" class=\"font-mono\">.ebextensions</span> تُحذَف مع حذف الـ Environment (لأنّ Beanstalk هو CloudFormation Stack). لذلك <strong>لا تُنشئ RDS بـ .ebextensions لبيئة إنتاج</strong>.",
+         "en": "Resources managed by <span dir=\"ltr\" class=\"font-mono\">.ebextensions</span> are deleted when the environment is deleted (because Beanstalk = CloudFormation stack). So <strong>don't create RDS via .ebextensions for production</strong>."},
+        {"type": "compare",
+         "left": {"tone": "red", "icon": "alert-octagon", "title_ar": "RDS داخل Beanstalk (خطأ للـ Prod)", "title_en": "RDS inside Beanstalk (bad for prod)",
+                  "body_ar": "حياة قاعدة البيانات مرتبطة بالـ Environment. حذف Environment = حذف RDS والبيانات.",
+                  "body_en": "DB lifecycle tied to environment. Delete env = delete RDS and data."},
+         "right": {"tone": "emerald", "icon": "shield-check", "title_ar": "RDS منفصل (الصحيح للـ Prod)", "title_en": "Separate RDS (correct for prod)",
+                   "body_ar": "أنشِئ RDS بـ Stack منفصل. مرِّر Connection String للتطبيق عبر Environment Variables.",
+                   "body_en": "Create RDS in a separate stack. Pass connection string to the app via env vars."}
+        },
+        {"type": "callout", "tone": "senior",
+         "ar": "للترحيل من Beanstalk + RDS مدمج إلى منفصل: ١) خذ Snapshot، ٢) فعّل Deletion Protection على RDS، ٣) أنشئ Environment جديد بدون RDS يشير إلى RDS القديم، ٤) Swap URLs، ٥) احذف Environment القديم (RDS سيبقى).",
+         "en": "To migrate from Beanstalk + embedded RDS to separate: 1) take a snapshot, 2) enable RDS deletion protection, 3) create a new env without RDS pointing to the old RDS, 4) swap URLs, 5) delete old env (RDS remains)."}
+      ]
+    },
+    {
+      "title_ar": "EB CLI، Lifecycle Policy، و Cloning",
+      "title_en": "EB CLI, lifecycle policy & cloning",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>EB CLI</strong> أداة سطر أوامر مخصّصة لـ Beanstalk (مختلفة عن AWS CLI). مفيدة للـ CI/CD pipelines.",
+         "en": "<strong>EB CLI</strong> is a Beanstalk-specific command-line tool (different from the AWS CLI). Useful for CI/CD pipelines."},
+        {"type": "code", "lang": "bash",
+         "code": "# Install EB CLI\npip install awsebcli\n\n# Initialize in project directory\neb init            # sets up app + region\neb create prod     # creates an environment called 'prod'\neb deploy          # deploys current code\neb status\neb logs            # fetch logs\neb open            # open in browser\neb config          # edit environment config\neb terminate       # destroy environment"},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "history", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Lifecycle Policy", "title_en": "Lifecycle Policy", "body_ar": "Beanstalk يحتفظ بأقصى ١٠٠٠ إصدار. تستخدم Lifecycle Policy لحذف القديم بالوقت أو العدد (لكن ليس المستخدمة حالياً).", "body_en": "Beanstalk stores up to 1000 versions. Use a lifecycle policy to drop old ones by age or count (but not ones currently in use)."},
+          {"icon": "copy", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Cloning", "title_en": "Cloning", "body_ar": "نسخ Environment بنفس الإعدادات. مفيد لإنشاء test env مطابق لـ prod. البيانات في RDS <em>لا تُنسَخ</em>.", "body_en": "Clone an environment with identical config. Useful for creating a test env mirroring prod. RDS data is <em>not</em> cloned."},
+          {"icon": "scale", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Load Balancer Type", "title_en": "Load Balancer Type", "body_ar": "لا يمكن تغيير نوع ELB بعد إنشاء Environment (ALB، NLB، CLB). الحل: Environment جديد + CNAME Swap.", "body_en": "ELB type (ALB, NLB, CLB) cannot change after env creation. Solution: new env + CNAME swap."},
+          {"icon": "package", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Deployment Bundle", "title_en": "Deployment Bundle", "body_ar": "ZIP يحتوي على كودك + pom/package.json + أي .ebextensions. الحجم الأقصى ٥١٢ MB.", "body_en": "ZIP with your code + pom/package.json + any .ebextensions. 512 MB max."}
+        ]}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "نشر تطبيق Spring Boot على Beanstalk مع Rolling with additional batches، ثم ترقيته لنسخة جديدة.",
+    "goal_en": "Deploy a Spring Boot app on Beanstalk with 'Rolling with additional batches', then upgrade to a new version.",
+    "steps": [
+      {"title_ar": "جهّز Spring Boot JAR", "title_en": "Prepare the Spring Boot JAR",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "mvn clean package\n# produces target/acme-app-1.0.jar (fat jar)"},
+      {"title_ar": "ثبّت EB CLI وأنشئ البيئة", "title_en": "Install EB CLI and create env",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "pip install awsebcli\neb init acme-app --region=us-east-1 --platform='Corretto 17'\neb create prod --instance-type=t3.small --min-instances=2 --max-instances=4"},
+      {"title_ar": "أضف .ebextensions للإعدادات", "title_en": "Add .ebextensions for config",
+       "body_ar": "احفظ الملف في جذر مشروع Spring Boot تحت .ebextensions/01-env.config",
+       "body_en": "Save file in Spring Boot project root under .ebextensions/01-env.config",
+       "lang": "yaml",
+       "code": "option_settings:\n  aws:elasticbeanstalk:application:environment:\n    SPRING_PROFILES_ACTIVE: prod\n    JAVA_OPTS: '-Xmx1g'\n  aws:elasticbeanstalk:command:\n    DeploymentPolicy: RollingWithAdditionalBatch\n    BatchSizeType: Percentage\n    BatchSize: 25"},
+      {"title_ar": "انشر الإصدار الأوّل", "title_en": "Deploy first version",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "eb deploy\neb open  # open browser on the URL"},
+      {"title_ar": "حدّث الكود وأعِد النشر", "title_en": "Update code and redeploy",
+       "body_ar": "Beanstalk سيُطبّق Rolling with additional batches: ٢٥٪ في كل batch مع Instances جديدة مؤقّتة.",
+       "body_en": "Beanstalk applies Rolling with additional batches: 25% per batch with temporary new instances.",
+       "lang": "bash",
+       "code": "# Change version in pom.xml, rebuild, redeploy\nmvn clean package\neb deploy"},
+      {"title_ar": "تنظيف", "title_en": "Cleanup",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "eb terminate prod"}
+    ],
+    "warning_ar": "لا تُنشئ RDS من داخل Beanstalk في بيئات الإنتاج. استخدم Stack منفصل أو AWS Console، ومرّر Connection String للتطبيق عبر Environment Variables.",
+    "warning_en": "Don't create RDS from inside Beanstalk for production. Use a separate stack or AWS Console, and pass the connection string to the app via env vars."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "شركة تريد نشر إصدار جديد في الإنتاج <strong>بدون Downtime</strong> وبأقل سعة ممكنة (سعة كاملة طوال الوقت) مع خيار Rollback سريع. أيّ سياسة؟",
+      "question_en": "A company wants to deploy a new version in prod <strong>with zero downtime</strong>, full capacity throughout, and fast rollback. Which policy?",
+      "options_ar": ["All at once", "Rolling", "Rolling with additional batches", "Immutable"],
+      "options_en": ["All at once", "Rolling", "Rolling with additional batches", "Immutable"],
+      "correct": 3,
+      "explanation_ar": "<strong>Immutable</strong> هو الأمثل: ينشئ ASG جديد بـ V2، يتحقّق من الصحّة، ثمّ يستبدل الـ ASG القديم. صفر Downtime، سعة كاملة، و Rollback سريع (حذف الـ ASG الجديد فقط). التكلفة أعلى لكن في الإنتاج الحرج تستحقّ.",
+      "explanation_en": "<strong>Immutable</strong> is ideal: creates a new ASG with V2, health-checks, then swaps. Zero downtime, full capacity, fast rollback (kill the new ASG). Higher cost but worth it for critical prod.",
+      "wrong_ar": ["Downtime.", "سعة مخفّضة مؤقّتاً.", "سعة كاملة لكنّ Rollback يدويّ أبطأ من Immutable.", ""],
+      "wrong_en": ["Has downtime.", "Temporarily reduced capacity.", "Full capacity but rollback is manually slower than Immutable.", ""],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "أيّ سياسة تُسبّب Downtime؟",
+      "question_en": "Which policy causes downtime?",
+      "options_ar": ["All at once", "Rolling", "Rolling with additional batches", "Immutable"],
+      "options_en": ["All at once", "Rolling", "Rolling with additional batches", "Immutable"],
+      "correct": 0,
+      "explanation_ar": "<strong>All at once</strong> تُحدِّث كل Instances دفعة واحدة، فالتطبيق غير متاح خلال التحديث. مناسبة فقط للـ Dev أو عند قبول الانقطاع. Rolling (Reduced capacity) لا يسبّب Downtime بل سعة أقل مؤقّتاً.",
+      "explanation_en": "<strong>All at once</strong> updates every instance in one batch — app is offline during the update. Suitable only for dev or when downtime is acceptable. Rolling (reduced capacity) causes no downtime, just less capacity temporarily.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "مطوّر يريد <strong>Blue/Green Deployment</strong> على Beanstalk. ما الطريقة الصحيحة؟",
+      "question_en": "A developer wants a <strong>Blue/Green deployment</strong> on Beanstalk. Correct approach?",
+      "options_ar": ["استخدام سياسة Blue/Green من Beanstalk مباشرة.", "إنشاء Environment ثانٍ، النشر عليه، ثم Swap URLs.", "تعديل ELB يدوياً.", "استخدام Rolling فقط."],
+      "options_en": ["Use the Blue/Green policy directly in Beanstalk.", "Create a second environment, deploy there, then Swap URLs.", "Manually edit the ELB.", "Use Rolling only."],
+      "correct": 1,
+      "explanation_ar": "Beanstalk لا يوفّر Blue/Green مباشرة. النمط: أنشئ Environment جديد (green)، انشر عليه V2، اختبر، ثم <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). صفر Downtime، Rollback بسيط بـ Swap مُعاكس.",
+      "explanation_en": "Beanstalk doesn't provide Blue/Green directly. Pattern: create a new environment (green), deploy V2, test, then <strong>Swap Environment URLs</strong> (Route 53 CNAMEs). Zero downtime, rollback is a reverse swap.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "مطوّر يستخدم <strong>.ebextensions</strong> لإنشاء RDS داخل Beanstalk environment للإنتاج. ما المشكلة؟",
+      "question_en": "A developer uses <strong>.ebextensions</strong> to create an RDS inside a production Beanstalk environment. What's the issue?",
+      "options_ar": ["لا توجد مشكلة، هذا الحلّ المُعتمَد.", "عند حذف الـ Environment، RDS يُحذَف مع كل البيانات.", "RDS لا يعمل مع .ebextensions.", "RDS يتطلّب نسخة Beanstalk المدفوعة."],
+      "options_en": ["No issue, this is the standard.", "When the environment is deleted, RDS is deleted with all data.", "RDS doesn't work with .ebextensions.", "RDS requires a paid Beanstalk edition."],
+      "correct": 1,
+      "explanation_ar": "الموارد المُدارة بـ <span dir=\"ltr\" class=\"font-mono\">.ebextensions</span> جزء من Stack الـ Environment. حذف Environment (أو إعادة إنشاءه) يحذف RDS. لإنتاج، أنشئ RDS <strong>منفصلاً</strong> ومرّر Connection String عبر Environment Variables.",
+      "explanation_en": "Resources managed by <span dir=\"ltr\" class=\"font-mono\">.ebextensions</span> are part of the environment's stack. Deleting (or recreating) the env deletes RDS. For prod, create a <strong>separate</strong> RDS and pass its connection string via env vars.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "تطبيق يستقبل طلبات HTTP سريعة لكنّ بعضها يتطلّب معالجة طويلة (مثل تصدير تقارير PDF). ما المعماريّة المناسبة؟",
+      "question_en": "An app receives fast HTTP requests but some need long processing (e.g. PDF report export). Right architecture?",
+      "options_ar": ["Web Server Tier واحد فقط.", "Web Server Tier لاستقبال الطلبات + Worker Tier مع SQS للمعالجة الطويلة.", "Worker Tier فقط.", "Lambda فقط."],
+      "options_en": ["A single Web Server Tier.", "Web Server Tier for requests + Worker Tier with SQS for long work.", "Worker Tier only.", "Lambda only."],
+      "correct": 1,
+      "explanation_ar": "النمط المعياريّ: <strong>Web Tier</strong> يستقبل طلبات HTTP ويرسل رسائل SQS للمعالجة الثقيلة. <strong>Worker Tier</strong> يسحب الرسائل من SQS ويعالجها. Worker Tier يتسع تلقائياً بناءً على عمق Queue.",
+      "explanation_en": "Canonical pattern: <strong>Web Tier</strong> accepts HTTP requests and pushes SQS messages for heavy work. <strong>Worker Tier</strong> polls SQS and processes. Worker Tier scales on queue depth.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "فريق ينشر إصداراً جديداً بسياسة <strong>Rolling</strong>، batch size = ٢٥٪، ٤ خوادم. ما الذي يحدث؟",
+      "question_en": "A team deploys with <strong>Rolling</strong>, batch size 25%, 4 instances. What happens?",
+      "options_ar": ["كل الخوادم تتوقف في آن.", "الـ Beanstalk يحدّث خادماً واحداً (٢٥٪) في كل batch، السعة تتقلّص مؤقّتاً.", "يُنشئ ٤ خوادم جديدة أوّلاً.", "يتطلّب Downtime."],
+      "options_en": ["All instances stop at once.", "Beanstalk updates 1 instance (25%) per batch; capacity is temporarily reduced.", "Creates 4 new instances first.", "Requires downtime."],
+      "correct": 1,
+      "explanation_ar": "<strong>Rolling</strong> لا يُنشئ Instances جديدة — يُحدّث القائمة batch by batch. في كل batch، Instances تلك الدفعة غير متاحة مؤقّتاً، فالسعة تنخفض من ٤ إلى ٣ (٧٥٪) حتى يكتمل الـ batch ثمّ ينتقل للتالية.",
+      "explanation_en": "<strong>Rolling</strong> doesn't create new instances — it updates existing ones batch by batch. During each batch those instances are unavailable, so capacity drops from 4 to 3 (75%) until the batch completes, then moves on.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "أيّ امتداد ملفّ ومجلد مطلوبان لتخصيص Beanstalk عبر config files؟",
+      "question_en": "Which folder + file extension is needed to customize Beanstalk via config files?",
+      "options_ar": [".elasticbeanstalk/ مع .yml", ".ebextensions/ مع .config", "ebsettings/ مع .json", ".eb/ مع .env"],
+      "options_en": [".elasticbeanstalk/ with .yml", ".ebextensions/ with .config", "ebsettings/ with .json", ".eb/ with .env"],
+      "correct": 1,
+      "explanation_ar": "المجلّد المطلوب هو <span dir=\"ltr\" class=\"font-mono\">.ebextensions/</span> في جذر ZIP، والملفات بامتداد <span dir=\"ltr\" class=\"font-mono\">.config</span> بصيغة YAML أو JSON. داخلها: <span dir=\"ltr\" class=\"font-mono\">option_settings</span> و <span dir=\"ltr\" class=\"font-mono\">Resources</span> و <span dir=\"ltr\" class=\"font-mono\">files</span> و <span dir=\"ltr\" class=\"font-mono\">commands</span>.",
+      "explanation_en": "Folder: <span dir=\"ltr\" class=\"font-mono\">.ebextensions/</span> in the ZIP root; files end with <span dir=\"ltr\" class=\"font-mono\">.config</span> in YAML or JSON. Inside: <span dir=\"ltr\" class=\"font-mono\">option_settings</span>, <span dir=\"ltr\" class=\"font-mono\">Resources</span>, <span dir=\"ltr\" class=\"font-mono\">files</span>, <span dir=\"ltr\" class=\"font-mono\">commands</span>.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "مطوّر يريد تغيير نوع ELB من Classic إلى Application على Beanstalk environment قائم. ما الحل؟",
+      "question_en": "A developer wants to change ELB type from Classic to Application on an existing Beanstalk env. Solution?",
+      "options_ar": ["تعديل الإعدادات من Console مباشرة.", "لا يمكن تغيير النوع. أنشئ Environment جديد ثمّ قم بـ CNAME Swap.", "تحديث .ebextensions.", "eb config set --lb=alb."],
+      "options_en": ["Edit settings in Console directly.", "Cannot change type. Create a new env, then do a CNAME swap.", "Update .ebextensions.", "eb config set --lb=alb."],
+      "correct": 1,
+      "explanation_ar": "نوع ELB (ALB، NLB، CLB) <strong>ثابت بعد إنشاء Environment</strong>. يمكن تعديل الإعدادات الداخليّة للـ ELB لكن ليس نوعه. الحل: Environment جديد بنوع ELB المطلوب، نشر التطبيق، ثمّ Swap.",
+      "explanation_en": "ELB type (ALB, NLB, CLB) is <strong>locked at env creation</strong>. You can change ELB internals, not its type. Solution: new env with the desired ELB type, deploy, then swap.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q9", "type": "multi",
+      "question_ar": "أيّ من الآتي صحيح عن Elastic Beanstalk؟ اختر كل ما ينطبق.",
+      "question_en": "Which are TRUE about Elastic Beanstalk? Select all that apply.",
+      "options_ar": ["خدمة Beanstalk مجانيّة — تدفع فقط مقابل الموارد الأساسيّة.", "Beanstalk يستخدم CloudFormation خلف الكواليس.", "Beanstalk مخصّص لـ Lambda فقط.", "Worker Tier يتسع بناءً على رسائل SQS."],
+      "options_en": ["Beanstalk service is free — you pay only for underlying resources.", "Beanstalk uses CloudFormation under the hood.", "Beanstalk is only for Lambda.", "Worker tier scales based on SQS messages."],
+      "correct": [0, 1, 3],
+      "explanation_ar": "Beanstalk يعمل مع EC2 (ليس Lambda)، يدعم عدّة منصّات (Java، Node.js، Python، Docker...). مجانيّ (تدفع للموارد)، يبني CloudFormation Stack خلف الكواليس، و Worker Tier يتسع على عمق SQS Queue.",
+      "explanation_en": "Beanstalk runs on EC2 (not Lambda), supports multiple platforms (Java, Node.js, Python, Docker...). Service itself is free (pay for resources), builds a CloudFormation stack, and Worker Tier scales on SQS queue depth.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "فريق يواجه خطأ <em>\"No space left on application versions\"</em> عند النشر. ما السبب والحل؟",
+      "question_en": "A team gets <em>\"No space left on application versions\"</em> on deploy. Cause & fix?",
+      "options_ar": ["EC2 disk full، وسّع EBS.", "Beanstalk بلغ حد ١٠٠٠ Application Version؛ فعّل Lifecycle Policy.", "Environment في حالة خطأ، أعد إنشاءه.", "Region ممتلئة."],
+      "options_en": ["EC2 disk full; expand EBS.", "Beanstalk hit the 1000 Application Version limit; enable a lifecycle policy.", "Env is in error state; recreate.", "Region is full."],
+      "correct": 1,
+      "explanation_ar": "Beanstalk يخزّن حد أقصى <strong>١٠٠٠ Application Version</strong>. عند البلوغ، لا يمكن النشر. الحل: <strong>Lifecycle Policy</strong> لحذف النسخ القديمة بالوقت أو بالعدد (لا تُحذَف النسخة المستخدمة حاليّاً). اختياريّاً: احتفظ بـ Source Bundle في S3.",
+      "explanation_en": "Beanstalk caps at <strong>1000 Application Versions</strong>. When reached, deploys fail. Fix: a <strong>lifecycle policy</strong> to phase out old versions by age or count (currently used versions aren't deleted). Optional: keep the source bundle in S3.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "أيّ سياسة توفّر الـ <strong>Canary testing</strong> (إرسال ٪ صغير من الترافيك للنسخة الجديدة مع Rollback تلقائيّ)؟",
+      "question_en": "Which Beanstalk policy provides <strong>Canary testing</strong> (small % traffic to new version with auto-rollback)?",
+      "options_ar": ["Immutable", "Traffic Splitting", "Rolling", "All at once"],
+      "options_en": ["Immutable", "Traffic Splitting", "Rolling", "All at once"],
+      "correct": 1,
+      "explanation_ar": "<strong>Traffic Splitting</strong> هو Canary Testing في Beanstalk: ينشر V2 على ASG مؤقّت ويُحوّل ٪ صغير من الترافيك (مثل ١٠٪). يراقب صحّة النشر، عند الفشل Rollback تلقائيّ سريع. Immutable ينشر بالكامل ثمّ يستبدل.",
+      "explanation_en": "<strong>Traffic Splitting</strong> is Beanstalk's canary: deploys V2 to a temporary ASG and routes a small % (e.g. 10%) of traffic. Monitors health; on failure, fast auto-rollback. Immutable deploys fully, then swaps.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يريد اختبار بيئة مطابقة للإنتاج قبل Rollout. ما الميزة المناسبة؟",
+      "question_en": "A developer wants a production-identical test env before rollout. Best feature?",
+      "options_ar": [".ebextensions", "Cloning", "Lifecycle Policy", "Traffic Splitting"],
+      "options_en": [".ebextensions", "Cloning", "Lifecycle Policy", "Traffic Splitting"],
+      "correct": 1,
+      "explanation_ar": "<strong>Cloning</strong> يُنشئ Environment جديد بنفس إعدادات الأصل (Load Balancer config، Environment Variables، ASG settings، نوع RDS — <u>لكن البيانات لا تُنسَخ</u>). مثاليّ لاختبار تغيير في بيئة مطابقة.",
+      "explanation_en": "<strong>Cloning</strong> creates a new env with identical settings to the source (LB config, env vars, ASG settings, RDS type — <u>but data isn't copied</u>). Ideal for testing a change in a mirror env.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "cloud", "title_ar": "PaaS على EC2 + ELB + ASG", "title_en": "PaaS on EC2 + ELB + ASG",
+     "body_ar": "ارفع ZIP/JAR؛ Beanstalk يُجهّز البنية تلقائياً. الخدمة مجانية.",
+     "body_en": "Upload ZIP/JAR; Beanstalk provisions automatically. Service is free."},
+    {"icon": "layers", "title_ar": "٤ سياسات نشر + Blue/Green", "title_en": "4 deployment policies + Blue/Green",
+     "body_ar": "All/Rolling/Rolling+batches/Immutable. Blue/Green بـ Swap URLs.",
+     "body_en": "All/Rolling/Rolling+batches/Immutable. Blue/Green via Swap URLs."},
+    {"icon": "file-cog", "title_ar": ".ebextensions للتخصيص", "title_en": ".ebextensions for customization",
+     "body_ar": "YAML/JSON بامتداد .config لخيارات و موارد إضافيّة.",
+     "body_en": "YAML/JSON with .config extension for options and extra resources."},
+    {"icon": "database", "title_ar": "افصل RDS للإنتاج", "title_en": "Decouple RDS for prod",
+     "body_ar": "RDS داخل .ebextensions يُحذَف مع Environment — لا للإنتاج.",
+     "body_en": "RDS inside .ebextensions dies with the env — never for prod."}
+  ],
+  "mnemonic_ar": "للسياسات تذكّر <strong>\"ARRI\"</strong>: <strong>A</strong>ll at once (Downtime) → <strong>R</strong>olling (reduced) → <strong>R</strong>olling+batches (full cap) → <strong>I</strong>mmutable (safest). حسب سرعة → أمان.",
+  "mnemonic_en": "Policies mnemonic <strong>\"ARRI\"</strong>: <strong>A</strong>ll at once (downtime) → <strong>R</strong>olling (reduced) → <strong>R</strong>olling+batches (full cap) → <strong>I</strong>mmutable (safest). Speed → safety order.",
+  "prev": 23,
+  "next": 25
+}

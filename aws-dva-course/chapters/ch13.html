@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 13 — Amazon API Gateway | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-blue-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الأول — 32%</span>
+          <span class="lang-en">Domain 1 — 32%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٣ من ٣٠</span>
+        <span class="lang-en">Chapter 13 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.662-705</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Amazon API Gateway</span>
+        <span class="lang-en">Amazon API Gateway</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">البوّابة الذكيّة بين العميل و Lambda/HTTP/AWS services: REST و HTTP و WebSocket، المصادقة، التخزين المؤقّت، الاختناق، CORS، و canary deployments. الموضوع الأكثر أهمّية لمطوّري serverless.</span>
+        <span class="lang-en">The smart gateway between clients and Lambda/HTTP/AWS services: REST, HTTP, and WebSocket APIs; authentication; caching; throttling; CORS; canary deployments. The topic every serverless dev must master.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">API Gateway</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">REST</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">HTTP</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">WebSocket</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Lambda</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Authorizers</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CORS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Caching</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Integration Types (Lambda Proxy, HTTP, AWS, MOCK)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في اختيار نوع التكامل الصحيح لكل سيناريو.</span>
+      <span class="lang-en">Domain 1 — picking the right integration for each scenario.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">REST vs HTTP vs WebSocket APIs</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول والثالث في الفرق والميزات المتاحة لكل نوع.</span>
+      <span class="lang-en">Domains 1 & 3 — differences and feature availability per type.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Authorizers (Cognito/Lambda/IAM)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في مصادقة المستخدمين.</span>
+      <span class="lang-en">Domain 2 — user authentication and authorization.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CORS</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول — موضوع متكرّر جداً في الامتحان.</span>
+      <span class="lang-en">Domain 1 — very frequent exam topic.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Stages, Canary & Usage Plans</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث في النشر ومتحكمّات الاستهلاك.</span>
+      <span class="lang-en">Domain 3 — deployment and usage control.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هي API Gateway ومتى تستخدمها</span>
+      <span class="lang-en">What is API Gateway and when to use it</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">API Gateway</span> خدمة مُدارة بالكامل تُتيح لك إنشاء ونشر وإدارة APIs بدون بنية تحتية. تعالج المصادقة، الاختناق، التخزين المؤقّت، المراقبة، ونسخ الـ APIs — وهي الشريك الدائم لـ Lambda في المعمار serverless. للعميل هي نقطة دخول واحدة تخفي تعقيدات الـ backend.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">API Gateway</span> is a fully managed service for creating, publishing, and managing APIs with zero infrastructure. It handles authentication, throttling, caching, monitoring, and API versioning — the forever-partner of Lambda in serverless. To clients, it's a single entry point that hides backend complexity.</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">REST API</span><span class="lang-en">REST API</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">الأغنى بالميزات. يدعم mapping templates, request validation, usage plans, API keys, WAF, private endpoint.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Feature-rich. Supports mapping templates, request validation, usage plans, API keys, WAF, private endpoints.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">HTTP API</span><span class="lang-en">HTTP API</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">٧٠٪ أرخص، زمن استجابة أقل. يدعم JWT/OIDC مباشرة و CORS مدمج. لا يدعم usage plans أو mapping templates.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">70% cheaper, lower latency. Native JWT/OIDC, built-in CORS. No usage plans or mapping templates.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="radio" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">WebSocket API</span><span class="lang-en">WebSocket API</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">اتّصال ثنائي الاتّجاه مستمرّ. للتطبيقات الفورية: chat, multi-player games, trading.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Persistent two-way connection. For real-time: chat, multiplayer games, trading.</p>
+  </div>
+</div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الميزة</span><span class="lang-en">Feature</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">REST API</span><span class="lang-en">REST API</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">HTTP API</span><span class="lang-en">HTTP API</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">JWT/OIDC native</span><span class="lang-en">JWT/OIDC native</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda/IAM authorizers</span><span class="lang-en">Lambda/IAM authorizers</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Resource policies</span><span class="lang-en">Resource policies</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Usage plans / API keys</span><span class="lang-en">Usage plans / API keys</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Mapping templates (VTL)</span><span class="lang-en">Mapping templates (VTL)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Caching</span><span class="lang-en">Caching</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التكلفة</span><span class="lang-en">Cost</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أغلى</span><span class="lang-en">Pricier</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">~٧٠٪ أرخص</span><span class="lang-en">~70% cheaper</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Endpoint Types وأنواع التكامل</span>
+      <span class="lang-en">Endpoint Types & Integration Types</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عند إنشاء API عندك ثلاثة أنواع Endpoints: <strong>Edge-Optimized</strong> (الافتراضي — يمرّ عبر CloudFront لأداء عالمي)، <strong>Regional</strong> (لعملاء داخل نفس الـ region)، <strong>Private</strong> (فقط من داخل VPC عبر Interface VPC Endpoint).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">When creating an API you pick from three Endpoint Types: <strong>Edge-Optimized</strong> (default — routes via CloudFront for global performance), <strong>Regional</strong> (for in-region clients), <strong>Private</strong> (only reachable from a VPC via Interface VPC Endpoint).</p>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>أنواع التكامل (Integration Types)</strong> من أهمّ مواضيع الامتحان. كل method في الـ API لها integration type يحدّد كيف تتعامل مع الـ backend:</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Integration Types</strong> are critical exam material. Every method on the API has an integration type controlling backend interaction:</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النوع</span><span class="lang-en">Type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوصف</span><span class="lang-en">Description</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">MOCK</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يرجع استجابة بدون إرسال الطلب للـ backend</span><span class="lang-en">Returns response without hitting backend</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اختبار، CORS preflight</span><span class="lang-en">Testing, CORS preflight</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">HTTP</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يستدعي HTTP endpoint في الـ backend. يتطلّب mapping templates.</span><span class="lang-en">Calls HTTP backend. Needs mapping templates.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">توجيه لنظام قديم أو ALB</span><span class="lang-en">Forwarding to legacy or ALB</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">HTTP_PROXY</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يوجّه كامل الطلب/الاستجابة HTTP كما هو. بدون mapping.</span><span class="lang-en">Forwards full HTTP request/response as-is. No mapping.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">proxy بسيط</span><span class="lang-en">Simple proxy</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يستدعي AWS API (SQS, DynamoDB, Step Functions...). يتطلّب mapping templates.</span><span class="lang-en">Calls AWS API (SQS, DynamoDB, Step Functions...). Needs mapping templates.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نشر Step Function عبر API</span><span class="lang-en">Start Step Function from API</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWS_PROXY</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>Lambda Proxy</strong> — يُمرَّر الطلب كامل لـ Lambda، و Lambda مسؤولة عن الشكل.</span><span class="lang-en"><strong>Lambda Proxy</strong> — full request passed to Lambda; Lambda owns shape.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأكثر شيوعاً مع Lambda</span><span class="lang-en">Most common with Lambda</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="arrow-right-circle" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">AWS_PROXY (Lambda Proxy)</span><span class="lang-en">AWS_PROXY (Lambda Proxy)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">بدون mapping templates. الـ headers وquery strings و path params تصل لـ Lambda في event object جاهز. Lambda ترجع <span dir="ltr" class="font-mono">{statusCode, headers, body}</span>. الـ body يجب أن يكون string (JSON.stringify).</p>
+      <p class="text-sm text-surface-700 lang-en">No mapping templates. Headers, query strings, path params arrive as a ready event. Lambda returns <span dir="ltr" class="font-mono">{statusCode, headers, body}</span>. Body must be a string (JSON.stringify).</p>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">AWS (Custom)</span><span class="lang-en">AWS (Custom)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">mapping templates بلغة VTL تُحوّل طلب العميل لصيغة Lambda/AWS. تحكّم أكبر، كود Lambda أنظف، لكن صيانة أكثر.</p>
+      <p class="text-sm text-surface-700 lang-en">VTL mapping templates transform client payload to Lambda/AWS format. More control, cleaner Lambda code, more maintenance.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java Lambda handler — AWS_PROXY (Lambda Proxy) integration
+public class OrderHandler
+    implements RequestHandler&lt;APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+  @Override
+  public APIGatewayProxyResponseEvent handleRequest(
+      APIGatewayProxyRequestEvent event, Context ctx) {
+
+    String orderId = event.getPathParameters().get("id");
+    Map&lt;String,String> qs = event.getQueryStringParameters();
+    String body = event.getBody();        // client JSON as string
+
+    // ... business logic ...
+
+    return new APIGatewayProxyResponseEvent()
+        .withStatusCode(200)
+        .withHeaders(Map.of(
+            "Content-Type", "application/json",
+            "Access-Control-Allow-Origin", "*"))
+        .withBody("{\"orderId\":\"" + orderId + "\",\"status\":\"SHIPPED\"}");
+  }
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Deployment Stages و Canary و Stage Variables</span>
+      <span class="lang-en">Deployment Stages, Canary & Stage Variables</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">تغيير في API Gateway لا يصبح فعّالاً إلّا بعد <strong>Deployment</strong>. يُنشر لـ <strong>Stage</strong> (dev, test, prod, v1, v2...). كل stage له إعداداته الخاصّة (throttling, caching, logging). وتُحفظ تاريخ النشر لاحتمال rollback.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A change in API Gateway isn't live until you create a <strong>Deployment</strong>. It's published to a <strong>Stage</strong> (dev, test, prod, v1, v2...). Each stage has its own config (throttling, caching, logging). Deployment history is retained so you can roll back.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="git-branch" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Stage Variables</span><span class="lang-en">Stage Variables</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">متغيّرات بيئة للـ stage. تُستخدم في: Lambda ARN (أو alias مثل <span class="font-mono">${stageVariables.lambdaAlias}</span>)، HTTP endpoint، mapping templates. تمكّنك من تبديل الـ backend بدون تعديل الـ API.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Stage-scoped env vars. Used in: Lambda ARN (or alias like <span class="font-mono">${stageVariables.lambdaAlias}</span>), HTTP endpoint, mapping templates. Let you swap backends without editing the API.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="bird" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Canary Deployment</span><span class="lang-en">Canary Deployment</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يرسل ٪ محدّد من حركة المرور للإصدار الجديد (canary). مقاييس منفصلة. طريقة blue/green مع Lambda + API Gateway.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Routes a % of traffic to the new version (canary). Separate metrics. The blue/green approach with Lambda + API Gateway.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> نمط سينيور: استخدم <strong>stage variable لاسم Lambda alias</strong> (مثلاً <span dir="ltr" class="font-mono">prod</span>, <span dir="ltr" class="font-mono">canary</span>)، واستفد من <strong>Lambda Weighted Aliases</strong> (٩٥٪/٥٪) لتقسيم الحركة بدون لمس API Gateway. هذا المعمار المفضّل للنشر التدريجي في serverless.</span>
+      <span class="lang-en"> Senior pattern: put a <strong>stage variable for the Lambda alias</strong> (e.g. <span dir="ltr" class="font-mono">prod</span>, <span dir="ltr" class="font-mono">canary</span>) and use <strong>Lambda Weighted Aliases</strong> (95%/5%) to split traffic without touching API Gateway. That's the canonical progressive-deployment pattern in serverless.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Deploy API changes to the prod stage
+aws apigateway create-deployment \
+  --rest-api-id abc123 \
+  --stage-name prod \
+  --description 'release 2024-11 - add /orders'
+
+# Configure canary on prod stage: 10% to canary
+aws apigateway update-stage \
+  --rest-api-id abc123 --stage-name prod \
+  --patch-operations \
+    'op=replace,path=/canarySettings/percentTraffic,value=10' \
+    'op=replace,path=/canarySettings/useStageCache,value=false'</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الأمان: Authorizers و IAM و Cognito و CORS</span>
+      <span class="lang-en">Security: Authorizers, IAM, Cognito & CORS</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لـ API Gateway ثلاثة مسارات للمصادقة/التفويض، ولكلٍّ استخدامه. هذا من أكثر مواضيع الامتحان سؤالاً:</p>
+  <p class="text-surface-700 leading-relaxed lang-en">API Gateway has three auth paths, each with its niche. It's one of the most-asked exam topics:</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الطريقة</span><span class="lang-en">Method</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Authentication</span><span class="lang-en">Authentication</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Authorization</span><span class="lang-en">Authorization</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحالة المثلى</span><span class="lang-en">Best for</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IAM</span><span class="lang-en">IAM</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IAM credentials (Sig v4)</span><span class="lang-en">IAM credentials (Sig v4)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IAM Policy</span><span class="lang-en">IAM Policy</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">API داخلية — EC2/Lambda/IAM users</span><span class="lang-en">Internal APIs — EC2/Lambda/IAM users</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Cognito User Pool</span><span class="lang-en">Cognito User Pool</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Cognito (JWT token)</span><span class="lang-en">Cognito (JWT token)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">API Gateway Methods</span><span class="lang-en">API Gateway Methods</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مستخدمون خارجيون (mobile/web)</span><span class="lang-en">External users (mobile/web)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda Authorizer</span><span class="lang-en">Lambda Authorizer</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خارجي (token, headers...)</span><span class="lang-en">External (token, headers...)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda تُرجع IAM policy</span><span class="lang-en">Lambda returns IAM policy</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">tokens طرف ثالث (JWT، Okta...)</span><span class="lang-en">Third-party tokens (JWT, Okta...)</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> <strong>Lambda Authorizer</strong>: Lambda تستقبل الـ token وتُرجع IAM policy. نتيجتها تُخزَّن مؤقتاً (cache) لـ ٣٠٠ ثانية افتراضياً — لذا يُفضَّل للـ tokens ذات عمر طويل. نوعان: <strong>Token-based</strong> (JWT في Authorization header) و <strong>Request parameter-based</strong> (headers/query strings).</span>
+      <span class="lang-en"> <strong>Lambda Authorizer</strong>: Lambda receives the token and returns an IAM policy. Result is cached for 300 seconds by default — best for long-lived tokens. Two kinds: <strong>Token-based</strong> (JWT in Authorization header) and <strong>Request parameter-based</strong> (headers/query strings).</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>CORS (Cross-Origin Resource Sharing)</strong> — من أكثر المشاكل شيوعاً عند ربط frontend (مثل S3 static site) مع API Gateway على domain مختلف. المتصفّح يُرسل <strong>preflight OPTIONS request</strong> قبل الطلب الحقيقي ويتوقّع الـ headers التالية في الاستجابة: <span dir="ltr" class="font-mono">Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers</span>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CORS (Cross-Origin Resource Sharing)</strong> — the most common pain when connecting a frontend (e.g. S3 static site) to API Gateway on a different domain. The browser sends a <strong>preflight OPTIONS request</strong> before the real one and expects these headers back: <span dir="ltr" class="font-mono">Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers</span>.</p>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> فخّ CORS الامتحاني: إن رأيت في السؤال <strong>"CORS error from browser"</strong> أو <strong>"API works from Postman but not browser"</strong>، الحلّ دائماً: <strong>فعّل CORS في API Gateway</strong> (ينشئ method OPTIONS تلقائياً مع الـ headers). الـ Lambda مع Proxy Integration يجب أن ترجع <span dir="ltr" class="font-mono">Access-Control-Allow-Origin</span> بنفسها.</span>
+      <span class="lang-en"> CORS exam trap: if the question says <strong>"CORS error from browser"</strong> or <strong>"works in Postman but not browser"</strong>, the answer is always: <strong>enable CORS in API Gateway</strong> (creates OPTIONS method with proper headers). With Lambda Proxy Integration, your Lambda must also return <span dir="ltr" class="font-mono">Access-Control-Allow-Origin</span> itself.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Lambda Authorizer response: must return principal + IAM policy
+{
+  "principalId": "user-123",
+  "policyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Action": "execute-api:Invoke",
+      "Effect": "Allow",
+      "Resource": "arn:aws:execute-api:us-east-1:*:abc123/prod/GET/orders/*"
+    }]
+  },
+  "context": {
+    "tenantId": "acme",
+    "role": "admin"
+  }
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Throttling و Caching و Usage Plans و Monitoring</span>
+      <span class="lang-en">Throttling, Caching, Usage Plans & Monitoring</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">API Gateway يحدّ الطلبات على ثلاثة مستويات. الـ <strong>Account Limit</strong> الافتراضي ١٠٬٠٠٠ طلب/ثانية عبر كل الـ APIs (قابل للرفع). يمكن ضبط <strong>Stage Limits</strong> و <strong>Method Limits</strong> للحماية من API واحد يستهلك كل الـ quota. الـ <strong>Usage Plans</strong> تُقيّد العملاء فردياً بـ API Keys.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">API Gateway throttles at three levels. Default <strong>Account Limit</strong> is 10,000 RPS across all APIs (soft, raisable). Set <strong>Stage Limits</strong> and <strong>Method Limits</strong> to stop one API hogging quota. <strong>Usage Plans</strong> throttle individual customers by API Key.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Throttling — 429</span><span class="lang-en">Throttling — 429</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تجاوز الحدّ يُرجع <strong>429 Too Many Requests</strong> (قابل للإعادة). إعدّ الاستراتيجية: exponential backoff في العميل.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Exceeding the limit returns <strong>429 Too Many Requests</strong> (retriable). Strategy: exponential backoff on client.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="database" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Caching per stage</span><span class="lang-en">Caching per stage</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">TTL افتراضي ٣٠٠ ثانية (أقصى ٣٦٠٠). الحجم ٠.٥ – ٢٣٧ GB. يقلّل الطلبات للـ backend. الـ cache <u>per stage</u> ويمكن تجاوزه per method.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Default TTL 300s (max 3600). Size 0.5 – 237 GB. Reduces backend calls. Cache is <u>per stage</u>, overridable per method.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="key-round" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Usage Plans & API Keys</span><span class="lang-en">Usage Plans & API Keys</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">API Keys تُرسَل في header <span class="font-mono">x-api-key</span>. Usage Plan يربط الـ key بـ throttling وquota لكل عميل. متاح في REST API فقط.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">API Keys go in <span class="font-mono">x-api-key</span> header. Usage Plan links keys to throttling/quota per customer. REST API only.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudWatch & X-Ray</span><span class="lang-en">CloudWatch & X-Ray</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">مقاييس: <span class="font-mono">CacheHit/MissCount, Count, Latency, IntegrationLatency, 4XXError, 5XXError</span>. X-Ray للـ tracing عبر Lambda.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Metrics: <span class="font-mono">CacheHit/MissCount, Count, Latency, IntegrationLatency, 4XXError, 5XXError</span>. X-Ray traces to Lambda.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> ترتيب إنشاء Usage Plan الصحيح: (١) أنشئ API وفعّل API Key على الـ methods. (٢) انشر API على stage. (٣) أنشئ/استورد API Keys. (٤) أنشئ Usage Plan بحدود throttle وquota. (٥) اربط الـ Stage والـ Keys بالـ Usage Plan. العملاء يرسلون الـ key في <span dir="ltr" class="font-mono">x-api-key</span> header.</span>
+      <span class="lang-en"> Correct Usage Plan order: (1) create API, enable API Key on methods. (2) deploy to a stage. (3) generate/import API Keys. (4) create Usage Plan with throttle/quota. (5) associate Stage and Keys with the Usage Plan. Clients send the key in the <span dir="ltr" class="font-mono">x-api-key</span> header.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الأخطاء، OpenAPI، و WebSocket APIs</span>
+      <span class="lang-en">Errors, OpenAPI & WebSocket APIs</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخطأ</span><span class="lang-en">Error</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المعنى</span><span class="lang-en">Meaning</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السبب الشائع</span><span class="lang-en">Common cause</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">400</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Bad Request</span><span class="lang-en">Bad Request</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فشل validation أو JSON خاطئ</span><span class="lang-en">Validation failure or bad JSON</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">403</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Access Denied / WAF</span><span class="lang-en">Access Denied / WAF</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">authorizer رفض أو WAF حجب</span><span class="lang-en">Authorizer denied or WAF blocked</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">429</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Throttle</span><span class="lang-en">Throttle</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تجاوز الـ RPS</span><span class="lang-en">Exceeded RPS limit</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">502</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Bad Gateway</span><span class="lang-en">Bad Gateway</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda ترجع شكل غير متوافق</span><span class="lang-en">Lambda returned incompatible shape</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">503</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Service Unavailable</span><span class="lang-en">Service Unavailable</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">backend مؤقتاً غير متاح</span><span class="lang-en">Backend temporarily down</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">504</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Timeout — حدّ API Gateway ٢٩ ثانية</span><span class="lang-en">Timeout — API Gateway 29-sec max</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda أو backend طويل</span><span class="lang-en">Lambda or backend too slow</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>حدّ API Gateway ٢٩ ثانية</strong> للـ integration timeout. لو احتجت لعملية أطول: اجعل API يُرجع ٢٠٢ Accepted ويستدعي Lambda غير متزامنة أو Step Function ويعيد للعميل polling URL أو webhook.</span>
+      <span class="lang-en"> <strong>API Gateway's 29-second integration timeout</strong> is hard. For longer ops: return 202 Accepted, invoke async Lambda or Step Function, give client a polling URL or webhook.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>OpenAPI (Swagger) 3.0</strong> تستطيع استيراده مباشرة في API Gateway لإنشاء كامل الـ API من ملف واحد (YAML/JSON). تدعم امتدادات AWS الخاصّة (<span dir="ltr" class="font-mono">x-amazon-apigateway-*</span>) لتكوين التكامل والـ validators. يمكن تصدير الـ API كـ OpenAPI spec أيضاً. <strong>Request Validation</strong> يُفعَّل عبر هذه المواصفة ويرفض الطلبات غير المطابقة قبل ضرب الـ backend.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>OpenAPI (Swagger) 3.0</strong> can be imported directly into API Gateway to create the whole API from one YAML/JSON file. AWS extensions (<span dir="ltr" class="font-mono">x-amazon-apigateway-*</span>) cover integrations and validators. You can also export the API as OpenAPI. <strong>Request Validation</strong> is wired via the spec and rejects malformed requests before they hit backend.</p>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>WebSocket API</strong>: اتّصال مستمرّ ثنائي الاتجاه. العميل يتّصل على <span dir="ltr" class="font-mono">wss://{id}.execute-api.{region}.amazonaws.com/{stage}</span> فيُستدعى Lambda <span dir="ltr" class="font-mono">$connect</span> مع <span dir="ltr" class="font-mono">connectionId</span>. تخزّن الـ connectionId (عادة في DynamoDB) ثم تدفع الرسائل للعملاء عبر الـ ManagementApi. الـ routes: <span dir="ltr" class="font-mono">$connect, $disconnect, $default</span>، ومسارات مخصّصة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>WebSocket API</strong>: persistent bidirectional connection. Client connects to <span dir="ltr" class="font-mono">wss://{id}.execute-api.{region}.amazonaws.com/{stage}</span>, triggering Lambda <span dir="ltr" class="font-mono">$connect</span> with a <span dir="ltr" class="font-mono">connectionId</span>. Store connectionIds (usually in DynamoDB) and push to clients via the ManagementApi. Routes: <span dir="ltr" class="font-mono">$connect, $disconnect, $default</span>, plus custom routes.</p>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء REST API كامل مع Cognito authorizer و CORS وكاش ونشره بـ canary.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a full REST API with Cognito authorizer, CORS, caching, and canary deployment.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ REST API وأضف Lambda Integration</span>
+      <span class="lang-en">Create REST API and add Lambda Integration</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">اختر <span dir="ltr" class="font-mono">AWS_PROXY (Lambda Proxy)</span>. حدّد دالة Lambda موجودة.</p><p class="text-surface-600 leading-relaxed lang-en">Pick <span dir="ltr" class="font-mono">AWS_PROXY (Lambda Proxy)</span>. Select an existing Lambda.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل CORS على الـ resource</span>
+      <span class="lang-en">Enable CORS on the resource</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من Actions → Enable CORS. سيُنشئ OPTIONS method تلقائياً.</p><p class="text-surface-600 leading-relaxed lang-en">Actions → Enable CORS. It auto-creates the OPTIONS method.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اربط Cognito User Pool authorizer</span>
+      <span class="lang-en">Attach a Cognito User Pool authorizer</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Authorizers → Create → Cognito. حدّد الـ User Pool والـ Token Source (<span dir="ltr" class="font-mono">Authorization</span> header).</p><p class="text-surface-600 leading-relaxed lang-en">Authorizers → Create → Cognito. Pick the User Pool and Token Source (<span dir="ltr" class="font-mono">Authorization</span> header).</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">انشر على stage prod وفعّل caching</span>
+      <span class="lang-en">Deploy to prod stage and enable caching</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Stage settings → Enable cache، TTL ٣٠٠ ثانية، حجم ٠.٥ GB.</p><p class="text-surface-600 leading-relaxed lang-en">Stage settings → Enable cache, TTL 300s, size 0.5 GB.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ canary بـ ١٠٪</span>
+      <span class="lang-en">Create a 10% canary</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws apigateway update-stage --rest-api-id abc --stage-name prod \
+  --patch-operations op=replace,path=/canarySettings/percentTraffic,value=10</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختبر من curl</span>
+      <span class="lang-en">Test with curl</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">استخدم Authorization header بـ JWT من Cognito.</p><p class="text-surface-600 leading-relaxed lang-en">Use Authorization header with Cognito JWT.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">TOKEN=$(aws cognito-idp initiate-auth ...)
+curl -H "Authorization: $TOKEN" https://abc.execute-api.us-east-1.amazonaws.com/prod/orders/42</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Cache له تكلفة ثابتة ولو كانت حركة المرور قليلة — أوقفه في بيئات dev/test. وحدّات Canary تُحسَب مع الـ stage الأصلي.</span>
+    <span class="lang-en"> Cache has flat cost even at low traffic — disable in dev/test. Canary metrics count with the base stage.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٣ أنواع API</span>
+        <span class="lang-en">3 API types</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">REST غني بالميزات، HTTP أرخص و JWT، WebSocket للـ realtime.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">REST feature-rich, HTTP cheaper + JWT, WebSocket for realtime.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right-circle" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Lambda Proxy هو الأساس</span>
+        <span class="lang-en">Lambda Proxy = default</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">AWS_PROXY يمرّر كل الطلب لـ Lambda بدون mapping.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">AWS_PROXY passes full request to Lambda, no mapping.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٣ طرق مصادقة</span>
+        <span class="lang-en">3 auth paths</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">IAM للداخلي، Cognito للخارجي، Lambda Authorizer للـ tokens طرف ثالث.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">IAM internal, Cognito external, Lambda Authorizer for 3rd-party tokens.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">CORS سؤال الامتحان</span>
+        <span class="lang-en">CORS — exam favorite</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">خطأ في المتصفح فقط = فعّل CORS في API Gateway.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Browser-only error = enable CORS in API Gateway.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">أخطاء API Gateway: <strong>4</strong>xx = <strong>F</strong>our-letter word (Client's <u>F</u>ault). <strong>5</strong>02 = Lambda <strong>S</strong>ent <strong>S</strong>omething <strong>S</strong>trange. <strong>5</strong>04 = <strong>S</strong>lept (29-sec timeout). <strong>4</strong>29 = <strong>T</strong>oo <strong>M</strong>any.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">API Gateway errors: <strong>4</strong>xx = client's fault. <strong>5</strong>02 = Lambda <strong>S</strong>ent <strong>S</strong>omething <strong>S</strong>trange. <strong>5</strong>04 = <strong>S</strong>lept (29-sec timeout). <strong>4</strong>29 = <strong>T</strong>oo <strong>M</strong>any requests.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch12.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(13, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch14.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يبني API على Lambda ويريد أن يمرّر كل الـ request (headers, query strings, body, path params) للـ Lambda كما هو بدون تحويل. أيّ integration type يختار؟</span><span class="lang-en">A developer builds a Lambda-backed API and wants to pass the entire request (headers, query strings, body, path params) to Lambda as-is. Which integration type?</span>",
+        options: [
+          "<span class="lang-ar">AWS (Custom)</span><span class="lang-en">AWS (Custom)</span>",
+          "<span class="lang-ar">AWS_PROXY (Lambda Proxy)</span><span class="lang-en">AWS_PROXY (Lambda Proxy)</span>",
+          "<span class="lang-ar">HTTP</span><span class="lang-en">HTTP</span>",
+          "<span class="lang-ar">MOCK</span><span class="lang-en">MOCK</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>AWS_PROXY (Lambda Proxy)</strong> يُمرّر كل الطلب إلى Lambda كـ event object جاهز بدون mapping templates. هو الأكثر شيوعاً مع Lambda. AWS (Custom) يتطلّب كتابة mapping template. HTTP لـ backend HTTP. MOCK لا يستدعي backend أصلاً.</span><span class="lang-en"><strong>AWS_PROXY (Lambda Proxy)</strong> passes the whole request to Lambda as a ready event, no mapping templates. Most common with Lambda. AWS (Custom) needs VTL mapping. HTTP is for HTTP backends. MOCK doesn't hit any backend.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب mapping templates.</span><span class=\"lang-en\">Needs mapping templates.</span>", "", "<span class=\"lang-ar\">لـ HTTP backend مباشر.</span><span class=\"lang-en\">For HTTP backends.</span>", "<span class=\"lang-ar\">يرجع استجابة بدون backend.</span><span class=\"lang-en\">Returns response without backend.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق single-page (SPA) مستضاف على S3 يحاول استدعاء API Gateway ويحصل على <strong>CORS error</strong> في المتصفّح، لكن الطلب يعمل من Postman. ما الحلّ؟</span><span class="lang-en">A SPA hosted on S3 calls API Gateway and gets a <strong>CORS error</strong> in the browser, though Postman works fine. Fix?</span>",
+        options: [
+          "<span class="lang-ar">تغيير Endpoint type إلى Edge-Optimized.</span><span class="lang-en">Change Endpoint type to Edge-Optimized.</span>",
+          "<span class="lang-ar">تفعيل CORS في API Gateway ليُنشئ OPTIONS method مع الـ Access-Control-* headers.</span><span class="lang-en">Enable CORS in API Gateway to create an OPTIONS method with the Access-Control-* headers.</span>",
+          "<span class="lang-ar">رفع throttling limit.</span><span class="lang-en">Raise throttling limit.</span>",
+          "<span class="lang-ar">إلغاء Authorization.</span><span class="lang-en">Remove Authorization.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CORS إعداد متصفّح: قبل الطلب الحقيقي يُرسل المتصفّح <strong>preflight OPTIONS</strong> يتوقّع headers <span class="font-mono">Access-Control-Allow-Origin/Methods/Headers</span>. تفعيل CORS في API Gateway يُنشئ OPTIONS method صحيح. Postman لا يطبّق CORS لأنّه ليس متصفّحاً.</span><span class="lang-en">CORS is a browser rule: before the real request the browser sends a <strong>preflight OPTIONS</strong> expecting <span class="font-mono">Access-Control-Allow-Origin/Methods/Headers</span> headers. Enabling CORS in API Gateway creates the proper OPTIONS method. Postman ignores CORS because it's not a browser.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بـ endpoint type.</span><span class=\"lang-en\">Unrelated to endpoint type.</span>", "", "<span class=\"lang-ar\">الخطأ CORS وليس 429.</span><span class=\"lang-en\">It's CORS, not 429.</span>", "<span class=\"lang-ar\">ليست مشكلة authorization.</span><span class=\"lang-en\">Not an auth issue.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤ — CORS</span><span class=\"lang-en\">Section 4 — CORS</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد أن تبيع API للعملاء الخارجيين مع تقييد كل عميل بعدد محدّد من الطلبات شهرياً. ما الأدوات المناسبة؟</span><span class="lang-en">A company sells an API to external customers and wants to cap each customer at a monthly request quota. Which tools?</span>",
+        options: [
+          "<span class="lang-ar">Cognito User Pool + Lambda Authorizer</span><span class="lang-en">Cognito User Pool + Lambda Authorizer</span>",
+          "<span class="lang-ar">API Keys + Usage Plans (REST API)</span><span class="lang-en">API Keys + Usage Plans (REST API)</span>",
+          "<span class="lang-ar">IAM Roles للعملاء</span><span class="lang-en">IAM Roles per customer</span>",
+          "<span class="lang-ar">WAF rate limiting</span><span class="lang-en">WAF rate limiting</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>API Keys + Usage Plans</strong> (متاحة في REST API فقط) مُصمَّمة لهذا الغرض: يُعطى كل عميل API Key، و Usage Plan يربط الـ key بـ throttle (RPS) وquota شهرية. WAF يحمي من الهجمات لكن لا يدير الفوترة. Cognito للـ authentication لا لـ billing. IAM غير عملي لآلاف العملاء.</span><span class="lang-en"><strong>API Keys + Usage Plans</strong> (REST API only) are made for this: give each customer an API Key; the Usage Plan links the key to RPS throttle and monthly quota. WAF blocks attacks but doesn't do billing. Cognito is for auth, not metering. IAM doesn't scale to thousands of customers.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">للـ authentication، لا للـ billing/quotas.</span><span class=\"lang-en\">For auth, not billing/quotas.</span>", "", "<span class=\"lang-ar\">غير عملي لعملاء خارجيين بآلاف.</span><span class=\"lang-en\">Doesn't scale to external customers.</span>", "<span class=\"lang-ar\">حماية من الهجمات لا quota per-customer.</span><span class=\"lang-en\">Attack protection, not per-customer quota.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q4",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ الميزات التالية <strong>متاحة في REST API</strong> لكن <strong>غير متاحة في HTTP API</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which features are <strong>available in REST API</strong> but <strong>NOT in HTTP API</strong>? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">API Keys & Usage Plans</span><span class="lang-en">API Keys & Usage Plans</span>",
+          "<span class="lang-ar">Mapping Templates (VTL)</span><span class="lang-en">Mapping Templates (VTL)</span>",
+          "<span class="lang-ar">Resource Policies</span><span class="lang-en">Resource Policies</span>",
+          "<span class="lang-ar">JWT/OIDC native authorizer</span><span class="lang-en">JWT/OIDC native authorizer</span>",
+          "<span class="lang-ar">Caching per stage</span><span class="lang-en">Caching per stage</span>",
+          "<span class="lang-ar">Lambda authorizer</span><span class="lang-en">Lambda authorizer</span>"
+        ],
+        correct: [0,1,2,4],
+        explanation: "<span class="lang-ar">REST API غني بالميزات: Usage Plans، mapping templates، Resource Policies، Caching — كلها <u>غير متوفّرة</u> في HTTP API. HTTP API بالمقابل يدعم <strong>JWT/OIDC</strong> مباشرة، وأرخص، وأسرع. Lambda authorizer متاح في الاثنين.</span><span class="lang-en">REST API has: Usage Plans, mapping templates, Resource Policies, Caching — all <u>missing</u> in HTTP API. HTTP API natively supports <strong>JWT/OIDC</strong>, is cheaper, and faster. Lambda authorizer works in both.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر نشر نسخة جديدة من Lambda عبر API Gateway ويريد إرسال ٥٪ فقط من الحركة للنسخة الجديدة. ما الخيار الأمثل؟</span><span class="lang-en">A dev deployed a new Lambda version via API Gateway and wants to send only 5% of traffic to the new version. Best option?</span>",
+        options: [
+          "<span class="lang-ar">نشر الـ API على stage مختلف وتقسيم DNS.</span><span class="lang-en">Deploy API to a different stage and split DNS.</span>",
+          "<span class="lang-ar">Canary Deployment في الـ stage نفسه بـ 5%.</span><span class="lang-en">Canary Deployment on the same stage at 5%.</span>",
+          "<span class="lang-ar">Auto Scaling Group مختلف.</span><span class="lang-en">Different Auto Scaling Group.</span>",
+          "<span class="lang-ar">CloudFront cache policy.</span><span class="lang-en">CloudFront cache policy.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Canary Deployment</strong> مبنيّة في API Gateway لهذا الغرض: نفس الـ stage، نسبة مخصّصة للإصدار الجديد، مقاييس منفصلة. هذا هو blue/green deployment في serverless. تقسيم DNS ممكن لكنه أعقد. ASG لا علاقة له بـ Lambda.</span><span class="lang-en"><strong>Canary Deployment</strong> is built into API Gateway exactly for this: same stage, percentage to new version, separate metrics. It's the serverless blue/green. DNS splitting works but is more complex. ASG is irrelevant to Lambda.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أعقد من اللازم.</span><span class=\"lang-en\">Overcomplicated.</span>", "", "<span class=\"lang-ar\">Lambda لا تُنشَر في ASG.</span><span class=\"lang-en\">Lambda isn't in ASG.</span>", "<span class=\"lang-ar\">CloudFront لا يعالج تقسيم النسخ.</span><span class=\"lang-en\">CloudFront doesn't split versions.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">API Gateway يُرجع <strong>502 Bad Gateway</strong> بشكل متقطع. ما السبب الأرجح؟</span><span class="lang-en">API Gateway returns <strong>502 Bad Gateway</strong> intermittently. Most likely cause?</span>",
+        options: [
+          "<span class="lang-ar">تجاوز throttling.</span><span class="lang-en">Throttle exceeded.</span>",
+          "<span class="lang-ar">Lambda ترجع شكل استجابة غير متوافق مع Lambda Proxy.</span><span class="lang-en">Lambda returns an incompatible shape for Lambda Proxy.</span>",
+          "<span class="lang-ar">Authorizer رفض الطلب.</span><span class="lang-en">Authorizer denied.</span>",
+          "<span class="lang-ar">CORS غير مُفعَّل.</span><span class="lang-en">CORS disabled.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>502</strong> في API Gateway مع Lambda Proxy يعني غالباً أن Lambda أرجعت <u>شكلاً</u> لا يفهمه API Gateway (مثلاً أرجعت object بدون <span class="font-mono">statusCode/body</span> كـ string). Throttling يُرجع 429. Authorizer يُرجع 403. CORS يُرجع خطأ في المتصفّح لا 502.</span><span class="lang-en"><strong>502</strong> in API Gateway with Lambda Proxy usually means Lambda returned a <u>shape</u> API Gateway can't parse (e.g. an object missing <span class="font-mono">statusCode</span> or non-string <span class="font-mono">body</span>). Throttling → 429. Authorizer deny → 403. CORS → browser error, not 502.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُرجع 429.</span><span class=\"lang-en\">Returns 429.</span>", "", "<span class=\"lang-ar\">يُرجع 403.</span><span class=\"lang-en\">Returns 403.</span>", "<span class=\"lang-ar\">ليس 502.</span><span class=\"lang-en\">Not 502.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — Errors</span><span class=\"lang-en\">Section 6 — Errors</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يحتاج أن ينشر نفس الـ API على ثلاث بيئات (dev/test/prod) مع Lambda aliases مختلفة لكل بيئة. كيف ينفّذ ذلك بدون تكرار الـ API؟</span><span class="lang-en">A developer deploys the same API across three envs (dev/test/prod) with different Lambda aliases per env. How to do this without duplicating the API?</span>",
+        options: [
+          "<span class="lang-ar">ثلاث APIs منفصلة.</span><span class="lang-en">Three separate APIs.</span>",
+          "<span class="lang-ar">Stage Variables تحمل اسم alias، وتُستخدم في Lambda ARN.</span><span class="lang-en">Stage Variables holding the alias name, used in Lambda ARN.</span>",
+          "<span class="lang-ar">ثلاث حسابات AWS.</span><span class="lang-en">Three AWS accounts.</span>",
+          "<span class="lang-ar">تغيير منطقي في Lambda نفسها.</span><span class="lang-en">Logic change inside Lambda.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Stage Variables</strong> مُصمَّمة لهذا الغرض: كل stage يعرّف <span class="font-mono">lambdaAlias=prod</span>/<span class="font-mono">test</span>/<span class="font-mono">dev</span>، وفي الـ integration تستخدم <span class="font-mono">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. API واحد يخدم كل البيئات. ثلاث APIs تضاعف العمل والتكلفة.</span><span class="lang-en"><strong>Stage Variables</strong> are made for this: each stage defines <span class="font-mono">lambdaAlias=prod</span>/<span class="font-mono">test</span>/<span class="font-mono">dev</span>, and the integration uses <span class="font-mono">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. One API serves all envs. Three APIs doubles work and cost.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكرار غير ضروري.</span><span class=\"lang-en\">Unnecessary duplication.</span>", "", "<span class=\"lang-ar\">حلّ مبالغ به.</span><span class=\"lang-en\">Overkill.</span>", "<span class=\"lang-ar\">Lambda لا يجب أن تعرف البيئة.</span><span class=\"lang-en\">Lambda shouldn't know its env.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">ما الـ maximum integration timeout في API Gateway؟</span><span class="lang-en">What's the maximum integration timeout in API Gateway?</span>",
+        options: [
+          "<span class="lang-ar">١٥ ثانية</span><span class="lang-en">15 seconds</span>",
+          "<span class="lang-ar">٢٩ ثانية</span><span class="lang-en">29 seconds</span>",
+          "<span class="lang-ar">٥٩ ثانية</span><span class="lang-en">59 seconds</span>",
+          "<span class="lang-ar">٥ دقائق</span><span class="lang-en">5 minutes</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>٢٩ ثانية</strong> هو الحدّ الأقصى. لو احتجت أطول: استخدم نمط async — API Gateway يُرجع 202 Accepted، يستدعي Lambda غير متزامنة أو Step Function، ويعيد للعميل polling URL أو webhook. الـ Lambda نفسها حدّها ١٥ دقيقة، لكن API Gateway يقفل عند ٢٩ ثانية.</span><span class="lang-en"><strong>29 seconds</strong> is the hard max. For longer: use async pattern — API Gateway returns 202 Accepted, invokes async Lambda or Step Function, returns a polling URL or webhook. Lambda itself allows 15 min, but API Gateway cuts at 29 s.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق مالي على API Gateway يحتاج تمرير JWT من Okta للمصادقة (ليس Cognito). أيّ authorizer يستخدم؟</span><span class="lang-en">A fintech API needs to accept JWTs from Okta (not Cognito). Which authorizer?</span>",
+        options: [
+          "<span class="lang-ar">IAM Authorizer</span><span class="lang-en">IAM Authorizer</span>",
+          "<span class="lang-ar">Cognito User Pool Authorizer</span><span class="lang-en">Cognito User Pool Authorizer</span>",
+          "<span class="lang-ar">Lambda Authorizer (Token-based)</span><span class="lang-en">Lambda Authorizer (Token-based)</span>",
+          "<span class="lang-ar">Resource Policy</span><span class="lang-en">Resource Policy</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>Lambda Authorizer</strong> (token-based) هو الخيار المرن لـ tokens طرف ثالث (Okta, Auth0, Keycloak...). Lambda تتحقّق من JWT وتُرجع IAM policy. Cognito authorizer يقبل Cognito tokens فقط. IAM للـ AWS credentials. Resource Policy لا تعمل authentication. ملاحظة: HTTP API يدعم JWT/OIDC مباشرة (قد يكون بديلاً).</span><span class="lang-en"><strong>Lambda Authorizer</strong> (token-based) is the flexible choice for third-party tokens (Okta, Auth0, Keycloak...). Lambda validates the JWT and returns an IAM policy. Cognito authorizer accepts only Cognito tokens. IAM is for AWS credentials. Resource Policy doesn't auth. Note: HTTP API supports JWT/OIDC natively (possible alternative).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لـ AWS credentials فقط.</span><span class=\"lang-en\">AWS credentials only.</span>", "<span class=\"lang-ar\">Cognito فقط.</span><span class=\"lang-en\">Cognito only.</span>", "", "<span class=\"lang-ar\">لا يعمل authentication.</span><span class=\"lang-en\">Doesn't do authentication.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">API Gateway REST API عنده Caching مُفعَّل. عميل يريد تجاوز الـ cache مؤقّتاً لحالة اختبار واحدة. ما الحلّ؟</span><span class="lang-en">REST API has caching enabled. A client needs to temporarily bypass cache for one test. How?</span>",
+        options: [
+          "<span class="lang-ar">إيقاف الـ cache في كل الـ stage.</span><span class="lang-en">Disable cache for the whole stage.</span>",
+          "<span class="lang-ar">إرسال header <span class="font-mono">Cache-Control: max-age=0</span> (مع IAM authorization للـ InvalidateCache).</span><span class="lang-en">Send header <span class="font-mono">Cache-Control: max-age=0</span> (with IAM authorization for InvalidateCache).</span>",
+          "<span class="lang-ar">إعادة نشر الـ API.</span><span class="lang-en">Redeploy the API.</span>",
+          "<span class="lang-ar">إنشاء stage جديد.</span><span class="lang-en">Create a new stage.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">يمكن للعميل تمرير <span class="font-mono">Cache-Control: max-age=0</span> header لطلب تجاوز الـ cache، بشرط أن يكون لديه <span class="font-mono">execute-api:InvalidateCache</span> IAM permission (وإلّا، بدون تقييد، أيّ عميل يستطيع إبطال الـ cache وهذا خطر). إيقاف الـ cache عام يضرّ بالأداء.</span><span class="lang-en">Client sends <span class="font-mono">Cache-Control: max-age=0</span> header to bypass, provided they have <span class="font-mono">execute-api:InvalidateCache</span> IAM permission (otherwise any client could invalidate — dangerous). Disabling cache broadly hurts performance.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مفرط — يضرّ كل العملاء.</span><span class=\"lang-en\">Overkill — hurts all clients.</span>", "", "<span class=\"lang-ar\">لا حاجة.</span><span class=\"lang-en\">Unnecessary.</span>", "<span class=\"lang-ar\">مبالغ فيه.</span><span class=\"lang-en\">Overkill.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">شركة تبني chat application فوري تحتاج اتّصال ثنائي مستمرّ بين الخادم والعملاء. ما نوع API المناسب؟</span><span class="lang-en">A real-time chat app needs persistent two-way connections between server and clients. Which API type?</span>",
+        options: [
+          "<span class="lang-ar">REST API</span><span class="lang-en">REST API</span>",
+          "<span class="lang-ar">HTTP API</span><span class="lang-en">HTTP API</span>",
+          "<span class="lang-ar">WebSocket API</span><span class="lang-en">WebSocket API</span>",
+          "<span class="lang-ar">GraphQL API</span><span class="lang-en">GraphQL API</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>WebSocket API</strong> هو الوحيد الذي يدعم الاتّصال ثنائي الاتّجاه المستمرّ (stateful). REST و HTTP طلب-استجابة فقط. الأنماط النموذجية: <span class="font-mono">$connect</span>, <span class="font-mono">$disconnect</span>, <span class="font-mono">$default</span> routes، وتخزين connectionIds في DynamoDB لبثّ الرسائل.</span><span class="lang-en"><strong>WebSocket API</strong> is the only one supporting persistent bidirectional (stateful) connections. REST and HTTP are request/response. Typical: <span class="font-mono">$connect</span>, <span class="font-mono">$disconnect</span>, <span class="font-mono">$default</span> routes; store connectionIds in DynamoDB to push messages.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">طلب-استجابة فقط.</span><span class=\"lang-en\">Request/response only.</span>", "<span class=\"lang-ar\">طلب-استجابة فقط.</span><span class=\"lang-en\">Request/response only.</span>", "", "<span class=\"lang-ar\">AppSync لـ GraphQL لكن السؤال عن API Gateway.</span><span class=\"lang-en\">AppSync is for GraphQL, but question is about API Gateway.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد أن يمنع كل الطلبات غير المطابقة لـ schema معيّن من الوصول للـ backend (لتقليل التكلفة والـ Lambda invocations). ما الحلّ في API Gateway؟</span><span class="lang-en">A dev wants to block all non-matching-schema requests from reaching the backend (saving cost and Lambda invocations). API Gateway solution?</span>",
+        options: [
+          "<span class="lang-ar">Lambda Authorizer يتحقّق من الـ schema.</span><span class="lang-en">Lambda Authorizer validating schema.</span>",
+          "<span class="lang-ar">Request Validation مبنيّ على JSON Schema في method request.</span><span class="lang-en">Built-in Request Validation with JSON Schema on the method.</span>",
+          "<span class="lang-ar">WAF مع custom rule.</span><span class="lang-en">WAF with a custom rule.</span>",
+          "<span class="lang-ar">CORS preflight.</span><span class="lang-en">CORS preflight.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Request Validation</strong> مبني في REST API: اعرّف JSON Schema Model ثم فعّله على الـ method (<span class="font-mono">validateRequestBody, validateRequestParameters</span>). أيّ طلب غير مطابق يُرفض فوراً بـ 400 <u>قبل</u> الوصول للـ backend. Lambda authorizer يكلّف Lambda invocations إضافية. WAF لا يُلمّ بـ JSON schemas.</span><span class="lang-en"><strong>Request Validation</strong> is built into REST API: define a JSON Schema Model and enable it on the method (<span class="font-mono">validateRequestBody, validateRequestParameters</span>). Non-matching requests get 400 <u>before</u> hitting backend. Lambda authorizer adds extra Lambda calls. WAF doesn't understand JSON schemas.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يكلف Lambda invocations إضافية.</span><span class=\"lang-en\">Extra Lambda invocations.</span>", "", "<span class=\"lang-ar\">لا يتعامل مع JSON schemas.</span><span class=\"lang-en\">Doesn't handle JSON schemas.</span>", "<span class=\"lang-ar\">CORS لا يُتحقّق من الـ body.</span><span class=\"lang-en\">CORS doesn't validate body.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">أيّ الـ CloudWatch metric أكثر فائدة لمعرفة <u>كم يستغرق الـ backend</u> (Lambda مثلاً) في الردّ على API Gateway؟</span><span class="lang-en">Which CloudWatch metric tells you how long the <u>backend</u> (e.g. Lambda) takes to respond to API Gateway?</span>",
+        options: [
+          "<span class="lang-ar"><span class="font-mono">Latency</span></span><span class="lang-en"><span class="font-mono">Latency</span></span>",
+          "<span class="lang-ar"><span class="font-mono">IntegrationLatency</span></span><span class="lang-en"><span class="font-mono">IntegrationLatency</span></span>",
+          "<span class="lang-ar"><span class="font-mono">Count</span></span><span class="lang-en"><span class="font-mono">Count</span></span>",
+          "<span class="lang-ar"><span class="font-mono">CacheHitCount</span></span><span class="lang-en"><span class="font-mono">CacheHitCount</span></span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>IntegrationLatency</strong> = الوقت بين إرسال API Gateway الطلب للـ backend واستلام الرد. <strong>Latency</strong> = الوقت الكلّي (من استلام طلب العميل حتى إرجاع الاستجابة) — يشمل overhead الـ API Gateway + IntegrationLatency. الفرق بينهما يكشف overhead API Gateway. Count = عدد الطلبات.</span><span class="lang-en"><strong>IntegrationLatency</strong> = time from API Gateway sending request to backend until response received. <strong>Latency</strong> = total time (client request → client response) — includes API Gateway overhead + IntegrationLatency. Their difference reveals API Gateway overhead. Count = request count.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يشمل overhead API Gateway.</span><span class=\"lang-en\">Includes API Gateway overhead.</span>", "", "<span class=\"lang-ar\">عدد الطلبات فقط.</span><span class=\"lang-en\">Only request count.</span>", "<span class=\"lang-ar\">كفاءة الـ cache.</span><span class=\"lang-en\">Cache efficiency.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">مؤسّسة تريد السماح للحساب B بالوصول لـ API Gateway في الحساب A (cross-account). ما الحلّ الأمثل في REST API؟</span><span class="lang-en">Enterprise wants Account B to call an API Gateway in Account A (cross-account). Best REST API approach?</span>",
+        options: [
+          "<span class="lang-ar">Cognito User Pool يشمل الحسابين.</span><span class="lang-en">Cognito User Pool covering both accounts.</span>",
+          "<span class="lang-ar">Resource Policy على API + IAM Role في Account B.</span><span class="lang-en">Resource Policy on the API + IAM Role in Account B.</span>",
+          "<span class="lang-ar">فتح API للعامّة.</span><span class="lang-en">Make API public.</span>",
+          "<span class="lang-ar">WAF rule.</span><span class="lang-en">WAF rule.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Resource Policy</strong> على الـ API تحدّد من يستطيع استدعاءه (principals خارجيون)، وتُدمج مع IAM Role في الحساب B يحمل صلاحية <span class="font-mono">execute-api:Invoke</span>. هذا النمط المعياري لـ cross-account. Resource Policy ميزة حصرية لـ REST API (ليست في HTTP API).</span><span class="lang-en"><strong>Resource Policy</strong> on the API defines who can invoke it (external principals), combined with an IAM Role in Account B holding <span class="font-mono">execute-api:Invoke</span>. Canonical cross-account pattern. Resource Policy is REST-only (not HTTP API).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Cognito للمستخدمين لا لحسابات AWS.</span><span class=\"lang-en\">Cognito is for users, not AWS accounts.</span>", "", "<span class=\"lang-ar\">خطر أمني.</span><span class=\"lang-en\">Security risk.</span>", "<span class=\"lang-ar\">لا يُدير الصلاحيات.</span><span class=\"lang-en\">Doesn't manage permissions.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تعريف REST API بالكامل كـ infrastructure-as-code قابل للنقل بين البيئات. ما الأداة المناسبة من API Gateway نفسها؟</span><span class="lang-en">A developer wants to define a whole REST API as infrastructure-as-code, portable between envs. Which built-in API Gateway tool?</span>",
+        options: [
+          "<span class="lang-ar">YAML عشوائي.</span><span class="lang-en">Arbitrary YAML.</span>",
+          "<span class="lang-ar">OpenAPI 3.0 (Swagger) import/export مع extensions <span class="font-mono">x-amazon-apigateway-*</span>.</span><span class="lang-en">OpenAPI 3.0 (Swagger) import/export with <span class="font-mono">x-amazon-apigateway-*</span> extensions.</span>",
+          "<span class="lang-ar">CloudFormation فقط.</span><span class="lang-en">CloudFormation only.</span>",
+          "<span class="lang-ar">Lambda layers.</span><span class="lang-en">Lambda layers.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>OpenAPI 3.0</strong> هو المعيار الصناعي، و API Gateway يدعم الاستيراد/التصدير مباشرة مع <span class="font-mono">x-amazon-apigateway-integration</span> و <span class="font-mono">x-amazon-apigateway-request-validator</span> لإعدادات AWS. يوفّر ملف واحد للـ API كاملاً ينقَل بين البيئات. CloudFormation أوسع (يشمل API Gateway) لكن OpenAPI أكثر تخصّصاً للـ API.</span><span class="lang-en"><strong>OpenAPI 3.0</strong> is the industry standard, and API Gateway imports/exports natively with <span class="font-mono">x-amazon-apigateway-integration</span> and <span class="font-mono">x-amazon-apigateway-request-validator</span> extensions for AWS-specific config. One file defines the whole API, portable across envs. CloudFormation is broader (includes API Gateway), but OpenAPI is more API-specific.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(13, QUESTIONS);
+      if (isChapterComplete(13)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

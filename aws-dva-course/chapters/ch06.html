@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 06 — Amazon Route 53: AWS's Smart DNS | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-surface-500/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>
+          <span class="lang-ar">أساسيات</span>
+          <span class="lang-en">Foundations</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٦ من ٣٠</span>
+        <span class="lang-en">Chapter 6 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.165-196</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Amazon Route 53: DNS الذكيّ من AWS</span>
+        <span class="lang-en">Amazon Route 53: AWS's Smart DNS</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">DNS ليس مجرّد ترجمة اسم إلى IP — في AWS هو أداة توزيع حِمل عالميّة ومتحكّم إتاحة. Route 53 خدمة DNS الوحيدة بضمان ١٠٠٪، ويوفّر سياسات توجيه ذكيّة تحوّل DNS إلى طبقة معمار فعّالة.</span>
+        <span class="lang-en">DNS isn't just name→IP translation — on AWS it's a global load balancer and availability controller. Route 53 is the only AWS service with a 100% SLA and offers routing policies that turn DNS into an active architectural layer.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Route 53</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DNS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Alias</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CNAME</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Routing Policies</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Health Checks</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Hosted Zones</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">DNS Records and Hosted Zones</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل في تكوين سجلات DNS الصحيحة.</span>
+      <span class="lang-en">Domain 1 — configuring correct DNS records.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CNAME vs Alias</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل في ربط النطاقات بـ AWS resources، خصوصاً في الـ apex (root).</span>
+      <span class="lang-en">Domain 1 — mapping domains to AWS resources, especially apex domains.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Routing Policies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاقان الأوّل والرابع في سيناريوهات Multi-Region و failover و latency.</span>
+      <span class="lang-en">Domains 1 & 4 — Multi-Region, failover, latency scenarios.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Health Checks</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في الكشف عن فشل الخدمات وتحويل الحِمل تلقائياً.</span>
+      <span class="lang-en">Domain 4 — failure detection and automatic traffic shifts.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو Route 53 وكيف يعمل DNS</span>
+      <span class="lang-en">What is Route 53 and how DNS works</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Route 53</strong> خدمة DNS مُدارة من AWS. هو <strong>Authoritative DNS</strong> (أنت تتحكّم بالسجلّات)، و Domain Registrar (يمكنك شراء النطاقات منه مباشرةً)، ويوفّر Health Checks متكاملة. <strong>يملك ضمان SLA 100٪</strong> — الخدمة الوحيدة في AWS بهذا المستوى.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Route 53</strong> is AWS's managed DNS service. It's an <strong>Authoritative DNS</strong> (you control the records), a Domain Registrar (buy domains directly), and provides integrated Health Checks. <strong>100% SLA</strong> — the only AWS service at that level.</p>
+<p class="text-surface-700 leading-relaxed lang-ar">الاسم <strong>Route 53</strong> مشتقّ من المنفذ ٥٣ — المنفذ التقليديّ لـ DNS. عند طلب <code class="font-mono">example.com</code>، يمرّ الاستعلام عبر: Root DNS Server (<code class="font-mono">.</code>) → TLD Server (<code class="font-mono">.com</code>) → Authoritative Server (Route 53 في حالتنا).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">The name <strong>Route 53</strong> comes from port 53 — DNS's classic port. A <code class="font-mono">example.com</code> query traverses: Root DNS Server (<code class="font-mono">.</code>) → TLD Server (<code class="font-mono">.com</code>) → Authoritative Server (Route 53 in our case).</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="globe" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Public Hosted Zone</span><span class="lang-en">Public Hosted Zone</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لأسماء النطاقات العامّة على الإنترنت (<span dir="ltr" class="font-mono">api.acme.com</span>).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">For public domains on the Internet (<span dir="ltr" class="font-mono">api.acme.com</span>).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Private Hosted Zone</span><span class="lang-en">Private Hosted Zone</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لأسماء داخليّة في VPC واحد أو أكثر (<span dir="ltr" class="font-mono">db.acme.internal</span>).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">For internal names within one or more VPCs (<span dir="ltr" class="font-mono">db.acme.internal</span>).</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> تكلفة <strong>٠٫٥٠ دولار/شهر لكلّ Hosted Zone</strong>. رسوم الاستعلامات إضافيّة (منخفضة جداً). <strong>كلّ DNS record يحتاج TTL</strong> (مدّة التخزين المؤقّت)، <u>ما عدا Alias records</u> التي تأخذ TTL تلقائياً من الـ target.</span>
+      <span class="lang-en"> Pricing: <strong>$0.50/month per hosted zone</strong>. Query charges are extra (very low). <strong>Every DNS record needs a TTL</strong> (cache duration), <u>except Alias records</u> which inherit TTL from the target.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">CNAME vs Alias — التمييز المهمّ</span>
+      <span class="lang-en">CNAME vs Alias — the key distinction</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">موارد AWS (ELB، CloudFront، S3 Website) تعطيك اسم مضيف AWS مثل <span dir="ltr" class="font-mono">my-alb.us-east-1.elb.amazonaws.com</span>. لكنّك تريد <span dir="ltr" class="font-mono">acme.com</span>. أمامك خياران: CNAME أو Alias. الفرق بينهما يُسأل كثيراً في الامتحان.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">AWS resources (ELB, CloudFront, S3 Website) give you AWS hostnames like <span dir="ltr" class="font-mono">my-alb.us-east-1.elb.amazonaws.com</span>. But you want <span dir="ltr" class="font-mono">acme.com</span>. Two options: CNAME or Alias. The exam asks about this constantly.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="link" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CNAME — قياسيّ لكن محدود</span><span class="lang-en">CNAME — standard but limited</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يوجّه اسماً إلى اسم آخر (<span dir="ltr" class="font-mono">app.acme.com → blabla.anywhere.com</span>). يعمل مع أيّ hostname، ليس محصوراً بـ AWS. <strong>لا يعمل على الـ Zone Apex (الـ root domain)</strong> — لا يمكنك إنشاء CNAME لـ <span dir="ltr" class="font-mono">acme.com</span> نفسها، فقط للـ subdomains.</p>
+      <p class="text-sm text-surface-700 lang-en">Points a name to another name (<span dir="ltr" class="font-mono">app.acme.com → blabla.anywhere.com</span>). Works with any hostname, not AWS-only. <strong>Cannot be used at the Zone Apex (root domain)</strong> — you can't CNAME <span dir="ltr" class="font-mono">acme.com</span> itself, only subdomains.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="target" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Alias — الخيار الـ AWS-native</span><span class="lang-en">Alias — the AWS-native choice</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">ميزة Route 53 الخاصّة: يوجّه اسماً إلى <strong>مورد AWS محدّد</strong>. <strong>يعمل على Zone Apex و subdomains</strong>. <strong>مجانيّ</strong> (لا رسوم استعلام). دائماً من نوع A أو AAAA (IPv4/IPv6). يكتشف تغيّر IP الـ resource تلقائياً. لا يمكن ضبط TTL يدوياً.</p>
+      <p class="text-sm text-surface-700 lang-en">A Route 53 exclusive: points a name to a <strong>specific AWS resource</strong>. <strong>Works on Zone Apex and subdomains</strong>. <strong>Free</strong> (no query fee). Always type A or AAAA (IPv4/IPv6). Auto-detects target IP changes. Cannot set TTL manually.</p>
+    </div>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الـ Target</span><span class="lang-en">Target</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مدعوم كـ Alias؟</span><span class="lang-en">Alias-supported?</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Elastic Load Balancer (ALB, NLB)</span><span class="lang-en">Elastic Load Balancer (ALB, NLB)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudFront Distribution</span><span class="lang-en">CloudFront Distribution</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">API Gateway</span><span class="lang-en">API Gateway</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Elastic Beanstalk environment</span><span class="lang-en">Elastic Beanstalk environment</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">S3 Website (ليس S3 العاديّ)</span><span class="lang-en">S3 Website (not plain S3)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">VPC Interface Endpoint</span><span class="lang-en">VPC Interface Endpoint</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Global Accelerator accelerator</span><span class="lang-en">Global Accelerator accelerator</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Route 53 record في نفس Hosted Zone</span><span class="lang-en">Route 53 record in same Hosted Zone</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EC2 DNS name (مباشرة)</span><span class="lang-en">EC2 DNS name (direct)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>لا — هذا فخّ كبير</strong></span><span class="lang-en"><strong>No — common trap</strong></span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>لا يمكنك إنشاء Alias لـ EC2 DNS name</strong>. لإرسال نطاق إلى EC2 مباشرة، استخدم سجلّ A بـ IP ثابت (Elastic IP)، أو ضع EC2 خلف ELB واستخدم Alias للـ ELB. هذا فخّ متكرّر في الامتحان.</span>
+      <span class="lang-en"> <strong>You cannot Alias an EC2 DNS name</strong>. To route a domain directly to EC2, use an A record with an Elastic IP, or put EC2 behind an ELB and Alias the ELB. Common exam trap.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أنواع سجلّات DNS</span>
+      <span class="lang-en">DNS record types</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Route 53 يدعم كلّ أنواع السجلّات القياسيّة. في الامتحان، اعرف الأربعة الأساسيّة جيّداً، والباقي معرفة سطحيّة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Route 53 supports all standard record types. For the exam, master the four essentials; the rest is surface knowledge.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النوع</span><span class="lang-en">Type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوظيفة</span><span class="lang-en">Function</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مثال</span><span class="lang-en">Example</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">A</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اسم → عنوان IPv4</span><span class="lang-en">Name → IPv4</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">acme.com → 52.1.2.3</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AAAA</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اسم → عنوان IPv6</span><span class="lang-en">Name → IPv6</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">acme.com → 2001:db8::1</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CNAME</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اسم → اسم آخر (subdomain فقط)</span><span class="lang-en">Name → another name (subdomain only)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">www.acme.com → acme.com</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">NS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خوادم الأسماء للنطاق</span><span class="lang-en">Name servers for the zone</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">NS ns-123.awsdns-45.com</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">MX</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خوادم البريد (متقدّم)</span><span class="lang-en">Mail servers (advanced)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">MX 10 mail.acme.com</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">TXT</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نصّ حرّ (SPF, DKIM، التحقّق)</span><span class="lang-en">Free text (SPF, DKIM, verification)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">"v=spf1 ..."</td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Create an Alias A record pointing acme.com to an ALB
+aws route53 change-resource-record-sets \
+  --hosted-zone-id Z0123456789ABC \
+  --change-batch '{
+    "Changes": [{
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "acme.com",
+        "Type": "A",
+        "AliasTarget": {
+          "HostedZoneId": "Z35SXDOTRQ7X7K",
+          "DNSName": "dualstack.acme-lb-123.us-east-1.elb.amazonaws.com",
+          "EvaluateTargetHealth": true
+        }
+      }
+    }]
+  }'</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">سياسات التوجيه (Routing Policies)</span>
+      <span class="lang-en">Routing Policies</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>سياسات التوجيه تحدّد كيف يردّ Route 53 على استعلامات DNS</strong>. هذه القدرة تحوّل DNS من خدمة تسمية إلى أداة توزيع حِمل عالميّة. Route 53 يدعم ٧ سياسات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Routing policies define how Route 53 answers DNS queries</strong>. This turns DNS from a naming service into a global traffic director. Route 53 supports 7 policies.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="arrow-right" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Simple</span><span class="lang-en">Simple</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">افتراضي — قيمة واحدة أو عدّة قيم يختار منها العميل عشوائياً. <u>لا يدعم Health Checks</u>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Default — single or multiple values; client picks randomly. <u>No health checks</u>.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="percent" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Weighted</span><span class="lang-en">Weighted</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">توزيع حسب أوزان. ٧٠٪ لـ v1، ٣٠٪ لـ v2 — مثاليّ لـ canary releases و A/B testing.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Split by weights. 70% to v1, 30% to v2 — perfect for canary releases and A/B testing.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="alert-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Failover (Active-Passive)</span><span class="lang-en">Failover (Active-Passive)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Primary + Secondary. Health Check إلزاميّ على Primary. عند فشله، التوجيه يحوّل إلى Secondary.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Primary + Secondary. Health check required on Primary. On failure, traffic shifts to Secondary.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">توجيه إلى الـ Region ذي أقلّ زمن استجابة من المستخدم. <u>قد يتغيّر ديناميكياً</u>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Routes to the lowest-latency Region from the user. <u>Changes dynamically</u>.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="map" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Geolocation</span><span class="lang-en">Geolocation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">حسب موقع المستخدم (قارّة، دولة، ولاية أمريكية). مختلف عن Latency — قد لا يكون الأسرع. ضع سجلّ Default.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">By user location (continent, country, US state). Different from latency — not always fastest. Always set a Default record.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="sliders" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Geoproximity</span><span class="lang-en">Geoproximity</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">مزيج من الموقع والـ bias. تتحكّم بتوسيع (+١ إلى +٩٩) أو تقليص (-١ إلى -٩٩) حجم المنطقة. يحتاج Route 53 Traffic Flow.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Combines location + bias. Expand (+1 to +99) or shrink (-1 to -99) a region's footprint. Requires Route 53 Traffic Flow.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center"><i data-lucide="list" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Multi-Value</span><span class="lang-en">Multi-Value</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">حتى ٨ قيم صحّية تُعاد في نفس الاستعلام. بديل client-side بسيط لـ ELB — لكن <strong>ليس بديلاً حقيقياً</strong>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Up to 8 healthy values returned per query. Simple client-side alternative to ELB — but <strong>not a real replacement</strong>.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> الأسئلة تميل لسيناريوهات: <strong>canary deploy → Weighted</strong>. <strong>DR passive → Failover</strong>. <strong>أقرب region للسرعة → Latency-based</strong>. <strong>امتثال قانونيّ (محتوى مخصّص للدولة) → Geolocation</strong>. <strong>شبه-ELB client-side → Multi-Value</strong>.</span>
+      <span class="lang-en"> Exam leans on scenarios: <strong>canary deploy → Weighted</strong>. <strong>Passive DR → Failover</strong>. <strong>Nearest region for speed → Latency-based</strong>. <strong>Regulatory (country-specific content) → Geolocation</strong>. <strong>Client-side pseudo-ELB → Multi-Value</strong>.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Health Checks — كشف الفشل وتحويل الحِمل</span>
+      <span class="lang-en">Health Checks — failure detection and traffic shifts</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Health Checks في Route 53 تعمل من <strong>١٥ فاحصاً عالميّاً</strong>. كلّ فاحص يطلب المورد، وإذا اتّفق أكثر من ١٨٪ على أنّه سليم، يعتبره Route 53 healthy. الفحص كلّ ٣٠ ثانية افتراضياً (١٠ مدفوع).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Route 53 Health Checks use <strong>~15 global checkers</strong>. If 18%+ report healthy, Route 53 considers the endpoint healthy. Check interval is 30s default (10s paid).</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="globe" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Endpoint Health Check</span><span class="lang-en">Endpoint Health Check</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">HTTP/HTTPS/TCP على IP أو hostname عامّ. يجب أن يعيد 2xx/3xx. يمكن فحص نصّ في أوّل ٥١٢٠ bytes.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">HTTP/HTTPS/TCP against a public IP or hostname. Must return 2xx/3xx. Can match text in the first 5120 bytes.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="git-merge" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Calculated Health Check</span><span class="lang-en">Calculated Health Check</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يدمج نتائج عدّة فحوصات (<strong>AND / OR / NOT</strong>، حتى ٢٥٦ child). مفيد للصيانة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Combines multiple checks (<strong>AND / OR / NOT</strong>, up to 256 children). Great for maintenance windows.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudWatch Alarm Health Check</span><span class="lang-en">CloudWatch Alarm Health Check</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يراقب Alarm مخصّصاً (مثل throttles DynamoDB). <strong>الحلّ الوحيد لـ Private endpoints</strong>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Watches a custom alarm (e.g. DynamoDB throttles). <strong>The only way to check Private endpoints</strong>.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>Route 53 Health Checkers موجودة خارج VPC</strong>، فلا يمكنها الوصول إلى endpoints خاصّة. الحلّ: استخدم CloudWatch Alarm (مبني على metric من الـ endpoint الخاصّ) وأربط Health Check بالـ Alarm.</span>
+      <span class="lang-en"> <strong>Route 53 Health Checkers live outside the VPC</strong> — they can't reach private endpoints. Fix: use a CloudWatch Alarm (built from a metric inside the private endpoint) and associate the Health Check with that alarm.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — create a Failover routing with health check
+import software.amazon.awssdk.services.route53.Route53Client;
+import software.amazon.awssdk.services.route53.model.*;
+
+Route53Client r53 = Route53Client.create();
+
+// 1. Create an HTTPS health check on the primary endpoint
+CreateHealthCheckResponse hc = r53.createHealthCheck(CreateHealthCheckRequest.builder()
+    .callerReference("acme-primary-" + System.currentTimeMillis())
+    .healthCheckConfig(HealthCheckConfig.builder()
+        .type(HealthCheckType.HTTPS)
+        .fullyQualifiedDomainName("api.acme.com")
+        .port(443)
+        .resourcePath("/health")
+        .requestInterval(30)
+        .failureThreshold(3)
+        .build())
+    .build());
+
+// 2. Create the Primary record (points to primary ALB, uses the health check)
+r53.changeResourceRecordSets(ChangeResourceRecordSetsRequest.builder()
+    .hostedZoneId("Z0123")
+    .changeBatch(ChangeBatch.builder().changes(
+        Change.builder().action(ChangeAction.UPSERT).resourceRecordSet(
+            ResourceRecordSet.builder()
+                .name("api.acme.com")
+                .type(RRType.A)
+                .setIdentifier("primary")
+                .failover(ResourceRecordSetFailover.PRIMARY)
+                .healthCheckId(hc.healthCheck().id())
+                .aliasTarget(AliasTarget.builder()
+                    .hostedZoneId("Z35SXDOTRQ7X7K")
+                    .dnsName("acme-primary-alb.us-east-1.elb.amazonaws.com")
+                    .evaluateTargetHealth(true).build())
+                .build()).build()
+    ).build())
+    .build());
+
+// 3. Create the Secondary record (DR, no health check needed)</code></pre>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إعداد Multi-Region failover لـ Acme باستخدام Route 53: primary في us-east-1، و DR في eu-west-1، مع تحويل تلقائيّ عند فشل الـ primary.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Set up Multi-Region failover for Acme with Route 53: primary in us-east-1, DR in eu-west-1, with auto-failover on primary failure.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ ALB في كلّ Region</span>
+      <span class="lang-en">Create an ALB in each Region</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">acme-primary-alb</span> في us-east-1 و <span dir="ltr" class="font-mono">acme-dr-alb</span> في eu-west-1. كلاهما يرجع 200 على <span dir="ltr" class="font-mono">/health</span>.</p><p class="text-surface-600 leading-relaxed lang-en"><span dir="ltr" class="font-mono">acme-primary-alb</span> in us-east-1 and <span dir="ltr" class="font-mono">acme-dr-alb</span> in eu-west-1. Both return 200 on <span dir="ltr" class="font-mono">/health</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Hosted Zone</span>
+      <span class="lang-en">Create a Hosted Zone</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Public Hosted Zone لـ <span dir="ltr" class="font-mono">acme.example.com</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Public Hosted Zone for <span dir="ltr" class="font-mono">acme.example.com</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Health Check على الـ primary</span>
+      <span class="lang-en">Create a Health Check on primary</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">HTTPS على <span dir="ltr" class="font-mono">primary.acme.example.com/health</span>، كلّ ٣٠ ثانية.</p><p class="text-surface-600 leading-relaxed lang-en">HTTPS on <span dir="ltr" class="font-mono">primary.acme.example.com/health</span>, every 30s.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف سجلَّي Alias مع Failover</span>
+      <span class="lang-en">Add two Alias records with Failover</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Primary: Alias إلى primary-alb مع Health Check. Secondary: Alias إلى dr-alb بلا Health Check.</p><p class="text-surface-600 leading-relaxed lang-en">Primary: Alias to primary-alb with health check. Secondary: Alias to dr-alb, no health check.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختبر الـ failover</span>
+      <span class="lang-en">Test the failover</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أوقف الـ primary-alb (أو غيّر health-check path لإجباره على fail). خلال ٦٠-٩٠ ثانية، <span dir="ltr" class="font-mono">dig acme.example.com</span> يرجع IP الـ DR.</p><p class="text-surface-600 leading-relaxed lang-en">Stop primary-alb (or change health-check path to fail). In 60-90s, <span dir="ltr" class="font-mono">dig acme.example.com</span> returns the DR IP.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> لا تنسَ حذف Hosted Zone و Health Checks بعد انتهاء التجربة — كلاهما يُحتسَب شهرياً.</span>
+    <span class="lang-en"> Don't forget to delete Hosted Zone and Health Checks after testing — both are billed monthly.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Route 53 = DNS + Registrar + Health Checks</span>
+        <span class="lang-en">Route 53 = DNS + Registrar + Health Checks</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">الوحيد في AWS بضمان SLA ١٠٠٪. $0.50/شهر لكلّ hosted zone.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Only AWS service with 100% SLA. $0.50/month per hosted zone.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="target" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Alias ≠ CNAME</span>
+        <span class="lang-en">Alias ≠ CNAME</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Alias يعمل على apex ومجّانيّ. CNAME للـ subdomains فقط.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Alias works on apex and is free. CNAME for subdomains only.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="route" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٧ سياسات توجيه</span>
+        <span class="lang-en">7 routing policies</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Simple, Weighted, Failover, Latency, Geolocation, Geoproximity, Multi-Value.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Simple, Weighted, Failover, Latency, Geolocation, Geoproximity, Multi-Value.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="heart" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Health Checks للـ Private عبر CW Alarm</span>
+        <span class="lang-en">Private Health Checks via CW Alarm</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Route 53 خارج VPC — لموارد خاصّة استخدم CloudWatch Alarm.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Route 53 is outside VPC — for private resources use a CloudWatch Alarm.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">لاختيار السياسة: "<strong>W</strong>eighted = <strong>W</strong>hat percentage، <strong>F</strong>ailover = <strong>F</strong>ix it، <strong>L</strong>atency = <strong>L</strong>east delay، <strong>G</strong>eolocation = <strong>G</strong>overnment (قانونيّ)، <strong>M</strong>ulti-value = <strong>M</strong>any IPs".</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Policy picks: "<strong>W</strong>eighted = <strong>W</strong>hat percentage, <strong>F</strong>ailover = <strong>F</strong>ix it, <strong>L</strong>atency = <strong>L</strong>east delay, <strong>G</strong>eolocation = <strong>G</strong>overnment (legal), <strong>M</strong>ulti-value = <strong>M</strong>any IPs".</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch05.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(6, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch07.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">Acme تريد توجيه <span dir="ltr" class="font-mono">acme.com</span> (الـ root) إلى ALB. ما النوع الصحيح من السجلّات؟</span><span class="lang-en">Acme wants to point <span dir="ltr" class="font-mono">acme.com</span> (root) to an ALB. Correct record type?</span>",
+        options: [
+          "<span class="lang-ar">CNAME</span><span class="lang-en">CNAME</span>",
+          "<span class="lang-ar">A record Alias</span><span class="lang-en">A record Alias</span>",
+          "<span class="lang-ar">TXT</span><span class="lang-en">TXT</span>",
+          "<span class="lang-ar">MX</span><span class="lang-en">MX</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>CNAME لا يعمل على الـ Zone Apex</strong> — لا يمكنك إنشاء CNAME لـ <span dir="ltr" class="font-mono">acme.com</span> نفسها. <strong>Alias record</strong> هو الحلّ: يعمل على الـ root و subdomains، ومجانيّ، ويكتشف تغيّر IP ALB تلقائياً.</span><span class="lang-en"><strong>CNAME can't be used at the Zone Apex</strong> — you can't CNAME <span dir="ltr" class="font-mono">acme.com</span> itself. <strong>Alias record</strong> solves this: works on apex and subdomains, free, auto-detects ALB IP changes.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ممنوع على الـ apex.</span><span class=\"lang-en\">Forbidden on apex.</span>", "", "<span class=\"lang-ar\">نصّ حرّ — لا يوجّه traffic.</span><span class=\"lang-en\">Free text — doesn't route traffic.</span>", "<span class=\"lang-ar\">لخوادم البريد.</span><span class=\"lang-en\">Mail servers.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">Acme تريد إصدار canary: ٩٠٪ من المستخدمين على v1 الحاليّة و ١٠٪ على v2 الجديدة. ما سياسة التوجيه؟</span><span class="lang-en">Acme wants a canary release: 90% of users on v1, 10% on new v2. Routing policy?</span>",
+        options: [
+          "<span class="lang-ar">Simple</span><span class="lang-en">Simple</span>",
+          "<span class="lang-ar">Weighted</span><span class="lang-en">Weighted</span>",
+          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
+          "<span class="lang-ar">Multi-Value</span><span class="lang-en">Multi-Value</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Weighted</strong> مصمَّمة بالضبط لهذا: تعيّن أوزاناً نسبيّة (٩٠ و ١٠) لسجلّين، ويوزّع Route 53 الاستعلامات وفقاً للنسبة. مثاليّة للـ canary releases و A/B testing. تدعم Health Checks لسحب v2 لو تعطّلت.</span><span class="lang-en"><strong>Weighted</strong> is designed for this: assign relative weights (90 and 10) to two records, Route 53 distributes queries by ratio. Perfect for canary and A/B testing. Supports health checks to pull v2 if it fails.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم التوزيع النسبيّ.</span><span class=\"lang-en\">No proportional split.</span>", "", "<span class=\"lang-ar\">حسب الـ region لا النسبة.</span><span class=\"lang-en\">By region, not ratio.</span>", "<span class=\"lang-ar\">يعيد حتى ٨ قيم — لا تحكّم نسبيّ.</span><span class=\"lang-en\">Returns up to 8 values — no proportional control.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">Acme لها ٣ regions حول العالم وتريد توجيه المستخدم إلى الـ region الأسرع. ما السياسة؟</span><span class="lang-en">Acme has 3 regions worldwide and wants to send each user to the fastest one. Policy?</span>",
+        options: [
+          "<span class="lang-ar">Geolocation</span><span class="lang-en">Geolocation</span>",
+          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
+          "<span class="lang-ar">Geoproximity</span><span class="lang-en">Geoproximity</span>",
+          "<span class="lang-ar">Failover</span><span class="lang-en">Failover</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Latency-based</strong> يوجّه المستخدم للـ region الذي يعطيه أقلّ زمن استجابة (قياسات AWS الفعليّة). قد يختلف عن الـ Geolocation — مثلاً مستخدم ألمانيّ قد يصل للـ us-east-1 أسرع من eu-west-3 بسبب بنى الشبكة. <strong>Geolocation</strong> يقرّر حسب الموقع الجغرافيّ فقط، بصرف النظر عن السرعة.</span><span class="lang-en"><strong>Latency-based</strong> routes to the region with lowest measured latency (AWS's measurements). May differ from geolocation — a German user might hit us-east-1 faster than eu-west-3 due to network topology. <strong>Geolocation</strong> decides purely by user location, not speed.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعتمد على الموقع لا السرعة.</span><span class=\"lang-en\">Based on location, not speed.</span>", "", "<span class=\"lang-ar\">للميل النسبيّ لا الأسرع.</span><span class=\"lang-en\">For relative bias, not fastest.</span>", "<span class=\"lang-ar\">لـ DR لا للأداء.</span><span class=\"lang-en\">For DR, not performance.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">بسبب قانون، Acme يجب أن تقدّم محتوى مختلفاً لمستخدمي فرنسا فقط. ما السياسة؟</span><span class="lang-en">Due to regulation, Acme must serve different content to French users only. Policy?</span>",
+        options: [
+          "<span class="lang-ar">Latency-based</span><span class="lang-en">Latency-based</span>",
+          "<span class="lang-ar">Weighted</span><span class="lang-en">Weighted</span>",
+          "<span class="lang-ar">Geolocation (country = France)</span><span class="lang-en">Geolocation (country = France)</span>",
+          "<span class="lang-ar">Multi-Value</span><span class="lang-en">Multi-Value</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>Geolocation</strong> يسمح بالتوجيه حسب القارّة، الدولة، أو الولاية الأمريكية. مثاليّ للامتثال القانونيّ (GDPR، محتوى محجوب في الدولة، ...). يجب إنشاء سجلّ <strong>Default</strong> لمن لا يطابق أيّ موقع.</span><span class="lang-en"><strong>Geolocation</strong> routes by continent, country, or US state. Perfect for regulatory compliance (GDPR, geo-blocked content, ...). Must define a <strong>Default</strong> record for unmatched locations.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">حسب السرعة لا الدولة.</span><span class=\"lang-en\">By speed, not country.</span>", "<span class=\"lang-ar\">تقسيم نسبيّ، ليس حسب الموقع.</span><span class=\"lang-en\">Proportional split, not location.</span>", "", "<span class=\"lang-ar\">لا يميّز حسب الدولة.</span><span class=\"lang-en\">Doesn't discriminate by country.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العبارات صحيحة عن Alias records؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which statements are true about Alias records? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">تعمل على Zone Apex و subdomains.</span><span class="lang-en">Work at Zone Apex and subdomains.</span>",
+          "<span class="lang-ar">مجّانية (لا رسوم استعلامات).</span><span class="lang-en">Free (no query fees).</span>",
+          "<span class="lang-ar">يمكن الإشارة بها إلى EC2 instance DNS name مباشرة.</span><span class="lang-en">Can point directly to EC2 DNS name.</span>",
+          "<span class="lang-ar">تكتشف تغيّر IP الـ target تلقائياً.</span><span class="lang-en">Auto-detect target IP changes.</span>",
+          "<span class="lang-ar">يمكن ضبط TTL يدوياً.</span><span class="lang-en">Can set TTL manually.</span>"
+        ],
+        correct: [0,1,3],
+        explanation: "<span class="lang-ar">Alias يعمل على الـ apex، مجّانيّ، ويكتشف تغيّر IP. <strong>لا يدعم EC2 DNS name</strong> (خدعة شائعة). TTL غير قابل للضبط — يُرثَ من الـ target.</span><span class="lang-en">Alias works on apex, is free, auto-detects IP changes. <strong>Doesn't support EC2 DNS name</strong> (common trap). TTL is inherited from target, not manually set.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">Acme تحتاج DR passive: عند فشل us-east-1 ALB، يحوّل DNS تلقائياً إلى eu-west-1 ALB. ما السياسة؟</span><span class="lang-en">Acme needs passive DR: on us-east-1 ALB failure, DNS auto-shifts to eu-west-1 ALB. Policy?</span>",
+        options: [
+          "<span class="lang-ar">Simple مع سجلَّين.</span><span class="lang-en">Simple with two records.</span>",
+          "<span class="lang-ar">Failover (Active-Passive) + Health Check على الـ primary.</span><span class="lang-en">Failover (Active-Passive) + Health Check on primary.</span>",
+          "<span class="lang-ar">Weighted ٩٩/١.</span><span class="lang-en">Weighted 99/1.</span>",
+          "<span class="lang-ar">Latency-based.</span><span class="lang-en">Latency-based.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Failover</strong> هي الـ policy الوحيدة المصمَّمة للـ DR التلقائيّ: Primary + Secondary، Health Check إلزاميّ على الـ Primary، وعند فشله يتوجّه الـ traffic تلقائياً للـ Secondary. Simple لا يدعم Health Checks، Weighted ليس للـ failover، Latency يعتمد على السرعة لا على الصحّة.</span><span class="lang-en"><strong>Failover</strong> is the only policy designed for automatic DR: Primary + Secondary, required Health Check on Primary, and traffic shifts automatically on failure. Simple lacks health checks, Weighted isn't for failover, Latency is speed-based not health-based.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.</span><span class=\"lang-en\">Doesn't support health checks.</span>", "", "<span class=\"lang-ar\">Weighted لا يدير الفشل.</span><span class=\"lang-en\">Weighted doesn't handle failure.</span>", "<span class=\"lang-ar\">يوجّه حسب السرعة لا الصحّة.</span><span class=\"lang-en\">Speed-based, not health-based.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد Route 53 يرصد صحّة RDS في VPC خاصّة (ليس بينها عامّ endpoint). كيف؟</span><span class="lang-en">A dev wants Route 53 to monitor a private RDS (no public endpoint). How?</span>",
+        options: [
+          "<span class="lang-ar">Endpoint Health Check مباشر.</span><span class="lang-en">Direct Endpoint Health Check.</span>",
+          "<span class="lang-ar">لا يمكن — Route 53 لا يرصد الموارد الخاصّة.</span><span class="lang-en">Not possible — Route 53 can't monitor private resources.</span>",
+          "<span class="lang-ar"><strong>CloudWatch Alarm Health Check</strong> — أنشئ Alarm من CloudWatch metric للـ RDS، ثمّ اربطه بـ Route 53 Health Check.</span><span class="lang-en"><strong>CloudWatch Alarm Health Check</strong> — create a CloudWatch alarm from the RDS metric, link it to a Route 53 health check.</span>",
+          "<span class="lang-ar">Calculated Health Check مع Endpoint Health Check.</span><span class="lang-en">Calculated Health Check with Endpoint Health Check.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">Route 53 Health Checkers خارج VPC ولا يمكنها الوصول للـ private endpoints. <strong>الحلّ الوحيد: CloudWatch Alarm Health Check</strong> — ترصد metric يُنشَر من داخل VPC (بشكل طبيعيّ أو بـ Custom Metric)، ثمّ تربط Alarm بـ Route 53.</span><span class="lang-en">Route 53 Health Checkers are outside the VPC, can't reach private endpoints. <strong>Only fix: CloudWatch Alarm Health Check</strong> — monitor a metric published from inside the VPC (native or custom), link its Alarm to Route 53.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يصل لموارد خاصّة.</span><span class=\"lang-en\">Can't reach private resources.</span>", "<span class=\"lang-ar\">ممكن — عبر CW Alarm.</span><span class=\"lang-en\">It is possible — via CW Alarm.</span>", "", "<span class=\"lang-ar\">Endpoint لا يصل — فلا فائدة من calculated.</span><span class=\"lang-en\">Endpoint can't reach — calculated useless here.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين Geolocation و Geoproximity في Route 53؟</span><span class="lang-en">What's the difference between Geolocation and Geoproximity in Route 53?</span>",
+        options: [
+          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
+          "<span class="lang-ar">Geolocation يحدّد بدقّة (قارّة/دولة/ولاية). Geoproximity يتيح <strong>bias</strong> لتوسيع أو تقليص منطقة معيّنة، ويتطلّب Traffic Flow.</span><span class="lang-en">Geolocation pins precisely (continent/country/state). Geoproximity allows <strong>bias</strong> to grow or shrink a region's reach, and requires Traffic Flow.</span>",
+          "<span class="lang-ar">Geolocation يعتمد على السرعة.</span><span class="lang-en">Geolocation is speed-based.</span>",
+          "<span class="lang-ar">Geoproximity ل Email فقط.</span><span class="lang-en">Geoproximity is for Email only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Geolocation</strong> توجيه ثابت حسب موقع المستخدم (دولة مثلاً). <strong>Geoproximity</strong> أكثر مرونة: يحدّد "سحب" (bias) من +١ إلى +٩٩ لتوسيع منطقة، أو من -١ إلى -٩٩ لتقليصها. يحتاج ميزة <strong>Route 53 Traffic Flow</strong> (محرّر مرئيّ).</span><span class="lang-en"><strong>Geolocation</strong> is static by user location (e.g., country). <strong>Geoproximity</strong> is more flexible: set a bias +1 to +99 to expand a region or -1 to -99 to shrink it. Requires <strong>Route 53 Traffic Flow</strong> (visual editor).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مختلفتان تماماً.</span><span class=\"lang-en\">Very different.</span>", "", "<span class=\"lang-ar\">Geolocation لا يعتمد على السرعة.</span><span class=\"lang-en\">Geolocation isn't speed-based.</span>", "<span class=\"lang-ar\">لا علاقة بالإيميل.</span><span class=\"lang-en\">No email relation.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">Acme تضع TTL = ٨٦٤٠٠ ثانية (٢٤ ساعة) لسجلّ A. ما النتيجة؟</span><span class="lang-en">Acme sets TTL = 86400s (24h) on an A record. Result?</span>",
+        options: [
+          "<span class="lang-ar">توفير تكلفة استعلامات + عملاء قد يصلون إلى IP قديم لمدّة يوم كامل بعد التغيير.</span><span class="lang-en">Saves query cost + clients may use a stale IP for a full day after an update.</span>",
+          "<span class="lang-ar">لا فرق.</span><span class="lang-en">No difference.</span>",
+          "<span class="lang-ar">Route 53 يتجاهل الـ TTL أعلى من ٣٠٠.</span><span class="lang-en">Route 53 ignores TTLs above 300.</span>",
+          "<span class="lang-ar">DNS يتعطّل عند أيّ تغيير.</span><span class="lang-en">DNS breaks on any change.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">TTL العالي يقلّل الاستعلامات (وبالتالي التكلفة والحِمل على Route 53)، لكنّه يعني أنّ تغييرات السجلّ تنتشر ببطء. العملاء يستخدمون القيمة المخزّنة مؤقّتاً حتى انتهاء TTL. <strong>قبل أيّ تغيير مخطّط له (نقل موقع مثلاً)، قلّل TTL إلى ٦٠ ثانية قبل ٢٤ ساعة</strong>، ثمّ طبّق التغيير.</span><span class="lang-en">High TTL reduces queries (cost and Route 53 load) but slows record change propagation. Clients use the cached value until TTL expires. <strong>Before a planned change (site migration), lower TTL to 60s 24h in advance</strong>, then apply the change.</span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">فرق كبير — ٢٤ ساعة تأخير.</span><span class=\"lang-en\">Big difference — 24h delay.</span>", "<span class=\"lang-ar\">Route 53 لا يتجاهل TTL.</span><span class=\"lang-en\">Route 53 doesn't ignore TTL.</span>", "<span class=\"lang-ar\">DNS لا يتعطّل — فقط بطء الانتشار.</span><span class=\"lang-en\">DNS doesn't break — just slow propagation.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">Acme اشترت النطاق <span dir="ltr" class="font-mono">acme.com</span> من GoDaddy وتريد استخدام Route 53 لإدارة السجلّات. ما الخطوة المطلوبة؟</span><span class="lang-en">Acme bought <span dir="ltr" class="font-mono">acme.com</span> on GoDaddy and wants Route 53 to manage records. Required step?</span>",
+        options: [
+          "<span class="lang-ar">نقل النطاق إلى Route 53 إلزامياً.</span><span class="lang-en">Must transfer the domain to Route 53.</span>",
+          "<span class="lang-ar">إنشاء Hosted Zone في Route 53، ثمّ تحديث <strong>Name Servers</strong> في GoDaddy لتشير إلى NS الخاصّة بـ Route 53.</span><span class="lang-en">Create a Hosted Zone in Route 53, then update <strong>Name Servers</strong> in GoDaddy to point to Route 53's NS.</span>",
+          "<span class="lang-ar">إلغاء النطاق وشراء جديد من Route 53.</span><span class="lang-en">Cancel and buy a new one via Route 53.</span>",
+          "<span class="lang-ar">غير ممكن — يجب تسجيل النطاق عبر Route 53.</span><span class="lang-en">Impossible — must register via Route 53.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">تسجيل النطاق (Registrar) مستقلّ عن إدارة DNS (DNS Service). يمكنك شراء النطاق من أيّ registrar واستخدام Route 53 للإدارة: أنشئ Public Hosted Zone، احصل على الـ ٤ Name Servers التي تقدّمها Route 53، ثمّ اذهب إلى GoDaddy وحدّث NS الخاصّة بالنطاق.</span><span class="lang-en">Registrar and DNS service are independent. You can buy from any registrar and use Route 53 to manage: create a Public Hosted Zone, get the 4 Name Servers Route 53 gives you, then in GoDaddy update the domain's NS.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير ضروريّ.</span><span class=\"lang-en\">Not required.</span>", "", "<span class=\"lang-ar\">إسراف كامل.</span><span class=\"lang-en\">Total waste.</span>", "<span class=\"lang-ar\">ممكن — Registrar و DNS منفصلان.</span><span class=\"lang-en\">Works fine — Registrar and DNS are separate.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يحتاج فحصاً مركّباً: "النظام سليم فقط إذا كان ALB سليماً <strong>AND</strong> RDS سليمة". ما الأداة؟</span><span class="lang-en">A dev needs a composite check: "system is healthy only if ALB is healthy <strong>AND</strong> RDS is healthy". Tool?</span>",
+        options: [
+          "<span class="lang-ar">إنشاء عدّة Endpoint Health Checks منفصلة.</span><span class="lang-en">Multiple separate endpoint health checks.</span>",
+          "<span class="lang-ar"><strong>Calculated Health Check</strong> مع AND بين فحوصات الأبناء.</span><span class="lang-en"><strong>Calculated Health Check</strong> with AND across child checks.</span>",
+          "<span class="lang-ar">Route 53 لا يدعم هذا.</span><span class="lang-en">Not supported in Route 53.</span>",
+          "<span class="lang-ar">Lambda function.</span><span class="lang-en">A Lambda function.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Calculated Health Check</strong> يدمج حتى ٢٥٦ فحصاً فرعياً بمنطق AND/OR/NOT. يحدّد كم فحصاً فرعياً يجب أن ينجح لكي يكون الأب healthy. يستخدم لصيانة مخطّطة دون تعطيل كلّ الفحوصات.</span><span class="lang-en"><strong>Calculated Health Check</strong> combines up to 256 child checks with AND/OR/NOT logic. Specify how many children must pass for parent to be healthy. Useful for scheduled maintenance without killing all checks.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تنتج نتيجة مجمّعة.</span><span class=\"lang-en\">No combined result.</span>", "", "<span class=\"lang-ar\">Route 53 يدعم calculated.</span><span class=\"lang-en\">Route 53 does support calculated.</span>", "<span class=\"lang-ar\">Lambda غير ضروريّ — ميزة مدمجة.</span><span class=\"lang-en\">Lambda isn't needed — built-in feature.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">Acme لديها ٥ خوادم بـ IPs عامّة ويريد العملاء التوزيع عليها بدون ELB. أبسط طريقة في Route 53؟</span><span class="lang-en">Acme has 5 servers with public IPs and wants clients to distribute across them without an ELB. Simplest Route 53 approach?</span>",
+        options: [
+          "<span class="lang-ar">Simple routing policy بـ ٥ قيم.</span><span class="lang-en">Simple with 5 values.</span>",
+          "<span class="lang-ar"><strong>Multi-Value Answer</strong> مع Health Checks — يعيد حتى ٨ قيم صحّية فقط.</span><span class="lang-en"><strong>Multi-Value Answer</strong> with health checks — returns up to 8 healthy values only.</span>",
+          "<span class="lang-ar">Weighted بـ ٢٠٪ لكلّ واحد.</span><span class="lang-en">Weighted 20% each.</span>",
+          "<span class="lang-ar">٥ hosted zones منفصلة.</span><span class="lang-en">5 separate hosted zones.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Multi-Value</strong> أفضل من Simple لأنّه يدعم Health Checks — يعيد فقط القيم الصحّية. Simple لا يدعم Health Checks. Weighted ممكنة لكنّ Multi-Value أنظف لهذا السيناريو. <strong>ملاحظة</strong>: Multi-Value ليس بديلاً حقيقياً لـ ELB — لا يعالج stickiness، SSL termination، routing ذكي.</span><span class="lang-en"><strong>Multi-Value</strong> beats Simple because it supports health checks — only healthy values are returned. Simple lacks health checks. Weighted works but Multi-Value is cleaner for this scenario. <strong>Note</strong>: Multi-Value is not a real ELB replacement — no stickiness, SSL termination, or smart routing.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يدعم Health Checks.</span><span class=\"lang-en\">Doesn't support health checks.</span>", "", "<span class=\"lang-ar\">ممكن لكنّ Multi-Value أبسط.</span><span class=\"lang-en\">Works but Multi-Value is simpler.</span>", "<span class=\"lang-ar\">تعقيد بلا جدوى.</span><span class=\"lang-en\">Pointless complexity.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(6, QUESTIONS);
+      if (isChapterComplete(6)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+{
+  "n": 20,
+  "domain": "security",
+  "title_ar": "التشفير: KMS، Secrets Manager، SSM Parameter Store",
+  "title_en": "Encryption: KMS, Secrets Manager, SSM Parameter Store",
+  "pages": "837-881",
+  "subtitle_ar": "الركيزة التي يرتكز عليها أمان كلّ خدمات AWS. أنواع CMKs، Key Policies، Envelope Encryption، إدارة الأسرار وتدويرها، و الفرق بين Secrets Manager و Parameter Store. مطلب أساسيّ في اختبار DVA.",
+  "subtitle_en": "The cornerstone every AWS service's security rests on. CMK types, Key Policies, Envelope Encryption, secret rotation, and Secrets Manager vs Parameter Store. Essential for DVA.",
+  "tags": ["KMS", "CMK", "Envelope Encryption", "Secrets Manager", "Parameter Store", "Rotation"],
+  "objectives": [
+    {"concept": "CMK Types (Symmetric/Asymmetric, AWS-Managed/Customer)", "tested_ar": "النطاق الثاني في اختيار نوع المفتاح المناسب.", "tested_en": "Domain 2 — picking the right key type."},
+    {"concept": "Envelope Encryption & GenerateDataKey", "tested_ar": "النطاق الثاني والثالث في تشفير ملفات > 4KB.", "tested_en": "Domains 2 & 3 — encrypting files > 4KB."},
+    {"concept": "Key Policies & Grants", "tested_ar": "النطاق الثاني في التحكّم بالوصول عبر الحسابات.", "tested_en": "Domain 2 — cross-account key access."},
+    {"concept": "Secrets Manager vs Parameter Store", "tested_ar": "النطاق الثاني في اختيار الأداة المناسبة للأسرار.", "tested_en": "Domain 2 — picking the right secret store."},
+    {"concept": "Key Rotation (auto/manual)", "tested_ar": "النطاق الثاني في تدوير المفاتيح.", "tested_en": "Domain 2 — rotating keys."}
+  ],
+  "sections": [
+    {
+      "title_ar": "AWS KMS وأنواع المفاتيح",
+      "title_en": "AWS KMS & key types",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>KMS (Key Management Service)</strong> خدمة إدارة مفاتيح التشفير مُدمجة مع أغلب خدمات AWS (S3, EBS, RDS, Secrets Manager...). المفاتيح فيها كانت تُسمّى <em>Customer Master Keys (CMK)</em>، وأُعيدت تسميتها إلى <strong>KMS Keys</strong>. لا تُصدِّر المفتاح الأساسيّ أبداً — تستدعي KMS API لكلّ عمليّة تشفير/فكّ.",
+         "en": "<strong>KMS (Key Management Service)</strong> manages encryption keys and is integrated with most AWS services (S3, EBS, RDS, Secrets Manager...). Keys were called <em>Customer Master Keys (CMK)</em>, renamed to <strong>KMS Keys</strong>. The master key never leaves KMS — you call the KMS API for every encrypt/decrypt."},
+        {"type": "table",
+         "headers": {"ar": ["نوع المفتاح", "مَن يديره", "التكلفة", "التدوير التلقائي"], "en": ["Key type", "Managed by", "Cost", "Auto rotation"]},
+         "rows": [
+           [{"mono": true, "value": "AWS Owned"}, {"ar": "AWS (مخفيّ عنك)", "en": "AWS (hidden)"}, {"ar": "مجاني", "en": "Free"}, {"ar": "AWS", "en": "AWS"}],
+           [{"mono": true, "value": "AWS Managed"}, {"ar": "AWS لحسابك (<span dir=\"ltr\" class=\"font-mono\">aws/service</span>)", "en": "AWS for your account (<span dir=\"ltr\" class=\"font-mono\">aws/service</span>)"}, {"ar": "مجاني", "en": "Free"}, {"ar": "كلّ سنة", "en": "Every 1 year"}],
+           [{"mono": true, "value": "Customer Managed"}, {"ar": "أنت", "en": "You"}, {"mono": true, "value": "$1/month + $0.03/10K API"}, {"ar": "اختياريّ (٣٦٥ يوم)", "en": "Optional (365 days)"}],
+           [{"mono": true, "value": "Imported"}, {"ar": "أنت (من خارج AWS)", "en": "You (imported)"}, {"mono": true, "value": "$1/month"}, {"ar": "يدويّ فقط عبر alias", "en": "Manual via alias"}]
+         ]
+        },
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "lock", "title_ar": "Symmetric (AES-256)", "title_en": "Symmetric (AES-256)",
+                  "body_ar": "مفتاح واحد يشفّر ويفكّ. معظم خدمات AWS تستخدمه. لا ينكشف لك أبداً — تستدعي KMS API.",
+                  "body_en": "Single key encrypts and decrypts. Used by most AWS services. Never exposed — you call the KMS API."},
+         "right": {"tone": "emerald", "icon": "key", "title_ar": "Asymmetric (RSA/ECC)", "title_en": "Asymmetric (RSA/ECC)",
+                   "body_ar": "زوج عامّ/خاصّ. الـ Public قابل للتنزيل للتشفير خارج AWS. الـ Private يبقى داخل KMS. للتوقيع الرقميّ أيضاً.",
+                   "body_en": "Public/private pair. Public is downloadable for encryption outside AWS. Private stays inside KMS. Also for digital signing."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "للامتحان: KMS خدمة <strong>إقليميّة (Region-bound)</strong> — مفتاح في <span dir=\"ltr\" class=\"font-mono\">us-east-1</span> لا يعمل في <span dir=\"ltr\" class=\"font-mono\">eu-west-1</span>. لنقل بيانات مشفّرة بين المناطق، استخدم <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> بمفتاح الوجهة.",
+         "en": "Exam: KMS is <strong>region-bound</strong> — a key in <span dir=\"ltr\" class=\"font-mono\">us-east-1</span> doesn't work in <span dir=\"ltr\" class=\"font-mono\">eu-west-1</span>. To move encrypted data across regions use <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> with the destination key."}
+      ]
+    },
+    {
+      "title_ar": "Envelope Encryption ولماذا نحتاجها",
+      "title_en": "Envelope Encryption & why we need it",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono\">KMS Encrypt API</span> محدود بـ <strong>٤ كيلوبايت</strong>. لتشفير ملفات أكبر نستخدم <strong>Envelope Encryption</strong>: KMS يُنشئ <em>Data Encryption Key (DEK)</em> ويُعيد نسختين: Plaintext لاستخدامها محلّياً، ومشفّرة لحفظها بجانب الملف.",
+         "en": "The <span dir=\"ltr\" class=\"font-mono\">KMS Encrypt API</span> is limited to <strong>4 KB</strong>. To encrypt larger files use <strong>Envelope Encryption</strong>: KMS generates a <em>Data Encryption Key (DEK)</em> and returns two copies: plaintext (for local use) and encrypted (stored alongside the file)."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "zap", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "١. GenerateDataKey", "title_en": "1. GenerateDataKey", "body_ar": "KMS يولّد DEK يعطيك plaintext + encrypted-under-CMK.", "body_en": "KMS produces a DEK: plaintext + encrypted-under-CMK."},
+          {"icon": "lock", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "٢. شفّر محلّياً", "title_en": "2. Encrypt locally", "body_ar": "تستخدم الـ DEK plaintext لتشفير الملف (AES-256).", "body_en": "Use the plaintext DEK to encrypt the file locally (AES-256)."},
+          {"icon": "archive", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "٣. امحِ الـ plaintext واحفظ الباقي", "title_en": "3. Wipe plaintext & store", "body_ar": "احذف الـ DEK plaintext من الذاكرة، احفظ: الملف المشفّر + DEK مشفّرة.", "body_en": "Delete the plaintext DEK from memory; store: encrypted file + encrypted DEK."}
+        ]},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — Envelope Encryption for a large file\nimport software.amazon.awssdk.services.kms.KmsClient;\nimport software.amazon.awssdk.services.kms.model.*;\nimport javax.crypto.Cipher;\nimport javax.crypto.spec.SecretKeySpec;\n\nKmsClient kms = KmsClient.create();\n\n// 1. Ask KMS for a DEK\nGenerateDataKeyResponse dk = kms.generateDataKey(GenerateDataKeyRequest.builder()\n    .keyId(\"alias/acme-data\")\n    .keySpec(DataKeySpec.AES_256)\n    .build());\n\nbyte[] plaintextDek = dk.plaintext().asByteArray();\nbyte[] encryptedDek = dk.ciphertextBlob().asByteArray(); // store alongside\n\n// 2. Encrypt the file locally with the plaintext DEK\nCipher cipher = Cipher.getInstance(\"AES/GCM/NoPadding\");\ncipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(plaintextDek, \"AES\"));\nbyte[] ciphertext = cipher.doFinal(largeFileBytes);\n\n// 3. Wipe the plaintext DEK from memory\njava.util.Arrays.fill(plaintextDek, (byte) 0);\n\n// To decrypt later: call kms.decrypt(encryptedDek) → plaintext DEK → decrypt file."},
+        {"type": "callout", "tone": "senior",
+         "ar": "الـ <strong>AWS Encryption SDK</strong> (متوفرة لـ Java/Python/C/JS) تُنفّذ Envelope Encryption تلقائياً وتدعم <strong>Data Key Caching</strong> لتقليل طلبات KMS. استخدمها بدلاً من كتابة الكود يدويّاً.",
+         "en": "The <strong>AWS Encryption SDK</strong> (Java/Python/C/JS) implements Envelope Encryption automatically and supports <strong>Data Key Caching</strong> to reduce KMS calls. Use it instead of DIY code."}
+      ]
+    },
+    {
+      "title_ar": "Key Policies والوصول عبر الحسابات",
+      "title_en": "Key Policies & cross-account access",
+      "blocks": [
+        {"type": "p",
+         "ar": "بخلاف S3 و IAM، <strong>KMS Key Policies إلزاميّة</strong>. بدون Key Policy صحيحة لا يستطيع حتى الحساب الجذر استخدام المفتاح. الـ Default Policy تمنح Root الحساب كلّ الصلاحيّات، ومن هناك IAM يمنح المستخدمين.",
+         "en": "Unlike S3 or IAM, <strong>KMS Key Policies are mandatory</strong>. Without a valid Key Policy even Root can't use the key. The default policy grants Root full access, then IAM delegates to users."},
+        {"type": "code", "lang": "json",
+         "code": "// Cross-account Key Policy — allow Account B to use the key\n{\n  \"Version\": \"2012-10-17\",\n  \"Id\": \"key-policy-cross-account\",\n  \"Statement\": [\n    {\n      \"Sid\": \"EnableRootAccess\",\n      \"Effect\": \"Allow\",\n      \"Principal\": { \"AWS\": \"arn:aws:iam::111122223333:root\" },\n      \"Action\": \"kms:*\",\n      \"Resource\": \"*\"\n    },\n    {\n      \"Sid\": \"AllowCrossAccountUse\",\n      \"Effect\": \"Allow\",\n      \"Principal\": { \"AWS\": \"arn:aws:iam::222233334444:role/CrossAcctReader\" },\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:DescribeKey\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}"},
+        {"type": "p",
+         "ar": "<strong>Grants</strong> آلية أخفّ من Key Policy: تفويض مؤقّت وصلاحيّات محدّدة (مثلاً خدمة AWS تريد تشفير EBS Snapshot نيابة عنك). الـ Grants لا تحتاج تعديل Key Policy — أكثر مرونة.",
+         "en": "<strong>Grants</strong> are a lighter mechanism than Key Policy: short-term delegation with limited permissions (e.g., an AWS service needs to encrypt an EBS snapshot on your behalf). Grants don't require Key Policy edits — more flexible."},
+        {"type": "table",
+         "headers": {"ar": ["الاحتياج", "الأداة المُفضّلة"], "en": ["Need", "Best tool"]},
+         "rows": [
+           [{"ar": "السماح لحساب آخر باستخدام المفتاح", "en": "Let another account use the key"}, {"mono": true, "value": "Key Policy (+ IAM in other account)"}],
+           [{"ar": "تفويض مؤقّت لخدمة داخليّة", "en": "Short-term delegation to a service"}, {"mono": true, "value": "Grant"}],
+           [{"ar": "تقييد أوامر معيّنة على بعض المستخدمين", "en": "Restrict actions per user"}, {"mono": true, "value": "IAM policy"}],
+           [{"ar": "الامتثال الصارم (PCI, HIPAA)", "en": "Strict compliance (PCI, HIPAA)"}, {"mono": true, "value": "Customer Managed CMK + Key Policy"}]
+         ]
+        }
+      ]
+    },
+    {
+      "title_ar": "تدوير المفاتيح (Key Rotation)",
+      "title_en": "Key rotation",
+      "blocks": [
+        {"type": "p",
+         "ar": "التدوير يستبدل مادّة المفتاح داخل KMS دون تغيير الـ <span dir=\"ltr\" class=\"font-mono\">Key ID</span> أو <span dir=\"ltr\" class=\"font-mono\">ARN</span>. البيانات القديمة تبقى قابلة لفكّ التشفير بالمفتاح القديم (KMS يحتفظ بجميع الإصدارات).",
+         "en": "Rotation replaces the key material inside KMS without changing the <span dir=\"ltr\" class=\"font-mono\">Key ID</span> or <span dir=\"ltr\" class=\"font-mono\">ARN</span>. Old data stays decryptable with the old version (KMS keeps all versions)."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "rotate-cw", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "AWS Managed", "title_en": "AWS Managed", "body_ar": "تلقائي كلّ <strong>سنة</strong>. لا خيار لك.", "body_en": "Automatic every <strong>1 year</strong>. No opt-out."},
+          {"icon": "repeat", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Customer Managed", "title_en": "Customer Managed", "body_ar": "اختياريّ. تلقائي كلّ ٣٦٥ يوم، أو on-demand (زر في Console).", "body_en": "Optional. Automatic every 365 days, or on-demand (Console button)."},
+          {"icon": "edit", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Imported", "title_en": "Imported", "body_ar": "لا تدوير تلقائيّ. يدويّ فقط عبر alias يشير لـ Key جديد.", "body_en": "No automatic rotation. Manual only via alias pointing to a new key."}
+        ]},
+        {"type": "callout", "tone": "warn",
+         "ar": "التدوير التلقائي <strong>لا يُعيد تشفير</strong> البيانات الحاليّة. لتطبيق المفتاح الجديد على بيانات قديمة، يجب فكّها ثمّ إعادة تشفيرها (<span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>). هذا ممارسة أمان دوريّة في الأنظمة ذات الحساسيّة العالية.",
+         "en": "Automatic rotation does <strong>not</strong> re-encrypt existing data. To apply the new key to old data, decrypt and <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>. High-security systems schedule this periodically."}
+      ]
+    },
+    {
+      "title_ar": "AWS Secrets Manager",
+      "title_en": "AWS Secrets Manager",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Secrets Manager</strong> لتخزين الأسرار (كلمات مرور قواعد البيانات، مفاتيح API، شهادات). مُشفّر تلقائياً بـ KMS، يدعم <strong>التدوير التلقائي</strong> عبر Lambda، ومدمج مع RDS, Redshift, DocumentDB لتغيير كلمة مرور الـ DB بدون توقّف.",
+         "en": "<strong>Secrets Manager</strong> stores secrets (DB passwords, API keys, certificates). Auto-encrypted with KMS, supports <strong>auto-rotation</strong> via Lambda, and integrates with RDS/Redshift/DocumentDB for zero-downtime DB password changes."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — read a secret from Secrets Manager\nimport software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;\nimport software.amazon.awssdk.services.secretsmanager.model.*;\n\nSecretsManagerClient sm = SecretsManagerClient.create();\n\nGetSecretValueResponse secret = sm.getSecretValue(GetSecretValueRequest.builder()\n    .secretId(\"prod/acme/db-credentials\")\n    .build());\n\nString secretString = secret.secretString();\n// Parse JSON: {\"username\":\"admin\",\"password\":\"...\"}\n\n// IMPORTANT: Cache this in-process; don't call SecretsManager on every DB connection.\n// Use the AWS Secrets Manager client-side caching library for Lambda."},
+        {"type": "callout", "tone": "key",
+         "ar": "للمطوّر: <strong>لا تستدعي GetSecretValue في كلّ طلب</strong>. كل استدعاء يُكلّف <span dir=\"ltr\" class=\"font-mono\">$0.05 / 10K calls</span>، ومع Lambda تتضاعف التكلفة. استخدم مكتبة <em>secretsmanager-caching</em> الرسميّة.",
+         "en": "Dev tip: <strong>don't call GetSecretValue on every request</strong>. Each call costs <span dir=\"ltr\" class=\"font-mono\">$0.05 / 10K</span>, and Lambda explodes costs. Use the official <em>secretsmanager-caching</em> library."},
+        {"type": "p",
+         "ar": "<strong>التدوير التلقائي</strong>: تُعدّ دالة Lambda تُنفّذ دورة: <code>createSecret</code> → <code>setSecret</code> → <code>testSecret</code> → <code>finishSecret</code>. AWS يوفّر قوالب جاهزة لـ RDS MySQL/PostgreSQL/Aurora.",
+         "en": "<strong>Auto-rotation</strong>: you configure a Lambda running: <code>createSecret</code> → <code>setSecret</code> → <code>testSecret</code> → <code>finishSecret</code>. AWS provides pre-built templates for RDS MySQL/PostgreSQL/Aurora."}
+      ]
+    },
+    {
+      "title_ar": "SSM Parameter Store و مقارنة بـ Secrets Manager",
+      "title_en": "SSM Parameter Store vs Secrets Manager",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>SSM Parameter Store</strong> بديل أرخص بكثير لتخزين الإعدادات والأسرار. يدعم ٣ أنواع: <span dir=\"ltr\" class=\"font-mono\">String</span>، <span dir=\"ltr\" class=\"font-mono\">StringList</span>، و<span dir=\"ltr\" class=\"font-mono\">SecureString</span> (مشفّر بـ KMS). منظّم هرمياً بالـ <code>/</code>.",
+         "en": "<strong>SSM Parameter Store</strong> is a far cheaper alternative for configs and secrets. Three types: <span dir=\"ltr\" class=\"font-mono\">String</span>, <span dir=\"ltr\" class=\"font-mono\">StringList</span>, <span dir=\"ltr\" class=\"font-mono\">SecureString</span> (KMS-encrypted). Organized hierarchically by <code>/</code>."},
+        {"type": "table",
+         "headers": {"ar": ["السِمَة", "Secrets Manager", "Parameter Store (Standard)"], "en": ["Feature", "Secrets Manager", "Parameter Store (Standard)"]},
+         "rows": [
+           [{"ar": "التكلفة", "en": "Cost"}, {"mono": true, "value": "$0.40/secret/month + $0.05/10K API"}, {"mono": true, "value": "Free"}],
+           [{"ar": "حجم القيمة", "en": "Value size"}, {"mono": true, "value": "64 KB"}, {"mono": true, "value": "4 KB"}],
+           [{"ar": "التدوير التلقائي", "en": "Auto rotation"}, {"ar": "مدمج (Lambda)", "en": "Built-in (Lambda)"}, {"ar": "لا — EventBridge + Lambda يدوياً", "en": "No — EventBridge + Lambda manually"}],
+           [{"ar": "التشفير (KMS)", "en": "KMS encryption"}, {"ar": "إلزاميّ", "en": "Mandatory"}, {"ar": "اختياريّ (SecureString فقط)", "en": "Optional (SecureString only)"}],
+           [{"ar": "تكامل RDS", "en": "RDS integration"}, {"ar": "مدمج مباشرة", "en": "Native"}, {"ar": "يدويّ", "en": "Manual"}],
+           [{"ar": "العدد", "en": "Count"}, {"ar": "حسب الطلب", "en": "On-demand"}, {"mono": true, "value": "10K (standard) / 100K (advanced)"}]
+         ]
+        },
+        {"type": "code", "lang": "bash",
+         "code": "# Store a SecureString parameter\naws ssm put-parameter \\\n  --name /acme/prod/db-password \\\n  --value 'SuperSecret!' \\\n  --type SecureString \\\n  --key-id alias/acme-ssm\n\n# Retrieve it (auto-decrypt with IAM kms:Decrypt on the key)\naws ssm get-parameter \\\n  --name /acme/prod/db-password \\\n  --with-decryption\n\n# Retrieve a whole hierarchy\naws ssm get-parameters-by-path \\\n  --path /acme/prod/ \\\n  --recursive \\\n  --with-decryption"},
+        {"type": "callout", "tone": "senior",
+         "ar": "<strong>قاعدة الاختيار:</strong> Secrets Manager للأسرار التي تحتاج تدويراً تلقائياً (DB passwords). Parameter Store للإعدادات وللأسرار التي تُدوَّر يدوياً أو التي التكلفة مهمّة فيها. يمكنك <strong>قراءة Secrets Manager secret عبر Parameter Store API</strong> باستخدام المسار <span dir=\"ltr\" class=\"font-mono\">/aws/reference/secretsmanager/&lt;name&gt;</span>.",
+         "en": "<strong>Pick rule:</strong> Secrets Manager for secrets needing auto-rotation (DB passwords). Parameter Store for configs and manually-rotated/cost-sensitive secrets. You can <strong>read a Secrets Manager secret through the Parameter Store API</strong> via <span dir=\"ltr\" class=\"font-mono\">/aws/reference/secretsmanager/&lt;name&gt;</span>."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء CMK، وتشفير ملف كبير بـ Envelope Encryption من Java، وتخزين كلمة مرور DB في Secrets Manager مع تدوير تلقائي.",
+    "goal_en": "Create a CMK, envelope-encrypt a large file from Java, and store a DB password in Secrets Manager with auto-rotation.",
+    "steps": [
+      {"title_ar": "أنشئ CMK من نوع Symmetric", "title_en": "Create a Symmetric CMK",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws kms create-key \\\n  --description 'Acme app data encryption' \\\n  --key-usage ENCRYPT_DECRYPT \\\n  --key-spec SYMMETRIC_DEFAULT\n\naws kms create-alias \\\n  --alias-name alias/acme-data \\\n  --target-key-id <KEY_ID>\n\n# Enable automatic key rotation (365 days)\naws kms enable-key-rotation --key-id <KEY_ID>"},
+      {"title_ar": "شفّر ملف 10MB عبر Envelope Encryption (Java)", "title_en": "Envelope-encrypt a 10MB file (Java)",
+       "body_ar": "استخدم الكود في القسم ٢. احفظ الملف المشفّر + DEK مشفّرة في S3.",
+       "body_en": "Use the Section 2 code. Save encrypted file + encrypted DEK in S3."},
+      {"title_ar": "خزّن كلمة مرور RDS في Secrets Manager", "title_en": "Store RDS password in Secrets Manager",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws secretsmanager create-secret \\\n  --name prod/acme/rds \\\n  --description 'Acme RDS MySQL admin' \\\n  --secret-string '{\"username\":\"admin\",\"password\":\"ChangeMe!\"}' \\\n  --kms-key-id alias/acme-data"},
+      {"title_ar": "فعّل التدوير التلقائي كلّ ٣٠ يوم", "title_en": "Enable auto-rotation every 30 days",
+       "body_ar": "Console → Secrets Manager → Edit rotation → Choose AWS-provided Lambda for MySQL Single User → 30 days.",
+       "body_en": "Console → Secrets Manager → Edit rotation → Choose AWS-provided Lambda for MySQL Single User → 30 days."},
+      {"title_ar": "(اختياريّ) خزّن إعدادات في Parameter Store", "title_en": "(Optional) Store configs in Parameter Store",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws ssm put-parameter --name /acme/prod/region     --type String       --value us-east-1\naws ssm put-parameter --name /acme/prod/db-host    --type String       --value acme.rds.amazonaws.com\naws ssm put-parameter --name /acme/prod/jwt-secret --type SecureString --value 'jwt-secret-val' --key-id alias/acme-data"},
+      {"title_ar": "نظّف", "title_en": "Clean up",
+       "body_ar": "Secrets في Secrets Manager تنتظر ٧-٣٠ يوم قبل الحذف النهائي. الـ KMS Key أيضاً (٧-٣٠ يوم scheduled deletion).",
+       "body_en": "Secrets Manager secrets wait 7–30 days before permanent deletion. KMS keys too (7–30 day scheduled deletion)."}
+    ],
+    "warning_ar": "لا تفعّل Auto-Rotation في الإنتاج قبل اختبار Lambda في بيئة Dev — تدوير فاشل قد يقطع الاتّصال بـ RDS.",
+    "warning_en": "Don't enable auto-rotation in prod before testing the Lambda in Dev — a failed rotation can break RDS connectivity."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "مطوّر يريد تشفير ملف 50MB وحفظه في S3. ما الطريقة الصحيحة مع KMS؟",
+      "question_en": "A developer wants to encrypt a 50MB file and store it in S3. Correct KMS approach?",
+      "options_ar": ["استدعاء <span dir=\"ltr\" class=\"font-mono\">kms:Encrypt</span> على الملف كاملاً.", "استخدام <strong>Envelope Encryption</strong> عبر <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey</span>.", "تخزين الملف بدون تشفير.", "ضغط الملف ثمّ تشفيره."],
+      "options_en": ["Call <span dir=\"ltr\" class=\"font-mono\">kms:Encrypt</span> on the full file.", "Use <strong>Envelope Encryption</strong> via <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey</span>.", "Store the file unencrypted.", "Compress then encrypt."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">kms:Encrypt</span> محدود بـ <strong>٤ كيلوبايت</strong>. للملفات الأكبر استخدم Envelope Encryption: <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey</span> يعيد DEK (plaintext + مشفّرة)، تشفّر محلّياً بالـ plaintext، وتحفظ DEK المشفّرة بجانب الملف.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">kms:Encrypt</span> is capped at <strong>4 KB</strong>. For larger files use Envelope Encryption: <span dir=\"ltr\" class=\"font-mono\">GenerateDataKey</span> returns a DEK (plaintext + encrypted), encrypt locally with plaintext, store the encrypted DEK alongside.",
+      "wrong_ar": ["يتجاوز حد ٤KB.", "", "غير مقبول أمنياً.", "الضغط لا يحلّ مشكلة الحجم."],
+      "wrong_en": ["Exceeds 4KB limit.", "", "Insecure.", "Compression doesn't fix size limit."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "ما الفرق بين <strong>AWS Managed</strong> و <strong>Customer Managed</strong> KMS Key؟",
+      "question_en": "Difference between <strong>AWS Managed</strong> and <strong>Customer Managed</strong> KMS Key?",
+      "options_ar": ["لا فرق.", "AWS Managed مجاني، يُدوَّر سنوياً تلقائياً، ولا تتحكّم في Key Policy. Customer Managed مدفوع ($1/شهر)، تدوير اختياريّ، تحكّم كامل.", "Customer Managed أسرع.", "AWS Managed غير مشفّر."],
+      "options_en": ["None.", "AWS Managed is free, auto-rotated yearly, no Key Policy control. Customer Managed is paid ($1/month), rotation optional, full control.", "Customer Managed is faster.", "AWS Managed isn't encrypted."],
+      "correct": 1,
+      "explanation_ar": "AWS Managed (<span dir=\"ltr\" class=\"font-mono\">aws/service</span>) مناسب للاستخدام الافتراضيّ مع خدمات AWS. Customer Managed ضروريّ عندما تحتاج: تحكّم في الـ Key Policy (Cross-Account)، تدوير On-demand، Auditing مخصّص، أو امتثال (PCI, HIPAA).",
+      "explanation_en": "AWS Managed (<span dir=\"ltr\" class=\"font-mono\">aws/service</span>) suits default use with AWS services. Customer Managed is needed when you want: Key Policy control (cross-account), on-demand rotation, custom auditing, or compliance (PCI, HIPAA).",
+      "wrong_ar": ["فرق جوهريّ.", "", "الأداء متقارب.", "كلاهما مشفّر."],
+      "wrong_en": ["Major difference.", "", "Perf similar.", "Both encrypted."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "تطبيق Spring Boot يستدعي <span dir=\"ltr\" class=\"font-mono\">GetSecretValue</span> في كلّ طلب ويب ليحصل على كلمة مرور DB. ما المشكلة؟",
+      "question_en": "A Spring Boot app calls <span dir=\"ltr\" class=\"font-mono\">GetSecretValue</span> on every web request to get the DB password. What's the issue?",
+      "options_ar": ["لا مشكلة.", "كلفة عالية ($0.05/10K calls) وبطء غير ضروريّ — يجب تخزين الـ Secret مؤقّتاً في الذاكرة.", "خطر أمنيّ.", "Secrets Manager لا يسمح بأكثر من استدعاء في الثانية."],
+      "options_en": ["No problem.", "High cost ($0.05/10K) and needless latency — cache the secret in-process.", "Security risk.", "Secrets Manager limits one call per second."],
+      "correct": 1,
+      "explanation_ar": "Secrets Manager يفرض تكلفة على كلّ استدعاء ويضيف زمن شبكة. مكتبة <strong>secretsmanager-caching</strong> الرسميّة تخزّن الـ Secret في الذاكرة لمدّة قصيرة وتحدّثه عند التدوير. مع مئات الطلبات في الثانية، الفرق بين $0 و $100+ شهرياً.",
+      "explanation_en": "Secrets Manager charges per call and adds network latency. The official <strong>secretsmanager-caching</strong> library keeps the secret in-memory briefly and refreshes on rotation. With hundreds of RPS, difference between $0 and $100+/month.",
+      "wrong_ar": ["المشكلة عمليّة.", "", "ليس خطراً أمنياً.", "لا يوجد هذا الحدّ."],
+      "wrong_en": ["Problem is operational.", "", "Not a security risk.", "No such limit."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "شركة Acme تنوي تدوير CMK يدوياً. ماذا يحدث للبيانات المشفّرة بالمفتاح القديم؟",
+      "question_en": "Acme plans to rotate a CMK. What happens to data encrypted with the old key?",
+      "options_ar": ["تُحذَف تلقائياً.", "تبقى قابلة للفكّ — KMS يحتفظ بجميع إصدارات المفتاح ويختار الإصدار الصحيح عند Decrypt.", "يجب فكّها وإعادة تشفيرها قبل التدوير.", "تُشفَّر تلقائياً بالمفتاح الجديد."],
+      "options_en": ["Deleted automatically.", "Still decryptable — KMS keeps all versions and selects the right one on Decrypt.", "Must be decrypted and re-encrypted before rotation.", "Auto-re-encrypted with the new key."],
+      "correct": 1,
+      "explanation_ar": "التدوير يحافظ على <span dir=\"ltr\" class=\"font-mono\">KeyId</span> و <span dir=\"ltr\" class=\"font-mono\">ARN</span> ويضيف إصداراً جديداً لمادّة المفتاح. الـ ciphertext القديم يحمل إشارة للإصدار المستخدم، فـ KMS يعرف أيّ إصدار يستخدم عند Decrypt. لا إعادة تشفير تلقائيّة — تبقى البيانات القديمة بالمفتاح القديم حتى تُعيد تشفيرها.",
+      "explanation_en": "Rotation keeps <span dir=\"ltr\" class=\"font-mono\">KeyId</span> and <span dir=\"ltr\" class=\"font-mono\">ARN</span> and adds a new key material version. Old ciphertext references its version; KMS knows which to use on Decrypt. No auto re-encryption — old data stays under the old version until you <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> it.",
+      "wrong_ar": ["لا تُحذَف.", "", "ليس إلزامياً.", "لا يحدث تلقائياً."],
+      "wrong_en": ["Not deleted.", "", "Not mandatory.", "Doesn't happen automatically."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "multi",
+      "question_ar": "أيّ الأسرار التالية تُخزَّن بشكل أفضل في <strong>Secrets Manager</strong> (vs Parameter Store)؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which of these are <strong>better in Secrets Manager</strong> than Parameter Store? Select all that apply.",
+      "options_ar": ["كلمة مرور RDS تحتاج تدويراً تلقائياً.", "قيمة Feature Flag ثابتة.", "API Key لطرف ثالث يجب تدويره شهرياً.", "اسم Region.", "TLS certificate يجب تدويره كلّ ٩٠ يوم."],
+      "options_en": ["RDS password requiring auto-rotation.", "A static feature flag value.", "Third-party API key to rotate monthly.", "A region name.", "TLS certificate to rotate every 90 days."],
+      "correct": [0, 2, 4],
+      "explanation_ar": "Secrets Manager متفوّق حيث يُحتاج <strong>تدوير تلقائي</strong>، <strong>تكامل RDS مدمج</strong>، أو حجم > 4KB (الشهادات). القيم الثابتة والإعدادات البسيطة (Region) تُخزَّن في Parameter Store بدون تكلفة.",
+      "explanation_en": "Secrets Manager shines where you need <strong>auto-rotation</strong>, <strong>native RDS integration</strong>, or size >4KB (certificates). Static values and simple configs (Region) go in Parameter Store at no cost.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "ماذا تعيد <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey</span>؟",
+      "question_en": "What does <span dir=\"ltr\" class=\"font-mono\">kms:GenerateDataKey</span> return?",
+      "options_ar": ["Plaintext DEK + DEK مشفّر بالـ CMK.", "DEK مشفّر فقط.", "Public key للتحميل.", "قائمة بالمفاتيح في الحساب."],
+      "options_en": ["Plaintext DEK + DEK encrypted under the CMK.", "Encrypted DEK only.", "Public key for download.", "List of keys in the account."],
+      "correct": 0,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">GenerateDataKey</span> يعيد نسختين من نفس DEK: plaintext لتستخدمه فوراً محلّياً في التشفير، ومشفّرة تحفظها بجانب البيانات. هذا قلب آليّة Envelope Encryption. هناك أيضاً <span dir=\"ltr\" class=\"font-mono\">GenerateDataKeyWithoutPlaintext</span> لحالة استخدام لاحق.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">GenerateDataKey</span> returns two copies of the same DEK: plaintext for immediate local use in encryption, encrypted to store alongside data. This is the core of Envelope Encryption. There's also <span dir=\"ltr\" class=\"font-mono\">GenerateDataKeyWithoutPlaintext</span> for deferred-use cases.",
+      "wrong_ar": ["الـ plaintext ضروريّ للتشفير المحلّي.", "", "هذا <span dir=\"ltr\" class=\"font-mono\">GetPublicKey</span>.", "هذا <span dir=\"ltr\" class=\"font-mono\">ListKeys</span>."],
+      "wrong_en": ["Plaintext needed for local encryption.", "", "That's <span dir=\"ltr\" class=\"font-mono\">GetPublicKey</span>.", "That's <span dir=\"ltr\" class=\"font-mono\">ListKeys</span>."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "شركة تريد أن يستطيع حساب ثانٍ استخدام CMK في حسابها. ما الخطوات الصحيحة؟",
+      "question_en": "A company wants another account to use its CMK. Correct steps?",
+      "options_ar": ["Key Policy في حساب A يسمح لحساب B، + IAM Policy في B يمنح المستخدم/الدور الصلاحيّات.", "IAM فقط في B.", "Key Policy فقط في A.", "Cross-Region Replication."],
+      "options_en": ["Key Policy in Account A allowing Account B, + IAM Policy in B granting user/role.", "IAM only in B.", "Key Policy only in A.", "Cross-Region Replication."],
+      "correct": 0,
+      "explanation_ar": "الوصول العابر للحسابات في KMS يحتاج <strong>كلا الطرفين</strong>: Key Policy في A تُصرِّح لـ B (اسم الحساب أو الدور)، وفي B سياسة IAM للمستخدم/الدور الفعليّ تسمح له باستخدام المفتاح. غياب أيّ منهما يُفشل الوصول.",
+      "explanation_en": "Cross-account KMS access requires <strong>both</strong>: Key Policy in A allowing B (account or role ARN), and IAM Policy in B on the actual user/role. Missing either breaks access.",
+      "wrong_ar": ["IAM وحدها لا تكفي.", "Key Policy وحدها لا تكفي.", "", "Replication لنسخ البيانات، لا المفاتيح."],
+      "wrong_en": ["IAM alone isn't enough.", "Key Policy alone isn't enough.", "", "Replication copies data, not keys."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "تطبيق على Lambda يحتاج إعداد <span dir=\"ltr\" class=\"font-mono\">JWT_SECRET</span> مشفّر. ما الأقلّ تكلفة وأبسط؟",
+      "question_en": "A Lambda needs an encrypted <span dir=\"ltr\" class=\"font-mono\">JWT_SECRET</span> config. Cheapest and simplest?",
+      "options_ar": ["Secrets Manager.", "SSM Parameter Store SecureString.", "ملف في S3 مشفّر.", "DynamoDB."],
+      "options_en": ["Secrets Manager.", "SSM Parameter Store SecureString.", "An encrypted S3 file.", "DynamoDB."],
+      "correct": 1,
+      "explanation_ar": "Parameter Store Standard <strong>مجاني</strong> ويدعم SecureString مشفّراً بـ KMS. لا تدوير تلقائي لكنّه غير مطلوب لـ JWT static secret. S3 يتطلّب مزيداً من الإعدادات. DynamoDB لا علاقة له.",
+      "explanation_en": "Parameter Store Standard is <strong>free</strong> and supports KMS-encrypted SecureString. No auto-rotation but not needed for a static JWT secret. S3 requires more setup. DynamoDB is unrelated.",
+      "wrong_ar": ["Secrets Manager مبالغ — $0.40/شهر لكلّ secret.", "", "تعقيد زائد.", "غير مناسب."],
+      "wrong_en": ["Secrets Manager is overkill — $0.40/month each.", "", "Too complex.", "Not appropriate."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "ما الفرق بين <strong>Key Policy</strong> و <strong>Grant</strong> في KMS؟",
+      "question_en": "Difference between <strong>Key Policy</strong> and <strong>Grant</strong> in KMS?",
+      "options_ar": ["Key Policy دائمة ومُدمجة بالمفتاح. Grant مؤقّتة ومحدّدة الأوامر.", "Grant أقوى.", "كلاهما نفس الشيء.", "Key Policy للمستخدمين فقط."],
+      "options_en": ["Key Policy is persistent and attached to the key; Grant is temporary and scoped.", "Grant is stronger.", "Same thing.", "Key Policy is users-only."],
+      "correct": 0,
+      "explanation_ar": "Key Policy = المصدر الرئيسي للصلاحيّات، يُعدَّل نادراً، يشمل الجميع. Grant = تفويض مرن ومؤقّت لمستخدم/خدمة معيّنة لأوامر محدّدة (مثلاً KMS Grant تسمح لـ EBS بتشفير snapshot). كلاهما يُقيَّم معاً.",
+      "explanation_en": "Key Policy = primary permission source, rarely edited, covers everyone. Grant = flexible temporary delegation to a user/service for specific actions (e.g., a KMS Grant lets EBS encrypt a snapshot). Both are evaluated.",
+      "wrong_ar": ["لا أحدهما أقوى مطلقاً.", "", "مختلفان جوهرياً.", "يشمل الأدوار والخدمات."],
+      "wrong_en": ["Neither is stronger.", "", "Fundamentally different.", "Covers roles and services too."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "ما أقصى حجم للقيمة في <strong>Parameter Store Standard Tier</strong>؟",
+      "question_en": "Max value size in <strong>Parameter Store Standard Tier</strong>?",
+      "options_ar": ["1 KB.", "4 KB.", "8 KB (Advanced Tier).", "64 KB."],
+      "options_en": ["1 KB.", "4 KB.", "8 KB (Advanced Tier).", "64 KB."],
+      "correct": 1,
+      "explanation_ar": "Standard = 4 KB (مجاني، حتى 10K parameter). Advanced = 8 KB (مدفوع، حتى 100K، يدعم Policies مثل Expiration). Secrets Manager يدعم 64 KB لكنّه أغلى.",
+      "explanation_en": "Standard = 4 KB (free, up to 10K params). Advanced = 8 KB (paid, up to 100K, supports policies like Expiration). Secrets Manager supports 64 KB but costs more.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "تطبيق Java يستخدم <span dir=\"ltr\" class=\"font-mono\">AWS Encryption SDK</span>. لماذا هو أفضل من Envelope Encryption اليدويّ؟",
+      "question_en": "A Java app uses <span dir=\"ltr\" class=\"font-mono\">AWS Encryption SDK</span>. Why better than DIY Envelope Encryption?",
+      "options_ar": ["أرخص.", "يُنفّذ Envelope Encryption تلقائياً ويدعم Data Key Caching لتقليل استدعاءات KMS.", "يتخطّى KMS كلياً.", "لا يحتاج إلى IAM."],
+      "options_en": ["Cheaper.", "Auto-implements Envelope Encryption and supports Data Key Caching to reduce KMS calls.", "Bypasses KMS.", "No IAM needed."],
+      "correct": 1,
+      "explanation_ar": "AWS Encryption SDK: يكتب المفتاح المشفّر ضمن الـ ciphertext نفسه، يتحقّق من سلامة البيانات، ويدعم <strong>LocalCryptoMaterialsCache</strong> لإعادة استخدام DEKs عبر عدّة رسائل ضمن حدود زمنيّة — يقلّل ضغط KMS.",
+      "explanation_en": "AWS Encryption SDK: embeds the encrypted key in the ciphertext itself, verifies integrity, and supports <strong>LocalCryptoMaterialsCache</strong> to reuse DEKs across messages within bounds — reducing KMS pressure.",
+      "wrong_ar": ["نفس تكلفة KMS.", "", "يستخدم KMS.", "IAM مطلوب."],
+      "wrong_en": ["Same KMS cost.", "", "Uses KMS.", "IAM still needed."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "أيّ API في KMS تستخدم لتشفير بيانات تحت مفتاح Region آخر؟",
+      "question_en": "Which KMS API do you use to re-encrypt data under a different region's key?",
+      "options_ar": ["<span dir=\"ltr\" class=\"font-mono\">Encrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">Decrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">Sign</span>."],
+      "options_en": ["<span dir=\"ltr\" class=\"font-mono\">Encrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">Decrypt</span>.", "<span dir=\"ltr\" class=\"font-mono\">Sign</span>."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> يفكّ ثم يشفّر في عمليّة واحدة داخل KMS دون أن يغادر الـ plaintext الخدمة. مفيد عند نسخ EBS Snapshot بين المناطق أو تغيير CMK على البيانات دون كشفها للعميل.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> decrypts then encrypts in one KMS call without the plaintext leaving the service. Useful for copying EBS Snapshots across regions or changing CMK without exposing plaintext to the client.",
+      "wrong_ar": ["يشفّر فقط.", "", "يفكّ فقط.", "للتوقيع الرقميّ."],
+      "wrong_en": ["Only encrypts.", "", "Only decrypts.", "For digital signing."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "لماذا <strong>لا يستطيع</strong> حتى المستخدم الجذر (Root) استخدام CMK إذا لم تُعرَّف Key Policy؟",
+      "question_en": "Why can't even Root use a CMK without a Key Policy?",
+      "options_ar": ["AWS تحذف المفتاح.", "KMS تشترط Key Policy صريحة — Default Policy يمنح Root كلّ الصلاحيّات، لكن لو عُدِّلت وحُذِف Root، يُقفَل المفتاح.", "Root ممنوع من KMS.", "MFA مطلوبة."],
+      "options_en": ["AWS deletes the key.", "KMS requires an explicit Key Policy — the default grants Root full access, but if edited to remove Root, the key is locked out.", "Root is banned from KMS.", "MFA required."],
+      "correct": 1,
+      "explanation_ar": "Key Policy في KMS <strong>إلزاميّة</strong> (بخلاف سياسات الموارد الأخرى). الـ Default Policy تحتوي بياناً يمنح Root الحساب كلّ الصلاحيّات (<span dir=\"ltr\" class=\"font-mono\">kms:*</span>). إذا حذفت هذا البيان، لا أحد يستطيع الإدارة — تواصل مع AWS Support لاستعادة المفتاح.",
+      "explanation_en": "KMS Key Policy is <strong>mandatory</strong> (unlike other resource policies). The default contains a statement granting Root full <span dir=\"ltr\" class=\"font-mono\">kms:*</span>. Remove it and nobody can administer — contact AWS Support to recover the key.",
+      "wrong_ar": ["AWS لا تحذف مفاتيح المستخدمين.", "", "Root لا يُمنَع.", "MFA غير مرتبطة."],
+      "wrong_en": ["AWS doesn't delete user keys.", "", "Root isn't banned.", "MFA unrelated."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "في CloudFormation، كيف تشير إلى سرّ في Secrets Manager ديناميكياً؟",
+      "question_en": "In CloudFormation, how do you dynamically reference a Secrets Manager secret?",
+      "options_ar": ["<span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.", "<span dir=\"ltr\" class=\"font-mono\">!GetSecret</span>.", "<span dir=\"ltr\" class=\"font-mono\">${secret}</span>.", "غير مدعوم."],
+      "options_en": ["<span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.", "<span dir=\"ltr\" class=\"font-mono\">!GetSecret</span>.", "<span dir=\"ltr\" class=\"font-mono\">${secret}</span>.", "Not supported."],
+      "correct": 0,
+      "explanation_ar": "CloudFormation يدعم Dynamic References بصيغة <span dir=\"ltr\" class=\"font-mono\">{{resolve:service-name:reference-key}}</span>. للـ Secrets Manager: <span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. للـ Parameter Store: <span dir=\"ltr\" class=\"font-mono\">{{resolve:ssm:param-name:version}}</span> أو <span dir=\"ltr\" class=\"font-mono\">ssm-secure</span>.",
+      "explanation_en": "CloudFormation supports Dynamic References via <span dir=\"ltr\" class=\"font-mono\">{{resolve:service-name:reference-key}}</span>. Secrets Manager: <span dir=\"ltr\" class=\"font-mono\">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. Parameter Store: <span dir=\"ltr\" class=\"font-mono\">{{resolve:ssm:param-name:version}}</span> or <span dir=\"ltr\" class=\"font-mono\">ssm-secure</span>.",
+      "wrong_ar": ["صيغة مخترعة.", "صيغة مخترعة.", "", "مدعوم بالكامل."],
+      "wrong_en": ["Made up.", "Made up.", "", "Fully supported."],
+      "reference_ar": "القسم ٥ و ٦",
+      "reference_en": "Sections 5 & 6"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "ما الفرق بين <span dir=\"ltr\" class=\"font-mono\">Decrypt</span> و <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>؟",
+      "question_en": "Difference between <span dir=\"ltr\" class=\"font-mono\">Decrypt</span> and <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span>?",
+      "options_ar": ["<span dir=\"ltr\" class=\"font-mono\">Decrypt</span> يعيد plaintext للعميل؛ <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> يفكّ ويشفّر بـ CMK آخر بدون كشف plaintext خارج KMS.", "ReEncrypt أبطأ.", "كلاهما نفس الشيء.", "ReEncrypt لفكّ التوقيع فقط."],
+      "options_en": ["<span dir=\"ltr\" class=\"font-mono\">Decrypt</span> returns plaintext to the client; <span dir=\"ltr\" class=\"font-mono\">ReEncrypt</span> decrypts and re-encrypts under another CMK without exposing plaintext outside KMS.", "ReEncrypt is slower.", "Same thing.", "ReEncrypt is for signature verification only."],
+      "correct": 0,
+      "explanation_ar": "الفائدة الأمنيّة لـ ReEncrypt: الـ plaintext لا يغادر KMS أبداً. مناسب لتبديل CMK، نسخ EBS Snapshots عبر المناطق، أو تغيير ملكيّة البيانات بين حسابات. <span dir=\"ltr\" class=\"font-mono\">Decrypt</span> يعيد الـ plaintext لتطبيقك.",
+      "explanation_en": "The security benefit of ReEncrypt: plaintext never leaves KMS. Ideal for rotating CMK, copying EBS Snapshots across regions, or changing data ownership across accounts. <span dir=\"ltr\" class=\"font-mono\">Decrypt</span> returns plaintext to your app.",
+      "wrong_ar": ["الأداء متقارب.", "", "مختلفان.", "ReEncrypt لا علاقة له بالتوقيع."],
+      "wrong_en": ["Perf similar.", "", "Different.", "ReEncrypt is not for signatures."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    }
+  ],
+  "summary": [
+    {"icon": "key", "title_ar": "Envelope Encryption لـ > 4KB", "title_en": "Envelope Encryption for > 4KB",
+     "body_ar": "GenerateDataKey → شفّر محلّياً → احفظ DEK مشفّرة بجانب الملف.",
+     "body_en": "GenerateDataKey → encrypt locally → store encrypted DEK alongside."},
+    {"icon": "lock", "title_ar": "Key Policy إلزاميّة في KMS", "title_en": "Key Policy mandatory in KMS",
+     "body_ar": "بخلاف IAM، لا يعمل المفتاح بدونها — حتى للـ Root.",
+     "body_en": "Unlike IAM, key won't work without it — even for Root."},
+    {"icon": "repeat", "title_ar": "Secrets Manager للتدوير التلقائي", "title_en": "Secrets Manager for auto-rotation",
+     "body_ar": "مدمج مع RDS؛ Parameter Store أرخص للإعدادات والأسرار الثابتة.",
+     "body_en": "RDS integrated; Parameter Store cheaper for configs/static secrets."},
+    {"icon": "shield", "title_ar": "Customer Managed للامتثال", "title_en": "Customer Managed for compliance",
+     "body_ar": "PCI/HIPAA تتطلّب تحكّم كامل في المفتاح والـ Key Policy.",
+     "body_en": "PCI/HIPAA require full key & policy control."}
+  ],
+  "mnemonic_ar": "<strong>EKR</strong> لتشفير الملفات الكبيرة: <strong>E</strong>nvelope (GenerateDataKey) + <strong>K</strong>MS يشفّر الـ DEK + <strong>R</strong>otate (CMK كلّ سنة). ولاختيار الأسرار: <em>Rotation = Secrets Manager، Config = Parameter Store</em>.",
+  "mnemonic_en": "<strong>EKR</strong> for encrypting large files: <strong>E</strong>nvelope (GenerateDataKey) + <strong>K</strong>MS encrypts the DEK + <strong>R</strong>otate (CMK yearly). For secret choice: <em>Rotation = Secrets Manager, Config = Parameter Store</em>.",
+  "prev": 19,
+  "next": 21
+}

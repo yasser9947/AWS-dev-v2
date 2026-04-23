@@ -1,0 +1,101 @@
+/* Shared styles for AWS DVA-C02 Course
+ * Tailwind does most of the work via CDN.
+ * This file only holds what Tailwind can't express inline.
+ */
+
+/* ---- Prism overrides to match theme ---- */
+pre[class*="language-"] {
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  background: #0f172a !important;
+}
+code[class*="language-"] {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+}
+
+/* ---- Thin scrollbars ---- */
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- Text balance for headings ---- */
+.text-balance { text-wrap: balance; }
+
+/* ---- Language switching: hide opposite-language elements ----
+ * When html[lang="ar"]: hide .lang-en; show .lang-ar
+ * When html[lang="en"]: hide .lang-ar; show .lang-en
+ */
+html[lang="ar"] .lang-en { display: none !important; }
+html[lang="en"] .lang-ar { display: none !important; }
+html[lang="en"] { direction: ltr; text-align: left; }
+html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif; }
+
+/* ---- Animated gradients for hero ---- */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* ---- Quiz option states ---- */
+.quiz-option {
+  text-align: inherit;
+}
+.quiz-option:disabled { cursor: not-allowed; }
+
+/* ---- Domain color tokens ---- */
+.domain-foundations { --domain-color: #64748b; }
+.domain-development { --domain-color: #2563eb; }
+.domain-security    { --domain-color: #dc2626; }
+.domain-deployment  { --domain-color: #16a34a; }
+.domain-troubleshoot{ --domain-color: #d97706; }
+
+/* ---- Ribbon for domain percent ---- */
+.domain-ribbon {
+  background: var(--domain-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ---- Progress bar ---- */
+.progress-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  background: linear-gradient(90deg, #36b3f8 0%, #0c99e9 100%);
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+/* ---- Card hover ---- */
+.chapter-card {
+  transition: all 0.3s ease;
+}
+.chapter-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* ---- RTL-aware directional tweaks ---- */
+html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+
+/* ---- Print friendliness for cheatsheets ---- */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}

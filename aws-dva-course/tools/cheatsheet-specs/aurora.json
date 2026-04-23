@@ -1,0 +1,55 @@
+{
+  "slug": "aurora",
+  "name": "Amazon Aurora",
+  "icon": "zap",
+  "color": "indigo",
+  "tagline_ar": "محرّك علائقي متوافق مع MySQL و PostgreSQL بأداء وتوفّر عاليَين وتخزين موزّع قابل للتوسّع التلقائي.",
+  "tagline_en": "MySQL-/PostgreSQL-compatible engine with high performance, availability, and auto-scaling distributed storage.",
+  "key_concepts": [
+    {"concept": "Cluster Architecture", "desc_ar": "Writer واحد + حتى 15 Reader مع تخزين مشترك موزّع عبر 3 AZs.", "desc_en": "One Writer + up to 15 Readers sharing distributed storage across 3 AZs."},
+    {"concept": "Storage Auto-Scaling", "desc_ar": "ينمو من 10 GB إلى 128 TB تلقائيًا بدون downtime.", "desc_en": "Grows from 10 GB to 128 TB automatically with no downtime."},
+    {"concept": "Six-Way Replication", "desc_ar": "ست نسخ من البيانات (نسختان في كل AZ من 3) مع تحمّل فشل AZ كامل.", "desc_en": "Six copies (2 in each of 3 AZs) tolerates full AZ failure."},
+    {"concept": "Endpoints", "desc_ar": "Writer endpoint، Reader endpoint (موازنة تلقائية)، Custom endpoints لمجموعات معيّنة.", "desc_en": "Writer endpoint, Reader endpoint (auto load-balanced), Custom endpoints for groupings."},
+    {"concept": "Aurora Serverless v2", "desc_ar": "يتوسّع بسلاسة بـ ACU من 0.5 إلى آلاف بدون فترات توقّف.", "desc_en": "Seamless scaling in ACUs from 0.5 to thousands with no downtime."},
+    {"concept": "Global Database", "desc_ar": "منطقة أساسية + 5 مناطق ثانوية بـ RPO < 1s و RTO < 1m.", "desc_en": "Primary + up to 5 secondary regions with RPO <1s and RTO <1m."},
+    {"concept": "Backtrack", "desc_ar": "رجوع بالقاعدة (MySQL-compat) لوقت سابق خلال ثوان دون استعادة.", "desc_en": "Rewind (MySQL-compat) to an earlier point in seconds without restore."},
+    {"concept": "Parallel Query & Fast Clone", "desc_ar": "تنفيذ استعلامات تحليلية على طبقة التخزين + نسخ فوري بدون تكلفة تخزين.", "desc_en": "Push analytical queries to storage layer; instant zero-cost clones."}
+  ],
+  "limits": [
+    {"limit": "أقصى نسخ قراءة", "limit_en": "Max read replicas", "value": "15 in-cluster", "note_ar": "+ حتى 15 عبر Binlog للقراءة التقليدية.", "note_en": "+ up to 15 traditional binlog replicas."},
+    {"limit": "أقصى تخزين", "limit_en": "Max storage", "value": "128 TiB", "note_ar": "يتوسّع تلقائيًا بزيادات 10 GB.", "note_en": "Auto-grows in 10 GB increments."},
+    {"limit": "زمن الفشل (Failover)", "limit_en": "Failover time", "value": "< 30 s (typical)", "note_ar": "قد يتحسّن مع RDS Proxy إلى أقل.", "note_en": "Even faster with RDS Proxy."},
+    {"limit": "ACU لـ Serverless v2", "limit_en": "Serverless v2 ACU range", "value": "0.5 – 256 ACU", "note_ar": "1 ACU ≈ 2 GiB ذاكرة.", "note_en": "1 ACU ≈ 2 GiB of memory."},
+    {"limit": "Global Database مناطق", "limit_en": "Global DB regions", "value": "1 primary + 5 secondaries", "note_ar": "نسخ فيزيائي على مستوى التخزين.", "note_en": "Physical storage-level replication."},
+    {"limit": "Backtrack", "limit_en": "Backtrack window", "value": "Up to 72 h (MySQL)", "note_ar": "غير متوفّر لـ PostgreSQL.", "note_en": "Not available on PostgreSQL."},
+    {"limit": "عدد Auto-Scaled Readers", "limit_en": "Auto-scaling readers", "value": "Up to 15", "note_ar": "يعتمد على CPU/اتصالات.", "note_en": "Based on CPU/connections metric."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء عنقود Aurora MySQL.", "desc_en": "Create an Aurora MySQL cluster.", "cmd": "aws rds create-db-cluster --db-cluster-identifier prod-cluster --engine aurora-mysql --master-username admin --master-user-password ****"},
+    {"desc_ar": "إضافة Writer instance للعنقود.", "desc_en": "Add a Writer instance to the cluster.", "cmd": "aws rds create-db-instance --db-instance-identifier prod-writer --db-cluster-identifier prod-cluster --engine aurora-mysql --db-instance-class db.r6g.large"},
+    {"desc_ar": "إضافة Reader instance.", "desc_en": "Add a Reader instance.", "cmd": "aws rds create-db-instance --db-instance-identifier prod-reader-1 --db-cluster-identifier prod-cluster --engine aurora-mysql --db-instance-class db.r6g.large"},
+    {"desc_ar": "تمكين Aurora Serverless v2.", "desc_en": "Enable Aurora Serverless v2.", "cmd": "aws rds modify-db-cluster --db-cluster-identifier prod-cluster --serverless-v2-scaling-configuration MinCapacity=0.5,MaxCapacity=16"},
+    {"desc_ar": "إنشاء Fast Clone من عنقود إنتاجي.", "desc_en": "Create a fast clone of a production cluster.", "cmd": "aws rds restore-db-cluster-to-point-in-time --source-db-cluster-identifier prod-cluster --db-cluster-identifier prod-clone --restore-type copy-on-write --use-latest-restorable-time"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تطبيق MySQL/PostgreSQL يحتاج أداء وتوفّر أعلى من RDS.", "scenario_en": "MySQL/PostgreSQL app needing higher performance and availability than RDS.", "choice": "Aurora"},
+    {"scenario_ar": "أحمال غير منتظمة (Dev/Test أو تطبيقات SaaS متعدّدة).", "scenario_en": "Spiky workloads (dev/test, multi-tenant SaaS).", "choice": "Aurora Serverless v2"},
+    {"scenario_ar": "تطبيق عالمي بزمن كتابة منخفض في عدّة قارّات.", "scenario_en": "Global app with low-latency reads across regions.", "choice": "Aurora Global Database"},
+    {"scenario_ar": "اختبار ترقية أو نسخة بيانات كبيرة دون تكلفة تخزين.", "scenario_en": "Test an upgrade on a clone without extra storage cost.", "choice": "Aurora Fast Clone"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Storage", "feature_ar": "التخزين", "this": "Distributed 6-way (128 TiB)", "alt": "EBS-backed (64 TiB)", "alt_name": "RDS"},
+    {"feature": "Read replicas", "feature_ar": "نسخ القراءة", "this": "15 (shared storage)", "alt": "15 (replicated binlog)", "alt_name": "RDS"},
+    {"feature": "Failover", "feature_ar": "الفشل", "this": "< 30 s typical", "alt": "60–120 s", "alt_name": "RDS"},
+    {"feature": "Global reach", "feature_ar": "المناطق", "this": "Global Database", "alt": "Cross-Region read replica", "alt_name": "RDS"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Pay for compute + storage I/O", "alt": "Instance + allocated storage", "alt_name": "RDS"},
+    {"feature": "Backtrack", "feature_ar": "Backtrack", "this": "Yes (MySQL)", "alt": "No", "alt_name": "RDS"}
+  ],
+  "exam_tips": [
+    {"ar": "Aurora يخزّن 6 نسخ عبر 3 AZs ويتحمّل فقد نسختين للكتابة و 3 للقراءة.", "en": "Aurora keeps 6 copies across 3 AZs; tolerates 2 lost copies for writes, 3 for reads."},
+    {"ar": "Aurora Auto Scaling يضيف Reader instances حسب CPU/Connections.", "en": "Aurora Auto Scaling adds Readers based on CPU or connection thresholds."},
+    {"ar": "Global Database تصلح لـ DR بين المناطق بـ RPO < 1s.", "en": "Global Database fits cross-region DR with sub-second RPO."},
+    {"ar": "Serverless v2 يُوصى به للأحمال المتقطّعة (MySQL و PostgreSQL).", "en": "Serverless v2 is recommended for intermittent workloads (MySQL & PostgreSQL)."},
+    {"ar": "Backtrack مختلف عن Restore؛ يرجع بالعنقود نفسه دون إنشاء جديد.", "en": "Backtrack differs from restore — it rewinds the cluster in place."}
+  ]
+}

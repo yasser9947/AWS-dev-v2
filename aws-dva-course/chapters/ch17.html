@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 17 — IAM Deep Dive | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-red-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثاني — 26%</span>
+          <span class="lang-en">Domain 2 — 26%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٧ من ٣٠</span>
+        <span class="lang-en">Chapter 17 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.21-38</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">IAM بعمق</span>
+        <span class="lang-en">IAM Deep Dive</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">إدارة الهويّة والوصول في AWS: المستخدمون، المجموعات، الأدوار، السياسات JSON، منطق التقييم، MFA، وسياسة كلمات المرور. هذا الأساس الذي تُبنى عليه كلّ قرارات الأمان في AWS.</span>
+        <span class="lang-en">AWS Identity & Access Management: Users, Groups, Roles, JSON policies, evaluation logic, MFA, password policies. The foundation every AWS security decision rests on.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">IAM</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Policies</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Roles</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">MFA</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Least Privilege</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Access Analyzer</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Users/Groups/Roles</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في بناء هويّات منفصلة لكل مستخدم وخدمة.</span>
+      <span class="lang-en">Domain 2 — separate identity per human and service.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Policy Evaluation Logic</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في ترتيب تقييم السياسات (Deny > Allow > Implicit Deny).</span>
+      <span class="lang-en">Domain 2 — Deny > Allow > Implicit Deny ordering.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Managed vs Inline Policies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في اختيار نوع السياسة المناسبة.</span>
+      <span class="lang-en">Domain 2 — picking the right policy type.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">MFA & Password Policy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في حماية الحساب الجذر والمستخدمين.</span>
+      <span class="lang-en">Domain 2 — protecting root and IAM users.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">IAM Access Analyzer & Credentials Report</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في التدقيق والمراجعة الدوريّة للصلاحيات.</span>
+      <span class="lang-en">Domain 2 — auditing and periodic permission review.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">المستخدمون، المجموعات، والأدوار</span>
+      <span class="lang-en">Users, Groups, Roles</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">IAM</span> اختصار لـ Identity and Access Management، وهي خدمة عالميّة (Global) لا ترتبط بمنطقة. الحساب الجذر (Root) يُنشَأ تلقائياً عند فتح الحساب، لكن لا يجب استخدامه للعمل اليوميّ؛ بل أنشئ مستخدمين IAM فرديين.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">IAM</span> is Identity and Access Management — a global service (no region). The root account is created on signup but should not be used day-to-day; create individual IAM users instead.</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="user" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">User</span><span class="lang-en">User</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كائن يمثّل شخصاً فيزيائياً. يملك كلمة مرور و/أو Access Keys.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Represents a physical human. Has a password and/or Access Keys.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Group</span><span class="lang-en">Group</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">حاوية للمستخدمين فقط (لا تحوي مجموعات أخرى). السياسات تُرفَق بالمجموعة وترث للأعضاء.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Container for users only (no nested groups). Policies attach to the group and inherit to members.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="shield" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Role</span><span class="lang-en">Role</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">هويّة بلا كلمة مرور؛ تُسنَد للخدمات أو للمستخدمين مؤقّتاً عبر <span dir="ltr" class="font-mono">AssumeRole</span>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Identity without a password; assumed by services or users temporarily via <span dir="ltr" class="font-mono">AssumeRole</span>.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>قاعدة ذهبيّة:</strong> مستخدم واحد لكلّ شخص، دور واحد لكلّ خدمة/تطبيق. لا تشارك الـ <span dir="ltr" class="font-mono">Access Keys</span> أبداً، ولا تستخدم الـ Root إلّا لإعداد الحساب الأوليّ ثمّ فعّل MFA عليه وضع مفاتيحه جانباً.</span>
+      <span class="lang-en"> <strong>Golden rule:</strong> one user per person, one role per service/app. Never share <span dir="ltr" class="font-mono">Access Keys</span>. Use Root only for initial account setup, then enable MFA and store its keys safely.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">بنية سياسة JSON وأنواعها</span>
+      <span class="lang-en">JSON policy structure & types</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">السياسة في AWS عبارة عن مستند JSON بعناصر ثابتة: <span dir="ltr" class="font-mono">Version</span>, <span dir="ltr" class="font-mono">Statement</span> (واحدة أو أكثر). كلّ <strong>Statement</strong> فيها: <span dir="ltr" class="font-mono">Effect</span> (Allow/Deny)، <span dir="ltr" class="font-mono">Action</span>، <span dir="ltr" class="font-mono">Resource</span>، و<span dir="ltr" class="font-mono">Condition</span> اختياريّة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">An AWS policy is a JSON document with fixed elements: <span dir="ltr" class="font-mono">Version</span>, <span dir="ltr" class="font-mono">Statement</span> (one or more). Each statement has: <span dir="ltr" class="font-mono">Effect</span> (Allow/Deny), <span dir="ltr" class="font-mono">Action</span>, <span dir="ltr" class="font-mono">Resource</span>, and optional <span dir="ltr" class="font-mono">Condition</span>.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowReadMyBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::acme-reports",
+        "arn:aws:s3:::acme-reports/*"
+      ],
+      "Condition": {
+        "IpAddress": { "aws:SourceIp": "203.0.113.0/24" },
+        "Bool":      { "aws:MultiFactorAuthPresent": "true" }
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Identity-based</span><span class="lang-en">Identity-based</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">تُرفَق بمستخدم أو مجموعة أو دور. تجيب عن سؤال: <em>ماذا يستطيع هذا المستخدم أن يفعل؟</em></p>
+      <p class="text-sm text-surface-700 lang-en">Attached to a user/group/role. Answers: <em>what can this principal do?</em></p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="box" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Resource-based</span><span class="lang-en">Resource-based</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">تُرفَق بالمورد نفسه (Bucket Policy, KMS Key Policy). تجيب عن سؤال: <em>من يستطيع الوصول إلى هذا المورد؟</em> وتدعم الوصول عبر الحسابات.</p>
+      <p class="text-sm text-surface-700 lang-en">Attached to the resource (Bucket Policy, KMS Key Policy). Answers: <em>who can access this resource?</em> and supports cross-account access.</p>
+    </div>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النوع</span><span class="lang-en">Type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السلوك</span><span class="lang-en">Behavior</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWS Managed</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">جاهزة من AWS (مثل <span dir="ltr" class="font-mono">AdministratorAccess</span>)</span><span class="lang-en">AWS-provided (e.g., <span dir="ltr" class="font-mono">AdministratorAccess</span>)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS تحدّثها تلقائياً مع الخدمات الجديدة.</span><span class="lang-en">AWS updates them for new services automatically.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Customer Managed</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تكتبها أنت وتُعاد استخدامها</span><span class="lang-en">You write them; reusable</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أفضل ممارسة — Versioning و Rollback متاحان.</span><span class="lang-en">Best practice — versioning and rollback available.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Inline</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">علاقة 1-إلى-1 مع المستخدم/الدور</span><span class="lang-en">1-to-1 with user/role</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تُحذَف بحذف الهويّة. مناسبة للاستثناءات.</span><span class="lang-en">Deleted with the principal. Good for exceptions.</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">منطق تقييم السياسات</span>
+      <span class="lang-en">Policy evaluation logic</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عند كلّ طلب API، يقيّم IAM جميع السياسات المنطبقة (Identity-based + Resource-based + SCP + Session). الترتيب الحاسم:</p>
+  <p class="text-surface-700 leading-relaxed lang-en">On every API call, IAM evaluates all applicable policies (Identity-based + Resource-based + SCP + Session). Decisive order:</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="x-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">١. Explicit Deny يفوز</span><span class="lang-en">1. Explicit Deny wins</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أيّ <span dir="ltr" class="font-mono">Deny</span> صريح يرفض الطلب فوراً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Any explicit <span dir="ltr" class="font-mono">Deny</span> rejects the request immediately.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="check-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">٢. Explicit Allow يسمح</span><span class="lang-en">2. Explicit Allow permits</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">في غياب Deny، أيّ <span dir="ltr" class="font-mono">Allow</span> صريح يمرّر الطلب.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Absent a Deny, any explicit <span dir="ltr" class="font-mono">Allow</span> permits it.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center"><i data-lucide="ban" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">٣. Implicit Deny افتراضيّ</span><span class="lang-en">3. Implicit Deny default</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">عدم وجود Allow = Deny. AWS آمنة افتراضياً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">No Allow = Deny. AWS is secure by default.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> سؤال امتحان كلاسيكيّ: <em>IAM Policy تسمح للمستخدم بـ <span dir="ltr" class="font-mono">s3:GetObject</span>، لكن Bucket Policy فيها <span dir="ltr" class="font-mono">Deny</span> صريح عليه. هل يستطيع القراءة؟</em> الجواب: <strong>لا</strong> — الـ explicit Deny في أيّ سياسة يفوز دائماً.</span>
+      <span class="lang-en"> Classic exam scenario: <em>IAM policy allows <span dir="ltr" class="font-mono">s3:GetObject</span>, but Bucket Policy has an explicit Deny on the user. Can they read?</em> Answer: <strong>No</strong> — an explicit Deny anywhere always wins.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyIfNotFromCorporateVPN",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "NotIpAddress": {
+          "aws:SourceIp": ["198.51.100.0/24", "203.0.113.0/24"]
+        },
+        "Bool": { "aws:ViaAWSService": "false" }
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">MFA وسياسة كلمات المرور</span>
+      <span class="lang-en">MFA & password policy</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>MFA</strong> (كلمة المرور تعرفها + جهاز تملكه) هي أهمّ طبقة حماية ضد سرقة كلمات المرور. AWS يدعم: تطبيقات مثل Google Authenticator و Authy، مفاتيح U2F مثل YubiKey، و Hardware Key Fobs.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>MFA</strong> (password you know + device you own) is the single most important protection against stolen passwords. AWS supports: apps like Google Authenticator/Authy, U2F keys like YubiKey, and Hardware Key Fobs.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الإعداد</span><span class="lang-en">Setting</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحدّ الموصى به</span><span class="lang-en">Recommended</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحدّ الأدنى للطول</span><span class="lang-en">Minimum length</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">14 chars</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أحرف كبيرة + صغيرة + أرقام + رموز</span><span class="lang-en">Upper + lower + digits + symbols</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">required</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">منع إعادة الاستخدام</span><span class="lang-en">Prevent reuse</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">last 5 passwords</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">انتهاء الصلاحيّة</span><span class="lang-en">Expiration</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">90 days</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">السماح بالتغيير الذاتي</span><span class="lang-en">Allow self-change</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">true</td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> فعّل MFA على <strong>Root</strong> فوراً بعد إنشاء الحساب. هذه أوّل توصية في AWS Well-Architected. بعدها فعّله على كلّ مستخدم IAM له صلاحيّات حسّاسة، وافرض ذلك عبر <span dir="ltr" class="font-mono">aws:MultiFactorAuthPresent</span> في السياسات.</span>
+      <span class="lang-en"> Enable MFA on <strong>Root</strong> immediately after account creation — AWS Well-Architected's #1 recommendation. Then enable it on every sensitive IAM user and enforce via <span dir="ltr" class="font-mono">aws:MultiFactorAuthPresent</span> in policies.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyAllExceptListedIfNoMFA",
+    "Effect": "Deny",
+    "NotAction": [
+      "iam:CreateVirtualMFADevice",
+      "iam:EnableMFADevice",
+      "iam:ResyncMFADevice",
+      "iam:ListMFADevices",
+      "iam:ListUsers",
+      "sts:GetSessionToken"
+    ],
+    "Resource": "*",
+    "Condition": {
+      "BoolIfExists": { "aws:MultiFactorAuthPresent": "false" }
+    }
+  }]
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أدوار الخدمات وطرق الوصول</span>
+      <span class="lang-en">Service roles & access methods</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هناك ثلاث طرق للوصول إلى AWS: <strong>Console</strong> (كلمة مرور + MFA)، <strong>CLI</strong> و <strong>SDK</strong> (Access Keys). لخدماتك في AWS نفسه (EC2, Lambda, ECS) استخدم <strong>IAM Roles</strong> دائماً — لا مفاتيح مُبرمجة أبداً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Three ways to access AWS: <strong>Console</strong> (password + MFA), <strong>CLI</strong> and <strong>SDK</strong> (Access Keys). For AWS services themselves (EC2, Lambda, ECS) always use <strong>IAM Roles</strong> — never hardcoded keys.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 with IAM Role from Instance Profile (no keys in code!)
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+
+S3Client s3 = S3Client.builder()
+    .credentialsProvider(DefaultCredentialsProvider.create())
+    .build();
+
+// DefaultCredentialsProvider checks (in order):
+//  1. Environment variables
+//  2. Java System properties
+//  3. Credentials file (~/.aws/credentials)
+//  4. ECS container credentials
+//  5. EC2 Instance Profile metadata (IMDSv2)
+// If running on EC2 with a role attached, keys are fetched automatically & rotated.</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للمطوّر السينيور: لا تعتمد على <span dir="ltr" class="font-mono">IMDSv1</span> بعد الآن. افرض <span dir="ltr" class="font-mono">IMDSv2</span> (Session-based) عند إطلاق الخادم؛ فهو يتطلّب رمز PUT قبل قراءة البيانات الوصفيّة ويمنع هجمات SSRF المعروفة (مثل Capital One 2019).</span>
+      <span class="lang-en"> Senior tip: don't rely on <span dir="ltr" class="font-mono">IMDSv1</span> anymore. Enforce <span dir="ltr" class="font-mono">IMDSv2</span> (session-based) at launch; it requires a PUT token before metadata reads and blocks SSRF-based credential theft (e.g., Capital One 2019).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أدوات التدقيق: Credentials Report و Access Analyzer</span>
+      <span class="lang-en">Audit tools: Credentials Report & Access Analyzer</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">AWS تقدّم ثلاث أدوات مجانيّة للتدقيق:</p>
+  <p class="text-surface-700 leading-relaxed lang-en">AWS provides three free audit tools:</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Credentials Report</span><span class="lang-en">Credentials Report</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تقرير على مستوى الحساب يعرض جميع المستخدمين وحالة كلمات مرورهم ومفاتيحهم و MFA.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Account-level CSV listing every user's password, keys, and MFA status.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Access Advisor</span><span class="lang-en">Access Advisor</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">على مستوى المستخدم: يعرض آخر مرّة استُخدمت فيها كلّ خدمة ضمن صلاحيّاته.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">User-level: shows when each service was last used by that principal.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="search" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Access Analyzer</span><span class="lang-en">Access Analyzer</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يكتشف الموارد المُشارَكة مع هويّات خارجيّة (حسابات أخرى أو عموم الإنترنت).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Detects resources shared with external identities (other accounts or public).</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Generate IAM Credentials Report (CSV)
+aws iam generate-credential-report
+aws iam get-credential-report --query Content --output text | base64 -d > creds.csv
+
+# Use Access Analyzer via the Policy Simulator
+aws iam simulate-principal-policy \
+  --policy-source-arn arn:aws:iam::111122223333:role/BackendRole \
+  --action-names s3:GetObject s3:PutObject \
+  --resource-arns arn:aws:s3:::acme-prod/*</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Policy Simulator</strong> أداة لا تُقدَّر بثمن: تختبر أثر السياسات قبل تطبيقها. استخدمها في كلّ Pull Request يعدّل صلاحيّات الإنتاج.</span>
+      <span class="lang-en"> <strong>Policy Simulator</strong> is invaluable — tests a policy's effect before you deploy it. Run it on every PR that modifies production permissions.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء مستخدم IAM آمن مع سياسة كلمات مرور، MFA، ومجموعة صلاحيّات قراءة فقط على S3.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a secure IAM user with a password policy, MFA, and a read-only S3 group.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اضبط سياسة كلمات المرور على الحساب</span>
+      <span class="lang-en">Set the account password policy</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">IAM → Account settings → حدّ أدنى ١٤ حرف، جميع الفئات، منع إعادة آخر ٥، انتهاء ٩٠ يوم.</p><p class="text-surface-600 leading-relaxed lang-en">IAM → Account settings → min 14 chars, all categories, prevent reuse of last 5, expire every 90 days.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ مجموعة <span dir="ltr" class="font-mono">ReadOnlyS3</span></span>
+      <span class="lang-en">Create group <span dir="ltr" class="font-mono">ReadOnlyS3</span></span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أرفق السياسة المُدارة <span dir="ltr" class="font-mono">AmazonS3ReadOnlyAccess</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Attach the managed policy <span dir="ltr" class="font-mono">AmazonS3ReadOnlyAccess</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ مستخدم <span dir="ltr" class="font-mono">alice</span></span>
+      <span class="lang-en">Create user <span dir="ltr" class="font-mono">alice</span></span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Console access فقط، ضعها في المجموعة أعلاه، واطلب تغيير كلمة المرور عند أوّل دخول.</p><p class="text-surface-600 leading-relaxed lang-en">Console access only, add to the group, require password change on first sign-in.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف جهاز MFA افتراضيّ</span>
+      <span class="lang-en">Add a virtual MFA device</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">IAM → Users → alice → Security credentials → Assign MFA → مسح QR في Google Authenticator.</p><p class="text-surface-600 leading-relaxed lang-en">IAM → Users → alice → Security credentials → Assign MFA → scan QR in Google Authenticator.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># After MFA setup, test with STS GetSessionToken:
+aws sts get-session-token \
+  --serial-number arn:aws:iam::111122223333:mfa/alice \
+  --token-code 123456 \
+  --duration-seconds 3600</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">دقّق عبر Credentials Report</span>
+      <span class="lang-en">Audit via Credentials Report</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws iam generate-credential-report
+aws iam get-credential-report --query Content --output text | base64 -d | column -s, -t | head</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">نظّف</span>
+      <span class="lang-en">Clean up</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احذف المستخدم والمجموعة بعد التجربة. احتفظ بسياسة كلمات المرور — فهي أفضل ممارسة دائمة.</p><p class="text-surface-600 leading-relaxed lang-en">Delete the user and group after testing. Keep the password policy — it's a permanent best practice.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> لا تولّد Access Keys للمستخدم في هذه الممارسة؛ Console فقط. Keys تُنشأ فقط عند الحاجة إلى CLI/SDK، وتُلغى فور انتهاء الحاجة.</span>
+    <span class="lang-en"> Don't generate Access Keys in this lab — Console only. Create keys only when CLI/SDK is truly needed, and revoke them immediately when done.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Explicit Deny يفوز</span>
+        <span class="lang-en">Explicit Deny wins</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Deny > Allow > Implicit Deny. أيّ Deny في أيّ سياسة يحسم القرار.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Deny > Allow > Implicit Deny. Any Deny anywhere decides.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="users" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">هويّة واحدة لكلّ فرد/خدمة</span>
+        <span class="lang-en">One identity per human/service</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">User للأفراد، Role لخدماتك. لا تشارك مفاتيح أبداً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">User per human, Role per service. Never share keys.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">MFA على Root وكلّ الحسّاسين</span>
+        <span class="lang-en">MFA on Root + sensitive</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">أفضل حماية ضدّ سرقة كلمة المرور — ضرورة لا خيار.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Best defense against stolen passwords — mandatory.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="search" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">دقّق بـ Credentials Report و Access Analyzer</span>
+        <span class="lang-en">Audit via reports & Analyzer</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">راجع المفاتيح غير المُدوَّرة والموارد المشارَكة خارجيّاً شهريّاً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Review non-rotated keys and externally-shared resources monthly.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>DAI</strong> لمنطق التقييم: <strong>D</strong>eny (explicit) → <strong>A</strong>llow (explicit) → <strong>I</strong>mplicit deny. تذكّر: <em>الرافض يحسم، المُجيز يُجيز، والصمت رفض</em>.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>DAI</strong> for evaluation: <strong>D</strong>eny (explicit) → <strong>A</strong>llow (explicit) → <strong>I</strong>mplicit deny. Remember: <em>the refuser decides, the allower allows, silence denies</em>.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch16.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(17, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch18.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme لديها سياسة IAM تسمح للمستخدم <span dir="ltr" class="font-mono">bob</span> بعمل <span dir="ltr" class="font-mono">s3:GetObject</span> على Bucket معيّن. الـ Bucket Policy تحتوي <span dir="ltr" class="font-mono">Deny</span> صريح على <span dir="ltr" class="font-mono">bob</span>. هل يستطيع القراءة؟</span><span class="lang-en">Acme has an IAM policy allowing user <span dir="ltr" class="font-mono">bob</span> to <span dir="ltr" class="font-mono">s3:GetObject</span> on a specific bucket. The bucket policy has an explicit <span dir="ltr" class="font-mono">Deny</span> on <span dir="ltr" class="font-mono">bob</span>. Can he read?</span>",
+        options: [
+          "<span class="lang-ar">نعم — الـ IAM Policy تعلو على Bucket Policy.</span><span class="lang-en">Yes — IAM policy overrides bucket policy.</span>",
+          "<span class="lang-ar">نعم — لأنّ الـ IAM Allow أحدث.</span><span class="lang-en">Yes — because IAM Allow is newer.</span>",
+          "<span class="lang-ar">لا — Explicit Deny في أيّ سياسة يفوز دائماً.</span><span class="lang-en">No — an explicit Deny anywhere always wins.</span>",
+          "<span class="lang-ar">يعتمد على ترتيب إنشاء السياسات.</span><span class="lang-en">Depends on policy creation order.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">منطق تقييم IAM: <strong>Explicit Deny → Explicit Allow → Implicit Deny</strong>. أيّ <span dir="ltr" class="font-mono">Deny</span> صريح في أيّ سياسة (Identity-based أو Resource-based) يُفشل الطلب حتى لو كانت هناك Allows صريحة.</span><span class="lang-en">IAM evaluation: <strong>Explicit Deny → Explicit Allow → Implicit Deny</strong>. Any explicit <span dir="ltr" class="font-mono">Deny</span> in any policy (identity-based or resource-based) rejects the request regardless of Allows.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">IAM وBucket Policy على قدم المساواة، ولا أحدهما يعلو تلقائياً.</span><span class=\"lang-en\">IAM and Bucket Policy are peers; neither auto-overrides.</span>", "<span class=\"lang-ar\">الوقت الزمنيّ لا علاقة له بالتقييم.</span><span class=\"lang-en\">Time of creation is irrelevant.</span>", "", "<span class=\"lang-ar\">التقييم يحدث في اللحظة الآنيّة لكلّ الطلبات، لا حسب التاريخ.</span><span class=\"lang-en\">Evaluation is at request-time, not creation-order.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣ — منطق تقييم السياسات</span><span class=\"lang-en\">Section 3 — Policy evaluation</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق الجوهريّ بين <strong>Customer Managed Policy</strong> و <strong>Inline Policy</strong>؟</span><span class="lang-en">Key difference between <strong>Customer Managed Policy</strong> and <strong>Inline Policy</strong>?</span>",
+        options: [
+          "<span class="lang-ar">Managed أسرع من Inline.</span><span class="lang-en">Managed is faster than Inline.</span>",
+          "<span class="lang-ar">Inline مشفّرة أكثر.</span><span class="lang-en">Inline is more encrypted.</span>",
+          "<span class="lang-ar">Managed قابلة لإعادة الاستخدام وتدعم Versioning؛ Inline علاقة 1-إلى-1 وتُحذَف بحذف الهويّة.</span><span class="lang-en">Managed is reusable & versioned; Inline is 1-to-1 and deleted with the principal.</span>",
+          "<span class="lang-ar">Managed للمستخدمين فقط، Inline للأدوار فقط.</span><span class="lang-en">Managed is users-only, Inline is roles-only.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">Customer Managed هو أفضل ممارسة للسياسات العامة: قابلة لإعادة الاستخدام عبر عدّة مستخدمين/أدوار، Versioning، Rollback، وتدقيق مركزيّ. Inline مناسبة فقط للاستثناءات الخاصّة بهويّة واحدة التي لا يجب أن تُنسَخ.</span><span class="lang-en">Customer Managed is the best-practice for general policies: reusable across principals, versioned, rollback-able, centrally audited. Inline is only for exceptions tied to a single identity that must never be copied.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا فرق في الأداء.</span><span class=\"lang-en\">No perf difference.</span>", "<span class=\"lang-ar\">مستوى التشفير ذاته لكليهما.</span><span class=\"lang-en\">Same encryption level for both.</span>", "", "<span class=\"lang-ar\">كلاهما تُرفَق بأيّ نوع هويّة.</span><span class=\"lang-en\">Both attach to any principal type.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — جدول أنواع السياسات</span><span class=\"lang-en\">Section 2 — Policy types table</span>"
+      },
+      {
+        id: "q3",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ الممارسات التالية تعدّ <strong>أفضل ممارسات IAM</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are <strong>IAM best practices</strong>? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">استخدم Root account في العمل اليومي لسرعة الإنجاز.</span><span class="lang-en">Use Root daily for convenience.</span>",
+          "<span class="lang-ar">فعّل MFA على الـ Root وكلّ المستخدمين الحسّاسين.</span><span class="lang-en">Enable MFA on Root and all sensitive users.</span>",
+          "<span class="lang-ar">أرفق صلاحيّات بمجموعات ولا تُكرّرها على كلّ مستخدم.</span><span class="lang-en">Attach permissions to groups, not individual users.</span>",
+          "<span class="lang-ar">خزّن Access Keys في Git repository خاصّ مُشفّر.</span><span class="lang-en">Store Access Keys in a private encrypted Git repo.</span>",
+          "<span class="lang-ar">أنشئ Role لكلّ خدمة (EC2, Lambda, ECS) بدلاً من مفاتيح.</span><span class="lang-en">Create an IAM Role per service (EC2, Lambda, ECS) instead of keys.</span>"
+        ],
+        correct: [1,2,4],
+        explanation: "<span class="lang-ar">Root يُستخدم فقط لإعداد الحساب ثمّ يُترك. السياسات تُرفَق بالمجموعات لتوحيد الإدارة. Access Keys لا تُخزَّن في أيّ repo (عامّ أو خاصّ) — استخدم Roles. MFA إلزاميّ لكلّ حساب حسّاس.</span><span class="lang-en">Root is only for setup, then unused. Attach policies to groups for central management. Access Keys never belong in any repo (public or private) — use Roles. MFA is mandatory for sensitive accounts.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١ و ٤</span><span class=\"lang-en\">Sections 1 & 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Spring Boot يعمل على EC2 يحتاج قراءة ملفات من S3. ما أفضل طريقة لإعطائه الصلاحيّات؟</span><span class="lang-en">A Spring Boot app on EC2 needs to read S3 files. Best way to grant permissions?</span>",
+        options: [
+          "<span class="lang-ar">إنشاء IAM User وحفظ مفاتيحه في <span dir="ltr" class="font-mono">application.properties</span>.</span><span class="lang-en">Create an IAM User and put keys in <span dir="ltr" class="font-mono">application.properties</span>.</span>",
+          "<span class="lang-ar">إرفاق IAM Role (Instance Profile) بالخادم مع سياسة <span dir="ltr" class="font-mono">s3:GetObject</span>.</span><span class="lang-en">Attach an IAM Role (Instance Profile) to the instance with <span dir="ltr" class="font-mono">s3:GetObject</span>.</span>",
+          "<span class="lang-ar">كتابة مفاتيح AWS مباشرة في كود Java.</span><span class="lang-en">Hardcode AWS keys in Java code.</span>",
+          "<span class="lang-ar">استخدام Root credentials مع تشفير AES.</span><span class="lang-en">Use Root credentials with AES encryption.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">IAM Role مرفق بالخادم هو الحلّ المعياريّ: الـ SDK يجلب المفاتيح تلقائياً من IMDSv2، وتُدوَّر دون تدخل. أيّ طريقة تتضمّن مفاتيح مكتوبة في ملفات التطبيق أو الكود تُعتبر كارثة أمنيّة (تسرّب أوّل ما يصل المفاتيح إلى Git).</span><span class="lang-en">An IAM Role on the instance is standard: SDK fetches keys from IMDSv2 and they rotate automatically. Any method involving hardcoded or filed keys is a security disaster (keys leak the instant they hit Git).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">المفاتيح في ملف التطبيق تظهر في أيّ backup/Git.</span><span class=\"lang-en\">Keys in a config file leak to any backup/Git.</span>", "", "<span class=\"lang-ar\">أسوأ ممارسة على الإطلاق — Root يجب ألّا يُستخدم برمجيّاً.</span><span class=\"lang-en\">The worst practice — Root should never be used programmatically.</span>", "<span class=\"lang-ar\">Root لا يُستخدم للتطبيقات، والتشفير لا يحلّ مشكلة الهويّة.</span><span class=\"lang-en\">Root shouldn't run apps; encryption doesn't fix the identity issue.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">ما الغرض من <strong>IAM Credentials Report</strong>؟</span><span class="lang-en">Purpose of the <strong>IAM Credentials Report</strong>?</span>",
+        options: [
+          "<span class="lang-ar">إصلاح تلقائيّ للسياسات الضعيفة.</span><span class="lang-en">Auto-remediate weak policies.</span>",
+          "<span class="lang-ar">تقرير CSV على مستوى الحساب يعرض كلّ المستخدمين وحالة كلمات مرورهم، مفاتيحهم، MFA.</span><span class="lang-en">Account-level CSV listing every user with password, key, and MFA status.</span>",
+          "<span class="lang-ar">كشف الـ brute-force attacks.</span><span class="lang-en">Detect brute-force attacks.</span>",
+          "<span class="lang-ar">تحليل أداء طلبات IAM.</span><span class="lang-en">Analyze IAM request performance.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Credentials Report تقرير دوريّ (كلّ ٤ ساعات) يُنشَأ عند الطلب. مفيد جدّاً للإجابة على أسئلة مثل: من يستخدم مفاتيحه؟ من دون MFA؟ من لم يُغيّر كلمة مروره منذ ٩٠ يوم؟ للمقارنة، <em>Access Advisor</em> على مستوى المستخدم.</span><span class="lang-en">Credentials Report is a periodic (every 4h) on-demand CSV. Answers: who has active keys? who lacks MFA? who hasn't rotated password in 90d? Compare with <em>Access Advisor</em> which is user-level.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يعدّل السياسات.</span><span class=\"lang-en\">Doesn't modify policies.</span>", "", "<span class=\"lang-ar\">هذا دور GuardDuty أو CloudTrail insights.</span><span class=\"lang-en\">That's GuardDuty / CloudTrail Insights.</span>", "<span class=\"lang-ar\">غير موجود — IAM لا يقيس الأداء.</span><span class=\"lang-en\">N/A — IAM doesn't measure perf.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">سياسة IAM تحتوي <span dir="ltr" class="font-mono">"Resource": "arn:aws:s3:::acme-prod/*"</span> دون <span dir="ltr" class="font-mono">"arn:aws:s3:::acme-prod"</span>. هل يستطيع المستخدم عمل <span dir="ltr" class="font-mono">ListBucket</span>؟</span><span class="lang-en">An IAM policy has <span dir="ltr" class="font-mono">"Resource": "arn:aws:s3:::acme-prod/*"</span> without <span dir="ltr" class="font-mono">"arn:aws:s3:::acme-prod"</span>. Can the user <span dir="ltr" class="font-mono">ListBucket</span>?</span>",
+        options: [
+          "<span class="lang-ar">نعم — <span dir="ltr" class="font-mono">*</span> تشمل كلّ شيء.</span><span class="lang-en">Yes — <span dir="ltr" class="font-mono">*</span> covers everything.</span>",
+          "<span class="lang-ar">لا — <span dir="ltr" class="font-mono">ListBucket</span> تحتاج ARN للـ Bucket نفسه، بينما العمليّات على الكائنات تحتاج <span dir="ltr" class="font-mono">/*</span>.</span><span class="lang-en">No — <span dir="ltr" class="font-mono">ListBucket</span> needs the bucket ARN; object actions need <span dir="ltr" class="font-mono">/*</span>.</span>",
+          "<span class="lang-ar">نعم — S3 لا يفرّق بين النوعين.</span><span class="lang-en">Yes — S3 doesn't distinguish.</span>",
+          "<span class="lang-ar">لا — يجب إضافة <span dir="ltr" class="font-mono">s3:HeadBucket</span> أيضاً.</span><span class="lang-en">No — you also need <span dir="ltr" class="font-mono">s3:HeadBucket</span>.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">خطأ كلاسيكيّ: <span dir="ltr" class="font-mono">ListBucket</span> عمليّة على الـ Bucket كمورد (<span dir="ltr" class="font-mono">arn:aws:s3:::acme-prod</span>)، بينما <span dir="ltr" class="font-mono">GetObject/PutObject</span> على الكائنات (<span dir="ltr" class="font-mono">arn:aws:s3:::acme-prod/*</span>). يجب تضمين كلا الـ ARNs في السياسة.</span><span class="lang-en">Classic trap: <span dir="ltr" class="font-mono">ListBucket</span> acts on the bucket (<span dir="ltr" class="font-mono">arn:aws:s3:::acme-prod</span>); <span dir="ltr" class="font-mono">GetObject/PutObject</span> act on objects (<span dir="ltr" class="font-mono">arn:aws:s3:::acme-prod/*</span>). Include both ARNs.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\"><span dir="ltr" class="font-mono">/*</span> لا تشمل الـ Bucket نفسه.</span><span class=\"lang-en\"><span dir="ltr" class="font-mono">/*</span> excludes the bucket itself.</span>", "", "<span class=\"lang-ar\">S3 فعلاً يفرّق بين الـ Bucket والكائنات.</span><span class=\"lang-en\">S3 does distinguish.</span>", "<span class=\"lang-ar\">HeadBucket غير مطلوبة لـ ListBucket.</span><span class=\"lang-en\">HeadBucket not needed for ListBucket.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">ما هي أداة <strong>IAM Access Analyzer</strong> في AWS؟</span><span class="lang-en">What is <strong>IAM Access Analyzer</strong>?</span>",
+        options: [
+          "<span class="lang-ar">أداة لفحص أداء طلبات IAM.</span><span class="lang-en">A tool to profile IAM request performance.</span>",
+          "<span class="lang-ar">أداة تكتشف الموارد (S3, SQS, IAM Roles...) المُشارَكة مع هويّات خارج الحساب.</span><span class="lang-en">A tool that detects resources (S3, SQS, IAM Roles...) shared with identities outside your account.</span>",
+          "<span class="lang-ar">أداة لتشفير السياسات.</span><span class="lang-en">A tool to encrypt policies.</span>",
+          "<span class="lang-ar">أداة لترقية AWS Managed Policies.</span><span class="lang-en">A tool to upgrade AWS Managed Policies.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Access Analyzer يستخدم استدلال رياضيّ (formal verification) لفحص كلّ سياسات الموارد في الحساب ويُظهر النتائج العابرة للحسابات: مثلاً Bucket Policy تسمح للعموم، أو KMS Key مشارك مع حساب آخر لم يكن بقصد. أداة مجانيّة وأساسيّة للأمان.</span><span class="lang-en">Access Analyzer uses formal reasoning to scan every resource policy and flag cross-account/external access: e.g., a public bucket policy or a KMS key shared with an unintended account. Free and essential.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة له بالأداء.</span><span class=\"lang-en\">Nothing to do with perf.</span>", "", "<span class=\"lang-ar\">السياسات نصيّة JSON بطبيعتها.</span><span class=\"lang-en\">Policies are plain JSON.</span>", "<span class=\"lang-ar\">لا يُعدّل AWS Managed Policies.</span><span class=\"lang-en\">Doesn't modify AWS Managed Policies.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد فرض MFA على جميع العمليّات في حسابه ما عدا إدارة MFA نفسها. ما الشرط الصحيح في السياسة؟</span><span class="lang-en">A developer wants to require MFA for all actions except managing MFA itself. Correct condition?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"aws:MultiFactorAuthPresent": "true"</span> في Allow.</span><span class="lang-en"><span dir="ltr" class="font-mono">"aws:MultiFactorAuthPresent": "true"</span> in Allow.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"aws:MultiFactorAuthPresent": "false"</span> مع Deny و NotAction استثنائيّة لعمليّات MFA.</span><span class="lang-en"><span dir="ltr" class="font-mono">"aws:MultiFactorAuthPresent": "false"</span> with Deny and <span dir="ltr" class="font-mono">NotAction</span> for MFA operations.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"aws:MFAEnabled": "true"</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"aws:MFAEnabled": "true"</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"iam:RequireMFA": "yes"</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"iam:RequireMFA": "yes"</span>.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">النمط المعتمد: <span dir="ltr" class="font-mono">Deny</span> على <span dir="ltr" class="font-mono">NotAction</span> (قائمة عمليّات MFA الضروريّة لتسجيل الجهاز) عند كون <span dir="ltr" class="font-mono">MultiFactorAuthPresent = false</span>. هذا يترك للمستخدم فقط القدرة على تسجيل MFA ثمّ كلّ شيء محظور حتى يتحقّق.</span><span class="lang-en">Standard pattern: <span dir="ltr" class="font-mono">Deny</span> on <span dir="ltr" class="font-mono">NotAction</span> (list of MFA management ops) when <span dir="ltr" class="font-mono">MultiFactorAuthPresent = false</span>. This leaves users able only to register MFA, then everything else is blocked until verified.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يسمح باستثناء عمليّات MFA نفسها.</span><span class=\"lang-en\">Doesn't allow bootstrapping MFA itself.</span>", "", "<span class=\"lang-ar\">لا يوجد مفتاح بهذا الاسم في IAM.</span><span class=\"lang-en\">No such IAM key.</span>", "<span class=\"lang-ar\">اسم مخترع — غير موجود.</span><span class=\"lang-en\">Made-up key.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <strong>IAM User</strong> و <strong>IAM Role</strong>؟</span><span class="lang-en">Difference between <strong>IAM User</strong> and <strong>IAM Role</strong>?</span>",
+        options: [
+          "<span class="lang-ar">User للأفراد ذوو credentials ثابتة؛ Role هويّة مؤقّتة تُتحمَّل عبر STS (بلا كلمة مرور).</span><span class="lang-en">User is for individuals with persistent credentials; Role is a temporary identity assumed via STS (no password).</span>",
+          "<span class="lang-ar">Role للأدمن فقط.</span><span class="lang-en">Role is admin-only.</span>",
+          "<span class="lang-ar">User يمكن إنشاؤه فقط من Console.</span><span class="lang-en">User can only be created in the Console.</span>",
+          "<span class="lang-ar">Role لا يصلح إلّا للخدمات.</span><span class="lang-en">Role works only for services.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">User = هويّة دائمة لشخص فيزيائيّ (كلمة مرور + مفاتيح). Role = هويّة بلا مالك دائم؛ تُتحمَّل (<span dir="ltr" class="font-mono">AssumeRole</span>) وتُعطي مفاتيح مؤقّتة (١٥د - ١٢س). استخدم Roles لكلّ وصول عابر للحسابات ولكلّ خدمة AWS.</span><span class="lang-en">User = permanent identity for a human (password + keys). Role = ownerless identity; assumed (<span dir="ltr" class="font-mono">AssumeRole</span>) yielding temporary credentials (15m–12h). Use Roles for all cross-account access and every AWS service.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أيّ مستخدم يمكن منحه أيّ صلاحيّات.</span><span class=\"lang-en\">Any principal can hold any perms.</span>", "<span class=\"lang-ar\">CLI و SDK وCloudFormation كلّها تنشئ users.</span><span class=\"lang-en\">CLI, SDK, CFN all create users.</span>", "<span class=\"lang-ar\">Roles تصلح للبشر أيضاً (Federation).</span><span class=\"lang-en\">Roles work for humans too (Federation).</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تريد منع استخدام AWS API من أيّ مصدر خارج شبكة المكتب (<span dir="ltr" class="font-mono">203.0.113.0/24</span>). أيّ سياسة مناسبة؟</span><span class="lang-en">Acme wants to block all AWS API usage from outside the office network (<span dir="ltr" class="font-mono">203.0.113.0/24</span>). Best policy?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Allow</span> مع شرط <span dir="ltr" class="font-mono">aws:SourceVpc</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Allow</span> with <span dir="ltr" class="font-mono">aws:SourceVpc</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Deny</span> مع <span dir="ltr" class="font-mono">NotIpAddress</span> على <span dir="ltr" class="font-mono">aws:SourceIp</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Deny</span> with <span dir="ltr" class="font-mono">NotIpAddress</span> on <span dir="ltr" class="font-mono">aws:SourceIp</span>.</span>",
+          "<span class="lang-ar">Security Group على مستوى الحساب.</span><span class="lang-en">Account-level Security Group.</span>",
+          "<span class="lang-ar">Network ACL.</span><span class="lang-en">Network ACL.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">Deny</span> مع <span dir="ltr" class="font-mono">NotIpAddress</span> يمنع أيّ طلب من خارج الـ CIDR المُعرَّف. يُدمَج في سياسة الـ Root أو كـ SCP على مستوى Organization. استخدم <span dir="ltr" class="font-mono">aws:ViaAWSService=false</span> للسماح لطلبات AWS الداخليّة (مثل CloudFormation).</span><span class="lang-en"><span dir="ltr" class="font-mono">Deny</span> with <span dir="ltr" class="font-mono">NotIpAddress</span> blocks any request outside the CIDR. Best implemented at the Root policy or an Organization SCP. Add <span dir="ltr" class="font-mono">aws:ViaAWSService=false</span> so AWS internal calls (e.g., CloudFormation) aren't blocked.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\"><span dir="ltr" class="font-mono">SourceVpc</span> لحسابات داخل VPC فقط، ولا يغطّي الحالة العامة.</span><span class=\"lang-en\"><span dir="ltr" class="font-mono">SourceVpc</span> only for VPC-bound calls, doesn't cover general case.</span>", "", "<span class=\"lang-ar\">Security Group على مستوى الخادم لا الحساب.</span><span class=\"lang-en\">Security Groups are instance-level, not account-level.</span>", "<span class=\"lang-ar\">NACL داخل VPC لا يتحكم بـ AWS API calls.</span><span class=\"lang-en\">NACLs are VPC-internal, not for AWS API calls.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <strong>Identity-based</strong> و <strong>Resource-based</strong> policies؟</span><span class="lang-en">Difference between <strong>Identity-based</strong> and <strong>Resource-based</strong> policies?</span>",
+        options: [
+          "<span class="lang-ar">Identity-based للـ S3 فقط.</span><span class="lang-en">Identity-based is S3-only.</span>",
+          "<span class="lang-ar">Identity-based تُرفَق بالهويّة (user/group/role)؛ Resource-based بالمورد (bucket, KMS key) وتدعم Cross-account.</span><span class="lang-en">Identity-based attaches to principal (user/group/role); Resource-based attaches to the resource (bucket, KMS key) and supports cross-account.</span>",
+          "<span class="lang-ar">Resource-based أسرع.</span><span class="lang-en">Resource-based is faster.</span>",
+          "<span class="lang-ar">لا فرق حقيقي.</span><span class="lang-en">No real difference.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Identity-based تجيب <em>ماذا يستطيع هذا المستخدم أن يفعل؟</em>. Resource-based تجيب <em>من يستطيع الوصول إلى هذا المورد؟</em> مثل Bucket Policy و KMS Key Policy. الأخيرة ضروريّة لـ cross-account وتسمح بتحديد <span dir="ltr" class="font-mono">Principal</span>.</span><span class="lang-en">Identity-based answers <em>what can this principal do?</em>. Resource-based answers <em>who can touch this resource?</em>, e.g., bucket policies, KMS key policies. Essential for cross-account access; allows specifying <span dir="ltr" class="font-mono">Principal</span>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تُطبَّق على جميع الخدمات.</span><span class=\"lang-en\">Apply across all services.</span>", "", "<span class=\"lang-ar\">الأداء متقارب.</span><span class=\"lang-en\">Perf is comparable.</span>", "<span class=\"lang-ar\">الفرق جوهريّ.</span><span class=\"lang-en\">Difference is fundamental.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">بعد تمكين سياسة كلمات مرور صارمة (١٤ حرف، انتهاء ٩٠ يوم)، متى ستُطبَّق؟</span><span class="lang-en">After enabling a strict password policy (14 chars, 90-day expiry), when does it apply?</span>",
+        options: [
+          "<span class="lang-ar">فوراً على كلّ كلمات المرور الحاليّة.</span><span class="lang-en">Instantly on all existing passwords.</span>",
+          "<span class="lang-ar">عند التغيير التالي لكلمة المرور (المستخدمون الحاليّون يحتفظون بكلمات مرورهم حتى الانتهاء أو التغيير).</span><span class="lang-en">On next password change (existing users keep their password until expiry or change).</span>",
+          "<span class="lang-ar">لا تُطبَّق إلا على المستخدمين الجدد.</span><span class="lang-en">Only on new users.</span>",
+          "<span class="lang-ar">بعد إعادة تشغيل الحساب.</span><span class="lang-en">After account restart.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">السياسة تسري على إنشاء كلمات المرور وتغييرها مستقبلاً. كلمات المرور الموجودة لا تتأثّر رجعيّاً، لكنّ ميزة الانتهاء ستجبر التغيير قريباً. لا توجد عمليّة "إعادة تشغيل الحساب" في AWS.</span><span class="lang-en">The policy applies to future password creates/changes. Existing passwords aren't retroactively invalidated, but expiration forces a change soon. There's no "account restart" in AWS.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AWS لا تُجبر التغيير الفوريّ على الحاليّين.</span><span class=\"lang-en\">AWS doesn't force instant changes on existing users.</span>", "", "<span class=\"lang-ar\">تُطبَّق على الجميع بالتدريج.</span><span class=\"lang-en\">Applies to everyone progressively.</span>", "<span class=\"lang-ar\">غير موجود في AWS.</span><span class=\"lang-en\">Not a thing in AWS.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q13",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي يمنع <strong>IMDSv2</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of the following does <strong>IMDSv2</strong> prevent? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">هجمات SSRF التي تسرق مفاتيح IAM الدور.</span><span class="lang-en">SSRF attacks that steal role IAM credentials.</span>",
+          "<span class="lang-ar">Cross-Site Scripting (XSS).</span><span class="lang-en">Cross-Site Scripting (XSS).</span>",
+          "<span class="lang-ar">الوصول للبيانات الوصفيّة بدون رمز Session.</span><span class="lang-en">Metadata access without a session token.</span>",
+          "<span class="lang-ar">هجمات SQL Injection.</span><span class="lang-en">SQL Injection.</span>"
+        ],
+        correct: [0,2],
+        explanation: "<span class="lang-ar">IMDSv2 يتطلّب <span dir="ltr" class="font-mono">PUT</span> أوّلاً للحصول على رمز Session (صالح لمدّة قصيرة) ثمّ استخدامه في الـ GET. هذا يمنع معظم هجمات SSRF المعروفة (مثل ثغرة Capital One 2019). XSS و SQL Injection خارج نطاقه.</span><span class="lang-en">IMDSv2 requires a <span dir="ltr" class="font-mono">PUT</span> to obtain a short-lived session token, then a GET with it. This blocks most known SSRF credential-theft attacks (e.g., Capital One 2019). XSS/SQLi are unrelated.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥ — نصيحة السينيور</span><span class=\"lang-en\">Section 5 — Senior tip</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">لماذا يُنصَح بربط السياسات بـ <strong>Groups</strong> لا بالمستخدمين مباشرة؟</span><span class="lang-en">Why is it recommended to attach policies to <strong>Groups</strong> rather than directly to users?</span>",
+        options: [
+          "<span class="lang-ar">لأنّ AWS تفرض ذلك قانونياً.</span><span class="lang-en">AWS legally requires it.</span>",
+          "<span class="lang-ar">للإدارة المركزيّة وقابلية التوسّع — تغيير سياسة المجموعة ينطبق على كلّ الأعضاء فوراً.</span><span class="lang-en">Central management and scale — changing the group policy applies to all members instantly.</span>",
+          "<span class="lang-ar">لأنّ المجموعات أسرع في التقييم.</span><span class="lang-en">Groups evaluate faster.</span>",
+          "<span class="lang-ar">لأنّ المستخدمين لا يقبلون سياسات مباشرة.</span><span class="lang-en">Users can't hold direct policies.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الفائدة الكبرى هي <strong>المركزيّة</strong>: سياسة واحدة تُدار في مكان واحد وتنطبق على كلّ الأعضاء. عند إضافة مطوّر جديد: ضعه في Group فقط، دون تكرار الأذونات. Audit أسهل بكثير.</span><span class="lang-en">The win is <strong>centralization</strong>: one policy managed in one place applies to all members. Adding a new dev = just put them in the Group. Audit is vastly simpler.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا إلزام قانونيّ.</span><span class=\"lang-en\">No legal mandate.</span>", "", "<span class=\"lang-ar\">الأداء متطابق.</span><span class=\"lang-en\">Performance identical.</span>", "<span class=\"lang-ar\">المستخدمون يمكنهم حمل سياسات مباشرة، لكنّه ممارسة سيّئة للتوسّع.</span><span class=\"lang-en\">Users can hold direct policies, just doesn't scale.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يشكّ في أنّ سياسة معقّدة ستمنع عمليّة معيّنة قبل نشرها في الإنتاج. أيّ أداة AWS تُستخدم للاختبار؟</span><span class="lang-en">A developer suspects a complex policy will block an operation before deploying to production. Which AWS tool tests this?</span>",
+        options: [
+          "<span class="lang-ar">AWS Config.</span><span class="lang-en">AWS Config.</span>",
+          "<span class="lang-ar">IAM Policy Simulator.</span><span class="lang-en">IAM Policy Simulator.</span>",
+          "<span class="lang-ar">CloudTrail.</span><span class="lang-en">CloudTrail.</span>",
+          "<span class="lang-ar">AWS Inspector.</span><span class="lang-en">AWS Inspector.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">IAM Policy Simulator (متوفر في Console و CLI عبر <span dir="ltr" class="font-mono">aws iam simulate-principal-policy</span>) يحاكي طلب API كاملاً على مستخدم/دور ويخبرك بالنتيجة (Allow/Deny) وأيّ بيان يتحكم بها. أساسيّ لأيّ تغيير صلاحيّات.</span><span class="lang-en">IAM Policy Simulator (Console and CLI via <span dir="ltr" class="font-mono">aws iam simulate-principal-policy</span>) simulates a full API request against a principal and tells you the outcome (Allow/Deny) with the deciding statement. Essential for any permission change.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AWS Config لرصد الامتثال، لا اختبار السياسات.</span><span class=\"lang-en\">AWS Config tracks compliance, not policy testing.</span>", "", "<span class=\"lang-ar\">CloudTrail يسجّل الأحداث التاريخيّة، لا يختبر.</span><span class=\"lang-en\">CloudTrail logs historical events, not test.</span>", "<span class=\"lang-ar\">Inspector لفحص الثغرات الأمنيّة في EC2/ECR.</span><span class=\"lang-en\">Inspector scans EC2/ECR vulnerabilities.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(17, QUESTIONS);
+      if (isChapterComplete(17)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "slug": "codepipeline",
+  "name": "AWS CodePipeline",
+  "icon": "git-commit-horizontal",
+  "color": "green",
+  "tagline_ar": "محرّك CI/CD مُنظَّم يربط Source→Build→Test→Deploy كمراحل (Stages) تحتوي Actions تتعامل مع Artifacts.",
+  "tagline_en": "Managed CI/CD engine linking Source→Build→Test→Deploy as Stages with Actions passing Artifacts.",
+  "key_concepts": [
+    {"concept": "Pipeline", "desc_ar": "تدفّق مراحل يتنفّذ عند كل تغيير مصدر.", "desc_en": "Stage flow executing on every source change."},
+    {"concept": "Stage", "desc_ar": "حاوية Actions متسلسلة أو متوازية (Source/Build/Test/Deploy/Approval).", "desc_en": "Container of sequential or parallel Actions (Source/Build/Test/Deploy/Approval)."},
+    {"concept": "Action", "desc_ar": "خطوة تنفيذ (CodeBuild, CodeDeploy, CloudFormation, Lambda, ECS, Manual approval, custom).", "desc_en": "Execution step (CodeBuild, CodeDeploy, CloudFormation, Lambda, ECS, Manual approval, custom)."},
+    {"concept": "Artifacts", "desc_ar": "تُخزَّن في S3 artifact bucket وتُمرَّر بين actions (input/output).", "desc_en": "Stored in S3 artifact bucket and passed between actions (input/output)."},
+    {"concept": "Source providers", "desc_ar": "CodeCommit, GitHub (v1/v2 via Connections), Bitbucket, S3, ECR.", "desc_en": "CodeCommit, GitHub (v1/v2 via Connections), Bitbucket, S3, ECR."},
+    {"concept": "Manual Approval", "desc_ar": "توقّف المسار بانتظار IAM principal يوافق (مع SNS notify).", "desc_en": "Pipeline pauses for an IAM principal to approve (with optional SNS notify)."},
+    {"concept": "Cross-region actions", "desc_ar": "Actions في مناطق أخرى عبر replication bucket و artifact stores متعددة.", "desc_en": "Actions in other regions via replication bucket and multiple artifact stores."},
+    {"concept": "Variables", "desc_ar": "قيم ناتجة من action تمر كـ #{SourceVariables.CommitId} لاستعمالها لاحقاً.", "desc_en": "Action outputs referenced as #{SourceVariables.CommitId} in later stages."}
+  ],
+  "limits": [
+    {"limit": "Stages per pipeline", "limit_en": "Stages per pipeline", "value": "50"},
+    {"limit": "Actions per stage", "limit_en": "Actions per stage", "value": "50"},
+    {"limit": "Max pipelines per region", "limit_en": "Pipelines per region", "value": "1000"},
+    {"limit": "Input/Output artifacts per action", "limit_en": "Artifacts per action", "value": "5 / 5"},
+    {"limit": "Pipeline execution history", "limit_en": "Execution history", "value": "12 months"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء pipeline من ملف تعريف.", "desc_en": "Create pipeline from definition.", "cmd": "aws codepipeline create-pipeline --pipeline file://pipeline.json"},
+    {"desc_ar": "بدء تنفيذ يدوي.", "desc_en": "Start pipeline execution manually.", "cmd": "aws codepipeline start-pipeline-execution --name my-pipeline"},
+    {"desc_ar": "استرجاع حالة pipeline.", "desc_en": "Get pipeline state.", "cmd": "aws codepipeline get-pipeline-state --name my-pipeline"},
+    {"desc_ar": "الموافقة اليدوية.", "desc_en": "Approve manual action.", "cmd": "aws codepipeline put-approval-result --pipeline-name my-pipeline --stage-name Deploy --action-name Approve --result status=Approved,summary=ok --token TOKEN"},
+    {"desc_ar": "إعادة محاولة الإجراءات الفاشلة في المرحلة.", "desc_en": "Retry failed actions in stage.", "cmd": "aws codepipeline retry-stage-execution --pipeline-name my-pipeline --stage-name Deploy --pipeline-execution-id abc --retry-mode FAILED_ACTIONS"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "CI/CD مُنسّق بين CodeCommit + CodeBuild + CodeDeploy", "scenario_en": "Orchestrate CodeCommit + CodeBuild + CodeDeploy CI/CD", "choice": "CodePipeline"},
+    {"scenario_ar": "نشر تدريجي مع موافقة يدوية قبل الإنتاج", "scenario_en": "Staged deploy with manual approval before prod", "choice": "Approval action + SNS"},
+    {"scenario_ar": "نشر عبر عدة مناطق", "scenario_en": "Cross-region deployments", "choice": "Cross-region actions"},
+    {"scenario_ar": "تكامل مع GitHub عبر Connections بدون tokens ثابتة", "scenario_en": "GitHub integration without static tokens", "choice": "CodeStar Connections"}
+  ],
+  "exam_tips": [
+    {"ar": "كل pipeline يحتاج artifact bucket في S3؛ cross-region يتطلب buckets متعددة.", "en": "Every pipeline needs an S3 artifact bucket; cross-region needs multiple buckets."},
+    {"ar": "Manual Approval يرسل SNS notification وينتظر put-approval-result مع token.", "en": "Manual Approval sends SNS notification and waits for put-approval-result with a token."},
+    {"ar": "Source من CodeCommit يستخدم CloudWatch Events (default) بدلاً من polling للسرعة.", "en": "CodeCommit source uses CloudWatch Events (default) instead of polling for faster trigger."},
+    {"ar": "GitHub v2 = CodeStar Connection (OAuth)؛ GitHub v1 = personal access token (deprecated).", "en": "GitHub v2 = CodeStar Connection (OAuth); GitHub v1 = personal access token (legacy)."},
+    {"ar": "Actions من نوع Invoke (Lambda) مفيدة لخطوات مخصّصة (tests/notifications).", "en": "Invoke (Lambda) action enables custom steps like tests/notifications."}
+  ]
+}

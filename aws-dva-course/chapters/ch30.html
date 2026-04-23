@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 30 — Exam Review & Final Tips | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-amber-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الرابع — 18%</span>
+          <span class="lang-en">Domain 4 — 18%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٣٠ من ٣٠</span>
+        <span class="lang-en">Chapter 30 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.899-918</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">مراجعة الامتحان ونصائح يوم الاختبار</span>
+        <span class="lang-en">Exam Review & Final Tips</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">الفصل الأخير: مراجعة متقاطعة لكلّ النطاقات الأربعة، أنماط الأسئلة الأكثر شيوعاً ("أيّ خدمة"، "ما الخطأ"، "الأقلّ كلفة"، "الأقلّ جهداً تشغيلياً")، خطّة يوم الامتحان، ومسار الشهادات اللاحقة.</span>
+        <span class="lang-en">The final chapter: cross-domain review, the most common question patterns ("which service", "what's wrong", "most cost-effective", "least operational overhead"), exam-day game plan, and the next-cert roadmap.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Exam Review</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DVA-C02</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Cross-Domain</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Exam Strategy</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Cross-domain service selection</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">كلّ النطاقات — التمييز بين الخدمات المتشابهة.</span>
+      <span class="lang-en">All domains — distinguishing similar services.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Cost optimization decisions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في اختيار الحلّ الأقلّ كلفةً.</span>
+      <span class="lang-en">Domain 4 — picking the cheapest valid option.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Troubleshooting patterns</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في تشخيص الأعطال.</span>
+      <span class="lang-en">Domain 4 — diagnosing failures.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Exam-day strategy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">استراتيجيّة يوم الاختبار: flag, eliminate, manage time.</span>
+      <span class="lang-en">Exam-day tactics: flag, eliminate, time management.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ملخّص النطاقات الأربعة</span>
+      <span class="lang-en">Four-domain recap</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">امتحان DVA-C02 يقسّم ٦٥ سؤالاً على أربعة نطاقات. استخدم هذه الخريطة لتحديد حيث تحتاج مراجعة إضافيّة قبل الامتحان.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">The DVA-C02 exam spreads 65 questions across four domains. Use this map to identify where you need extra review before exam day.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النطاق</span><span class="lang-en">Domain</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوزن</span><span class="lang-en">Weight</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المواضيع الرئيسيّة</span><span class="lang-en">Key topics</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">١ — التطوير (Development)</span><span class="lang-en">1 — Development</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">32%</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda، API Gateway، SAM، SQS، SNS، Step Functions، Cognito، DynamoDB.</span><span class="lang-en">Lambda, API Gateway, SAM, SQS, SNS, Step Functions, Cognito, DynamoDB.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٢ — الأمان (Security)</span><span class="lang-en">2 — Security</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">26%</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IAM، Secrets Manager، SSM Parameter Store، KMS، STS، Cognito.</span><span class="lang-en">IAM, Secrets Manager, SSM Parameter Store, KMS, STS, Cognito.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٣ — النشر (Deployment)</span><span class="lang-en">3 — Deployment</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">24%</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Beanstalk، CodeCommit، CodeBuild، CodeDeploy، CodePipeline، CloudFormation، ECR، ECS/EKS.</span><span class="lang-en">Beanstalk, CodeCommit, CodeBuild, CodeDeploy, CodePipeline, CloudFormation, ECR, ECS/EKS.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٤ — استكشاف الأخطاء والتحسين</span><span class="lang-en">4 — Troubleshooting & Optimization</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">18%</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudWatch، X-Ray، CloudTrail، CloudFront، AppConfig، Athena.</span><span class="lang-en">CloudWatch, X-Ray, CloudTrail, CloudFront, AppConfig, Athena.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> ٧٢٠ من ١٠٠٠ هو الحدّ الأدنى للنجاح (حوالي ٧٢٪). الأسئلة مرجّحة: بعضها أثقل من بعض. تركيزك على Domain 1 (٣٢٪) أكبر تأثيراً من Domain 4 (١٨٪).</span>
+      <span class="lang-en"> 720/1000 is the passing score (~72%). Questions are weighted — some count more. Effort on Domain 1 (32%) pays off more than on Domain 4 (18%).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أنماط الأسئلة والكلمات المفتاحية</span>
+      <span class="lang-en">Question patterns & keywords</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">تعرّف على الكلمات التي تحدّد الإجابة الصحيحة. AWS يضع هذه القيود عمداً لتمييز من يعرف الفروق الدقيقة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Learn the keywords that pin down the correct answer. AWS intentionally adds these constraints to separate those who grasp the nuances.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الكلمة في السؤال</span><span class="lang-en">Keyword in question</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">ماذا تعني؟</span><span class="lang-en">What it means</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">most cost-effective</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فضّل Spot / Serverless / Tiered Storage / عمر احتفاظ أقصر.</span><span class="lang-en">Prefer Spot / Serverless / Tiered Storage / shorter retention.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">least operational overhead</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فضّل الخدمات المُدارة (Managed) و Serverless على الأدوات المستضافة.</span><span class="lang-en">Prefer managed and serverless services over self-hosted.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">real-time</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kinesis Data Streams / Lambda / Subscription Filter. ليس S3 Export.</span><span class="lang-en">Kinesis Data Streams / Lambda / Subscription Filter. NOT S3 Export.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">near-real-time</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kinesis Data Firehose.</span><span class="lang-en">Kinesis Data Firehose.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">audit / who did it</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudTrail.</span><span class="lang-en">CloudTrail.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">compliance / retention</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">S3 + Glacier + Object Lock + Athena.</span><span class="lang-en">S3 + Glacier + Object Lock + Athena.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">bottleneck / slow microservice</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">X-Ray Service Map.</span><span class="lang-en">X-Ray Service Map.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">encrypt at rest</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">KMS (مع customer-managed key للتحكّم الكامل).</span><span class="lang-en">KMS (with a customer-managed key for full control).</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">secrets rotation</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Secrets Manager (rotation مدمج)، وليس Parameter Store.</span><span class="lang-en">Secrets Manager (built-in rotation), NOT Parameter Store.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">decouple</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SQS / SNS / EventBridge.</span><span class="lang-en">SQS / SNS / EventBridge.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> فخّ شائع: لو السؤال يقول "least operational overhead" وقدّم خياراً على EC2 وآخر Serverless، الإجابة دائماً <strong>Serverless</strong> حتى لو كان أغلى. اقرأ القيد بدقّة.</span>
+      <span class="lang-en"> Common trap: if the question says "least operational overhead" with an EC2 option and a Serverless option, the answer is always <strong>Serverless</strong> — even if pricier. Read the constraint carefully.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">جداول مقارنة سريعة</span>
+      <span class="lang-en">Quick comparison tables</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Secrets Manager vs Parameter Store</span><span class="lang-en">Secrets Manager vs Parameter Store</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Secrets Manager: تدوير تلقائيّ، أغلى (~$0.40/secret/شهر). Parameter Store: أرخص، SecureString مشفّر بـ KMS، بدون تدوير مدمج. امتحان: "تدوير تلقائيّ" = Secrets Manager.</p>
+      <p class="text-sm text-surface-700 lang-en">Secrets Manager: auto-rotation, pricier (~$0.40/secret/mo). Parameter Store: cheaper, SecureString encrypted via KMS, no built-in rotation. Exam: "auto-rotation" = Secrets Manager.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="scale" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Kinesis vs SQS vs SNS</span><span class="lang-en">Kinesis vs SQS vs SNS</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Kinesis: بثّ مرتّب، عدّة قرّاء، احتفاظ حتى عام. SQS: طوابير نقطة لنقطة، رسالة واحدة لمعالج واحد. SNS: pub/sub، نسخ لكلّ مشترك.</p>
+      <p class="text-sm text-surface-700 lang-en">Kinesis: ordered stream, multiple readers, up to 1-year retention. SQS: point-to-point queue, one message one consumer. SNS: pub/sub, copies to every subscriber.</p>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+          <i data-lucide="git-branch" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Blue/Green vs Canary</span><span class="lang-en">Blue/Green vs Canary</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Blue/Green: بيئتان كاملتان، تبديل مفاجئ بـ DNS أو ALB (CodeDeploy AllAtOnce). Canary: نسبة مئويّة صغيرة تزداد تدريجياً (Linear/Canary في CodeDeploy). Canary يقلّل المخاطر أكثر.</p>
+      <p class="text-sm text-surface-700 lang-en">Blue/Green: two full envs, instant switch via DNS or ALB (CodeDeploy AllAtOnce). Canary: small % ramps up gradually (Linear/Canary in CodeDeploy). Canary reduces risk further.</p>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">DynamoDB vs RDS vs Aurora</span><span class="lang-en">DynamoDB vs RDS vs Aurora</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">DynamoDB: NoSQL, key-value, serverless, ms-latency عالميّاً. RDS: SQL تقليديّ، ترقيم يدويّ للسعة. Aurora: SQL متوافق MySQL/Postgres، ٥× أسرع، Serverless v2، تكامل أعمق مع AWS.</p>
+      <p class="text-sm text-surface-700 lang-en">DynamoDB: NoSQL, key-value, serverless, ms-latency globally. RDS: classic SQL, manual capacity. Aurora: MySQL/Postgres-compat, 5× faster, Serverless v2, deeper AWS integration.</p>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="package" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Lambda vs Fargate vs EC2</span><span class="lang-en">Lambda vs Fargate vs EC2</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Lambda: ١٥ دقيقة حدّ، ٩ أنواع runtime، أحداث فوريّة. Fargate: حاويات بدون خوادم. EC2: تحكّم كامل وتكلفة متغيّرة. للأحمال قصيرة وغير المتوقّعة → Lambda.</p>
+      <p class="text-sm text-surface-700 lang-en">Lambda: 15-min max, 9 runtimes, event-driven. Fargate: serverless containers. EC2: full control. Short unpredictable workloads → Lambda.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">ElastiCache vs DAX</span><span class="lang-en">ElastiCache vs DAX</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">ElastiCache: Redis/Memcached عامّ للتطبيق. DAX: كاش متخصّص لـ DynamoDB فقط، mikrosecond لـ read. امتحان: "كاش لـ DynamoDB" = DAX.</p>
+      <p class="text-sm text-surface-700 lang-en">ElastiCache: general Redis/Memcached for apps. DAX: DynamoDB-only cache, microsecond reads. Exam: "cache for DynamoDB" = DAX.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> خرائط ذهنيّة سريعة: <strong>بثّ سجلّ فوريّ</strong> = Subscription Filter + Kinesis/Lambda. <strong>بثّ سجلّ إلى S3</strong> = Kinesis Firehose. <strong>تخزين طويل مع SQL</strong> = S3 + Athena. <strong>مقياس RAM على EC2</strong> = Unified Agent. <strong>منع نسخ متعدّدة من حدث في Lambda</strong> = SQS FIFO أو idempotency في الكود.</span>
+      <span class="lang-en"> Mental shortcuts: <strong>real-time log stream</strong> = Subscription Filter + Kinesis/Lambda. <strong>log to S3</strong> = Kinesis Firehose. <strong>long-term + SQL</strong> = S3 + Athena. <strong>EC2 RAM metric</strong> = Unified Agent. <strong>avoid duplicate Lambda invocations</strong> = SQS FIFO or in-code idempotency.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الأعطال الشائعة وتشخيصها</span>
+      <span class="lang-en">Common failures & diagnosis</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الأعراض</span><span class="lang-en">Symptom</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السبب الأرجح</span><span class="lang-en">Most likely cause</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><span dir="ltr" class="font-mono">Connection timeout</span> على EC2.</span><span class="lang-en"><span dir="ltr" class="font-mono">Connection timeout</span> on EC2.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Security Group أو NACL يمنع المنفذ.</span><span class="lang-en">Security Group or NACL blocking the port.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><span dir="ltr" class="font-mono">Connection refused</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Connection refused</span>.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الخدمة داخل الخادم متوقّفة.</span><span class="lang-en">App service stopped inside the instance.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda: <span dir="ltr" class="font-mono">AccessDenied</span>.</span><span class="lang-en">Lambda: <span dir="ltr" class="font-mono">AccessDenied</span>.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Execution Role ينقصه الإذن المطلوب.</span><span class="lang-en">Execution Role missing required permission.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda cold start بطيء.</span><span class="lang-en">Lambda slow cold start.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استخدم Provisioned Concurrency أو قلّل حجم الـ deployment package.</span><span class="lang-en">Use Provisioned Concurrency or shrink deployment package.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">DynamoDB <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>.</span><span class="lang-en">DynamoDB <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Hot partition — وزّع partition key، أو انتقل إلى On-Demand.</span><span class="lang-en">Hot partition — distribute partition key or switch to On-Demand.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">API Gateway <span dir="ltr" class="font-mono">429 Too Many Requests</span>.</span><span class="lang-en">API Gateway <span dir="ltr" class="font-mono">429 Too Many Requests</span>.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Throttling — عدّل Usage Plan أو رفع حدود الحساب.</span><span class="lang-en">Throttling — adjust Usage Plan or raise account limits.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">S3 <span dir="ltr" class="font-mono">403 Access Denied</span> لمستخدم IAM.</span><span class="lang-en">S3 <span dir="ltr" class="font-mono">403 Access Denied</span> for IAM user.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تداخل بين IAM Policy و Bucket Policy و Block Public Access.</span><span class="lang-en">Interaction of IAM Policy, Bucket Policy, and Block Public Access.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudFront يعرض محتوى قديماً.</span><span class="lang-en">CloudFront serves stale content.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">انتظر TTL أو أنشئ Invalidation (انتبه للتكلفة).</span><span class="lang-en">Wait TTL or create Invalidation (mind the cost).</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CodePipeline stage Failed.</span><span class="lang-en">CodePipeline stage Failed.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">افحص سجلّ المرحلة، CloudWatch Logs، IAM على CodeBuild/CodeDeploy.</span><span class="lang-en">Check stage log, CloudWatch Logs, CodeBuild/CodeDeploy IAM.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudFormation stack <span dir="ltr" class="font-mono">ROLLBACK_COMPLETE</span>.</span><span class="lang-en">CloudFormation stack <span dir="ltr" class="font-mono">ROLLBACK_COMPLETE</span>.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا يمكن تعديله — احذفه وأنشئ جديداً؛ راجع Events للسبب.</span><span class="lang-en">Cannot update — delete & recreate; check Events for the cause.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> عندما يذكر السؤال خطأً بعينه، لا تعتمد على حدسك: ابحث عن الكلمة الحرفيّة في الإجابات. مثلاً <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span> يشير مباشرة إلى DynamoDB hot partition.</span>
+      <span class="lang-en"> When the question cites a specific error, don't guess: scan answers for the literal term. E.g., <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span> points directly to DynamoDB hot partition.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">استراتيجيّة يوم الامتحان</span>
+      <span class="lang-en">Exam-day strategy</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الامتحان: ٦٥ سؤالاً في ١٣٠ دقيقة (≈ دقيقتان للسؤال). ١٥ سؤال غير مرجّح (تجريبيّ). تحتاج ٧٢٠/١٠٠٠ للنجاح. يمكن re-take بعد ١٤ يوماً من الفشل. الرسوم ١٥٠ دولار.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Exam: 65 questions in 130 minutes (≈ 2 min/question). 15 are unscored (pilot). Need 720/1000 to pass. Re-take after 14 days if failed. Fee $150.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="flag" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Flag & Skip</span><span class="lang-en">Flag & Skip</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كلّ سؤال لا تجيب عنه بثقة خلال دقيقتين → flag وانتقل. ارجع إليها آخراً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Any question you can't confidently answer in 2 min → flag and move on. Revisit last.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="x-circle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">إلغاء الخيارات</span><span class="lang-en">Eliminate</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">استبعد خيارات خاطئة بوضوح أولاً. عادة خياران من الأربعة يبعدان عن صلب السؤال.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Rule out clearly wrong options first. Typically 2/4 options are off-topic.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="brain" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">لا تُفرط في التفكير</span><span class="lang-en">Don't overthink</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لو الحلّ ممكن لكن معقّد جداً، غالباً خاطئ. AWS يفضّل الحلّ الأنيق.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">If a solution is feasible but very complex, likely wrong. AWS favors elegant answers.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">راقب الوقت</span><span class="lang-en">Watch the clock</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">بعد ٦٥ دقيقة يجب أن تكون في السؤال ~٣٣. لو أبطأ، سرّع بالـ flag & skip.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">By 65 min you should be ~question 33. If slower, accelerate via flag & skip.</p>
+  </div>
+</div>
+<p class="text-surface-700 leading-relaxed lang-ar">خطّة موصى بها للوقت:</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Recommended time plan:</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المرحلة</span><span class="lang-en">Phase</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوقت</span><span class="lang-en">Time</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الهدف</span><span class="lang-en">Goal</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الجولة الأولى</span><span class="lang-en">Round 1</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">~90 min</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أجب عن كلّ ما هو واضح. flag الصعاب دون إضاعة وقت.</span><span class="lang-en">Answer the obvious ones. Flag tough ones, don't waste time.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الجولة الثانية</span><span class="lang-en">Round 2</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">~30 min</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عد إلى الأسئلة المُعلّمة — الآن ذهنك أصفى بعد رؤية كلّ الامتحان.</span><span class="lang-en">Revisit flagged — your mind is clearer after seeing the whole exam.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مراجعة نهائية</span><span class="lang-en">Final review</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">~10 min</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">افحص الأسئلة متعدّدة الإجابة (multi) — السبب الأكثر شيوعاً لفقد نقاط.</span><span class="lang-en">Double-check multi-answer questions — top source of lost points.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> يوم الامتحان: نم جيداً الليلة السابقة، اشرب ماءً كافياً، وصل قبل ٣٠ دقيقة. إن كان online: تحقّق من الكاميرا والمنضدة خالية. لا تسمح AWS بأيّ ورقة أو قلم — كلّ ما تحتاجه يُؤخَذ ذهنياً.</span>
+      <span class="lang-en"> Exam day: sleep well the night before, hydrate, arrive 30 min early. If online: check camera and a clear desk. AWS allows no paper or pen — everything must be mental.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">بعد النجاح — الشهادات التالية</span>
+      <span class="lang-en">After passing — next certifications</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">DVA-C02 هو شهادة Associate المستوى. المسارات بعدها تعتمد على توجّهك المهنيّ:</p>
+  <p class="text-surface-700 leading-relaxed lang-en">DVA-C02 is an Associate-level cert. Your next step depends on career direction:</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="rocket" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">DevOps Engineer — Professional</span><span class="lang-en">DevOps Engineer — Professional</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">المسار الطبيعيّ للمطوّر — CI/CD، مراقبة، أتمتة متقدّمة. يحتاج سنتين خبرة AWS.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">The natural path for devs — CI/CD, monitoring, advanced automation. Needs 2 yrs AWS experience.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="layout" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Solutions Architect — Professional</span><span class="lang-en">Solutions Architect — Professional</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">للتصميم المعماريّ المتقدّم. أصعب الشهادات. تمنحك عمقاً في كلّ الخدمات.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Advanced architectural design. Toughest cert. Deep coverage of all services.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="shield" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Security — Specialty</span><span class="lang-en">Security — Specialty</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">IAM، KMS، GuardDuty، Macie، Detective. مطلوب بشدّة في البنوك والحكومة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">IAM, KMS, GuardDuty, Macie, Detective. In high demand at banks and gov.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="brain" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ML Engineer — Associate</span><span class="lang-en">ML Engineer — Associate</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">SageMaker، Bedrock، data pipelines. يناسب من يعمل على LLMs.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">SageMaker, Bedrock, data pipelines. Fits those working with LLMs.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للمطوّر السينيور بخلفيّة Java/Spring: المسار الأقوى لسوق العمل اليوم هو <strong>DVA + DevOps Pro + Security Specialty</strong>. ثلاثية تجعل سيرتك نادرة وتفتح أبواب الـ Cloud Engineer الشامل.</span>
+      <span class="lang-en"> Senior dev with Java/Spring background: the strongest combination for today's market is <strong>DVA + DevOps Pro + Security Specialty</strong>. A trio that makes your resume rare and opens doors to full-spectrum Cloud Engineer roles.</span>
+    </div>
+  </div>
+</section>
+
+    
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ٨ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (8 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="target" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٧٢٠/١٠٠٠ للنجاح</span>
+        <span class="lang-en">Pass at 720/1000</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">٦٥ سؤالاً في ١٣٠ دقيقة. دقيقتان للسؤال في المتوسّط.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">65 questions in 130 min. ~2 min per question.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">الكلمة تحدّد الإجابة</span>
+        <span class="lang-en">Keywords drive the answer</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">"real-time" = Kinesis/Lambda. "rotation" = Secrets Manager. "who did" = CloudTrail.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">"real-time" = Kinesis/Lambda. "rotation" = Secrets Manager. "who did" = CloudTrail.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="flag" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Flag و Skip</span>
+        <span class="lang-en">Flag & Skip</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">لا تعلق على سؤال أكثر من دقيقتين. ارجع إليه في الجولة الثانية.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Don't dwell >2 min on one question. Revisit in round 2.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="award" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">الخطوة التالية</span>
+        <span class="lang-en">What's next</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">DevOps Pro للمطوّر، SA Pro للمعماريّ، Security Specialty للأمنيّ.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">DevOps Pro for dev, SA Pro for architect, Security Specialty for sec.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">قبل الضغط على "Submit" في أيّ سؤال، اطرح على نفسك ٣ أسئلة: (١) هل فهمت <strong>القيد</strong> (cost / ops / time / security)؟ (٢) هل استبعدت الخيارات الخاطئة بوضوح؟ (٣) هل الحلّ <strong>بسيط أم معقّد بلا داعٍ</strong>؟ إذا كان معقّداً جداً، غالباً فخّ. مع السلامة في امتحانك!</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Before hitting "Submit" on any question, ask yourself 3 things: (1) Did I grasp the <strong>constraint</strong> (cost / ops / time / security)? (2) Did I rule out the obviously wrong options? (3) Is this solution <strong>simple or needlessly complex</strong>? If it's overly complex, it's usually a trap. Good luck on your exam!</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch29.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(30, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يعمل على Lambda يستقبل ذروة غير متوقّعة أحياناً فيصبح الـ cold start ملحوظاً. الحلّ الأقلّ كلفة الذي يعالج الذروة؟</span><span class="lang-en">A Lambda app gets unpredictable spikes, making cold starts noticeable. Most cost-effective fix for spikes?</span>",
+        options: [
+          "<span class="lang-ar">Provisioned Concurrency على كامل السعة المتوقّعة.</span><span class="lang-en">Provisioned Concurrency at peak capacity.</span>",
+          "<span class="lang-ar">Reserved Concurrency فقط.</span><span class="lang-en">Reserved Concurrency only.</span>",
+          "<span class="lang-ar">SnapStart (لوقت تشغيل Java) أو Provisioned Concurrency مع Auto Scaling.</span><span class="lang-en">SnapStart (Java runtime) or Provisioned Concurrency with Auto Scaling.</span>",
+          "<span class="lang-ar">الترحيل إلى EC2.</span><span class="lang-en">Migrate to EC2.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">SnapStart (لـ Java 11+ و Python) يقلّل cold start بـ ١٠× مجّاناً. أو Provisioned Concurrency مع Application Auto Scaling للذروات. Reserved Concurrency يحدّ الاستدعاءات ولا يمنع cold start.</span><span class="lang-en">SnapStart (Java 11+ and Python) cuts cold start 10× at no cost. Or Provisioned Concurrency with Application Auto Scaling for spikes. Reserved Concurrency caps invokes, doesn't prevent cold start.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف جدّاً للذروات النادرة.</span><span class=\"lang-en\">Too costly for rare spikes.</span>", "<span class=\"lang-ar\">يحدّ الاستدعاءات ولا يعالج cold start.</span><span class=\"lang-en\">Caps invocations, doesn't fix cold start.</span>", "", "<span class=\"lang-ar\">يزيد التكلفة والعبء التشغيليّ.</span><span class=\"lang-en\">Increases cost and ops overhead.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣ — جداول المقارنة</span><span class=\"lang-en\">Section 3 — comparison tables</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">فريق يحتاج تخزين أسرار DB مع <strong>تدوير تلقائيّ كلّ ٣٠ يوماً</strong>. الخدمة؟</span><span class="lang-en">Team needs DB secret storage with <strong>automatic rotation every 30 days</strong>. Service?</span>",
+        options: [
+          "<span class="lang-ar">AWS Secrets Manager</span><span class="lang-en">AWS Secrets Manager</span>",
+          "<span class="lang-ar">SSM Parameter Store (Standard)</span><span class="lang-en">SSM Parameter Store (Standard)</span>",
+          "<span class="lang-ar">KMS</span><span class="lang-en">KMS</span>",
+          "<span class="lang-ar">SSM Parameter Store (SecureString)</span><span class="lang-en">SSM Parameter Store (SecureString)</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">كلمة "rotation تلقائيّ" = Secrets Manager حصراً. Parameter Store لا يدعم تدوير مدمج (يتطلّب EventBridge + Lambda يدوياً). KMS لإدارة مفاتيح التشفير لا الأسرار.</span><span class="lang-en">Keyword "auto rotation" = Secrets Manager only. Parameter Store has no built-in rotation (needs EventBridge + Lambda manually). KMS manages encryption keys, not secrets.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة تحتاج نشر تحديث Lambda تدريجياً مع انتقال ١٠٪ من الحركة للإصدار الجديد لمدّة ١٠ دقائق قبل تحويل الباقي. أيّ أسلوب CodeDeploy؟</span><span class="lang-en">Company wants to deploy a Lambda update gradually: 10% of traffic to new version for 10 minutes, then shift the rest. Which CodeDeploy config?</span>",
+        options: [
+          "<span class="lang-ar">AllAtOnce</span><span class="lang-en">AllAtOnce</span>",
+          "<span class="lang-ar">Canary10Percent10Minutes</span><span class="lang-en">Canary10Percent10Minutes</span>",
+          "<span class="lang-ar">Linear10PercentEvery1Minute</span><span class="lang-en">Linear10PercentEvery1Minute</span>",
+          "<span class="lang-ar">Blue/Green AllAtOnce</span><span class="lang-en">Blue/Green AllAtOnce</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Canary = نسبة ابتدائيّة ثابتة لمدّة محدّدة ثمّ قفزة. Linear = زيادة نسبيّة ثابتة على مراحل. AllAtOnce = كلّ شيء دفعة واحدة (بدون تدريج).</span><span class="lang-en">Canary = fixed initial % for a set period, then a leap. Linear = constant incremental ramp. AllAtOnce = everything at once (no gradual).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Spring Boot على ECS Fargate يستهلك DynamoDB بشكل مكثّف. لاحظ الفريق زمن استجابة بطيء. ما أسرع خطوة تحسين؟</span><span class="lang-en">A Spring Boot app on ECS Fargate heavily uses DynamoDB. Team sees slow response. Fastest performance improvement?</span>",
+        options: [
+          "<span class="lang-ar">رفع ذاكرة Fargate.</span><span class="lang-en">Increase Fargate memory.</span>",
+          "<span class="lang-ar">تفعيل <strong>DAX</strong> (DynamoDB Accelerator).</span><span class="lang-en">Enable <strong>DAX</strong> (DynamoDB Accelerator).</span>",
+          "<span class="lang-ar">تحويل DynamoDB إلى RDS.</span><span class="lang-en">Migrate DynamoDB to RDS.</span>",
+          "<span class="lang-ar">استخدام ElastiCache Redis.</span><span class="lang-en">Use ElastiCache Redis.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">DAX كاش مصمّم خصّيصاً لـ DynamoDB ويقدّم قراءات بميكروثواني. ElastiCache Redis ممكن لكنّه عامّ ويحتاج كود كاش يدويّاً. تحويل للـ RDS يغيّر نموذج البيانات بالكامل.</span><span class="lang-en">DAX is a DynamoDB-specific cache with microsecond reads. ElastiCache Redis is possible but generic and needs manual cache code. RDS migration rewrites the data model entirely.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بزمن DynamoDB.</span><span class=\"lang-en\">Unrelated to DynamoDB latency.</span>", "", "<span class=\"lang-ar\">تكلفة ترحيل ضخمة.</span><span class=\"lang-en\">Massive migration cost.</span>", "<span class=\"lang-ar\">ممكن لكنّه ليس الأمثل لـ DynamoDB.</span><span class=\"lang-en\">Possible but suboptimal for DynamoDB.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">مدير فريق يريد معرفة <strong>من</strong> حذف ملفّ كبير من S3 bucket (غير مسجَّل في Data Events). ماذا يفعل؟</span><span class="lang-en">A team lead wants to know <strong>who</strong> deleted a large S3 object (Data Events not enabled). Next step?</span>",
+        options: [
+          "<span class="lang-ar">مراجعة CloudWatch Logs.</span><span class="lang-en">Check CloudWatch Logs.</span>",
+          "<span class="lang-ar">تفعيل Data Events في CloudTrail للمستقبل، ومراجعة S3 Server Access Logs إن كانت مفعّلة للحدث السابق.</span><span class="lang-en">Enable CloudTrail Data Events going forward, and check S3 Server Access Logs for the past event if they were enabled.</span>",
+          "<span class="lang-ar">استخدام X-Ray.</span><span class="lang-en">Use X-Ray.</span>",
+          "<span class="lang-ar">فحص EventBridge Archive.</span><span class="lang-en">Check EventBridge Archive.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">بدون Data Events في CloudTrail، لا سجلّ في CloudTrail لعمليّات Object. S3 Server Access Logs (أو S3 Event Notifications) قد تكون المصدر الوحيد للأحداث الماضية. للمستقبل، فعّل Data Events.</span><span class="lang-en">Without CloudTrail Data Events, there's no CloudTrail record of object operations. S3 Server Access Logs (or S3 Event Notifications) may be the only source for past events. For the future, enable Data Events.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q6",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي استراتيجيّات مفيدة يوم الامتحان؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are useful exam-day strategies? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">وسم الأسئلة الصعبة (Flag) والعودة إليها لاحقاً.</span><span class="lang-en">Flag difficult questions and revisit later.</span>",
+          "<span class="lang-ar">قراءة كلمات القيد مثل "most cost-effective" بدقّة.</span><span class="lang-en">Carefully read constraint words like "most cost-effective".</span>",
+          "<span class="lang-ar">اختيار أكثر الخيارات تعقيداً دائماً.</span><span class="lang-en">Always pick the most complex-looking option.</span>",
+          "<span class="lang-ar">استبعاد الخيارات الخاطئة وضوحاً قبل التفكير العميق.</span><span class="lang-en">Eliminate obviously wrong options before deep thinking.</span>"
+        ],
+        correct: [0,1,3],
+        explanation: "<span class="lang-ar">الخيار ٣ خطأ: AWS يفضّل الحلول الأنيقة البسيطة. لو الحلّ ممكن لكن معقّد جدّاً، غالباً هو الفخّ.</span><span class="lang-en">Option 3 is wrong: AWS favors simple, elegant solutions. If an answer is feasible but overcomplex, it's usually the trap.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يحتاج نشر غير متزامن لرسالة إلى ٤ مستهلكين مختلفين، كلّ واحد يعالج بطريقته الخاصّة. النمط؟</span><span class="lang-en">App needs async publishing of a message to 4 different consumers, each processing independently. Pattern?</span>",
+        options: [
+          "<span class="lang-ar">SQS واحد لكلّ المستهلكين.</span><span class="lang-en">One SQS for all consumers.</span>",
+          "<span class="lang-ar">SNS topic يُشترك به SQS queue لكلّ مستهلك (Fan-Out).</span><span class="lang-en">SNS topic with one SQS queue per consumer (Fan-Out).</span>",
+          "<span class="lang-ar">EventBridge scheduler.</span><span class="lang-en">EventBridge scheduler.</span>",
+          "<span class="lang-ar">Kinesis Data Streams فقط.</span><span class="lang-en">Kinesis Data Streams only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">نمط Fan-Out المعياريّ: SNS يوزّع نسخة لكلّ SQS، كلّ مستهلك يعالج طابوره باستقلال. SQS واحد = رسالة واحدة فقط لمستهلك واحد. EventBridge خيار بديل لكن SQS+SNS أبسط ومطلوب بالاسم في الامتحان.</span><span class="lang-en">Canonical Fan-Out pattern: SNS delivers a copy to each SQS; each consumer processes independently. One SQS = one message to one consumer only. EventBridge is an alternative but SQS+SNS is the exam-named pattern.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">بعد اجتياز DVA-C02، أيّ شهادة ستمنح مطوّر Spring Boot أسرع عائد على سوق العمل؟</span><span class="lang-en">After passing DVA-C02, which certification gives a Spring Boot dev the fastest market ROI?</span>",
+        options: [
+          "<span class="lang-ar">AI Practitioner (Foundational)</span><span class="lang-en">AI Practitioner (Foundational)</span>",
+          "<span class="lang-ar">DevOps Engineer — Professional</span><span class="lang-en">DevOps Engineer — Professional</span>",
+          "<span class="lang-ar">Cloud Practitioner (Foundational)</span><span class="lang-en">Cloud Practitioner (Foundational)</span>",
+          "<span class="lang-ar">Data Engineer — Associate</span><span class="lang-en">Data Engineer — Associate</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">DevOps Pro هو الامتداد الطبيعيّ للمطوّر: يعمّق CI/CD، مراقبة، أتمتة متقدّمة — مهارات يطلبها السوق بسعر أعلى. الشهادات التأسيسية (Foundational) أقلّ عائداً لمن عنده Associate.</span><span class="lang-en">DevOps Pro is the natural dev extension: deeper CI/CD, monitoring, advanced automation — high-paying market skills. Foundational certs yield less ROI once you hold an Associate.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(30, QUESTIONS);
+      if (isChapterComplete(30)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

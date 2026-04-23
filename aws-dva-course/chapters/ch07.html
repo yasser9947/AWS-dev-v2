@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 07 — Amazon VPC Basics | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-surface-500/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>
+          <span class="lang-ar">أساسيات</span>
+          <span class="lang-en">Foundations</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٧ من ٣٠</span>
+        <span class="lang-en">Chapter 7 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.197-213</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">أساسيات Amazon VPC</span>
+        <span class="lang-en">Amazon VPC Basics</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">VPC هي الشبكة الخاصّة التي تعيش فيها كلّ مواردك في AWS. امتحان المطوّر لا يطلب إتقاناً كاملاً — لكنّه يسأل عن المفاهيم الأساسيّة: Subnets، Internet Gateway، NAT، NACL، Security Groups، VPC Peering، Endpoints. هذه الأساسات كافية لاجتياز أيّ سؤال VPC في DVA.</span>
+        <span class="lang-en">VPC is the private network where all your AWS resources live. The developer exam doesn't demand mastery — but it does test core concepts: Subnets, Internet Gateway, NAT, NACL, Security Groups, VPC Peering, Endpoints. These basics are enough for any VPC question on DVA.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">VPC</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Subnets</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Internet Gateway</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">NAT</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">NACL</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Security Groups</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">VPC Endpoints</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">VPC Structure (VPC, Subnets, CIDR)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل في تصميم شبكة آمنة متعدّدة AZs.</span>
+      <span class="lang-en">Domain 1 — designing a secure multi-AZ network.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Internet Gateway vs NAT Gateway</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاقان الثاني والرابع في إعطاء الإنترنت لـ subnets العامّة والخاصّة.</span>
+      <span class="lang-en">Domains 2 & 4 — Internet access for public vs private subnets.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Security Groups vs NACL</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في سؤال الـ stateful/stateless.</span>
+      <span class="lang-en">Domain 2 — stateful/stateless question.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">VPC Endpoints</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في الوصول الخاصّ لـ AWS services.</span>
+      <span class="lang-en">Domain 2 — private access to AWS services.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">VPC و Subnets و CIDR</span>
+      <span class="lang-en">VPC, Subnets, and CIDR</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>VPC (Virtual Private Cloud)</strong> هو شبكتك الافتراضيّة الخاصّة داخل region واحدة. تقسّمها إلى <strong>Subnets</strong> (كلّ واحد يعيش في AZ واحدة بالضبط). الـ VPC يأخذ نطاق <strong>CIDR</strong> (مثلاً <code class="font-mono">10.0.0.0/16</code> = ٦٥٥٣٦ عنواناً)، والـ subnets تأخذ قطعاً منه.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>VPC (Virtual Private Cloud)</strong> is your private virtual network within a single Region. You partition it into <strong>Subnets</strong> (each lives in exactly one AZ). A VPC takes a <strong>CIDR</strong> range (e.g., <code class="font-mono">10.0.0.0/16</code> = 65536 addresses), and subnets get slices of it.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Public Subnet</span><span class="lang-en">Public Subnet</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Subnet يملك <strong>route إلى Internet Gateway</strong> في route table. الموارد فيه تحصل على IP عامّ وتُوصَل من الإنترنت (مع السماح في SG). مناسب لـ Load Balancers و bastion hosts.</p>
+      <p class="text-sm text-surface-700 lang-en">A subnet with a <strong>route to an Internet Gateway</strong> in its route table. Resources get a public IP and are reachable from the Internet (if allowed by SG). Suitable for Load Balancers, bastion hosts.</p>
+    </div>
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Private Subnet</span><span class="lang-en">Private Subnet</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">بدون route مباشر إلى Internet Gateway. الموارد فيه <u>لا يمكن الوصول إليها من الإنترنت</u>. للوصول الصادر (مثل <span dir="ltr" class="font-mono">yum update</span>) تحتاج <strong>NAT Gateway</strong>. مناسب لـ application servers و databases.</p>
+      <p class="text-sm text-surface-700 lang-en">No direct IGW route. Resources <u>cannot be reached from the Internet</u>. For outbound access (e.g., <span dir="ltr" class="font-mono">yum update</span>) you need a <strong>NAT Gateway</strong>. Suitable for app servers, databases.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>نمط الإنتاج المعياريّ</strong>: 3 AZs، كلّ AZ فيها public subnet (لـ ALB و NAT) و private subnet (لـ EC2 و ECS) و data subnet (لـ RDS و ElastiCache). هذا "3-tier architecture" الذي يسأل عنه الامتحان كثيراً.</span>
+      <span class="lang-en"> <strong>Canonical production pattern</strong>: 3 AZs, each with a public subnet (ALB + NAT), a private subnet (EC2, ECS), and a data subnet (RDS, ElastiCache). This "3-tier architecture" shows up often on the exam.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> AWS يحجز <strong>٥ عناوين</strong> في كلّ subnet (الأوّل: network، الثاني: VPC router، الثالث: DNS، الرابع: مستقبليّ، والأخير: broadcast). لذلك subnet <code class="font-mono">/28</code> يعطيك ١١ عنواناً قابلاً للاستخدام لا ١٦.</span>
+      <span class="lang-en"> AWS reserves <strong>5 addresses</strong> per subnet (first: network, second: VPC router, third: DNS, fourth: future, last: broadcast). A <code class="font-mono">/28</code> subnet gives you 11 usable addresses, not 16.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Internet Gateway و NAT Gateway</span>
+      <span class="lang-en">Internet Gateway and NAT Gateway</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Internet Gateway (IGW)</strong> مورد VPC-scope يعطي الإنترنت لمواردك. يوجد واحد فقط لكلّ VPC. Subnet "public" يعني أنّ route table الخاصّ به يحوي <code class="font-mono">0.0.0.0/0 → igw-xxx</code>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Internet Gateway (IGW)</strong> is a VPC-scope resource that gives your resources Internet access. One per VPC. A "public" subnet means its route table has <code class="font-mono">0.0.0.0/0 → igw-xxx</code>.</p>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>NAT Gateway</strong> (مُدار من AWS) أو <strong>NAT Instance</strong> (تديره بنفسك) يسمح للخوادم في private subnets <strong>بالخروج</strong> إلى الإنترنت (تحميل تحديثات، استدعاء APIs خارجيّة) بدون استقبال طلبات واردة. الـ NAT Gateway يعيش في public subnet ويحتاج Elastic IP.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>NAT Gateway</strong> (AWS-managed) or <strong>NAT Instance</strong> (self-managed) lets instances in private subnets <strong>initiate outbound</strong> to the Internet (updates, external API calls) without accepting inbound. NAT Gateway lives in a public subnet and needs an Elastic IP.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخاصّية</span><span class="lang-en">Feature</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">NAT Gateway</span><span class="lang-en">NAT Gateway</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">NAT Instance</span><span class="lang-en">NAT Instance</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الإدارة</span><span class="lang-en">Management</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مُدار من AWS</span><span class="lang-en">AWS-managed</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EC2 — تديره أنت</span><span class="lang-en">EC2 — you manage</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التوفّر</span><span class="lang-en">Availability</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مُدار، لكنّه في AZ واحدة. ضع واحداً في كلّ AZ للـ HA</span><span class="lang-en">Managed, single-AZ. One per AZ for HA</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AZ واحدة، تدير HA يدوياً</span><span class="lang-en">Single-AZ, manual HA</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Bandwidth</span><span class="lang-en">Bandwidth</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حتى ١٠٠ Gbps تلقائياً</span><span class="lang-en">Up to 100 Gbps automatic</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حسب حجم الخادم</span><span class="lang-en">Depends on instance size</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Security Groups</span><span class="lang-en">Security Groups</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">غير مدعومة</span><span class="lang-en">Not supported</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مدعومة</span><span class="lang-en">Supported</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Bastion قابلية الاستخدام</span><span class="lang-en">Bastion capability</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> لـ HA: ضع <strong>NAT Gateway في كلّ AZ</strong> (٣ NAT Gateways لـ ٣ AZs). الـ private subnet في AZ-A يستخدم NAT في AZ-A، وهكذا. هذا يمنع انقطاع AZ-A من تعطيل AZ-B أيضاً. تكلفة أعلى لكن HA حقيقيّ.</span>
+      <span class="lang-en"> For HA: place <strong>a NAT Gateway in every AZ</strong> (3 NATs for 3 AZs). Private subnet in AZ-A uses its AZ-A NAT, and so on. Prevents AZ-A outage from also killing AZ-B. Higher cost but real HA.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">NACLs و Security Groups</span>
+      <span class="lang-en">NACLs and Security Groups</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذا من أكثر أسئلة VPC في الامتحان. كلاهما يعمل كجدار ناريّ لكن على مستويات مختلفة، وبمنطق مختلف.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">One of the most-asked VPC topics. Both act as firewalls, but at different levels and with different semantics.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخاصّية</span><span class="lang-en">Property</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Security Group</span><span class="lang-en">Security Group</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">NACL</span><span class="lang-en">NACL</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">المستوى</span><span class="lang-en">Level</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Instance / ENI</span><span class="lang-en">Instance / ENI</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Subnet</span><span class="lang-en">Subnet</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نوع القواعد</span><span class="lang-en">Rule type</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Allow فقط</span><span class="lang-en">Allow only</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Allow و Deny</span><span class="lang-en">Allow and Deny</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحالة</span><span class="lang-en">State</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>Stateful</strong> — رد الطلب مسموح تلقائياً</span><span class="lang-en"><strong>Stateful</strong> — return traffic auto-allowed</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>Stateless</strong> — يجب السماح صراحةً للرد</span><span class="lang-en"><strong>Stateless</strong> — must explicitly allow return</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">المصادر</span><span class="lang-en">Sources</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IP, CIDR, <strong>Security Groups أخرى</strong></span><span class="lang-en">IP, CIDR, <strong>other Security Groups</strong></span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IP أو CIDR فقط</span><span class="lang-en">IP or CIDR only</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تقييم القواعد</span><span class="lang-en">Rule evaluation</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كلّ القواعد تُقيَّم معاً</span><span class="lang-en">All rules evaluated together</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">بترتيب رقميّ</span><span class="lang-en">By rule number</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التطبيق</span><span class="lang-en">Application</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يدويّ عند الإرفاق</span><span class="lang-en">Manual on attachment</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تلقائيّ لكلّ الموارد في الـ subnet</span><span class="lang-en">Automatic for all subnet resources</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>القاعدة الذهبيّة</strong>: Security Groups أوّلاً وافتراضياً. NACLs للحالات النادرة (حظر IPs مؤذية، عزل subnets). <strong>NACL stateless</strong> يعني أنّك يجب السماح بمنفذ الرد (ephemeral ports ١٠٢٤-٦٥٥٣٥) صراحةً.</span>
+      <span class="lang-en"> <strong>Rule of thumb</strong>: Security Groups first and by default. NACLs for rare cases (block malicious IPs, subnet-level isolation). <strong>NACL is stateless</strong> — you must explicitly allow the return traffic port range (ephemeral ports 1024-65535).</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-red-50 to-white border-2 border-red-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center">
+          <i data-lucide="ban" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">مثال NACL Stateless</span><span class="lang-en">Stateless NACL example</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">السماح بالوارد على المنفذ ٤٤٣ (HTTPS inbound) لا يسمح تلقائياً بردّ ephemeral. يجب إضافة قاعدة خارجيّة للسماح بالـ ephemeral ports. كثير من أخطاء VPC تبدأ هنا.</p>
+      <p class="text-sm text-surface-700 lang-en">Allowing inbound on port 443 doesn't auto-allow the ephemeral return. Must add an outbound rule for ephemeral ports. Many VPC issues start here.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="check-circle" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Security Group Stateful</span><span class="lang-en">Stateful Security Group</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">إذا سمحت بـ inbound على ٤٤٣، الرد outbound مسموح تلقائياً — لا داعي لقاعدة إضافيّة. بهذا SG أسهل بكثير.</p>
+      <p class="text-sm text-surface-700 lang-en">Inbound allow on 443 auto-allows the outbound reply — no extra rule needed. Much easier.</p>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">VPC Peering و VPC Endpoints و VPC Flow Logs</span>
+      <span class="lang-en">VPC Peering, VPC Endpoints, and Flow Logs</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>VPC Peering</strong> يربط اثنين VPC بحيث تتصل مواردهما كأنّها في نفس الشبكة. شروط: <strong>CIDR ranges لا تتداخل</strong>، و <strong>العلاقة غير انتقاليّة (not transitive)</strong> — VPC A مرتبطة بـ B، و B بـ C، لا يعني أنّ A تصل C مباشرةً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>VPC Peering</strong> connects two VPCs so their resources talk as if on one network. Requirements: <strong>non-overlapping CIDR</strong>, and <strong>non-transitive</strong> — A↔B, B↔C doesn't mean A↔C directly.</p>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>VPC Endpoints</strong> تسمح لمواردك داخل VPC بالوصول لخدمات AWS <strong>عبر شبكة AWS الخاصّة</strong> بدون المرور بالإنترنت. توفّر أمناً وأداءً أعلى وتكلفة أقلّ (لا تدفع NAT).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>VPC Endpoints</strong> let resources inside your VPC reach AWS services <strong>over AWS's private network</strong> without traversing the Internet. Better security, lower latency, and no NAT bill.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="door-open" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Gateway Endpoint</span><span class="lang-en">Gateway Endpoint</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">مجانيّ تقريباً. يُضاف كـ route في الـ route table. <strong>متاح فقط لـ S3 و DynamoDB</strong>. لا يدعم الوصول من VPCs أخرى أو on-premises.</p>
+      <p class="text-sm text-surface-700 lang-en">Essentially free. Added as a route in the route table. <strong>Only available for S3 and DynamoDB</strong>. No access from other VPCs or on-premises.</p>
+    </div>
+    <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+          <i data-lucide="network" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Interface Endpoint</span><span class="lang-en">Interface Endpoint</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يستخدم ENI مع IP خاصّ في subnets محدّدة. يكلّف بالساعة + بالـ GB. <strong>يدعم معظم خدمات AWS</strong> (بما فيها S3 و DynamoDB). يعمل عبر VPC Peering و VPN و Direct Connect.</p>
+      <p class="text-sm text-surface-700 lang-en">Uses an ENI with a private IP in specified subnets. Billed hourly + per-GB. <strong>Supports most AWS services</strong> (including S3 and DynamoDB). Works across VPC Peering, VPN, Direct Connect.</p>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>VPC Flow Logs</strong> يلتقط معلومات عن كلّ IP traffic يمرّ عبر ENI. يمكن توجيه السجلّات إلى CloudWatch Logs أو S3 أو Kinesis Data Firehose. مستويات الالتقاط: VPC كامل، subnet، أو ENI واحد. مفيد لتشخيص المشاكل الأمنيّة وتتبّع الاختراقات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>VPC Flow Logs</strong> capture info on all IP traffic through an ENI. Logs can go to CloudWatch Logs, S3, or Kinesis Data Firehose. Capture levels: entire VPC, subnet, or single ENI. Useful for security forensics and breach investigations.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Enable VPC Flow Logs for a whole VPC, sending to CloudWatch Logs
+aws ec2 create-flow-logs \
+  --resource-type VPC \
+  --resource-ids vpc-0abc1234 \
+  --traffic-type ALL \
+  --log-destination-type cloud-watch-logs \
+  --log-group-name /aws/vpc/acme-prod \
+  --deliver-logs-permission-arn arn:aws:iam::123456789012:role/flowlogsRole</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> VPC Endpoints تحلّ مشكلة كبيرة في تطبيقات serverless: Lambda في private subnet تريد الوصول لـ S3. بدون Endpoint، تحتاج NAT Gateway (باهظ التكلفة مع حركة S3 كثيفة). Gateway Endpoint لـ S3 مجانيّ تقريباً ويلغي الحاجة للـ NAT لهذه الحركة.</span>
+      <span class="lang-en"> VPC Endpoints solve a big serverless cost issue: Lambda in a private subnet needing S3 access. Without an Endpoint, you need a NAT Gateway (expensive with heavy S3 traffic). S3 Gateway Endpoint is essentially free and removes NAT need for that traffic.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الاتصال بالـ on-premises: VPN و Direct Connect</span>
+      <span class="lang-en">Connecting to on-premises: VPN and Direct Connect</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">للاتّصال بين Data Center خاصّتك و VPC هناك طريقتان: <strong>Site-to-Site VPN</strong> (عبر الإنترنت العامّ، مشفّر) و <strong>AWS Direct Connect</strong> (اتّصال فيزيائيّ خاصّ).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">To connect your data center with a VPC: <strong>Site-to-Site VPN</strong> (over public Internet, encrypted) or <strong>AWS Direct Connect</strong> (physical dedicated connection).</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Site-to-Site VPN</span><span class="lang-en">Site-to-Site VPN</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">سريع الإعداد (ساعات). <strong>عبر الإنترنت</strong> — مشفّر ومعقّد. تكلفة منخفضة. Bandwidth محدود (عادة <١ Gbps). مناسب للـ DR أو الحمولات الخفيفة.</p>
+      <p class="text-sm text-surface-700 lang-en">Fast to set up (hours). <strong>Over the Internet</strong> — encrypted, complexity shifts to your side. Low cost. Limited bandwidth (usually <1 Gbps). Fit for DR or light traffic.</p>
+    </div>
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="cable" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Direct Connect (DX)</span><span class="lang-en">Direct Connect (DX)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">اتّصال فيزيائيّ بـ AWS. <strong>يستغرق ≥ شهر للإعداد</strong>. أداء ثابت (١-١٠٠ Gbps). <strong>لا يعبر الإنترنت</strong>. مناسب للحمولات الحرجة والسرّيّة والبيانات الكبيرة.</p>
+      <p class="text-sm text-surface-700 lang-en">Physical connection to AWS. <strong>Takes ≥ 1 month to set up</strong>. Stable performance (1-100 Gbps). <strong>Never traverses the Internet</strong>. For critical, sensitive, or high-volume workloads.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> DX بحدّ ذاته <strong>ليس مشفّراً</strong>. إن احتجت تشفيراً، شغّل VPN فوق DX (يُعرَف بـ "VPN over DX"). الامتحان يختبر هذه النقطة في أسئلة الامتثال.</span>
+      <span class="lang-en"> DX itself is <strong>not encrypted</strong>. If you need encryption, run VPN over DX ("VPN over DX"). The exam tests this in compliance scenarios.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء VPC بسيط لـ Acme: ٢ AZs، كلّ واحدة بـ public و private subnet، IGW، NAT Gateway واحدة، خادم في private subnet يصل S3 عبر Gateway Endpoint.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a simple Acme VPC: 2 AZs, each with public and private subnet, IGW, one NAT Gateway, and a private-subnet instance reaching S3 via Gateway Endpoint.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ VPC بـ CIDR <span dir="ltr" class="font-mono">10.0.0.0/16</span></span>
+      <span class="lang-en">Create VPC with <span dir="ltr" class="font-mono">10.0.0.0/16</span></span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Resources: VPC → Create. اختر IPv4 CIDR = <span dir="ltr" class="font-mono">10.0.0.0/16</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Resources: VPC → Create. IPv4 CIDR = <span dir="ltr" class="font-mono">10.0.0.0/16</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Subnets</span>
+      <span class="lang-en">Create subnets</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">4 subnets: public-a (10.0.1.0/24), public-b (10.0.2.0/24), private-a (10.0.11.0/24), private-b (10.0.12.0/24).</p><p class="text-surface-600 leading-relaxed lang-en">4 subnets: public-a (10.0.1.0/24), public-b (10.0.2.0/24), private-a (10.0.11.0/24), private-b (10.0.12.0/24).</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ IGW و NAT</span>
+      <span class="lang-en">Create IGW and NAT</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">IGW → attach to VPC. NAT Gateway في public-a مع Elastic IP جديد.</p><p class="text-surface-600 leading-relaxed lang-en">IGW → attach to VPC. NAT Gateway in public-a with a new Elastic IP.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اضبط Route Tables</span>
+      <span class="lang-en">Set Route Tables</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Public route table: 0.0.0.0/0 → IGW
+aws ec2 create-route --route-table-id rtb-public \
+  --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0abc
+
+# Private route table: 0.0.0.0/0 → NAT
+aws ec2 create-route --route-table-id rtb-private \
+  --destination-cidr-block 0.0.0.0/0 --nat-gateway-id nat-0xyz</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ S3 Gateway Endpoint</span>
+      <span class="lang-en">Create S3 Gateway Endpoint</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">VPC → Endpoints → Create. Service = <span dir="ltr" class="font-mono">com.amazonaws.us-east-1.s3</span>، Type = Gateway. اختر الـ private route table.</p><p class="text-surface-600 leading-relaxed lang-en">VPC → Endpoints → Create. Service = <span dir="ltr" class="font-mono">com.amazonaws.us-east-1.s3</span>, Type = Gateway. Select the private route table.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أطلق خادم في private subnet واختبر</span>
+      <span class="lang-en">Launch a private-subnet instance and test</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">SSH عبر bastion في public-a. من الخادم الخاصّ: <span dir="ltr" class="font-mono">aws s3 ls</span> يعمل عبر الـ Endpoint (لا NAT cost).</p><p class="text-surface-600 leading-relaxed lang-en">SSH via a bastion in public-a. From the private instance: <span dir="ltr" class="font-mono">aws s3 ls</span> works via the Endpoint (no NAT cost).</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> NAT Gateway يكلّف ~$35/شهر + data processing. لا تتركه شغّالاً. IGW مجّانيّ لكن Elastic IP يُحتسَب إذا لم يكن مرتبطاً بخادم شغّال.</span>
+    <span class="lang-en"> NAT Gateway costs ~$35/month + data processing. Don't leave it running. IGW is free but Elastic IP is billed if not attached to a running instance.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٠ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (10 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="network" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">VPC = شبكة خاصّة Region-scope</span>
+        <span class="lang-en">VPC = Region-scope private network</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Subnets ترتبط بـ AZ واحدة. public = route لـ IGW، private = بدون.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Subnets tie to one AZ. Public = IGW route, private = no route.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">SG stateful، NACL stateless</span>
+        <span class="lang-en">SG stateful, NACL stateless</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">SG على الـ ENI بـ Allow فقط. NACL على الـ subnet بـ Allow + Deny.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">SG on ENI, Allow only. NACL on subnet, Allow + Deny.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="share-2" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">VPC Endpoints = وصول خاصّ لـ AWS</span>
+        <span class="lang-en">VPC Endpoints = private AWS access</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Gateway مجّانيّ لـ S3 و DynamoDB. Interface لمعظم الخدمات.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Gateway (free) for S3 and DynamoDB. Interface for most services.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="cable" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">VPN vs DX</span>
+        <span class="lang-en">VPN vs DX</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">VPN سريع + إنترنت. DX فيزيائيّ + شهر + لا تشفير افتراضيّ.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">VPN fast + Internet. DX physical + 1mo + no default encryption.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للتمييز بين SG و NACL: "<strong>SG = Single resource (ENI)، Stateful، Sole Allow</strong>". "<strong>NACL = Net-wide (subnet)، Non-stateful، Allow and Deny</strong>".</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">SG vs NACL: "<strong>SG = Single resource (ENI), Stateful, Sole Allow</strong>". "<strong>NACL = Net-wide (subnet), Non-stateful, Allow and Deny</strong>".</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch06.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(7, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch08.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">Acme تريد خوادم EC2 في private subnet تصل إلى إنترنت لتحديثات yum، لكن لا تقبل اتّصالات واردة من الإنترنت. الحلّ؟</span><span class="lang-en">Acme wants private-subnet EC2 to reach the Internet for yum updates, but not accept inbound from the Internet. Solution?</span>",
+        options: [
+          "<span class="lang-ar">Internet Gateway مباشرةً.</span><span class="lang-en">Internet Gateway directly.</span>",
+          "<span class="lang-ar"><strong>NAT Gateway</strong> في public subnet + route <span dir="ltr" class="font-mono">0.0.0.0/0 → NAT</span> في private route table.</span><span class="lang-en"><strong>NAT Gateway</strong> in public subnet + <span dir="ltr" class="font-mono">0.0.0.0/0 → NAT</span> route in private route table.</span>",
+          "<span class="lang-ar">VPC Peering.</span><span class="lang-en">VPC Peering.</span>",
+          "<span class="lang-ar">Elastic IP مباشرةً على الخادم.</span><span class="lang-en">Elastic IP directly on instance.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>NAT Gateway</strong> هو الحلّ المعياريّ: يمرّر الحركة الخارجة من private subnet عبر IP عامّ، لكنّه لا يقبل طلبات جديدة من الإنترنت. Internet Gateway يجعل الخادم عامّاً كلياً. VPC Peering يربط VPCs. Elastic IP يحوّل الخادم إلى public — عكس المطلوب.</span><span class="lang-en"><strong>NAT Gateway</strong> is the canonical fix: lets outbound traffic from private subnet traverse via a public IP without accepting inbound. IGW makes the instance fully public. VPC Peering connects VPCs. EIP makes the instance public — opposite of what's asked.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعرّض الخادم للإنترنت.</span><span class=\"lang-en\">Exposes the instance to Internet.</span>", "", "<span class=\"lang-ar\">VPC-to-VPC لا للإنترنت.</span><span class=\"lang-en\">VPC-to-VPC, not Internet.</span>", "<span class=\"lang-ar\">يُعلن الخادم للإنترنت.</span><span class=\"lang-en\">Makes instance public.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العبارات صحيحة عن الفرق بين Security Groups و NACLs؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about SGs vs NACLs? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">SG <strong>stateful</strong>، NACL <strong>stateless</strong>.</span><span class="lang-en">SG is <strong>stateful</strong>, NACL is <strong>stateless</strong>.</span>",
+          "<span class="lang-ar">SG على مستوى الـ instance، NACL على مستوى الـ subnet.</span><span class="lang-en">SG operates at instance level, NACL at subnet level.</span>",
+          "<span class="lang-ar">SG تدعم Allow فقط، NACL تدعم Allow و Deny.</span><span class="lang-en">SG supports Allow only, NACL supports Allow and Deny.</span>",
+          "<span class="lang-ar">SG يمكنها الإشارة لمجموعة أمان أخرى كمصدر، NACL لا.</span><span class="lang-en">SG can reference another SG as source, NACL cannot.</span>",
+          "<span class="lang-ar">NACL مرتبطة تلقائياً بكلّ الموارد في الـ subnet، SG يجب إرفاقها يدوياً.</span><span class="lang-en">NACL auto-applies to all subnet resources; SG must be attached manually.</span>"
+        ],
+        correct: [0,1,2,3,4],
+        explanation: "<span class="lang-ar">كلّ العبارات صحيحة — هذه الفروق الخمسة الكاملة. <strong>Stateful vs Stateless</strong> هو الأكثر تكراراً في الامتحان.</span><span class="lang-en">All true — these are the five distinguishing features. <strong>Stateful vs stateless</strong> is the most-repeated exam point.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">Lambda في private subnet تتصل بـ S3 بكثافة. فريق الماليّة ينبّه لتكلفة NAT Gateway العالية. ما الحلّ الأمثل؟</span><span class="lang-en">A Lambda in a private subnet hits S3 heavily. Finance flags high NAT Gateway cost. Best fix?</span>",
+        options: [
+          "<span class="lang-ar">ترقية NAT Gateway.</span><span class="lang-en">Upgrade the NAT Gateway.</span>",
+          "<span class="lang-ar"><strong>S3 Gateway Endpoint</strong> — مجانيّ تقريباً ويلغي الحاجة للـ NAT في حركة S3.</span><span class="lang-en"><strong>S3 Gateway Endpoint</strong> — essentially free, removes NAT need for S3 traffic.</span>",
+          "<span class="lang-ar">نقل Lambda إلى public subnet.</span><span class="lang-en">Move Lambda to public subnet.</span>",
+          "<span class="lang-ar">استخدام VPC Peering.</span><span class="lang-en">Use VPC Peering.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Gateway Endpoint</strong> متاح لـ S3 و DynamoDB، وهو مجّانيّ تقريباً. يوفّر route خاصّ لـ S3 داخل شبكة AWS، فتلغي تكلفة NAT Gateway لحركة S3 (قد يكون هذا الجزء الأكبر من فاتورتك). Interface Endpoint خيار بديل لكنّه بالساعة والـ GB — Gateway أرخص لـ S3.</span><span class="lang-en"><strong>Gateway Endpoint</strong> is available for S3 and DynamoDB, essentially free. Provides a private route to S3 within AWS's network, eliminating NAT cost for S3 traffic (often the biggest part of the bill). Interface Endpoint is an alternative but is billed hourly + per-GB — Gateway is cheaper for S3.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يزيد التكلفة لا يقلّلها.</span><span class=\"lang-en\">Raises cost.</span>", "", "<span class=\"lang-ar\">Lambda في public subnet ممارسة سيّئة.</span><span class=\"lang-en\">Lambda in public subnet is bad practice.</span>", "<span class=\"lang-ar\">Peering VPC-to-VPC، لا لـ S3.</span><span class=\"lang-en\">Peering is VPC-to-VPC, not to S3.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">Acme لديها VPC A (<span dir="ltr" class="font-mono">10.0.0.0/16</span>) و VPC B (<span dir="ltr" class="font-mono">10.0.0.0/16</span>). يريدون ربطهما عبر VPC Peering. ما المشكلة؟</span><span class="lang-en">Acme has VPC A (<span dir="ltr" class="font-mono">10.0.0.0/16</span>) and VPC B (<span dir="ltr" class="font-mono">10.0.0.0/16</span>) and wants to peer them. Issue?</span>",
+        options: [
+          "<span class="lang-ar">لا مشكلة.</span><span class="lang-en">No issue.</span>",
+          "<span class="lang-ar"><strong>CIDR ranges متطابقة (overlapping)</strong> — VPC Peering يتطلّب نطاقات غير متداخلة. يجب إعادة إنشاء أحد الـ VPCs بنطاق مختلف.</span><span class="lang-en"><strong>Overlapping CIDR ranges</strong> — VPC Peering requires non-overlapping. Must recreate one VPC with a different CIDR.</span>",
+          "<span class="lang-ar">يجب استخدام VPN.</span><span class="lang-en">Must use VPN.</span>",
+          "<span class="lang-ar">VPC Peering ممنوع بين نفس الحساب.</span><span class="lang-en">Peering forbidden within same account.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">VPC Peering يتطلّب CIDRs غير متداخلة لأنّ الـ routing يعتمد على IP. لا يمكن تحويل <span dir="ltr" class="font-mono">10.0.1.5</span> بشكل صحيح إذا وُجِد في VPCs. يجب إعادة إنشاء واحد — للأسف لا يمكن تغيير CIDR الأساسيّ لـ VPC.</span><span class="lang-en">VPC Peering needs non-overlapping CIDRs because routing is IP-based. You can't route <span dir="ltr" class="font-mono">10.0.1.5</span> correctly if it exists in both VPCs. One must be recreated — sadly you can't change a VPC's primary CIDR.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مشكلة حقيقيّة.</span><span class=\"lang-en\">Real issue.</span>", "", "<span class=\"lang-ar\">Peering ممكن عادة.</span><span class=\"lang-en\">Peering is usually possible.</span>", "<span class=\"lang-ar\">Peering مدعوم داخل الحساب.</span><span class=\"lang-en\">Peering works within an account.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">بعد ضبط NACL للسماح بـ inbound HTTPS 443، المطوّر لاحظ أنّ الردود لا تصل للعميل. ما السبب؟</span><span class="lang-en">After NACL allows inbound HTTPS 443, the dev notices replies don't reach clients. Why?</span>",
+        options: [
+          "<span class="lang-ar">HTTPS معطّل في الخادم.</span><span class="lang-en">HTTPS disabled on instance.</span>",
+          "<span class="lang-ar"><strong>NACL stateless</strong> — الردود تستخدم ephemeral ports (<span dir="ltr" class="font-mono">1024-65535</span>) ويجب السماح بها صراحةً في outbound NACL.</span><span class="lang-en"><strong>NACL is stateless</strong> — replies use ephemeral ports (<span dir="ltr" class="font-mono">1024-65535</span>), must be explicitly allowed in outbound NACL.</span>",
+          "<span class="lang-ar">Security Group يمنع الردود.</span><span class="lang-en">SG blocks replies.</span>",
+          "<span class="lang-ar">Route 53 يتدخّل.</span><span class="lang-en">Route 53 interferes.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">هذا فخّ NACL Stateless الكلاسيكيّ: السماح بالـ inbound لا يسمح تلقائياً بالرد. يجب إضافة قاعدة outbound تسمح بـ ephemeral ports (<span dir="ltr" class="font-mono">1024-65535</span>) للعودة إلى العميل. Security Group ستكون كافية لأنّها stateful.</span><span class="lang-en">Classic stateless NACL trap: inbound allow doesn't auto-allow replies. Must add outbound rule for ephemeral ports (<span dir="ltr" class="font-mono">1024-65535</span>). An SG alone would suffice since it's stateful.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة عادة.</span><span class=\"lang-en\">Usually unrelated.</span>", "", "<span class=\"lang-ar\">SG stateful — لا تمنع الردود.</span><span class=\"lang-en\">SG is stateful — wouldn't block replies.</span>", "<span class=\"lang-ar\">Route 53 DNS لا يتدخّل في traffic.</span><span class=\"lang-en\">Route 53 is DNS, not traffic.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">ما أكبر فرق بين Site-to-Site VPN و Direct Connect؟</span><span class="lang-en">Biggest difference between Site-to-Site VPN and Direct Connect?</span>",
+        options: [
+          "<span class="lang-ar">VPN مجّانيّ.</span><span class="lang-en">VPN is free.</span>",
+          "<span class="lang-ar"><strong>VPN يعبر الإنترنت العامّ (مشفّر) وسريع الإعداد. Direct Connect اتّصال فيزيائيّ خاصّ، أداء ثابت، لكنّ إعداده يأخذ شهراً+</strong>.</span><span class="lang-en"><strong>VPN goes over public Internet (encrypted) and is fast to set up. DX is a private physical connection, steady performance, but setup takes 1+ month</strong>.</span>",
+          "<span class="lang-ar">DX أسرع في الإعداد.</span><span class="lang-en">DX is faster to set up.</span>",
+          "<span class="lang-ar">VPN أسرع.</span><span class="lang-en">VPN is faster.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">VPN يعبر الإنترنت العامّ — يعني تشفير إلزاميّ لكنّ أداء متقلّب. DX اتّصال فيزيائيّ خاصّ — أداء ثابت ومنخفض الـ latency، لكنّه يستغرق شهراً على الأقلّ للتوصيل. الأداء والتكلفة والزمن تختلف جميعها.</span><span class="lang-en">VPN traverses the public Internet — mandatory encryption but variable performance. DX is a dedicated physical connection — steady, low-latency, but 1+ month to provision. Performance, cost, and time all differ.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">VPN يكلّف بالساعة.</span><span class=\"lang-en\">VPN has hourly costs.</span>", "", "<span class=\"lang-ar\">DX أبطأ في الإعداد بشكل كبير.</span><span class=\"lang-en\">DX is much slower to provision.</span>", "<span class=\"lang-ar\">VPN أبطأ عموماً.</span><span class=\"lang-en\">VPN is generally slower.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يحقّق في اختراق محتمل ويحتاج لسجلّ كلّ الحركة IP عبر VPC. ما الأداة؟</span><span class="lang-en">A dev investigates a potential breach and needs a log of all IP traffic across the VPC. Which tool?</span>",
+        options: [
+          "<span class="lang-ar">CloudTrail.</span><span class="lang-en">CloudTrail.</span>",
+          "<span class="lang-ar"><strong>VPC Flow Logs</strong> — يلتقط metadata كلّ packet على مستوى VPC، subnet، أو ENI. يُرسَل إلى CloudWatch Logs / S3 / Kinesis.</span><span class="lang-en"><strong>VPC Flow Logs</strong> — captures packet metadata at VPC, subnet, or ENI level. Delivered to CloudWatch Logs / S3 / Kinesis.</span>",
+          "<span class="lang-ar">CloudFront logs.</span><span class="lang-en">CloudFront logs.</span>",
+          "<span class="lang-ar">Route 53 query logs.</span><span class="lang-en">Route 53 query logs.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>VPC Flow Logs</strong> مخصّصة للشبكة: source/dest IP، ports، protocol، bytes، ACCEPT/REJECT. CloudTrail للـ API calls (مثل "من شغّل خادم"). CloudFront logs للـ CDN requests. Route 53 logs لاستعلامات DNS.</span><span class="lang-en"><strong>VPC Flow Logs</strong> are network-focused: source/dest IP, ports, protocol, bytes, ACCEPT/REJECT. CloudTrail is for API calls ("who launched an instance"). CloudFront logs are CDN-only. Route 53 logs are DNS-only.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">CloudTrail للأنشطة API، لا لحركة الشبكة.</span><span class=\"lang-en\">CloudTrail is API activity, not network.</span>", "", "<span class=\"lang-ar\">CloudFront للـ CDN فقط.</span><span class=\"lang-en\">CloudFront is CDN only.</span>", "<span class=\"lang-ar\">Route 53 للـ DNS فقط.</span><span class=\"lang-en\">Route 53 is DNS only.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد خادم EC2 في private subnet يصل لـ DynamoDB بأقلّ تكلفة. ما الحلّ؟</span><span class="lang-en">A dev wants a private-subnet EC2 to reach DynamoDB at the lowest cost. Solution?</span>",
+        options: [
+          "<span class="lang-ar">NAT Gateway.</span><span class="lang-en">NAT Gateway.</span>",
+          "<span class="lang-ar"><strong>Gateway Endpoint لـ DynamoDB</strong> — مجّانيّ تقريباً.</span><span class="lang-en"><strong>DynamoDB Gateway Endpoint</strong> — essentially free.</span>",
+          "<span class="lang-ar">VPC Peering.</span><span class="lang-en">VPC Peering.</span>",
+          "<span class="lang-ar">Direct Connect.</span><span class="lang-en">Direct Connect.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Gateway Endpoints</strong> متاحة لـ S3 و DynamoDB فقط — وهي مجّانيّة تقريباً. تضيف route في الـ route table إلى DynamoDB مباشرة عبر شبكة AWS الخاصّة. NAT مكلف. VPC Peering و Direct Connect حلول مختلفة تماماً.</span><span class="lang-en"><strong>Gateway Endpoints</strong> are available only for S3 and DynamoDB — essentially free. Adds a route-table entry direct to DynamoDB over AWS's private network. NAT is expensive. Peering and DX are different scenarios.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف.</span><span class=\"lang-en\">Expensive.</span>", "", "<span class=\"lang-ar\">غير مناسب لاتصال بخدمة.</span><span class=\"lang-en\">Not for service access.</span>", "<span class=\"lang-ar\">تعقيد بلا داعٍ ومكلف.</span><span class=\"lang-en\">Overkill and costly.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">VPC لديها <span dir="ltr" class="font-mono">/16</span> CIDR. كم IP usable في subnet <span dir="ltr" class="font-mono">/28</span>؟</span><span class="lang-en">A VPC has a <span dir="ltr" class="font-mono">/16</span> CIDR. Usable IPs in a <span dir="ltr" class="font-mono">/28</span> subnet?</span>",
+        options: [
+          "<span class="lang-ar">١٦</span><span class="lang-en">16</span>",
+          "<span class="lang-ar">١٤</span><span class="lang-en">14</span>",
+          "<span class="lang-ar"><strong>١١</strong></span><span class="lang-en"><strong>11</strong></span>",
+          "<span class="lang-ar">٨</span><span class="lang-en">8</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">/28</span> يعطي ١٦ عنواناً. AWS يحجز ٥: الأوّل (network)، الثاني (VPC router)، الثالث (DNS)، الرابع (مستقبليّ)، والأخير (broadcast). ١٦ - ٥ = <strong>١١ usable</strong>. هذا يختلف عن الشبكات التقليديّة التي تحجز ٢ فقط.</span><span class="lang-en"><span dir="ltr" class="font-mono">/28</span> gives 16 addresses. AWS reserves 5: first (network), second (VPC router), third (DNS), fourth (future), last (broadcast). 16 - 5 = <strong>11 usable</strong>. Different from traditional networks that reserve only 2.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AWS يحجز ٥ لا صفر.</span><span class=\"lang-en\">AWS reserves 5, not 0.</span>", "<span class=\"lang-ar\">التقليديّة تحجز ٢، AWS تحجز ٥.</span><span class=\"lang-en\">Traditional reserves 2, AWS reserves 5.</span>", "", "<span class=\"lang-ar\">لا، الرياضيّة مختلفة.</span><span class=\"lang-en\">Wrong math.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">Acme لديها ٣ VPCs: A، B، C. A peer with B، B peer with C. هل يمكن لـ A التحدّث مع C مباشرةً؟</span><span class="lang-en">Acme has 3 VPCs: A, B, C. A peers B, B peers C. Can A talk to C directly?</span>",
+        options: [
+          "<span class="lang-ar">نعم، تلقائياً.</span><span class="lang-en">Yes, automatically.</span>",
+          "<span class="lang-ar"><strong>لا — VPC Peering غير انتقاليّ (non-transitive)</strong>. يجب إنشاء peering مباشر بين A و C أو استخدام Transit Gateway.</span><span class="lang-en"><strong>No — VPC Peering is non-transitive</strong>. Create a direct peer between A and C, or use Transit Gateway.</span>",
+          "<span class="lang-ar">نعم، بعد ضبط IAM.</span><span class="lang-en">Yes, after IAM setup.</span>",
+          "<span class="lang-ar">نعم، عبر NACL.</span><span class="lang-en">Yes, via NACL.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">مفهوم مفتاحيّ: <strong>VPC Peering ليس انتقالياً (non-transitive)</strong>. إن أردت A → C يجب إنشاء peering مباشر A ↔ C. لإدارة عدّة VPCs بكفاءة استخدم <strong>AWS Transit Gateway</strong> (موضوع متقدّم خارج هذا الفصل لكن يستحقّ التذكّر).</span><span class="lang-en">Key concept: <strong>VPC Peering is non-transitive</strong>. For A → C, create a direct A ↔ C peering. For managing many VPCs efficiently, use <strong>AWS Transit Gateway</strong> (advanced topic beyond this chapter, worth remembering).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خاطئ — غير انتقاليّ.</span><span class=\"lang-en\">Wrong — non-transitive.</span>", "", "<span class=\"lang-ar\">IAM لا علاقة.</span><span class=\"lang-en\">IAM unrelated.</span>", "<span class=\"lang-ar\">NACL يفلتر لا يوصل.</span><span class=\"lang-en\">NACL filters, doesn't create paths.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(7, QUESTIONS);
+      if (isChapterComplete(7)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

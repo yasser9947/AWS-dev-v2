@@ -1,0 +1,44 @@
+{
+  "slug": "beanstalk",
+  "name": "Elastic Beanstalk",
+  "icon": "sprout",
+  "color": "green",
+  "tagline_ar": "منصّة PaaS لنشر تطبيقات الويب بسرعة دون إدارة الـ infrastructure.",
+  "tagline_en": "PaaS platform for rapid web app deployment without managing infrastructure.",
+  "key_concepts": [
+    {"concept": "Application & Environment", "desc_ar": "Application = حاوية منطقية، Environment = مثيل مُشغّل (Web أو Worker Tier).", "desc_en": "Application = logical container; Environment = running instance (Web or Worker Tier)."},
+    {"concept": "Web Tier vs Worker Tier", "desc_ar": "Web يستقبل HTTP عبر ALB، Worker يقرأ من SQS لمهام خلفية طويلة.", "desc_en": "Web serves HTTP via ALB; Worker polls SQS for long background jobs."},
+    {"concept": "Supported Platforms", "desc_ar": "Java، Python، Node.js، Ruby، PHP، Go، .NET، Docker (single/multi-container).", "desc_en": "Java, Python, Node.js, Ruby, PHP, Go, .NET, Docker (single/multi-container)."},
+    {"concept": "Deployment Policies", "desc_ar": "All at once، Rolling، Rolling with batch، Immutable، Traffic Splitting.", "desc_en": "All at once, Rolling, Rolling with additional batch, Immutable, Traffic Splitting."},
+    {"concept": ".ebextensions", "desc_ar": "ملفات YAML/JSON في مجلّد .ebextensions لتخصيص البنية التحتية والخدمات.", "desc_en": "YAML/JSON files in .ebextensions folder for infra/service customization."},
+    {"concept": "RDS Decoupling", "desc_ar": "لا تُنشئ RDS داخل البيئة في الإنتاج — يُحذف مع البيئة. اربطها كمصدر خارجي.", "desc_en": "Don't create RDS inside environment in prod — it dies with the env. Link as external."},
+    {"concept": "Blue/Green via Swap URLs", "desc_ar": "نشر نسخة جديدة في بيئة منفصلة ثم تبديل الـ CNAMEs بين البيئتين لصفر downtime.", "desc_en": "Deploy new version in separate env and swap CNAMEs between them for zero downtime."},
+    {"concept": "EB CLI", "desc_ar": "eb init، eb create، eb deploy، eb status، eb logs — أدوات لكل دورة الحياة.", "desc_en": "eb init, eb create, eb deploy, eb status, eb logs — full lifecycle tools."}
+  ],
+  "limits": [
+    {"limit": "Application versions", "limit_en": "Application versions", "value": "1,000 (soft)", "note_ar": "نظّف الإصدارات القديمة عبر Lifecycle.", "note_en": "Clean up old versions via Lifecycle."},
+    {"limit": "Environment count per region", "limit_en": "Environments per region", "value": "75 (soft)", "note_ar": "قابل للزيادة.", "note_en": "Can be raised."},
+    {"limit": "Source bundle size", "limit_en": "Source bundle size", "value": "500 MB", "note_ar": "يُحمَّل إلى S3.", "note_en": "Uploaded to S3."},
+    {"limit": "App source via Docker image", "limit_en": "Docker source", "value": "ECR أو Docker Hub", "note_ar": "Dockerrun.aws.json أو docker-compose.yml.", "note_en": "Dockerrun.aws.json or docker-compose.yml."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تهيئة مشروع جديد.", "desc_en": "Init a new project.", "cmd": "eb init -p python-3.11 acme-api"},
+    {"desc_ar": "إنشاء بيئة جديدة.", "desc_en": "Create environment.", "cmd": "eb create prod-env --instance-type t3.small --elb-type application"},
+    {"desc_ar": "نشر إصدار جديد.", "desc_en": "Deploy new version.", "cmd": "eb deploy prod-env"},
+    {"desc_ar": "تبديل بيئات Blue/Green.", "desc_en": "Swap environment URLs.", "cmd": "eb swap prod-env --destination-name staging-env"},
+    {"desc_ar": "عرض السجلات.", "desc_en": "Stream logs.", "cmd": "eb logs --all"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "نشر تطبيق ويب بسرعة للـ POC.", "scenario_en": "Quickly deploy POC web app.", "choice": "Beanstalk"},
+    {"scenario_ar": "لا تعرف infrastructure وتريد focus على الكود.", "scenario_en": "Zero infra knowledge, code-focused.", "choice": "Beanstalk"},
+    {"scenario_ar": "تحتاج تحكّم كامل بالـ infrastructure.", "scenario_en": "Need full infra control.", "choice": "CloudFormation / CDK / ECS"},
+    {"scenario_ar": "مهام Worker طويلة.", "scenario_en": "Long background jobs.", "choice": "Beanstalk Worker Tier + SQS"}
+  ],
+  "exam_tips": [
+    {"ar": "Immutable = أأمن طريقة نشر — ينشئ instances جديدة ثم يحوّل الحركة.", "en": "Immutable = safest deploy — new instances then shift traffic."},
+    {"ar": "لا تضع RDS داخل بيئة الإنتاج — افصلها.", "en": "Don't put RDS inside prod env — decouple it."},
+    {"ar": ".ebextensions > platform hooks > resources لتخصيص البيئة.", "en": ".ebextensions > platform hooks > resources to customize env."},
+    {"ar": "Swap URLs = Blue/Green deploy بسيط وسريع.", "en": "Swap URLs = simple fast blue/green."},
+    {"ar": "Traffic Splitting = Canary لـ Beanstalk.", "en": "Traffic Splitting = Beanstalk's Canary."}
+  ]
+}

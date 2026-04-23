@@ -1,0 +1,391 @@
+{
+  "n": 10,
+  "domain": "development",
+  "title_ar": "AWS Lambda — النواة: المُشغّلات والوقت التشغيليّ والأحداث",
+  "title_en": "AWS Lambda Core — Triggers, Runtime, Events",
+  "pages": "532-575",
+  "subtitle_ar": "هذا هو قلب الامتحان لمطوّر Lambda+API Gateway. كل ما تحتاج معرفته عن أنواع الاستدعاء (sync/async/event source mapping)، Event و Context Objects، آلية retry للأحداث غير المتزامنة، و DLQ، و execution role، و X-Ray، و Lambda@Edge، و CloudFront Functions.",
+  "subtitle_en": "The core of a Lambda+API Gateway developer's exam. Everything on invocation types (sync / async / event source mapping), Event & Context objects, async retry semantics, DLQ, execution role, X-Ray, Lambda@Edge, and CloudFront Functions.",
+  "tags": ["Lambda", "Event Source Mapping", "DLQ", "X-Ray", "Execution Role", "Lambda@Edge", "Async Invocations"],
+  "objectives": [
+    {"concept": "Invocation Models (sync/async/ESM)", "tested_ar": "النطاق الأول — اختيار نوع الاستدعاء حسب المصدر.", "tested_en": "Domain 1 — picking invocation type by source."},
+    {"concept": "Event Source Mapping (Kinesis/SQS/DynamoDB)", "tested_ar": "النطاق الأول — معالجة الـ streams والـ queues.", "tested_en": "Domain 1 — processing streams and queues."},
+    {"concept": "Execution Role & Resource Policies", "tested_ar": "النطاق الثاني — منح الصلاحيات بطريقتين متكاملتين.", "tested_en": "Domain 2 — two complementary permission layers."},
+    {"concept": "X-Ray Tracing & CloudWatch", "tested_ar": "النطاق الرابع — استكشاف الأخطاء ومراقبة الأداء.", "tested_en": "Domain 4 — troubleshooting and performance monitoring."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو Lambda ومتى يُختار",
+      "title_en": "What Lambda is and when to choose it",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Lambda</strong> خدمة حوسبة بلا خوادم (FaaS). ترفع كود ودالة فقط، وتدفع حسب عدد الاستدعاءات ومدّة التنفيذ بالمللي ثانية. يتمدّد تلقائياً. مصمَّم للأحمال قصيرة المدى (حد أقصى ١٥ دقيقة للتنفيذ).",
+         "en": "<strong>Lambda</strong> is serverless compute (FaaS). You upload code + a handler, pay per request and per-millisecond execution. Auto-scales. Designed for short-running work (max 15-minute execution)."},
+        {"type": "compare",
+         "left": {"tone": "amber", "icon": "server", "title_ar": "EC2", "title_en": "EC2",
+                  "body_ar": "خادم افتراضيّ دائم. تدير OS والمكتبات. التمدّد يدويّ أو عبر Auto Scaling. تدفع طوال وقت التشغيل.",
+                  "body_en": "Persistent VM. You manage OS and libs. Manual or Auto Scaling. Paid while running."},
+         "right": {"tone": "emerald", "icon": "zap", "title_ar": "Lambda", "title_en": "Lambda",
+                   "body_ar": "دوالّ افتراضيّة. AWS تدير كل شيء. تمدّد تلقائيّ. تدفع بالاستدعاء فقط.",
+                   "body_en": "Virtual functions. AWS manages everything. Auto-scales. Pay per invocation."}
+        },
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "code-2", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "الـ runtimes المدعومة", "title_en": "Supported runtimes", "body_ar": "Node.js، Python، Java، ‎.NET، Go، Ruby، Custom Runtime API، Lambda Container Image.", "body_en": "Node.js, Python, Java, .NET, Go, Ruby, Custom Runtime API, Lambda Container Image."},
+          {"icon": "cpu", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "موارد الدالة", "title_en": "Function resources", "body_ar": "RAM ١٢٨MB - ١٠GB. زيادة الـ RAM تزيد CPU أيضاً. كامل vCPU عند ١٧٩٢MB.", "body_en": "RAM 128MB - 10GB. More RAM = more CPU. Full vCPU at 1792MB."},
+          {"icon": "dollar-sign", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "التسعير", "title_en": "Pricing", "body_ar": "أوّل مليون طلب مجاناً شهرياً، ٤٠٠,٠٠٠ GB-seconds مجاناً. بعدها $0.20 لكل مليون طلب.", "body_en": "First 1M requests free/month + 400,000 GB-seconds free. Then $0.20 per million requests."},
+          {"icon": "layers", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "التكاملات", "title_en": "Integrations", "body_ar": "API Gateway، Kinesis، DynamoDB، S3، CloudFront، EventBridge، SNS، SQS، Cognito وأكثر.", "body_en": "API Gateway, Kinesis, DynamoDB, S3, CloudFront, EventBridge, SNS, SQS, Cognito and more."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "قرار EC2 vs Lambda كسينيور: إن كانت الدالة تستمرّ أقلّ من ١٥ دقيقة، تتمدّد أفقياً بشكل مستقلّ، ولا تحتاج حالة في الذاكرة — استخدم Lambda. إن كانت محادثة WebSocket طويلة أو تحتاج GPU خاصّة أو تعمل ٢٤/٧ على حِمل ثابت — EC2/ECS أفضل.",
+         "en": "Senior decision: if the function runs <15 min, scales horizontally, and needs no in-memory state — use Lambda. If it's a long WebSocket, needs a specific GPU, or runs 24/7 on steady load — EC2/ECS wins."}
+      ]
+    },
+    {
+      "title_ar": "الاستدعاء المتزامن (Synchronous Invocation)",
+      "title_en": "Synchronous Invocation",
+      "blocks": [
+        {"type": "p",
+         "ar": "الاستدعاء المتزامن هو عندما ينتظر الـ client النتيجة — يحصل على الإجابة مباشرةً أو يتحمّل مسؤولية إعادة المحاولة. أشهر المصادر: <strong>API Gateway</strong>، <strong>Application Load Balancer</strong>، <strong>CLI/SDK</strong>، <strong>Cognito</strong>، <strong>Step Functions</strong>، <strong>Lex</strong>، <strong>Alexa</strong>.",
+         "en": "Synchronous: the client waits for the result — either gets it directly or must retry. Top sources: <strong>API Gateway</strong>, <strong>ALB</strong>, <strong>CLI/SDK</strong>, <strong>Cognito</strong>, <strong>Step Functions</strong>, <strong>Lex</strong>, <strong>Alexa</strong>."},
+        {"type": "callout", "tone": "key",
+         "ar": "في sync invocation: <strong>معالجة الأخطاء مسؤوليّة الـ client</strong> — retry و exponential backoff و circuit breaker كلّها في كود الـ caller. Lambda لا يعيد المحاولة تلقائياً.",
+         "en": "With sync invocation: <strong>error handling is the caller's responsibility</strong> — retry, backoff, circuit breaker all belong to the client. Lambda won't retry automatically."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — sync invoke a Lambda from another service\nimport software.amazon.awssdk.services.lambda.LambdaClient;\nimport software.amazon.awssdk.services.lambda.model.*;\nimport software.amazon.awssdk.core.SdkBytes;\n\nLambdaClient lambda = LambdaClient.create();\n\nInvokeResponse resp = lambda.invoke(InvokeRequest.builder()\n    .functionName(\"calculate-order-total\")\n    .invocationType(InvocationType.REQUEST_RESPONSE)          // = sync\n    .payload(SdkBytes.fromUtf8String(\"{\\\"orderId\\\":\\\"O-991\\\"}\"))\n    .build());\n\nif (resp.statusCode() != 200 || resp.functionError() != null) {\n    // retry with exponential backoff (client responsibility)\n    throw new RuntimeException(\"Lambda error: \" + resp.functionError());\n}\nString response = resp.payload().asUtf8String();"},
+        {"type": "p",
+         "ar": "<strong>ALB + Lambda</strong>: لفتح Lambda عبر HTTP دون API Gateway، سجّل الدالة في <strong>Target Group</strong>. ALB يحوّل الـ HTTP إلى JSON (<span dir=\"ltr\" class=\"font-mono\">requestContext</span>، <span dir=\"ltr\" class=\"font-mono\">httpMethod</span>، <span dir=\"ltr\" class=\"font-mono\">headers</span>...) وتعود الدالة بـ <span dir=\"ltr\" class=\"font-mono\">{statusCode, headers, body, isBase64Encoded}</span>. لا تنسى resource policy على الـ Lambda تسمح لـ <span dir=\"ltr\" class=\"font-mono\">elasticloadbalancing.amazonaws.com</span>.",
+         "en": "<strong>ALB + Lambda</strong>: expose Lambda over HTTP without API Gateway by registering it in a <strong>Target Group</strong>. ALB converts HTTP→JSON (<span dir=\"ltr\" class=\"font-mono\">requestContext</span>, <span dir=\"ltr\" class=\"font-mono\">httpMethod</span>, <span dir=\"ltr\" class=\"font-mono\">headers</span>...) and you return <span dir=\"ltr\" class=\"font-mono\">{statusCode, headers, body, isBase64Encoded}</span>. Remember the Lambda resource policy allowing <span dir=\"ltr\" class=\"font-mono\">elasticloadbalancing.amazonaws.com</span>."}
+      ]
+    },
+    {
+      "title_ar": "الاستدعاء غير المتزامن (Asynchronous)",
+      "title_en": "Asynchronous Invocation",
+      "blocks": [
+        {"type": "p",
+         "ar": "عندما يستدعي مصدر (مثلاً <strong>S3</strong>، <strong>SNS</strong>، <strong>EventBridge</strong>) الـ Lambda بشكل async، يُوضَع الحدث في <strong>Event Queue</strong> داخليّ. Lambda يحاول معالجته، وإذا فشل يُعيد المحاولة <strong>٣ مرّات (الأصلي + ٢)</strong> مع انتظار ١ دقيقة ثم ٢ دقائق.",
+         "en": "When a source (e.g., <strong>S3</strong>, <strong>SNS</strong>, <strong>EventBridge</strong>) invokes Lambda async, the event is placed in an internal <strong>Event Queue</strong>. Lambda tries to process it; on failure it retries <strong>3 times total (original + 2)</strong> with 1-min then 2-min waits."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "refresh-cw", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "الإعادة تلقائيّة", "title_en": "Auto retries", "body_ar": "٣ محاولات افتراضياً. يمكن ضبط عدد المحاولات و max event age.", "body_en": "3 attempts default. Retries count and max event age both configurable."},
+          {"icon": "copy", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Idempotency إلزاميّ", "title_en": "Idempotency required", "body_ar": "نفس الحدث قد يصل مرّتين. اجعل معالجتك idempotent (مثال: استخدام event ID كـ primary key).", "body_en": "The same event may be delivered twice. Make processing idempotent (e.g., use event ID as primary key)."},
+          {"icon": "skull", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "DLQ عند الفشل", "title_en": "DLQ on failure", "body_ar": "بعد استنفاد المحاولات، أرسِل إلى <strong>DLQ</strong> (SNS أو SQS). يحتاج resource permissions.", "body_en": "After retries exhaust, send to <strong>DLQ</strong> (SNS or SQS). Needs proper perms."},
+          {"icon": "send", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Destinations (الموصى به الجديد)", "title_en": "Destinations (new, preferred)", "body_ar": "تعريف destinations لـ success و failure على حدّ سواء: SQS، SNS، Lambda، EventBridge.", "body_en": "Define destinations for success AND failure: SQS, SNS, Lambda, EventBridge."}
+        ]},
+        {"type": "code", "lang": "java",
+         "code": "// Java handler — async-safe processing with idempotency via DynamoDB\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport software.amazon.awssdk.services.dynamodb.DynamoDbClient;\nimport software.amazon.awssdk.services.dynamodb.model.*;\n\npublic class OrderHandler implements RequestHandler<S3Event, String> {\n\n    private static final DynamoDbClient ddb = DynamoDbClient.create();   // init OUTSIDE handler\n\n    @Override\n    public String handleRequest(S3Event event, Context ctx) {\n        String eventId = event.getRecords().get(0).getResponseElements().get(\"x-amz-request-id\");\n\n        try {\n            // conditional put = idempotency guard\n            ddb.putItem(PutItemRequest.builder()\n                .tableName(\"processed-events\")\n                .item(java.util.Map.of(\n                    \"eventId\", AttributeValue.fromS(eventId),\n                    \"at\", AttributeValue.fromN(String.valueOf(System.currentTimeMillis()))))\n                .conditionExpression(\"attribute_not_exists(eventId)\")\n                .build());\n        } catch (ConditionalCheckFailedException e) {\n            ctx.getLogger().log(\"Duplicate event \" + eventId + \" — skipping\");\n            return \"skipped\";\n        }\n\n        // ... actual processing here ...\n        return \"ok\";\n    }\n}"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "خطأ شائع في الامتحان: تخلط بين <strong>DLQ</strong> (للاستدعاء غير المتزامن فقط) وبين DLQ لـ <strong>SQS مباشرةً</strong> (عند استخدام event source mapping مع SQS). DLQ على Lambda للـ async invocations، DLQ على SQS للرسائل التي فشلت معالجتها بعد visibilityTimeout × maxReceiveCount.",
+         "en": "Common exam trap: don't confuse the <strong>Lambda DLQ</strong> (async-invocations only) with an <strong>SQS DLQ</strong> (used when SQS→Lambda via ESM). Lambda DLQ = async; SQS DLQ = messages exceeding visibilityTimeout × maxReceiveCount."}
+      ]
+    },
+    {
+      "title_ar": "Event Source Mapping (Kinesis، SQS، DynamoDB Streams)",
+      "title_en": "Event Source Mapping (Kinesis, SQS, DynamoDB Streams)",
+      "blocks": [
+        {"type": "p",
+         "ar": "Event Source Mapping (ESM) نمط خاصّ: Lambda <strong>يَسحَب (poll)</strong> السجلّات من المصدر ثم يستدعي الدالة <strong>بشكل متزامن مع batches</strong>. المصادر المدعومة: <strong>Kinesis Data Streams</strong>، <strong>DynamoDB Streams</strong>، <strong>SQS (Standard و FIFO)</strong>، <strong>Amazon MQ</strong>، <strong>Kafka</strong>.",
+         "en": "Event Source Mapping (ESM) is special: Lambda <strong>polls</strong> records from the source and invokes your function <strong>synchronously with batches</strong>. Supported: <strong>Kinesis Data Streams</strong>, <strong>DynamoDB Streams</strong>, <strong>SQS (Standard & FIFO)</strong>, <strong>Amazon MQ</strong>, <strong>Kafka</strong>."},
+        {"type": "table",
+         "headers": {"ar": ["المصدر", "تمدّد Lambda", "الترتيب"], "en": ["Source", "Lambda scaling", "Ordering"]},
+         "rows": [
+           [{"mono": true, "value": "Kinesis / DynamoDB Streams"}, {"ar": "استدعاء واحد لكلّ shard، حتى ١٠ batches متوازية لكلّ shard", "en": "One invocation per shard; up to 10 parallel batches per shard"}, {"ar": "مضمون لكل partition key", "en": "Guaranteed per partition key"}],
+           [{"mono": true, "value": "SQS Standard"}, {"ar": "يضيف ٦٠ instance في الدقيقة، حتى ١٠٠٠ batch متوازي", "en": "Adds 60/min, up to 1000 parallel batches"}, {"ar": "غير مضمون", "en": "Not guaranteed"}],
+           [{"mono": true, "value": "SQS FIFO"}, {"ar": "يتمدّد بعدد Message Groups النشطة", "en": "Scales by active Message Groups"}, {"ar": "مضمون لنفس GroupID", "en": "Guaranteed per GroupID"}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "لـ SQS → Lambda: اجعل <strong>visibilityTimeout = 6× timeout الـ Lambda</strong>. هذا يمنع رسالة تُعالَج بالفعل من الظهور مجدّداً قبل أن تكتمل.",
+         "en": "For SQS → Lambda: set <strong>visibilityTimeout = 6× your Lambda timeout</strong>. Prevents an in-flight message from reappearing before processing finishes."},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "Streams & Lambda — Error Handling: افتراضياً إذا فشلت دالتك، تتمّ إعادة معالجة <strong>الـ batch كلّه</strong> من البداية حتى ينجح أو تنتهي صلاحيّة السجلّات. يمكنك ضبط: <strong>retries عدد محدود</strong>، <strong>batch splitting عند الفشل</strong> (لتجنّب مشكلة timeout)، أو <strong>إرسال الـ discarded events إلى destination</strong>.",
+         "en": "Streams & Lambda — Error Handling: by default if your function fails, the <strong>entire batch</strong> is reprocessed until it succeeds or records expire. You can configure: <strong>bounded retries</strong>, <strong>batch splitting on error</strong> (to sidestep timeout issues), or <strong>send discarded events to a destination</strong>."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — create an SQS event source mapping programmatically\nimport software.amazon.awssdk.services.lambda.LambdaClient;\nimport software.amazon.awssdk.services.lambda.model.*;\n\nLambdaClient lambda = LambdaClient.create();\n\nCreateEventSourceMappingResponse esm = lambda.createEventSourceMapping(\n    CreateEventSourceMappingRequest.builder()\n        .functionName(\"process-orders\")\n        .eventSourceArn(\"arn:aws:sqs:eu-west-1:123456789012:orders-queue\")\n        .batchSize(10)                                       // up to 10 per batch\n        .maximumBatchingWindowInSeconds(5)                   // or flush every 5s\n        .functionResponseTypes(FunctionResponseType.REPORT_BATCH_ITEM_FAILURES) // partial failures\n        .build());\n\nSystem.out.println(\"ESM UUID: \" + esm.uuid());"}
+      ]
+    },
+    {
+      "title_ar": "Event Object و Context Object",
+      "title_en": "Event Object & Context Object",
+      "blocks": [
+        {"type": "p",
+         "ar": "كلّ دالة Lambda تستقبل وسيطَين: <strong>event</strong> (بيانات الطلب — JSON) و <strong>context</strong> (معلومات حول التنفيذ نفسه). فهم هذَين ضروريّ لأنّ الامتحان يختبر تمييز المحتوى (request ID، function name، memory limit، log stream، حد التنفيذ المتبقّي).",
+         "en": "Every Lambda receives two args: <strong>event</strong> (request data — JSON) and <strong>context</strong> (runtime info). Understanding them is exam-critical because you'll need to identify fields like request ID, function name, memory limit, log stream, and remaining runtime."},
+        {"type": "code", "lang": "java",
+         "code": "// Java handler with explicit event and context types\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;\nimport com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;\n\npublic class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {\n\n    @Override\n    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context ctx) {\n        // Event: request payload\n        String method = event.getHttpMethod();\n        String path = event.getPath();\n        java.util.Map<String, String> query = event.getQueryStringParameters();\n\n        // Context: runtime metadata\n        ctx.getLogger().log(\"Request ID: \" + ctx.getAwsRequestId());\n        ctx.getLogger().log(\"Function ARN: \" + ctx.getInvokedFunctionArn());\n        ctx.getLogger().log(\"Memory limit (MB): \" + ctx.getMemoryLimitInMB());\n        ctx.getLogger().log(\"Log stream: \" + ctx.getLogStreamName());\n        ctx.getLogger().log(\"Remaining time (ms): \" + ctx.getRemainingTimeInMillis());\n\n        // ALWAYS reuse SDK clients initialized outside the handler (execution context reuse)\n        return new APIGatewayProxyResponseEvent()\n            .withStatusCode(200)\n            .withBody(\"{\\\"message\\\":\\\"hello from \" + method + \" \" + path + \"\\\"}\");\n    }\n}"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>getRemainingTimeInMillis()</strong> أداة حيوية: استخدمها داخل loops طويلة لتقطع أعمالاً تدريجياً قبل timeout ولترك وقت لكتابة نقطة استئناف (checkpoint) في DynamoDB/S3.",
+         "en": "<strong>getRemainingTimeInMillis()</strong> is your friend: use it inside long loops to gracefully break work and leave time to checkpoint progress to DynamoDB/S3 before timeout."}
+      ]
+    },
+    {
+      "title_ar": "Execution Role و Resource Policy و التسجيل والمراقبة",
+      "title_en": "Execution Role, Resource Policies, Logging & Monitoring",
+      "blocks": [
+        {"type": "p",
+         "ar": "لـ Lambda طبقتا صلاحيات: <strong>Execution Role</strong> (ما <u>تفعله</u> الدالة) و <strong>Resource Policy</strong> (مَن يمكنه <u>استدعاء</u> الدالة). الـ Execution Role يشبه IAM Role لـ EC2، والـ Resource Policy يشبه Bucket Policy لـ S3.",
+         "en": "Lambda has two permission layers: <strong>Execution Role</strong> (what the function <u>does</u>) and <strong>Resource Policy</strong> (who can <u>invoke</u> the function). Execution Role is like an EC2 IAM Role; Resource Policy is like an S3 Bucket Policy."},
+        {"type": "table",
+         "headers": {"ar": ["Managed Policy", "الغرض"], "en": ["Managed Policy", "Purpose"]},
+         "rows": [
+           [{"mono": true, "value": "AWSLambdaBasicExecutionRole"}, {"ar": "كتابة logs إلى CloudWatch. أساسي لكل Lambda.", "en": "Write logs to CloudWatch. Required for every Lambda."}],
+           [{"mono": true, "value": "AWSLambdaKinesisExecutionRole"}, {"ar": "قراءة من Kinesis Data Streams.", "en": "Read from Kinesis Data Streams."}],
+           [{"mono": true, "value": "AWSLambdaDynamoDBExecutionRole"}, {"ar": "قراءة من DynamoDB Streams.", "en": "Read from DynamoDB Streams."}],
+           [{"mono": true, "value": "AWSLambdaSQSQueueExecutionRole"}, {"ar": "استقبال رسائل من SQS.", "en": "Receive from SQS."}],
+           [{"mono": true, "value": "AWSLambdaVPCAccessExecutionRole"}, {"ar": "نشر الدالة داخل VPC.", "en": "Deploy function inside a VPC."}],
+           [{"mono": true, "value": "AWSXRayDaemonWriteAccess"}, {"ar": "إرسال trace data إلى X-Ray.", "en": "Upload trace data to X-Ray."}]
+         ]
+        },
+        {"type": "code", "lang": "json",
+         "code": "// Example resource policy letting API Gateway invoke your Lambda\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": { \"Service\": \"apigateway.amazonaws.com\" },\n      \"Action\": \"lambda:InvokeFunction\",\n      \"Resource\": \"arn:aws:lambda:eu-west-1:123456789012:function:api-orders\",\n      \"Condition\": {\n        \"ArnLike\": {\n          \"AWS:SourceArn\": \"arn:aws:execute-api:eu-west-1:123456789012:abc123xyz/*/GET/orders\"\n        }\n      }\n    }\n  ]\n}"},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "file-text", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "CloudWatch Logs", "title_en": "CloudWatch Logs", "body_ar": "كل stdout/stderr يُكتب في log group <span dir=\"ltr\" class=\"font-mono\">/aws/lambda/FUNC_NAME</span>. يحتاج BasicExecutionRole.", "body_en": "All stdout/stderr goes to <span dir=\"ltr\" class=\"font-mono\">/aws/lambda/FUNC_NAME</span>. Requires BasicExecutionRole."},
+          {"icon": "activity", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "CloudWatch Metrics", "title_en": "CloudWatch Metrics", "body_ar": "Invocations، Duration، Errors، Throttles، ConcurrentExecutions، IteratorAge (للـ streams).", "body_en": "Invocations, Duration, Errors, Throttles, ConcurrentExecutions, IteratorAge (streams)."},
+          {"icon": "eye", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "X-Ray Active Tracing", "title_en": "X-Ray Active Tracing", "body_ar": "فعّله من إعدادات الدالة. يتتبّع الـ segments و downstream calls. يحتاج AWSXRayDaemonWriteAccess.", "body_en": "Enable it in function config. Traces segments and downstream calls. Needs AWSXRayDaemonWriteAccess."},
+          {"icon": "settings", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "متغيّرات البيئة X-Ray", "title_en": "X-Ray env vars", "body_ar": "_X_AMZN_TRACE_ID، AWS_XRAY_CONTEXT_MISSING، AWS_XRAY_DAEMON_ADDRESS.", "body_en": "_X_AMZN_TRACE_ID, AWS_XRAY_CONTEXT_MISSING, AWS_XRAY_DAEMON_ADDRESS."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "<strong>Step Functions vs Lambda chain</strong>: للتكوين الطويل، استخدم Step Functions بدلاً من ربط Lambdas عبر SDK. أسباب: الـ retry و error handling مصمَّمان في الـ state machine، visibility أوضح، تكلفة أقلّ (لا تدفع أثناء wait states). الـ direct invocation chain أسرع لكن أهشّ.",
+         "en": "<strong>Step Functions vs Lambda chain</strong>: for multi-step orchestration, prefer Step Functions over SDK-chained Lambdas. Reasons: retries and error handling built into the state machine, better visibility, lower cost (wait states free). Direct invoke is faster but fragile."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء Lambda Java يعالج S3 events مع idempotency (DynamoDB)، X-Ray، DLQ، و reserved concurrency.",
+    "goal_en": "Build a Java Lambda that processes S3 events with idempotency (DynamoDB), X-Ray, DLQ, and reserved concurrency.",
+    "steps": [
+      {"title_ar": "أنشئ execution role مع السياسات المطلوبة", "title_en": "Create execution role with required policies",
+       "body_ar": "الحد الأدنى: AWSLambdaBasicExecutionRole + كتابة DynamoDB + قراءة S3 + X-Ray.",
+       "body_en": "Minimum: AWSLambdaBasicExecutionRole + DynamoDB write + S3 read + X-Ray.",
+       "code": "aws iam create-role --role-name lambda-s3-processor \\\n  --assume-role-policy-document file://trust.json\n\naws iam attach-role-policy --role-name lambda-s3-processor \\\n  --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole\naws iam attach-role-policy --role-name lambda-s3-processor \\\n  --policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"},
+      {"title_ar": "أنشئ SQS DLQ وأعطه صلاحيّة الدالة", "title_en": "Create SQS DLQ and grant function permission",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws sqs create-queue --queue-name s3-processor-dlq\n\n# Add to execution role inline policy\n{\n  \"Effect\": \"Allow\",\n  \"Action\": \"sqs:SendMessage\",\n  \"Resource\": \"arn:aws:sqs:eu-west-1:123456789012:s3-processor-dlq\"\n}"},
+      {"title_ar": "ارفع Java package مع تكامل X-Ray", "title_en": "Deploy Java package with X-Ray integration",
+       "body_ar": "أضف <span dir=\"ltr\" class=\"font-mono\">aws-xray-recorder-sdk-aws-sdk</span> في Maven.",
+       "body_en": "Add <span dir=\"ltr\" class=\"font-mono\">aws-xray-recorder-sdk-aws-sdk</span> in Maven.",
+       "code": "aws lambda create-function \\\n  --function-name S3Processor \\\n  --runtime java17 \\\n  --role arn:aws:iam::123456789012:role/lambda-s3-processor \\\n  --handler com.acme.OrderHandler::handleRequest \\\n  --zip-file fileb://target/function.jar \\\n  --timeout 30 --memory-size 512 \\\n  --tracing-config Mode=Active \\\n  --dead-letter-config TargetArn=arn:aws:sqs:eu-west-1:123456789012:s3-processor-dlq"},
+      {"title_ar": "اربط الـ S3 event بـ Lambda مع resource policy", "title_en": "Wire the S3 event to Lambda with resource policy",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws lambda add-permission --function-name S3Processor \\\n  --statement-id s3-invoke --action lambda:InvokeFunction \\\n  --principal s3.amazonaws.com \\\n  --source-arn arn:aws:s3:::acme-prod-data\n\naws s3api put-bucket-notification-configuration --bucket acme-prod-data \\\n  --notification-configuration file://notif.json"},
+      {"title_ar": "أضف Reserved Concurrency للتحكّم بالضغط", "title_en": "Add reserved concurrency to cap load",
+       "body_ar": "مهم جداً لمنع Lambda من استهلاك كامل الحصّة المشتركة على الحساب أو إغراق DynamoDB.",
+       "body_en": "Critical to prevent Lambda from consuming all account concurrency or overwhelming DynamoDB.",
+       "code": "aws lambda put-function-concurrency --function-name S3Processor \\\n  --reserved-concurrent-executions 50"}
+    ],
+    "warning_ar": "تذكّر أنّ Lambda DLQ يعمل <strong>للـ async invocations فقط</strong>. إذا كان المصدر SQS عبر ESM فاستخدم SQS DLQ (redrive policy على الطابور نفسه).",
+    "warning_en": "Lambda DLQ works <strong>only for async invocations</strong>. If the source is SQS via ESM, use an SQS DLQ (redrive policy on the queue itself)."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "أيّ نوع استدعاء يقوم به API Gateway عند تشغيل Lambda؟",
+      "question_en": "Which invocation type does API Gateway use for Lambda?",
+      "options_ar": ["متزامن (synchronous) — الـ client ينتظر الرد.", "غير متزامن (async) — الحدث يُوضَع في queue.", "Event Source Mapping.", "Custom Runtime."],
+      "options_en": ["Synchronous — client waits for response.", "Async — event placed in queue.", "Event Source Mapping.", "Custom Runtime."],
+      "correct": 0,
+      "explanation_ar": "API Gateway، ALB، و CLI/SDK كلّها تستدعي Lambda <strong>متزامناً</strong> لأنّ الـ client يحتاج رداً فورياً (HTTP response). معالجة الأخطاء مسؤوليّة الـ client.",
+      "explanation_en": "API Gateway, ALB, and CLI/SDK all invoke Lambda <strong>synchronously</strong> because the client needs an immediate response (HTTP). Error handling is on the client.",
+      "wrong_ar": ["async للـ S3، SNS، EventBridge.", "", "ESM للـ Kinesis، SQS، DynamoDB Streams.", "Custom Runtime وسيلة لتشغيل لغة غير مدعومة، وليس نوع استدعاء."],
+      "wrong_en": ["Async is for S3, SNS, EventBridge.", "", "ESM is for Kinesis, SQS, DynamoDB Streams.", "Custom Runtime is a way to run unsupported languages, not an invocation type."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "دالة Lambda تُستدعى بشكل async من S3. فشلت المعالجة. كم مرّة يحاول Lambda قبل إرسال الحدث إلى DLQ؟",
+      "question_en": "A Lambda invoked async by S3 fails. How many times does Lambda retry before sending to DLQ?",
+      "options_ar": ["مرّة واحدة (الأصلية فقط).", "٣ مرّات إجمالاً (الأصلية + ٢ محاولتان).", "٥ مرّات.", "لا يُعيد."],
+      "options_en": ["Once (original only).", "3 total (original + 2 retries).", "5 times.", "None."],
+      "correct": 1,
+      "explanation_ar": "الاستدعاء الأصلي + محاولتان إعادة (بعد ١ دقيقة ثم ٢ دقائق). بعدها يُرسَل إلى DLQ إذا كانت معرّفة. عدد المحاولات قابل للضبط (٠-٢).",
+      "explanation_en": "Original + 2 retries (after 1 min, then 2 min). Then sent to DLQ if configured. Retry count is tunable (0-2).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "Lambda يقرأ من SQS عبر ESM. ما أفضل <span dir=\"ltr\" class=\"font-mono\">visibilityTimeout</span> للطابور إذا كان timeout الدالة ٣٠ ثانية؟",
+      "question_en": "Lambda consumes from SQS via ESM. Best <span dir=\"ltr\" class=\"font-mono\">visibilityTimeout</span> if Lambda timeout is 30s?",
+      "options_ar": ["٣٠ ثانية (نفس الـ timeout).", "١٨٠ ثانية (٦x timeout الدالة).", "٥ ثواني.", "لا أهمية له."],
+      "options_en": ["30s (same as timeout).", "180s (6× function timeout).", "5s.", "Doesn't matter."],
+      "correct": 1,
+      "explanation_ar": "التوصية الرسميّة: visibilityTimeout = ٦× Lambda timeout. يمنع إعادة ظهور الرسالة أثناء المعالجة ويعطي هامشاً للـ retries داخل الـ batch.",
+      "explanation_en": "Official recommendation: visibilityTimeout = 6× Lambda timeout. Prevents redelivery during processing and leaves margin for in-batch retries.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "شركة لديها Lambda يكتب إلى DynamoDB عند كلّ S3 event. يلاحظون أنّ بعض الـ records تُكتَب مرّتين. ما الحلّ؟",
+      "question_en": "A company has a Lambda that writes to DynamoDB on every S3 event. They notice some records written twice. Fix?",
+      "options_ar": ["زيادة عدد الـ retries.", "جعل المعالجة idempotent (مثلاً استخدام event ID كـ primary key مع conditional put).", "تعطيل DLQ.", "التبديل إلى sync invocation."],
+      "options_en": ["Increase retry count.", "Make processing idempotent (use event ID as PK with conditional put).", "Disable DLQ.", "Switch to sync invocation."],
+      "correct": 1,
+      "explanation_ar": "Lambda async قد يسلّم نفس الحدث مرّتين (at-least-once delivery). الحلّ الصحيح: <strong>idempotency</strong> — حارس في كودك يتجاهل الحدث المكرّر. زيادة retries تزيد المشكلة.",
+      "explanation_en": "Lambda async has at-least-once delivery. Proper fix: <strong>idempotency</strong> — a guard in your code ignoring duplicates. More retries makes it worse.",
+      "wrong_ar": ["يزيد فرصة التكرار.", "", "DLQ للفشل لا للتكرار.", "S3 لا يستدعي sync."],
+      "wrong_en": ["Amplifies duplicates.", "", "DLQ is for failures, not duplicates.", "S3 can't invoke sync."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "أيّ managed policy يحتاجها Lambda لقراءة من DynamoDB Streams؟",
+      "question_en": "Which managed policy lets Lambda read DynamoDB Streams?",
+      "options_ar": ["AWSLambdaBasicExecutionRole", "AWSLambdaDynamoDBExecutionRole", "AWSLambdaKinesisExecutionRole", "AmazonDynamoDBFullAccess"],
+      "options_en": ["AWSLambdaBasicExecutionRole", "AWSLambdaDynamoDBExecutionRole", "AWSLambdaKinesisExecutionRole", "AmazonDynamoDBFullAccess"],
+      "correct": 1,
+      "explanation_ar": "<strong>AWSLambdaDynamoDBExecutionRole</strong> تضيف صلاحيّة قراءة DynamoDB Streams + الكتابة إلى CloudWatch Logs. الصلاحيّة الأساسية ضروريّة للـ logs لكن لا تسمح بالقراءة من Streams.",
+      "explanation_en": "<strong>AWSLambdaDynamoDBExecutionRole</strong> adds DynamoDB Streams read + CloudWatch Logs write. Basic is needed but doesn't permit stream reads.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q6", "type": "multi",
+      "question_ar": "أيّ معلومة تستطيع الحصول عليها من Context object في Lambda؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which info is available via the Lambda Context object? Select all that apply.",
+      "options_ar": ["aws_request_id", "function_name", "memory_limit_in_mb", "get_remaining_time_in_millis", "بيانات حمولة الطلب نفسها"],
+      "options_en": ["aws_request_id", "function_name", "memory_limit_in_mb", "get_remaining_time_in_millis", "Request payload itself"],
+      "correct": [0, 1, 2, 3],
+      "explanation_ar": "Context يوفّر معلومات التنفيذ فقط — request ID، اسم الدالة، حد الذاكرة، الوقت المتبقّي، log stream، identity (للـ Cognito). حمولة الطلب تأتي في الـ <strong>event</strong> لا context.",
+      "explanation_en": "Context carries runtime info only — request ID, name, memory, remaining time, log stream, identity (Cognito). Payload is on the <strong>event</strong>, not context.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "Kinesis stream بـ ٤ shards يستهلكه Lambda عبر ESM. ما الحد الأقصى من الـ batches المتزامنة؟",
+      "question_en": "A Kinesis stream with 4 shards consumed by Lambda via ESM. Max parallel batches?",
+      "options_ar": ["٤ (shard واحد = invocation واحدة)", "٤٠ (١٠ batches متوازية لكلّ shard)", "١٠٠٠", "غير محدود"],
+      "options_en": ["4 (one invocation per shard)", "40 (10 parallel batches per shard)", "1000", "Unlimited"],
+      "correct": 1,
+      "explanation_ar": "افتراضياً كلّ shard = invocation واحدة، لكن يمكن تفعيل <strong>parallelization factor</strong> حتى ١٠، فيصبح ٤ shards × ١٠ = ٤٠ batch متوازي. الترتيب يُحفَظ لكل partition key.",
+      "explanation_en": "Default: 1 invocation per shard. With <strong>parallelization factor</strong> up to 10, you get 4 × 10 = 40 parallel batches. Order preserved per partition key.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "فريق يحتاج تنفيذ مهام متسلسلة: Lambda A → Lambda B → Lambda C مع retry لكلّ خطوة وحالات شرطيّة. الأنسب؟",
+      "question_en": "Team needs sequential: Lambda A → Lambda B → Lambda C with per-step retries and conditional branches. Best choice?",
+      "options_ar": ["استدعاء مباشر من A إلى B ومن B إلى C عبر SDK.", "AWS Step Functions — state machine مع الـ retry و error handling مدمج.", "SQS بين كلّ دالتَين.", "EventBridge scheduler."],
+      "options_en": ["Direct SDK invokes A→B→C.", "AWS Step Functions — state machine with built-in retry and error handling.", "SQS between each pair.", "EventBridge scheduler."],
+      "correct": 1,
+      "explanation_ar": "<strong>Step Functions</strong> صُمِّم لهذا بالضبط: retry، catch، choice، parallel، map. يوفّر visibility كامل ويخفّض التكلفة (لا تدفع أثناء wait). الـ chain المباشر هشّ ويصعب تتبّعه.",
+      "explanation_en": "<strong>Step Functions</strong> is built for this: retry, catch, choice, parallel, map. Full visibility and lower cost (waits are free). Direct chaining is fragile and hard to trace.",
+      "wrong_ar": ["بدائي، لا يتيح visibility.", "", "معقّد ومكلف لتنفيذ متسلسل بسيط.", "للجدولة الدوريّة، لا للـ orchestration."],
+      "wrong_en": ["Primitive, no visibility.", "", "Complex and costly for simple chain.", "For periodic scheduling, not orchestration."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "مطوّر يريد تتبّع الـ downstream calls (إلى DynamoDB و S3) التي تقوم بها دالة Lambda. ما الإعداد المطلوب؟",
+      "question_en": "A dev wants to trace downstream calls (to DynamoDB, S3) from a Lambda. What's needed?",
+      "options_ar": ["تمكين Active Tracing في الدالة + إضافة managed policy AWSXRayDaemonWriteAccess.", "تثبيت X-Ray daemon على EC2.", "كتابة logs يدوياً إلى CloudWatch.", "تفعيل CloudTrail."],
+      "options_en": ["Enable Active Tracing on the function + attach AWSXRayDaemonWriteAccess.", "Install X-Ray daemon on EC2.", "Write manual CloudWatch logs.", "Enable CloudTrail."],
+      "correct": 0,
+      "explanation_ar": "<strong>Active Tracing</strong> في إعدادات Lambda يشغّل X-Ray daemon ضمن بيئة التنفيذ. يحتاج IAM policy للكتابة لـ X-Ray. إن دمجت AWS X-Ray SDK في الكود، تحصل على trace كامل للـ downstream calls.",
+      "explanation_en": "<strong>Active Tracing</strong> in Lambda config spins up the X-Ray daemon in the execution env. Needs an IAM policy to write to X-Ray. Integrate the X-Ray SDK in code for full downstream tracing.",
+      "wrong_ar": ["Lambda يدير الـ daemon له.", "Logs لا تعطي trace graph.", "للـ API-level auditing لا للأداء."],
+      "wrong_en": ["Lambda manages the daemon.", "Logs don't produce a trace graph.", "For API audit, not perf."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "شركة تريد تنفيذ كود خفيف جداً (مثل تعديل headers) على طلبات CloudFront. الأنسب؟",
+      "question_en": "A company wants very lightweight code (e.g., header tweaks) on CloudFront requests. Best fit?",
+      "options_ar": ["Lambda@Edge (قوي لكن أبطأ).", "CloudFront Functions (JavaScript، sub-ms، ملايين req/sec).", "API Gateway + Lambda.", "EC2 in a region."],
+      "options_en": ["Lambda@Edge (powerful but slower).", "CloudFront Functions (JavaScript, sub-ms, millions req/sec).", "API Gateway + Lambda.", "EC2 in a region."],
+      "correct": 1,
+      "explanation_ar": "<strong>CloudFront Functions</strong> مصمَّم للتعديلات البسيطة على Viewer Request/Response: sub-ms، ملايين طلب/ثانية، ضمن CloudFront مباشرة. Lambda@Edge للمنطق الأثقل مع دعم مكتبات.",
+      "explanation_en": "<strong>CloudFront Functions</strong> is built for simple Viewer Request/Response edits: sub-ms, millions req/sec, native to CloudFront. Lambda@Edge is for heavier logic with library support.",
+      "wrong_ar": ["للمنطق الأثقل مثل استدعاء APIs، أبطأ من Functions.", "", "يتطلّب round-trip إلى region.", "ليس edge-based."],
+      "wrong_en": ["For heavier logic like API calls, slower.", "", "Round-trip to region required.", "Not edge-based."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "Lambda يفشل مع رسالة <span dir=\"ltr\" class=\"font-mono\">Task timed out after 3.00 seconds</span>. ماذا يحدث للحدث الأصليّ؟",
+      "question_en": "Lambda fails with <span dir=\"ltr\" class=\"font-mono\">Task timed out after 3.00 seconds</span>. What happens to the original event?",
+      "options_ar": ["يُحذَف فوراً.", "يُعتبَر فشلاً — لو كان async يُعاد إلى الطابور للمحاولة، لو sync يُعاد الخطأ إلى الـ caller.", "يُنسى.", "يُسجَّل كنجاح."],
+      "options_en": ["Deleted immediately.", "Treated as failure — if async, re-queued for retry; if sync, error returned to caller.", "Forgotten.", "Marked as success."],
+      "correct": 1,
+      "explanation_ar": "Timeout = فشل. السلوك يعتمد على نوع الاستدعاء: async يعيد المحاولة حتى ٣ مرّات ثم DLQ. sync يُرجِع خطأ للـ client الذي يجب أن يُعيد. الحلّ الجذريّ: زيادة timeout (حتى ١٥ دقيقة).",
+      "explanation_en": "Timeout = failure. Behavior depends on invocation: async retries up to 3x then DLQ; sync returns error to caller who must retry. Root fix: increase timeout (up to 15 min).",
+      "reference_ar": "القسم ٢، ٣",
+      "reference_en": "Sections 2, 3"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "Lambda يستدعي DynamoDB ويحصل على ThrottlingException بشكل متكرّر. أفضل حلّ؟",
+      "question_en": "A Lambda calls DynamoDB and repeatedly gets ThrottlingException. Best fix?",
+      "options_ar": ["زيادة RAM في الـ Lambda.", "زيادة read/write capacity في DynamoDB أو التبديل إلى On-Demand، مع الاعتماد على retries الافتراضية في الـ SDK.", "تعطيل الـ logs.", "التبديل إلى RDS."],
+      "options_en": ["Increase Lambda RAM.", "Increase DynamoDB R/W capacity or switch to On-Demand; SDK retries handle transient throttles.", "Disable logs.", "Switch to RDS."],
+      "correct": 1,
+      "explanation_ar": "الـ throttling مصدره DynamoDB لا Lambda. الحلول: On-Demand mode، أو رفع Provisioned Capacity، أو Auto Scaling على DynamoDB. الـ SDK يُعيد تلقائياً على الـ throttling لكن إن كانت الحالة مستمرّة فالسعة هي الحل.",
+      "explanation_en": "Throttling originates in DynamoDB, not Lambda. Fixes: On-Demand, raise Provisioned Capacity, or Auto Scaling. SDK retries handle transient throttles; persistent ones need more capacity.",
+      "reference_ar": "القسم ٦ + ch08",
+      "reference_en": "Section 6 + ch08"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "ALB يستدعي Lambda. أيّ من الحقول التالية يجب أن تُرجِعها الدالة في الـ response JSON؟",
+      "question_en": "ALB invokes Lambda. Which fields must the function return in its response JSON?",
+      "options_ar": ["result و error.", "statusCode، headers، body، isBase64Encoded.", "httpMethod و path.", "requestId."],
+      "options_en": ["result and error.", "statusCode, headers, body, isBase64Encoded.", "httpMethod and path.", "requestId."],
+      "correct": 1,
+      "explanation_ar": "ALB يتوقّع response JSON بصيغة محدّدة: <span dir=\"ltr\" class=\"font-mono\">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. الحقول الأخرى في الـ request لا الـ response.",
+      "explanation_en": "ALB expects a JSON response with <span dir=\"ltr\" class=\"font-mono\">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. Others belong to the request.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q14", "type": "multi",
+      "question_ar": "أيّ من هذه المصادر تستدعي Lambda بشكل <strong>async</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which of these invoke Lambda <strong>async</strong>? Select all that apply.",
+      "options_ar": ["S3 Event Notifications", "SNS", "EventBridge", "API Gateway", "Kinesis Data Streams"],
+      "options_en": ["S3 Event Notifications", "SNS", "EventBridge", "API Gateway", "Kinesis Data Streams"],
+      "correct": [0, 1, 2],
+      "explanation_ar": "S3، SNS، EventBridge كلّها async. API Gateway = sync. Kinesis = Event Source Mapping (نمط خاصّ — Lambda يسحب، ثم يستدعي sync داخلياً).",
+      "explanation_en": "S3, SNS, EventBridge are async. API Gateway = sync. Kinesis = ESM (special — Lambda polls, then invokes sync internally).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "مطوّر يريد منع API Gateway من حساب آخر من استدعاء دالة Lambda الخاصّة به. ما الطبقة المناسبة للضبط؟",
+      "question_en": "A dev wants to prevent a different account's API Gateway from invoking their Lambda. Where to enforce?",
+      "options_ar": ["Execution Role.", "Resource-based Policy (Lambda Policy) — تحديد SourceArn للـ account الصحيح.", "Security Group.", "VPC Endpoint."],
+      "options_en": ["Execution Role.", "Resource-based Policy (Lambda Policy) — set SourceArn to the correct account.", "Security Group.", "VPC Endpoint."],
+      "correct": 1,
+      "explanation_ar": "الـ <strong>Resource Policy</strong> تتحكّم بمن <u>يستدعي</u> الدالة. شرط <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn</span> أو <span dir=\"ltr\" class=\"font-mono\">aws:SourceAccount</span> يقصر الاستدعاء على مصادر محدّدة. Execution Role تضبط ما <u>تفعله</u> الدالة.",
+      "explanation_en": "<strong>Resource Policy</strong> controls who <u>invokes</u> the function. <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn</span> or <span dir=\"ltr\" class=\"font-mono\">aws:SourceAccount</span> conditions limit invokers. Execution Role controls what the function <u>does</u>.",
+      "wrong_ar": ["يضبط ما تفعله الدالة.", "", "لا تتحكّم في استدعاء Lambda.", "مخصّصة للخصوصية الشبكيّة، لا للـ cross-account invoke."],
+      "wrong_en": ["Controls what function does.", "", "Doesn't control Lambda invocations.", "For network privacy, not cross-account invoke."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    }
+  ],
+  "summary": [
+    {"icon": "zap", "title_ar": "٣ نماذج استدعاء", "title_en": "3 invocation models",
+     "body_ar": "Sync (API GW/ALB/SDK)، Async (S3/SNS/EB)، ESM (Kinesis/SQS/DDB Streams).",
+     "body_en": "Sync (API GW/ALB/SDK), Async (S3/SNS/EB), ESM (Kinesis/SQS/DDB Streams)."},
+    {"icon": "refresh-cw", "title_ar": "async = ٣ محاولات + DLQ", "title_en": "async = 3 tries + DLQ",
+     "body_ar": "Idempotency إلزاميّ. Destinations أفضل من DLQ الكلاسيكيّة.",
+     "body_en": "Idempotency is mandatory. Destinations > classic DLQ."},
+    {"icon": "shield", "title_ar": "طبقتا الصلاحيات", "title_en": "Two permission layers",
+     "body_ar": "Execution Role = ما تفعله الدالة. Resource Policy = مَن يستدعيها.",
+     "body_en": "Execution Role = what it does. Resource Policy = who invokes it."},
+    {"icon": "eye", "title_ar": "X-Ray + CloudWatch", "title_en": "X-Ray + CloudWatch",
+     "body_ar": "Active Tracing للـ downstream calls. IteratorAge مفتاح صحّة الـ streams.",
+     "body_en": "Active Tracing for downstream calls. IteratorAge = stream health."}
+  ],
+  "mnemonic_ar": "للاستدعاء: <strong>SAE</strong> = <strong>S</strong>ync (API GW، ALB، SDK) → <strong>A</strong>sync (S3، SNS، EB) → <strong>E</strong>vent Source Mapping (Kinesis، SQS، DDB Streams). تذكّر: \"قُل\" sync عندما تنتظر، \"ارمِ\" async عندما تترك، \"اسحب\" ESM عندما تحتاج الترتيب.",
+  "mnemonic_en": "For invocation: <strong>SAE</strong> = <strong>S</strong>ync (API GW, ALB, SDK) → <strong>A</strong>sync (S3, SNS, EB) → <strong>E</strong>vent Source Mapping (Kinesis, SQS, DDB Streams). \"Say\" sync when you wait, \"toss\" async when you fire-and-forget, \"pull\" ESM when ordering matters.",
+  "prev": 9,
+  "next": 11
+}

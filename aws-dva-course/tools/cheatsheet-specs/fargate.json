@@ -1,0 +1,42 @@
+{
+  "slug": "fargate",
+  "name": "AWS Fargate",
+  "icon": "boxes",
+  "color": "blue",
+  "tagline_ar": "تشغيل حاويات بدون إدارة خوادم — يدعم ECS و EKS.",
+  "tagline_en": "Run containers without managing servers — supports ECS and EKS.",
+  "key_concepts": [
+    {"concept": "Serverless Containers", "desc_ar": "AWS يدير الخوادم، أنت تحدّد فقط vCPU والذاكرة للمهمّة.", "desc_en": "AWS manages servers; you only specify vCPU + memory per task."},
+    {"concept": "Task-Level Networking", "desc_ar": "كل task يحصل على ENI و IP خاص — يعمل داخل subnet من VPC.", "desc_en": "Each task gets its own ENI + IP — runs in a VPC subnet."},
+    {"concept": "Pricing Model", "desc_ar": "تدفع للـ vCPU والذاكرة فقط لمدّة تشغيل الـ task — بالثانية.", "desc_en": "Pay only for vCPU + memory per task duration — per-second billing."},
+    {"concept": "Fargate Spot", "desc_ar": "خصم حتى 70% لأعباء قابلة للمقاطعة — AWS تنبّه قبل إنهاء الـ task بدقيقتين.", "desc_en": "Up to 70% off for interruptible workloads — 2-min termination notice."},
+    {"concept": "Fargate on EKS", "desc_ar": "Fargate Profile يُحدّد الـ namespaces/labels التي تعمل على Fargate.", "desc_en": "Fargate Profile determines which namespaces/labels run on Fargate."},
+    {"concept": "Storage", "desc_ar": "20 GB ephemeral افتراضي، حتى 200 GB عبر ephemeralStorage parameter.", "desc_en": "20 GB ephemeral default, up to 200 GB via ephemeralStorage parameter."},
+    {"concept": "No Privileged Mode", "desc_ar": "لا يدعم privileged containers — يقيد بعض حالات الاستخدام (Docker-in-Docker).", "desc_en": "No privileged containers — limits some use cases (Docker-in-Docker)."}
+  ],
+  "limits": [
+    {"limit": "vCPU", "limit_en": "vCPU", "value": "0.25 – 16", "note_ar": "بخطوات محدّدة.", "note_en": "Fixed increments."},
+    {"limit": "Memory", "limit_en": "Memory", "value": "0.5 – 120 GB", "note_ar": "مرتبطة بخيارات vCPU.", "note_en": "Tied to vCPU options."},
+    {"limit": "Ephemeral Storage", "limit_en": "Ephemeral Storage", "value": "20–200 GB", "note_ar": "قابل للتخصيص.", "note_en": "Configurable."},
+    {"limit": "Task Scale", "limit_en": "Task Scale-up Time", "value": "~30–60 sec", "note_ar": "مقابل EC2 cold start أسرع.", "note_en": "Compared to EC2 cold start."},
+    {"limit": "GPU Support", "limit_en": "GPU Support", "value": "Not supported", "note_ar": "استخدم EC2 أو EKS لمهام GPU.", "note_en": "Use EC2 or EKS for GPU workloads."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تشغيل task على Fargate.", "desc_en": "Run task on Fargate.", "cmd": "aws ecs run-task --cluster acme --task-definition web:1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-xxx],securityGroups=[sg-xxx],assignPublicIp=ENABLED}'"},
+    {"desc_ar": "إنشاء service على Fargate.", "desc_en": "Create Fargate service.", "cmd": "aws ecs create-service --cluster acme --service-name api --task-definition api:3 --launch-type FARGATE --desired-count 2 --network-configuration '...'"},
+    {"desc_ar": "إنشاء Fargate Profile لـ EKS.", "desc_en": "Create EKS Fargate Profile.", "cmd": "aws eks create-fargate-profile --fargate-profile-name api --cluster-name acme --pod-execution-role-arn arn:... --selectors namespace=api"},
+    {"desc_ar": "تفعيل capacity provider Spot.", "desc_en": "Enable Fargate Spot.", "cmd": "aws ecs put-cluster-capacity-providers --cluster acme --capacity-providers FARGATE FARGATE_SPOT"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "microservices بدون إدارة خوادم.", "scenario_en": "Microservices with zero server management.", "choice": "Fargate on ECS"},
+    {"scenario_ar": "Kubernetes بدون إدارة Worker Nodes.", "scenario_en": "K8s without managing Worker Nodes.", "choice": "Fargate on EKS"},
+    {"scenario_ar": "مهام Batch مؤقّتة متقطّعة.", "scenario_en": "Bursty Batch jobs.", "choice": "Fargate Spot + AWS Batch"},
+    {"scenario_ar": "مهام تتطلّب GPU/kernel tweaks.", "scenario_en": "GPU or kernel-level workloads.", "choice": "ECS/EKS on EC2 (not Fargate)"}
+  ],
+  "exam_tips": [
+    {"ar": "Fargate = لا إدارة EC2 — AWS تتعامل مع patching والتوسعة.", "en": "Fargate = no EC2 to manage — AWS handles patching + scaling."},
+    {"ar": "Fargate لا يدعم privileged — استخدم EC2 إذا احتجت Docker-in-Docker.", "en": "Fargate doesn't support privileged — use EC2 for Docker-in-Docker."},
+    {"ar": "Spot أرخص لكنّه قابل للمقاطعة — ليس للـ API الحسّاسة.", "en": "Spot is cheaper but preemptable — not for critical APIs."},
+    {"ar": "يدفع على وقت الـ task فقط — ممتاز للأحمال المتغيّرة.", "en": "Pays only for task runtime — ideal for variable loads."}
+  ]
+}

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS IAM — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-red-600 via-red-700 to-red-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="user-lock" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-red-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">AWS IAM</h1>
+        </div>
+      </div>
+      <p class="text-lg text-red-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">إدارة الهويات والصلاحيات بدقّة عبر المستخدمين والأدوار والمجموعات والسياسات.</span>
+        <span class="lang-en">Fine-grained identity and permission management via users, roles, groups, and policies.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-red-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Users / Groups / Roles</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">المستخدم هوية دائمة، المجموعة تجمع مستخدمين، والدور هوية مؤقتة يتحمّلها خدمة أو مستخدم.</span>
+      <span class="lang-en">User = permanent identity; Group = collection of users; Role = temporary identity assumed by a service or user.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Identity vs Resource Policy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Identity Policy تُلصق بالهوية، Resource Policy تُلصق بالمورد مثل S3 Bucket Policy أو Lambda.</span>
+      <span class="lang-en">Identity policy attached to identity; resource policy attached to resource (S3 bucket, Lambda, etc.).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Managed vs Inline Policy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Managed قابلة لإعادة الاستخدام (AWS أو العميل)، بينما Inline مرتبطة مباشرة بهوية واحدة.</span>
+      <span class="lang-en">Managed policies are reusable (AWS or customer); inline is tied to a single identity.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Permission Boundary</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">حدّ أعلى للصلاحيات الممكنة لمستخدم/دور حتى لو أُلصقت سياسات أكثر صلاحية.</span>
+      <span class="lang-en">Maximum permission ceiling for a user/role even if broader policies are attached.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Policy Evaluation Logic</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Explicit Deny تغلب كل شيء، ثم Allow صريح، والافتراضي Deny ضمني.</span>
+      <span class="lang-en">Explicit Deny > Explicit Allow > Implicit Deny (default).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">IAM Conditions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">شروط دقيقة مثل aws:SourceIp، aws:MultiFactorAuthPresent، s3:prefix للتحكم حسب السياق.</span>
+      <span class="lang-en">Fine-grained conditions like aws:SourceIp, aws:MultiFactorAuthPresent, s3:prefix.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">IAM Access Analyzer</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يكشف عن الموارد المُشاركة خارج الحساب ويقدّم اقتراحات تضييق الصلاحيات.</span>
+      <span class="lang-en">Detects resources shared outside the account; recommends narrowing permissions.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">MFA & Hardware Keys</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يدعم MFA افتراضي (TOTP)، ومفاتيح U2F، وFIDO2 لحماية الحسابات الحسّاسة.</span>
+      <span class="lang-en">Supports virtual MFA (TOTP), U2F, and FIDO2 hardware keys for sensitive accounts.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-red-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">عدد المستخدمين لكل حساب</span>
+      <span class="lang-en">Users per account</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">قابل للزيادة عبر الدعم.</span>
+        <span class="lang-en">Can be increased via support.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">5,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">عدد الأدوار لكل حساب</span>
+      <span class="lang-en">Roles per account</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">قابل للزيادة.</span>
+        <span class="lang-en">Can be increased.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">سياسات مُدارة لكل هوية</span>
+      <span class="lang-en">Managed policies per identity</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">الحدّ الافتراضي 10 ويمكن رفعه.</span>
+        <span class="lang-en">Default 10, can be raised.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">10 (قابلة للزيادة)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">حجم سياسة Managed</span>
+      <span class="lang-en">Managed policy size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">بعد إزالة المسافات الفارغة.</span>
+        <span class="lang-en">After whitespace removal.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">6,144 chars</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">حجم سياسة Inline</span>
+      <span class="lang-en">Inline policy size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">تختلف حسب نوع الهوية.</span>
+        <span class="lang-en">Varies by identity type.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">2,048 (user) / 10,240 (role) / 5,120 (group)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">المجموعات لكل مستخدم</span>
+      <span class="lang-en">Groups per user</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">الحدّ الصلب 10.</span>
+        <span class="lang-en">Hard limit of 10.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">10</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">مفاتيح الوصول لكل مستخدم</span>
+      <span class="lang-en">Access keys per user</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">للتسهيل التدوير.</span>
+        <span class="lang-en">To facilitate rotation.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">2</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-red-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء دور يتحمّله EC2.</span>
+    <span class="lang-en">Create a role assumed by EC2.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam create-role --role-name AcmeAppRole --assume-role-policy-document file://trust.json</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إلصاق سياسة مُدارة بدور.</span>
+    <span class="lang-en">Attach managed policy to a role.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam attach-role-policy --role-name AcmeAppRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">محاكاة قرار السياسة لمستخدم.</span>
+    <span class="lang-en">Simulate policy decision for a user.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::111:user/dev --action-names s3:PutObject</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تدوير مفاتيح الوصول.</span>
+    <span class="lang-en">Rotate access keys.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam create-access-key --user-name yasir && aws iam delete-access-key --access-key-id AKIA...</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء Permission Boundary.</span>
+    <span class="lang-en">Set a permission boundary.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam put-user-permissions-boundary --user-name dev --permissions-boundary arn:aws:iam::111:policy/DevBoundary</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">قراءة آخر استخدام للدور.</span>
+    <span class="lang-en">Check last-used info for a role.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws iam get-role --role-name AcmeAppRole --query Role.RoleLastUsed</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-red-600"></i>
+        <span class="lang-ar">متى تستخدم AWS IAM؟</span>
+        <span class="lang-en">When to use AWS IAM</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تطبيق EC2 يحتاج قراءة من S3.</span>
+      <span class="lang-en">EC2 app needs to read S3.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">IAM Role for EC2 (instance profile)</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">Lambda تحتاج الوصول لخدمات AWS.</span>
+      <span class="lang-en">Lambda accessing AWS services.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">Execution Role</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">منح حساب آخر وصولاً مؤقتًا.</span>
+      <span class="lang-en">Grant temporary access to another account.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">IAM Role + AssumeRole (STS)</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">منع تصعيد الصلاحيات لمطوّر.</span>
+      <span class="lang-en">Prevent privilege escalation by a dev.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">Permission Boundary</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">مستخدم تطبيق خارجي (B2B).</span>
+      <span class="lang-en">External app user (B2B).</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">IAM User with access keys (or better: IAM Role Anywhere)</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Explicit Deny دائمًا يتغلّب على Allow مهما كان مصدره.</span>
+    <span class="lang-en">Explicit Deny always beats Allow, no matter the source.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لا تستخدم Access Keys على EC2 — استخدم IAM Role عبر Instance Profile.</span>
+    <span class="lang-en">Never put Access Keys on EC2 — use IAM Role via Instance Profile.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Permission Boundary لا يمنح صلاحيات بل يُحدّد سقف الصلاحيات.</span>
+    <span class="lang-en">Permission Boundary doesn't grant — it caps what can ever be granted.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Access Analyzer يكشف Public/Shared resources — حلّ سريع للأمان.</span>
+    <span class="lang-en">Access Analyzer flags public/shared resources — quick security win.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Credentials Report + Access Advisor = تنظيف الصلاحيات الميّتة.</span>
+    <span class="lang-en">Credentials Report + Access Advisor = clean up unused permissions.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

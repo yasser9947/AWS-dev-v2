@@ -1,0 +1,45 @@
+{
+  "slug": "sts",
+  "name": "AWS STS",
+  "icon": "key-round",
+  "color": "red",
+  "tagline_ar": "خدمة إصدار بيانات اعتماد مؤقتة للأدوار والهويات الفيدرالية.",
+  "tagline_en": "Temporary credential service for roles and federated identities.",
+  "key_concepts": [
+    {"concept": "AssumeRole", "desc_ar": "تحمّل دور لحصول على بيانات اعتماد مؤقّتة (حدّ افتراضي ساعة، حتى 12 ساعة).", "desc_en": "Assume a role to obtain temporary credentials (default 1h, up to 12h)."},
+    {"concept": "AssumeRoleWithSAML", "desc_ar": "تبادل SAML Assertion من IdP خارجي بصلاحيات AWS مؤقّتة.", "desc_en": "Exchange SAML assertion from an external IdP for temporary AWS credentials."},
+    {"concept": "AssumeRoleWithWebIdentity", "desc_ar": "تبادل OIDC token (Google/Cognito/Facebook) ببيانات اعتماد AWS.", "desc_en": "Exchange OIDC token (Google/Cognito/Facebook) for AWS credentials."},
+    {"concept": "GetSessionToken", "desc_ar": "للمستخدمين الحاليين يحتاجون MFA لعمل طلبات محدودة.", "desc_en": "For existing users needing MFA-protected short-term credentials."},
+    {"concept": "GetFederationToken", "desc_ar": "يصدر بيانات اعتماد لمستخدمين فيدراليين مخصّصين (اسم جلسة محدّد).", "desc_en": "Issues credentials for custom federated users (named session)."},
+    {"concept": "Session Policy", "desc_ar": "سياسة تُطبَّق على الجلسة لتضييق صلاحيات الدور (لا توسّعها).", "desc_en": "Inline policy applied to a session to narrow (not expand) role permissions."},
+    {"concept": "External ID", "desc_ar": "معرّف مشترك لمنع هجوم الـ Confused Deputy في حالات الوصول بين الحسابات.", "desc_en": "Shared ID preventing Confused Deputy attack in cross-account access."},
+    {"concept": "Role Chaining", "desc_ar": "تحمّل دور من دور آخر — الحدّ الأقصى للعمر ينخفض لساعة.", "desc_en": "Role assumes another role — max duration drops to 1 hour."}
+  ],
+  "limits": [
+    {"limit": "مدّة الجلسة الافتراضية", "limit_en": "Default session duration", "value": "1 hour", "note_ar": "Max قابل للتخصيص حتى 12 ساعة.", "note_en": "Max configurable up to 12 hours."},
+    {"limit": "مدّة Role Chaining", "limit_en": "Role chaining duration", "value": "1 hour (max)", "note_ar": "لا يمكن تمديدها.", "note_en": "Cannot be extended."},
+    {"limit": "Federation Token", "limit_en": "GetFederationToken", "value": "15 min – 36 h", "note_ar": "الافتراضي 12 ساعة.", "note_en": "Default 12h."},
+    {"limit": "Session Token (MFA)", "limit_en": "GetSessionToken duration", "value": "15 min – 36 h", "note_ar": "عادة يُستخدم للعمليات الحسّاسة.", "note_en": "Typically for sensitive operations."},
+    {"limit": "External ID Format", "limit_en": "External ID format", "value": "2–1224 chars", "note_ar": "لا يحتوي أسرار — معرّف فقط.", "note_en": "Not a secret — just an identifier."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تحمّل دور من CLI.", "desc_en": "Assume a role via CLI.", "cmd": "aws sts assume-role --role-arn arn:aws:iam::222:role/CrossAcct --role-session-name yasir"},
+    {"desc_ar": "تحمّل دور مع MFA.", "desc_en": "Assume role with MFA.", "cmd": "aws sts assume-role --role-arn arn:aws:iam::111:role/AdminMFA --serial-number arn:aws:iam::111:mfa/yasir --token-code 123456"},
+    {"desc_ar": "التحقّق من الهوية الحالية.", "desc_en": "Check caller identity.", "cmd": "aws sts get-caller-identity"},
+    {"desc_ar": "تحمّل دور مع Session Policy.", "desc_en": "Assume role with session policy.", "cmd": "aws sts assume-role --role-arn arn:aws:iam::111:role/Dev --role-session-name restricted --policy file://session-policy.json"},
+    {"desc_ar": "تحمّل دور عبر Web Identity.", "desc_en": "AssumeRoleWithWebIdentity.", "cmd": "aws sts assume-role-with-web-identity --role-arn arn:aws:iam::111:role/Web --role-session-name s1 --web-identity-token $TOKEN"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "وصول مؤقّت لفريق إلى حساب إنتاج.", "scenario_en": "Temporary access for a team to a prod account.", "choice": "Cross-account AssumeRole"},
+    {"scenario_ar": "دمج SSO شركة مع AWS.", "scenario_en": "Enterprise SSO integration with AWS.", "choice": "AssumeRoleWithSAML or Identity Center"},
+    {"scenario_ar": "تطبيق موبايل يرفع إلى S3.", "scenario_en": "Mobile app uploading to S3.", "choice": "Cognito Identity Pool → AssumeRoleWithWebIdentity"},
+    {"scenario_ar": "وصول شريك خارجي (SaaS).", "scenario_en": "External SaaS partner access.", "choice": "Cross-account role + External ID"}
+  ],
+  "exam_tips": [
+    {"ar": "AssumeRole = أدوار داخل AWS أو عبر الحسابات.", "en": "AssumeRole = roles inside AWS or across accounts."},
+    {"ar": "AssumeRoleWithWebIdentity = OIDC (Cognito، Google).", "en": "AssumeRoleWithWebIdentity = OIDC (Cognito, Google)."},
+    {"ar": "AssumeRoleWithSAML = SAML IdPs (AD FS، Okta).", "en": "AssumeRoleWithSAML = SAML IdPs (AD FS, Okta)."},
+    {"ar": "استخدم External ID لمنع Confused Deputy.", "en": "Use External ID to prevent Confused Deputy."},
+    {"ar": "Role Chaining يقصّر المدّة لساعة — خطّط لذلك.", "en": "Role chaining caps duration at 1h — plan accordingly."}
+  ]
+}

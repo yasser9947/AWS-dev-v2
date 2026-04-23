@@ -1,0 +1,331 @@
+{
+  "n": 8,
+  "domain": "development",
+  "title_ar": "AWS CLI و SDK وأدوار IAM للمطوّرين",
+  "title_en": "AWS CLI, SDK & IAM Roles for Developers",
+  "pages": "239-252",
+  "subtitle_ar": "سلسلة البحث عن الصلاحيات في Java SDK v2، وإدارة التوقيع وآلية الـ retries وتنفيذ Exponential Backoff، وتفعيل أدوار الـ IAM عبر Instance Metadata Service. هذا الفصل يضع الأساس لكلّ استدعاء لـ AWS API من كودك.",
+  "subtitle_en": "The Java SDK v2 credentials-provider chain, request signing, retries with exponential backoff, and attaching IAM Roles through the Instance Metadata Service. This chapter is the foundation for every AWS API call your code makes.",
+  "tags": ["AWS CLI", "Java SDK v2", "IAM Roles", "IMDSv2", "Exponential Backoff", "SigV4"],
+  "objectives": [
+    {"concept": "Credentials Provider Chain", "tested_ar": "النطاق الأول — كيف يعثر الـ SDK على الصلاحيات وترتيب الأولوية.", "tested_en": "Domain 1 — how the SDK resolves credentials and priority order."},
+    {"concept": "IAM Roles & Instance Profiles", "tested_ar": "النطاق الثاني — الطريقة الآمنة لمنح التطبيقات صلاحيات دون مفاتيح مكتوبة.", "tested_en": "Domain 2 — the secure way to grant apps permissions without hardcoded keys."},
+    {"concept": "Exponential Backoff & Retries", "tested_ar": "النطاق الرابع — التعامل مع ThrottlingException وأخطاء 5xx.", "tested_en": "Domain 4 — handling ThrottlingException and 5xx errors."},
+    {"concept": "IMDSv2", "tested_ar": "النطاق الثاني — استرجاع معلومات الخادم بأمان عبر Session Token.", "tested_en": "Domain 2 — retrieving instance info securely via session tokens."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو AWS CLI والـ SDK ومتى تستخدم كلاً منهما",
+      "title_en": "AWS CLI vs SDK — when to use which",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS CLI</span> أداة سطر أوامر مبنية على Python (boto3) للاستخدام اليدوي والسكربتات. الـ <span dir=\"ltr\" class=\"font-mono text-brand-700\">SDK</span> مكتبة تستورِدها في كود تطبيقك لتنفيذ العمليات على AWS. كلاهما يستخدم نفس REST APIs ويتّبع نفس سلسلة البحث عن الصلاحيات.",
+         "en": "The <span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS CLI</span> is a Python-based command-line tool (built on boto3) for manual use and scripts. The <span dir=\"ltr\" class=\"font-mono text-brand-700\">SDK</span> is a library you import into your app to call AWS. Both hit the same REST APIs and follow the same credentials chain."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "terminal", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "متى CLI", "title_en": "When CLI", "body_ar": "سكربتات النشر، المهام اليدوية، التحقّق السريع، استكشاف الخدمات. سريع ولا يتطلّب بناء مشروع.", "body_en": "Deployment scripts, manual tasks, quick checks, service exploration. Fast, no project build needed."},
+          {"icon": "code-2", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "متى SDK", "title_en": "When SDK", "body_ar": "داخل الخدمات الإنتاجيّة (Spring Boot، Lambda)، عند الحاجة لتدفّق مراقب (streams) أو لتحويل نتائج إلى كائنات Java قويّة الأنواع.", "body_en": "Production services (Spring Boot, Lambda), when you need streaming or strongly-typed Java objects."},
+          {"icon": "package", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "لغات SDK الرسميّة", "title_en": "Official SDK languages", "body_ar": "Java، ‎.NET، Node.js، Python (boto3)، Go، Ruby، PHP، C++.", "body_en": "Java, .NET, Node.js, Python (boto3), Go, Ruby, PHP, C++."},
+          {"icon": "info", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "حقيقة مفيدة", "title_en": "Fun fact", "body_ar": "الـ CLI نفسها مبنيّة على boto3 — هذا يفسّر تطابق السلوك بين CLI و Python SDK.", "body_en": "The CLI itself is built on boto3 — which is why CLI and Python SDK behave identically."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "داخل Spring Boot، استخدم <span dir=\"ltr\" class=\"font-mono\">aws-sdk-java-v2</span> (الإصدار الثاني) لا v1. v2 مبنيّ على Netty، يدعم الاستدعاءات غير المتزامنة عبر <span dir=\"ltr\" class=\"font-mono\">CompletableFuture</span>، ويستهلك ذاكرة أقلّ بكثير — مهمّ عند تشغيله داخل Lambda بسبب الـ cold start.",
+         "en": "Inside Spring Boot, use <span dir=\"ltr\" class=\"font-mono\">aws-sdk-java-v2</span> (v2), not v1. v2 is Netty-based, supports async calls via <span dir=\"ltr\" class=\"font-mono\">CompletableFuture</span>, and uses much less memory — critical inside Lambda because of cold starts."}
+      ]
+    },
+    {
+      "title_ar": "سلسلة البحث عن الصلاحيات في Java SDK v2",
+      "title_en": "Java SDK v2 Default Credentials Provider Chain",
+      "blocks": [
+        {"type": "p",
+         "ar": "عند استدعاء AWS API من Java، الـ SDK يبحث عن الصلاحيات بترتيب محدّد ويتوقف عند أوّل مصدر يعطيه مفاتيح صالحة. فهم هذا الترتيب ضروريّ جداً للامتحان لأنّ AWS تختبره في سيناريوهات محدّدة (مثل: خادم EC2 مع IAM Role لكن متغيّرات البيئة مضبوطة — أيّ يفوز؟).",
+         "en": "When you call AWS API from Java, the SDK searches for credentials in a specific order and stops at the first source with valid keys. Exam-critical: AWS tests this with scenarios like \"EC2 with IAM Role but env vars set — which wins?\"."},
+        {"type": "table",
+         "headers": {"ar": ["الترتيب", "المصدر", "مثال"], "en": ["Order", "Source", "Example"]},
+         "rows": [
+           [{"mono": true, "value": "1"}, {"ar": "خصائص نظام Java", "en": "Java System Properties"}, {"mono": true, "value": "-Daws.accessKeyId=... -Daws.secretKey=..."}],
+           [{"mono": true, "value": "2"}, {"ar": "متغيّرات البيئة", "en": "Environment Variables"}, {"mono": true, "value": "AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY"}],
+           [{"mono": true, "value": "3"}, {"ar": "ملفّ الصلاحيات", "en": "Profile credentials file"}, {"mono": true, "value": "~/.aws/credentials (shared with CLI)"}],
+           [{"mono": true, "value": "4"}, {"ar": "صلاحيات حاوية ECS", "en": "ECS container credentials"}, {"ar": "لمهام ECS (Task Role)", "en": "For ECS tasks (Task Role)"}],
+           [{"mono": true, "value": "5"}, {"ar": "صلاحيات Instance Profile", "en": "Instance Profile credentials"}, {"ar": "لخوادم EC2 (IMDS)", "en": "For EC2 (via IMDS)"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "سيناريو شائع في الامتحان: مطوّر رفع تطبيقه على EC2، أرفق IAM Role يعطي صلاحية S3 على bucket واحد فقط، لكن التطبيق ما زال يصل إلى جميع الـ buckets. السبب: مفاتيح قديمة في متغيّرات البيئة — <strong>الأولوية الأعلى تفوز</strong>. الحلّ: حذف متغيّرات البيئة.",
+         "en": "Common exam scenario: developer deploys to EC2, attaches an IAM Role with S3 access to a single bucket, but the app still accesses all buckets. Reason: old keys in env vars — <strong>higher priority wins</strong>. Fix: remove env vars."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — DefaultCredentialsProvider walks the chain automatically\nimport software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;\nimport software.amazon.awssdk.regions.Region;\nimport software.amazon.awssdk.services.s3.S3Client;\n\nS3Client s3 = S3Client.builder()\n    .region(Region.EU_WEST_1)\n    .credentialsProvider(DefaultCredentialsProvider.create()) // this is the default too\n    .build();\n\n// On EC2 with an attached role, this picks up credentials from IMDS\n// In your laptop, it reads ~/.aws/credentials\n// Inside Lambda, it uses the Lambda execution role\ns3.listBuckets().buckets().forEach(b -> System.out.println(b.name()));"}
+      ]
+    },
+    {
+      "title_ar": "IAM Roles و Instance Profiles و IMDSv2",
+      "title_en": "IAM Roles, Instance Profiles & IMDSv2",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Instance Profile</strong> هو الحاوية التي تحمل IAM Role وتربطه بخادم EC2. الخادم يقرأ الصلاحيات من <strong>Instance Metadata Service (IMDS)</strong> على عنوان الشبكة الداخليّ <span dir=\"ltr\" class=\"font-mono\">169.254.169.254</span>. الصلاحيات مؤقّتة (تُجدَّد تلقائياً كل ساعة). هذا هو السبب الذي يجعل استخدام IAM Role أفضل من وضع مفاتيح ثابتة.",
+         "en": "An <strong>Instance Profile</strong> is the container that holds an IAM Role and attaches it to an EC2 instance. The instance reads credentials from the <strong>Instance Metadata Service (IMDS)</strong> at <span dir=\"ltr\" class=\"font-mono\">169.254.169.254</span>. Credentials are temporary (auto-rotated every hour). That's why IAM Roles beat hardcoded keys."},
+        {"type": "compare",
+         "left": {"tone": "red", "icon": "shield-off", "title_ar": "IMDSv1 (الإصدار القديم)", "title_en": "IMDSv1 (legacy)",
+                  "body_ar": "GET مباشر على الـ URL. معرَّض لهجمات SSRF (Server-Side Request Forgery) التي تخدع التطبيق لقراءة الصلاحيات ثم تسرّبها.",
+                  "body_en": "Direct GET on the URL. Vulnerable to SSRF (Server-Side Request Forgery) attacks tricking the app into leaking credentials."},
+         "right": {"tone": "emerald", "icon": "shield-check", "title_ar": "IMDSv2 (الموصى به)", "title_en": "IMDSv2 (recommended)",
+                   "body_ar": "خطوتان: PUT للحصول على Session Token (صلاحيته حتى 6 ساعات)، ثم GET مع الـ token في header. يحظر SSRF لأنّ الثغرات عادة تدعم GET لا PUT.",
+                   "body_en": "Two steps: PUT for a session token (up to 6h validity), then GET with the token in a header. Blocks SSRF because typical vulnerabilities only support GET."}
+        },
+        {"type": "code", "lang": "bash",
+         "code": "# IMDSv2: get a session token, then use it to read metadata\nTOKEN=$(curl -X PUT \"http://169.254.169.254/latest/api/token\" \\\n  -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\")\n\n# Query the attached role name\ncurl -H \"X-aws-ec2-metadata-token: $TOKEN\" \\\n  http://169.254.169.254/latest/meta-data/iam/security-credentials/\n\n# Fetch temporary credentials (SDK does this for you)\ncurl -H \"X-aws-ec2-metadata-token: $TOKEN\" \\\n  http://169.254.169.254/latest/meta-data/iam/security-credentials/MyRole"},
+        {"type": "callout", "tone": "key",
+         "ar": "أهمّ تمييز: <strong>IMDS يعطيك اسم الـ Role والمفاتيح المؤقّتة، لكن لا يعطيك سياسات الـ IAM نفسها</strong>. السياسات تُقيَّم داخل AWS عند كلّ استدعاء API.",
+         "en": "Key distinction: <strong>IMDS gives you the role name and temporary credentials, but NOT the IAM policies themselves</strong>. Policies are evaluated inside AWS on every API call."}
+      ]
+    },
+    {
+      "title_ar": "التوقيع بـ Signature v4 (SigV4)",
+      "title_en": "Signing requests with Signature v4 (SigV4)",
+      "blocks": [
+        {"type": "p",
+         "ar": "كلّ استدعاء لـ AWS API يجب أن يكون موقّعاً رقميّاً بـ <strong>SigV4</strong> ليثبت لـ AWS أنّك تمتلك الـ Secret Access Key. عند استخدام CLI أو SDK يتمّ التوقيع تلقائياً، لكن عند بناء طلبات يدويّة (مثل وضع توقيع على URL لـ S3) تحتاج فهم الآليّة.",
+         "en": "Every AWS API call must be signed with <strong>SigV4</strong> to prove you hold the Secret Access Key. CLI/SDK sign for you, but when building manual requests (like S3 pre-signed URLs) you need to understand it."},
+        {"type": "table",
+         "headers": {"ar": ["الخطوة", "المحتوى"], "en": ["Step", "Content"]},
+         "rows": [
+           [{"ar": "1. Canonical request", "en": "1. Canonical request"}, {"ar": "صياغة الطلب بصيغة موحّدة (method, URI, headers, query).", "en": "Normalize the request (method, URI, headers, query)."}],
+           [{"ar": "2. String to sign", "en": "2. String to sign"}, {"ar": "التاريخ + الخوارزمية + hash من الـ canonical request.", "en": "Date + algorithm + hash of canonical request."}],
+           [{"ar": "3. Signature", "en": "3. Signature"}, {"ar": "HMAC-SHA256 باستخدام مفتاح مشتق من Secret Access Key.", "en": "HMAC-SHA256 using a key derived from the Secret Access Key."}],
+           [{"ar": "4. Add to request", "en": "4. Add to request"}, {"ar": "في <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header أو كـ query string (pre-signed URLs).", "en": "In <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header or as query string (pre-signed URLs)."}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "S3 pre-signed URLs تستخدم SigV4 في الـ query string مع <span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature</span> و <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>. هذا ما يسمح بمشاركة رابط مؤقّت لملفّ خاصّ دون تعريض مفاتيحك.",
+         "en": "S3 pre-signed URLs use SigV4 in the query string with <span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature</span> and <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>. That's how you share a temporary link to a private file without exposing your keys."}
+      ]
+    },
+    {
+      "title_ar": "Retries و Exponential Backoff",
+      "title_en": "Retries & Exponential Backoff",
+      "blocks": [
+        {"type": "p",
+         "ar": "AWS APIs لها حدود معدّلات (rate limits): مثلاً <span dir=\"ltr\" class=\"font-mono\">DescribeInstances</span> للـ EC2 بحد 100 استدعاء/ثانية، <span dir=\"ltr\" class=\"font-mono\">GetObject</span> على S3 بحد 5500 طلب/ثانية لكلّ prefix. عند تجاوزها يُرجِع AWS خطأ <strong>ThrottlingException</strong>. الحلّ: <strong>Exponential Backoff</strong> — انتظار متزايد بين المحاولات.",
+         "en": "AWS APIs have rate limits: e.g., EC2 <span dir=\"ltr\" class=\"font-mono\">DescribeInstances</span> = 100 calls/sec, S3 <span dir=\"ltr\" class=\"font-mono\">GetObject</span> = 5500 req/sec per prefix. Exceed them and AWS returns <strong>ThrottlingException</strong>. Fix: <strong>exponential backoff</strong> — growing delays between retries."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "refresh-cw", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "الـ SDK يُعيد المحاولة", "title_en": "SDK retries", "body_ar": "Java SDK v2 يُطبّق exponential backoff افتراضياً لأخطاء throttling و 5xx. لا تحتاج كتابته بنفسك غالباً.", "body_en": "Java SDK v2 applies exponential backoff by default for throttling and 5xx. You rarely need custom logic."},
+          {"icon": "alert-triangle", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "لا تعيد على 4xx", "title_en": "Don't retry 4xx", "body_ar": "أخطاء 400-499 تعني مشكلة في طلبك (صلاحيات، JSON غير صالح). إعادة المحاولة ستعطي نفس الخطأ.", "body_en": "400-499 errors mean your request is wrong (auth, bad JSON). Retrying gives the same error."},
+          {"icon": "repeat", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "أعد على 5xx و 429", "title_en": "Retry 5xx & 429", "body_ar": "الـ 5xx أخطاء خادم مؤقّتة، 429 = throttling. كلاهما يُحَلّ بالصبر.", "body_en": "5xx are transient server errors, 429 = throttling. Both respond to patience."},
+          {"icon": "activity", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Jitter مهمّ", "title_en": "Jitter matters", "body_ar": "أضِف عشوائية (jitter) للـ backoff لتجنّب \"thundering herd\" حيث كلّ الـ clients يُعيدون في نفس اللحظة.", "body_en": "Add randomization (jitter) to backoff to avoid the \"thundering herd\" where all clients retry simultaneously."}
+        ]},
+        {"type": "code", "lang": "java",
+         "code": "// Customize retry policy in Java SDK v2\nimport software.amazon.awssdk.core.retry.RetryPolicy;\nimport software.amazon.awssdk.core.retry.backoff.FullJitterBackoffStrategy;\nimport software.amazon.awssdk.services.s3.S3Client;\nimport software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;\n\nRetryPolicy retry = RetryPolicy.builder()\n    .numRetries(5)                                                  // 5 retries\n    .backoffStrategy(FullJitterBackoffStrategy.builder()\n        .baseDelay(java.time.Duration.ofMillis(200))                // start at 200ms\n        .maxBackoffTime(java.time.Duration.ofSeconds(20))           // cap at 20s\n        .build())\n    .build();\n\nS3Client s3 = S3Client.builder()\n    .overrideConfiguration(ClientOverrideConfiguration.builder()\n        .retryPolicy(retry)\n        .build())\n    .build();"}
+      ]
+    },
+    {
+      "title_ar": "الحدود (Limits) و Service Quotas",
+      "title_en": "AWS Limits & Service Quotas",
+      "blocks": [
+        {"type": "p",
+         "ar": "AWS تُطبّق نوعين من الحدود: <strong>API Rate Limits</strong> (عدد الاستدعاءات في الثانية)، و <strong>Service Quotas</strong> (الحدّ الأقصى لموارد الحساب، مثلاً 1152 vCPU للخوادم On-Demand). الأخيرة قابلة للرفع عبر <strong>Service Quotas API</strong> أو فتح تذكرة دعم.",
+         "en": "AWS applies two kinds of limits: <strong>API Rate Limits</strong> (calls per second) and <strong>Service Quotas</strong> (max resources per account, e.g., 1152 vCPU for On-Demand). The latter can be raised via the <strong>Service Quotas API</strong> or by opening a support ticket."},
+        {"type": "callout", "tone": "warn",
+         "ar": "في الامتحان: إذا حصل الخطأ <strong>بشكل متقطّع</strong> → طبّق exponential backoff. إذا حصل <strong>بشكل مستمرّ</strong> → اطلب رفع الحدّ، فالتطبيق وصل حقيقةً لسقف الموارد.",
+         "en": "Exam tip: if the error is <strong>intermittent</strong>, apply exponential backoff. If <strong>persistent</strong>, request a quota increase — the app has truly hit the ceiling."},
+        {"type": "code", "lang": "java",
+         "code": "// Inspect retries via SDK metrics (Java SDK v2)\nimport software.amazon.awssdk.metrics.MetricCollection;\nimport software.amazon.awssdk.metrics.MetricPublisher;\n\n// Example: log number of retry attempts per call\nMetricPublisher publisher = (MetricCollection collection) -> {\n    collection.metricValues(software.amazon.awssdk.core.metrics.CoreMetric.RETRY_COUNT)\n        .forEach(count -> System.out.println(\"Retries: \" + count));\n};\n\nS3Client s3 = S3Client.builder()\n    .overrideConfiguration(b -> b.addMetricPublisher(publisher))\n    .build();"}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "تشغيل تطبيق Java على EC2 يصل إلى S3 عبر IAM Role بدون أيّ مفتاح مكتوب، وتفعيل IMDSv2.",
+    "goal_en": "Run a Java app on EC2 that accesses S3 via an IAM Role with zero hardcoded keys, using IMDSv2.",
+    "steps": [
+      {"title_ar": "أنشئ IAM Role لـ EC2", "title_en": "Create an IAM Role for EC2",
+       "body_ar": "في IAM Console: أنشئ role بنوع <span dir=\"ltr\" class=\"font-mono\">AWS service → EC2</span>، أرفق policy مدارة <span dir=\"ltr\" class=\"font-mono\">AmazonS3ReadOnlyAccess</span> (أو policy مخصّصة لأدنى صلاحيات).",
+       "body_en": "In IAM Console: create a role of type <span dir=\"ltr\" class=\"font-mono\">AWS service → EC2</span>, attach managed policy <span dir=\"ltr\" class=\"font-mono\">AmazonS3ReadOnlyAccess</span> (or a least-privilege custom policy)."},
+      {"title_ar": "أطلق EC2 مع الـ Role وفعّل IMDSv2", "title_en": "Launch EC2 with the role and require IMDSv2",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws ec2 run-instances \\\n  --image-id ami-0abc1234 \\\n  --instance-type t3.micro \\\n  --iam-instance-profile Name=MyEc2ReadS3 \\\n  --metadata-options 'HttpTokens=required,HttpEndpoint=enabled'\n\n# HttpTokens=required forces IMDSv2 (blocks SSRF)"},
+      {"title_ar": "اكتب تطبيق Java يستخدم DefaultCredentialsProvider", "title_en": "Write a Java app using DefaultCredentialsProvider",
+       "body_ar": "الـ SDK سيحصل على الصلاحيات تلقائياً من IMDS.",
+       "body_en": "The SDK will auto-resolve credentials from IMDS.",
+       "code": "public static void main(String[] args) {\n    S3Client s3 = S3Client.builder()\n        .region(Region.EU_WEST_1)\n        .build();\n    s3.listBuckets().buckets().forEach(b -> System.out.println(b.name()));\n}"},
+      {"title_ar": "تحقّق من انعدام المفاتيح داخل الخادم", "title_en": "Confirm no keys are stored on the instance",
+       "body_ar": "ادخل إلى الخادم وتأكّد من عدم وجود <span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials</span> ولا متغيّرات بيئة <span dir=\"ltr\" class=\"font-mono\">AWS_ACCESS_KEY_ID</span>.",
+       "body_en": "SSH into the instance and verify no <span dir=\"ltr\" class=\"font-mono\">~/.aws/credentials</span> and no <span dir=\"ltr\" class=\"font-mono\">AWS_ACCESS_KEY_ID</span> env var.",
+       "code": "ls -la ~/.aws/ 2>&1 || echo 'no aws dir (good)'\nenv | grep AWS_ || echo 'no AWS_* env vars (good)'"},
+      {"title_ar": "استرجع الدور عبر IMDSv2", "title_en": "Retrieve the role via IMDSv2",
+       "body_ar": "",
+       "body_en": "",
+       "code": "TOKEN=$(curl -X PUT \"http://169.254.169.254/latest/api/token\" \\\n  -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\")\n\ncurl -H \"X-aws-ec2-metadata-token: $TOKEN\" \\\n  http://169.254.169.254/latest/meta-data/iam/security-credentials/"}
+    ],
+    "warning_ar": "عطّل IMDSv1 تماماً بـ <span dir=\"ltr\" class=\"font-mono\">HttpTokens=required</span>. الخوادم القديمة بدون هذا الإعداد تمثّل ثغرة أمنيّة.",
+    "warning_en": "Disable IMDSv1 entirely with <span dir=\"ltr\" class=\"font-mono\">HttpTokens=required</span>. Legacy instances without this setting are a security risk."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق Java يعمل على EC2 مرفق به IAM Role يعطي صلاحية قراءة على bucket واحد. لكن التطبيق يقرأ من كلّ الـ buckets. ما السبب الأرجح؟",
+      "question_en": "A Java app runs on EC2 with an IAM Role granting read on one bucket. Yet the app reads from all buckets. Most likely cause?",
+      "options_ar": ["الـ IAM Role غير مفعّل.", "متغيّرات البيئة تحتوي على مفاتيح IAM User لها صلاحيات أوسع، وأولويّتها أعلى في سلسلة البحث.", "IMDS معطّل على الخادم.", "S3 لا يحترم الـ IAM Roles."],
+      "options_en": ["The IAM Role is disabled.", "Env vars hold IAM User keys with wider perms, higher in the credentials chain.", "IMDS is disabled on the instance.", "S3 doesn't honor IAM Roles."],
+      "correct": 1,
+      "explanation_ar": "سلسلة البحث: System Properties → Env Vars → Profile File → ECS → Instance Profile. متغيّرات البيئة أعلى من Instance Profile، فتسبق الدور. الحلّ: حذف متغيّرات البيئة أو استخدام named profile.",
+      "explanation_en": "Chain order: System Props → Env Vars → Profile → ECS → Instance Profile. Env vars outrank instance profile. Fix: remove env vars or use a named profile.",
+      "wrong_ar": ["لو كان كذلك لفشل كلّ وصول.", "", "لو كان IMDS معطّلاً لما عمل التطبيق أصلاً لأنّه لن يحصل على أيّ صلاحيات.", "S3 يحترم أيّ principal موقّع."],
+      "wrong_en": ["Then all access would fail.", "", "Without IMDS the app would get no credentials at all.", "S3 honors any signed principal."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "ما الفرق الأمنيّ الأساسيّ بين IMDSv1 و IMDSv2؟",
+      "question_en": "Main security difference between IMDSv1 and IMDSv2?",
+      "options_ar": ["IMDSv2 يدعم IPv6 فقط.", "IMDSv2 يتطلّب Session Token عبر PUT أوّلاً، ممّا يحظر هجمات SSRF.", "IMDSv1 أسرع.", "IMDSv2 يستخدم عنوان IP مختلف."],
+      "options_en": ["IMDSv2 supports only IPv6.", "IMDSv2 requires a session token via PUT first, blocking SSRF attacks.", "IMDSv1 is faster.", "IMDSv2 uses a different IP."],
+      "correct": 1,
+      "explanation_ar": "IMDSv2 يضيف خطوة PUT للحصول على token صالحاً لمدّة محدودة، ثم يُرسَل في header مع GET. ثغرات SSRF عادة تدعم GET فقط، فلا يمكنها الحصول على الـ token ابتداءً. هذا يقضي على فئة كاملة من الهجمات.",
+      "explanation_en": "IMDSv2 adds a PUT step for a time-limited token, then sent in a header with GET. SSRF vulns usually only allow GET, so they cannot get the token in the first place. Eliminates an entire attack class.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "multi",
+      "question_ar": "متى يجب تطبيق Exponential Backoff؟ اختر كلّ ما ينطبق.",
+      "question_en": "When should you apply exponential backoff? Select all that apply.",
+      "options_ar": ["على أخطاء ThrottlingException (429).", "على أخطاء 5xx من الخادم.", "على أخطاء AccessDenied (403).", "على أخطاء ValidationException (400)."],
+      "options_en": ["On ThrottlingException (429) errors.", "On 5xx server errors.", "On AccessDenied (403) errors.", "On ValidationException (400) errors."],
+      "correct": [0, 1],
+      "explanation_ar": "backoff للأخطاء المؤقّتة: 429 (throttling) و 5xx (مشاكل خادم). أخطاء 4xx (403، 400) مشاكل في الطلب نفسه — إعادة المحاولة لن تغيّر شيئاً.",
+      "explanation_en": "Backoff is for transient errors: 429 (throttling) and 5xx (server issues). 4xx (403, 400) are request-side issues — retries won't help.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "أفضل طريقة لتمرير صلاحيات AWS إلى حاوية ECS تعمل على Fargate؟",
+      "question_en": "Best way to pass AWS credentials to an ECS container running on Fargate?",
+      "options_ar": ["متغيّرات بيئة في تعريف الحاوية (Task Definition).", "ملفّ مشفّر داخل الصورة.", "Task Role (IAM Role مرفق بالـ Task)، والـ SDK يلتقطه من container credentials provider.", "مشاركة credentials file مع host machine."],
+      "options_en": ["Env vars in Task Definition.", "Encrypted file in the image.", "Task Role (IAM Role attached to the Task); SDK picks it via container credentials provider.", "Share credentials file with host machine."],
+      "correct": 2,
+      "explanation_ar": "Task Role هو المكافئ لـ Instance Profile لكن لمهام ECS. الـ SDK يقرأه من endpoint خاصّ بالحاوية <span dir=\"ltr\" class=\"font-mono\">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI</span>. صلاحياته مؤقّتة ومدارة تلقائياً.",
+      "explanation_en": "Task Role is the ECS equivalent of an Instance Profile. The SDK reads it from <span dir=\"ltr\" class=\"font-mono\">$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI</span>. Temporary, auto-managed.",
+      "wrong_ar": ["خطر أمنيّ — أيّ من يرى التعريف يحصل على المفاتيح.", "الصلاحيات تُسرَّب عند مشاركة الصورة.", "", "Fargate لا يتيح الوصول للـ host."],
+      "wrong_en": ["Security risk — anyone viewing the definition sees the keys.", "Keys leak if the image is shared.", "", "Fargate hides host access."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "تطبيق Spring Boot يستدعي DynamoDB من خلال Java SDK v2 ويحصل على خطأ <span dir=\"ltr\" class=\"font-mono\">ThrottlingException</span> بشكل متقطّع. أفضل إجراء أوّل؟",
+      "question_en": "A Spring Boot app hits DynamoDB via Java SDK v2 and intermittently gets <span dir=\"ltr\" class=\"font-mono\">ThrottlingException</span>. Best first action?",
+      "options_ar": ["فتح تذكرة دعم لرفع الحدّ مباشرة.", "التأكّد من أنّ السياسة الافتراضية للـ retry مع exponential backoff مفعّلة، وضبط numRetries إذا لزم.", "التبديل إلى boto3.", "تغيير الـ Region."],
+      "options_en": ["Open a support ticket to raise the limit immediately.", "Ensure the default retry policy with exponential backoff is active, tune numRetries if needed.", "Switch to boto3.", "Change region."],
+      "correct": 1,
+      "explanation_ar": "Java SDK v2 يطبّق exponential backoff افتراضياً. الأخطاء المتقطّعة تعالَج بها. رفع الحدّ يكون خياراً فقط إذا ثبت أنّ الاستهلاك حقيقةً يتجاوز السقف باستمرار.",
+      "explanation_en": "Java SDK v2 applies exponential backoff by default. Intermittent errors are handled by it. Raising the limit is only needed if consumption truly exceeds capacity persistently.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "كم المدّة القصوى لصلاحية Session Token الذي يحصل عليه IMDSv2؟",
+      "question_en": "Maximum validity of a session token from IMDSv2?",
+      "options_ar": ["15 دقيقة", "1 ساعة", "6 ساعات", "12 ساعة"],
+      "options_en": ["15 minutes", "1 hour", "6 hours", "12 hours"],
+      "correct": 2,
+      "explanation_ar": "الحد الأقصى 21600 ثانية = 6 ساعات. يُرسَل في header <span dir=\"ltr\" class=\"font-mono\">X-aws-ec2-metadata-token-ttl-seconds</span> عند الـ PUT.",
+      "explanation_en": "Max is 21600s = 6 hours, set via the <span dir=\"ltr\" class=\"font-mono\">X-aws-ec2-metadata-token-ttl-seconds</span> header during PUT.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "ما الفرق بين API Rate Limits و Service Quotas في AWS؟",
+      "question_en": "Difference between API Rate Limits and Service Quotas?",
+      "options_ar": ["لا يوجد فرق.", "Rate Limits = استدعاءات لكلّ ثانية (throttling)، Service Quotas = حدّ أعلى للموارد (عدد الخوادم مثلاً). كلاهما قابل للزيادة عبر طرق مختلفة.", "Rate Limits للخدمات الجديدة فقط.", "Service Quotas تنطبق على Lambda فقط."],
+      "options_en": ["No difference.", "Rate Limits = calls/sec (throttling); Service Quotas = max resource count (e.g., instances). Both raisable via different paths.", "Rate Limits apply only to new services.", "Service Quotas apply only to Lambda."],
+      "correct": 1,
+      "explanation_ar": "Rate Limits: DescribeInstances 100/ثانية مثلاً. Quotas: 1152 vCPU للحساب. الأولى تُعالَج بـ backoff، الثانية تُرفَع عبر Service Quotas API أو تذكرة.",
+      "explanation_en": "Rate Limits: e.g., DescribeInstances 100/sec. Quotas: e.g., 1152 vCPU/account. Former handled by backoff, latter raised via Service Quotas API or ticket.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "أيّ مصدر صلاحيات الأعلى أولويّةً في Java SDK v2؟",
+      "question_en": "Highest-priority credentials source in Java SDK v2?",
+      "options_ar": ["Instance Profile", "متغيّرات البيئة AWS_ACCESS_KEY_ID", "خصائص نظام Java (aws.accessKeyId / aws.secretKey)", "ملفّ ~/.aws/credentials"],
+      "options_en": ["Instance Profile", "Env vars AWS_ACCESS_KEY_ID", "Java System Properties (aws.accessKeyId / aws.secretKey)", "~/.aws/credentials file"],
+      "correct": 2,
+      "explanation_ar": "ترتيب Java SDK: System Properties أوّلاً، ثم Environment Variables، ثم Profile File، ثم ECS Container credentials، ثم Instance Profile.",
+      "explanation_en": "Java SDK order: System Properties first, then Env Vars, then Profile File, then ECS Container, then Instance Profile.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "شركة تريد منح مطوّر صلاحيّة مؤقّتة لرفع ملفّ إلى S3 مع MFA نشط، عبر CLI. أيّ أمر هو الأساسي؟",
+      "question_en": "A company wants to grant a developer temporary access to upload to S3 with active MFA, via CLI. Which call is foundational?",
+      "options_ar": ["aws configure", "aws sts assume-role", "aws sts get-session-token --serial-number ... --token-code ...", "aws iam create-access-key"],
+      "options_en": ["aws configure", "aws sts assume-role", "aws sts get-session-token --serial-number ... --token-code ...", "aws iam create-access-key"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">STS GetSessionToken</span> يُصدِر مفاتيح مؤقّتة مشروطة بـ MFA، لمدّة قابلة للضبط (افتراضي 12 ساعة، 1-36 ساعة). تُستخدَم مع CLI عبر named profile. AssumeRole يُستخدَم للوصول عبر حسابات.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">STS GetSessionToken</span> issues MFA-bound temporary credentials (default 12h, range 1-36h). Used via named profile in CLI. AssumeRole is for cross-account.",
+      "wrong_ar": ["يُعدّ الملفّ المحلّي فقط، لا ينتج tokens.", "لتولّي دور في حساب آخر، ليس هدف MFA للـ user نفسه.", "", "ينشئ مفاتيح دائمة، عكس المطلوب."],
+      "wrong_en": ["Only configures local file, no tokens.", "For cross-account role assumption, not self-MFA.", "", "Creates permanent keys — opposite of what's needed."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "multi",
+      "question_ar": "أيّ من هذه الممارسات <strong>يجب تجنّبها</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which of these practices should you <strong>avoid</strong>? Select all that apply.",
+      "options_ar": ["كتابة AWS Access Keys في الكود المصدريّ.", "استخدام IAM Role مع EC2 Instance Profile.", "تخزين Secret Access Key في User Data للخادم.", "استخدام DefaultCredentialsProvider في Lambda."],
+      "options_en": ["Hardcoding AWS Access Keys in source code.", "Using an IAM Role with EC2 Instance Profile.", "Storing the Secret Access Key in EC2 User Data.", "Using DefaultCredentialsProvider in Lambda."],
+      "correct": [0, 2],
+      "explanation_ar": "لا تضع مفاتيح في الكود المصدريّ (قد تُنشَر على Git). لا تضعها في User Data (محفوظ بدون تشفير على <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt</span>). IAM Role و DefaultCredentialsProvider ممارسات صحيحة.",
+      "explanation_en": "Never hardcode keys (may leak to Git). Never put them in User Data (stored plaintext at <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt</span>). IAM Role and DefaultCredentialsProvider are correct.",
+      "reference_ar": "القسم ١ و ٢",
+      "reference_en": "Sections 1 & 2"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "في أيّ من المواقف التالية يكون التوقيع بـ SigV4 في <strong>query string</strong> (لا header) الأنسب؟",
+      "question_en": "In which case is SigV4 signing in the <strong>query string</strong> (not header) most appropriate?",
+      "options_ar": ["استدعاء DynamoDB من Lambda.", "مشاركة رابط مؤقّت لتنزيل ملفّ S3 دون الحاجة إلى مفاتيح لدى المستلم (presigned URL).", "إرسال طلب POST لإنشاء خادم EC2.", "الاتّصال بـ IAM."],
+      "options_en": ["Calling DynamoDB from Lambda.", "Sharing a temporary link to download an S3 file without keys on the receiver's end (presigned URL).", "POST request to create EC2 instance.", "Calling IAM."],
+      "correct": 1,
+      "explanation_ar": "presigned URLs هي المثال الكلاسيكيّ — التوقيع يدخل في query string (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature</span>) مع صلاحية زمنيّة (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>)، فيمكن نقل الرابط في رسالة بريد دون كشف مفاتيحك.",
+      "explanation_en": "Presigned URLs are the canonical case — signature sits in query string (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Signature</span>) with expiry (<span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>), enabling email-sharable links without exposing keys.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "فريق يستقبل باستمرار خطأ 5xx من CloudWatch Logs عند إرسال logs من تطبيقاتهم. ما الحلّ المناسب <u>داخل الكود</u>؟",
+      "question_en": "A team keeps receiving 5xx errors from CloudWatch Logs while shipping logs from their apps. Proper <u>in-code</u> fix?",
+      "options_ar": ["التحويل إلى خدمة أخرى.", "تطبيق exponential backoff مع jitter على استدعاءات PutLogEvents (الـ SDK يفعل ذلك افتراضياً لكن يُنصح بضبط numRetries).", "رفع كلّ طلب كـ batch ضخم (100MB).", "إزالة IAM Role ومرور إلى مفاتيح ثابتة."],
+      "options_en": ["Switch to another service.", "Apply exponential backoff + jitter on PutLogEvents (SDK does it by default, but tuning numRetries helps).", "Send each request as a huge batch (100MB).", "Remove IAM Role, use static keys."],
+      "correct": 1,
+      "explanation_ar": "أخطاء 5xx مؤقّتة — backoff هو الحلّ. الـ SDK يُطبّقها، ضبط numRetries يزيد الصبر. رفع الـ batches فوق الحدّ سيزيد الأخطاء.",
+      "explanation_en": "5xx are transient — backoff fixes them. SDK applies it, tuning numRetries adds patience. Oversized batches will amplify errors.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "key", "title_ar": "IAM Roles لا مفاتيح", "title_en": "IAM Roles, not keys",
+     "body_ar": "أرفق role بالموارد داخل AWS (EC2، ECS، Lambda)؛ الـ SDK يلتقط الصلاحيات تلقائياً.",
+     "body_en": "Attach roles to AWS resources (EC2, ECS, Lambda); SDK auto-resolves credentials."},
+    {"icon": "list-ordered", "title_ar": "سلسلة البحث مهمّة", "title_en": "Chain order matters",
+     "body_ar": "System Props → Env → Profile → ECS → Instance Profile. الأولوية الأعلى تفوز.",
+     "body_en": "System Props → Env → Profile → ECS → Instance Profile. Higher priority wins."},
+    {"icon": "refresh-cw", "title_ar": "Backoff على 5xx و 429", "title_en": "Backoff on 5xx & 429",
+     "body_ar": "الـ SDK يطبّقها افتراضياً. لا تعيد على 4xx (أخطاء في طلبك).",
+     "body_en": "SDK applies it by default. Don't retry 4xx (request-side errors)."},
+    {"icon": "shield-check", "title_ar": "IMDSv2 إلزاميّ", "title_en": "IMDSv2 is mandatory",
+     "body_ar": "HttpTokens=required يحظر IMDSv1 ويمنع هجمات SSRF.",
+     "body_en": "HttpTokens=required disables IMDSv1 and blocks SSRF."}
+  ],
+  "mnemonic_ar": "<strong>S-E-P-C-I</strong> لسلسلة Java SDK: <strong>S</strong>ystem Properties، <strong>E</strong>nv Vars، <strong>P</strong>rofile File، <strong>C</strong>ontainer (ECS)، <strong>I</strong>nstance Profile. فكّر فيها كسلسلة البحث: \"Super Easy Pipeline: Container → Instance\".",
+  "mnemonic_en": "<strong>S-E-P-C-I</strong> for the Java SDK chain: <strong>S</strong>ystem Props, <strong>E</strong>nv Vars, <strong>P</strong>rofile, <strong>C</strong>ontainer (ECS), <strong>I</strong>nstance Profile. Read as: \"Super Easy Pipeline: Container → Instance\".",
+  "prev": 7,
+  "next": 9
+}

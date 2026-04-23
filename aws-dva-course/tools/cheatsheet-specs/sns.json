@@ -1,0 +1,55 @@
+{
+  "slug": "sns",
+  "name": "Amazon SNS",
+  "icon": "bell",
+  "color": "pink",
+  "tagline_ar": "خدمة نشر/اشتراك (Pub/Sub) لتوزيع الرسائل إلى عدّة مستهلكين عبر SQS و Lambda و HTTP و Email و SMS.",
+  "tagline_en": "Pub/Sub service that fans messages out to many subscribers via SQS, Lambda, HTTP, Email, and SMS.",
+  "key_concepts": [
+    {"concept": "Topics & Subscribers", "desc_ar": "ينشر المُنتِج رسالة إلى Topic وتصل إلى كل المشتركين (fan-out).", "desc_en": "Producer publishes to a Topic; each subscriber receives a copy (fan-out)."},
+    {"concept": "Standard vs FIFO", "desc_ar": "Standard يعمل at-least-once وبترتيب غير مضمون. FIFO ترتيب وexactly-once مع SQS FIFO.", "desc_en": "Standard: at-least-once, best-effort ordering. FIFO: ordered & exactly-once (with SQS FIFO)."},
+    {"concept": "Delivery Protocols", "desc_ar": "SQS، Lambda، HTTP(S)، Email، SMS، Mobile Push، Kinesis Data Firehose.", "desc_en": "SQS, Lambda, HTTP(S), Email, SMS, Mobile Push, Kinesis Data Firehose."},
+    {"concept": "Message Filtering", "desc_ar": "فلاتر على خصائص الرسالة أو body لإيصالها فقط للمشتركين المعنيّين.", "desc_en": "Filters on message attributes or body to deliver only to relevant subscribers."},
+    {"concept": "Retry & DLQ", "desc_ar": "سياسة إعادة محاولة قابلة للتكوين + DLQ (SQS) لكل اشتراك.", "desc_en": "Configurable retry policy + subscription-level DLQ (SQS)."},
+    {"concept": "Encryption", "desc_ar": "SSE عبر KMS للرسائل في الراحة، و HTTPS للنقل.", "desc_en": "KMS-based SSE at rest, HTTPS in transit."},
+    {"concept": "Access Control", "desc_ar": "Topic Policies (Resource-based) + IAM للمنشورين والمشتركين.", "desc_en": "Topic policies (resource-based) + IAM for publishers/subscribers."},
+    {"concept": "Mobile Push", "desc_ar": "APNs، FCM، ADM لإشعارات الجوّال.", "desc_en": "APNs, FCM, ADM for mobile push notifications."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم رسالة", "limit_en": "Max message size", "value": "256 KB", "note_ar": "نفس حدّ SQS.", "note_en": "Same as SQS."},
+    {"limit": "اشتراكات لكل Topic", "limit_en": "Subscriptions per topic", "value": "12.5 million", "note_ar": "حدّ ناعم قابل للزيادة.", "note_en": "Soft limit, can be raised."},
+    {"limit": "Topics لكل حساب", "limit_en": "Topics per account", "value": "100,000", "note_ar": "حدّ ناعم.", "note_en": "Soft limit."},
+    {"limit": "FIFO throughput", "limit_en": "FIFO throughput", "value": "300 msg/s / topic", "note_ar": "عند الدمج مع batch يصل 3,000/s.", "note_en": "With batching up to 3,000/s."},
+    {"limit": "Retry policy افتراضي لـ HTTP", "limit_en": "Default HTTP retry", "value": "3 tries (immediate) + linear + exponential", "note_ar": "حتى 100,015 محاولة خلال 23 يومًا.", "note_en": "Up to 100,015 retries across ~23 days."},
+    {"limit": "Fan-out إلى SQS", "limit_en": "Fan-out to SQS queues", "value": "Unlimited subscribers", "note_ar": "فعلياً مقيّد بحدود الحساب.", "note_en": "Effectively account-limited."},
+    {"limit": "أقصى SMS رسائل", "limit_en": "Max SMS spend (default)", "value": "$1 / month", "note_ar": "يمكن رفعه بطلب دعم.", "note_en": "Can be raised via support."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء Topic.", "desc_en": "Create a topic.", "cmd": "aws sns create-topic --name orders-topic"},
+    {"desc_ar": "إنشاء Topic من نوع FIFO.", "desc_en": "Create a FIFO topic.", "cmd": "aws sns create-topic --name orders-topic.fifo --attributes FifoTopic=true,ContentBasedDeduplication=true"},
+    {"desc_ar": "اشتراك طابور SQS في Topic.", "desc_en": "Subscribe an SQS queue to a topic.", "cmd": "aws sns subscribe --topic-arn arn:aws:sns:us-east-1:111:orders-topic --protocol sqs --notification-endpoint arn:aws:sqs:us-east-1:111:orders"},
+    {"desc_ar": "نشر رسالة مع خصائص للفلترة.", "desc_en": "Publish a message with filter attributes.", "cmd": "aws sns publish --topic-arn arn:aws:sns:us-east-1:111:orders-topic --message '{\"id\":42}' --message-attributes 'region={DataType=String,StringValue=EU}'"},
+    {"desc_ar": "تمكين فلتر على الاشتراك.", "desc_en": "Set a subscription filter policy.", "cmd": "aws sns set-subscription-attributes --subscription-arn arn:aws:sns:...:SubId --attribute-name FilterPolicy --attribute-value '{\"region\":[\"EU\"]}'"},
+    {"desc_ar": "إرسال SMS مباشر.", "desc_en": "Send a direct SMS.", "cmd": "aws sns publish --phone-number +15550123 --message \"OTP 4321\""}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "إيصال حدث لعدة أنظمة مختلفة في نفس الوقت.", "scenario_en": "Deliver an event to multiple subsystems simultaneously.", "choice": "SNS Topic + SQS subscribers"},
+    {"scenario_ar": "إشعار المستخدمين عبر SMS أو Email.", "scenario_en": "Notify users via SMS or Email.", "choice": "SNS direct publish"},
+    {"scenario_ar": "إشعارات الجوّال (iOS/Android).", "scenario_en": "Mobile push notifications (iOS/Android).", "choice": "SNS Mobile Push"},
+    {"scenario_ar": "تصفية الأحداث حسب النوع/المنطقة.", "scenario_en": "Filter events by type/region.", "choice": "SNS Message Filtering"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Pattern", "feature_ar": "النمط", "this": "Pub/Sub fan-out", "alt": "Point-to-point queue", "alt_name": "SQS"},
+    {"feature": "Delivery", "feature_ar": "التوصيل", "this": "Push to all subscribers", "alt": "Pulled by one consumer", "alt_name": "SQS"},
+    {"feature": "Storage", "feature_ar": "التخزين", "this": "Ephemeral (retry only)", "alt": "Up to 14 days", "alt_name": "SQS"},
+    {"feature": "Receivers", "feature_ar": "المستقبِلون", "this": "HTTP, Email, SMS, Lambda, SQS", "alt": "Consumers calling ReceiveMessage", "alt_name": "SQS"},
+    {"feature": "Filtering", "feature_ar": "التصفية", "this": "Subscription filter policies", "alt": "Client-side filtering", "alt_name": "SQS"}
+  ],
+  "exam_tips": [
+    {"ar": "نمط Fan-out الكلاسيكي: SNS → عدة SQS لضمان استقلالية المستهلكين.", "en": "Classic fan-out pattern: SNS → multiple SQS queues for consumer independence."},
+    {"ar": "Message Filtering يقلّل استهلاك المستهلكين غير المعنيّين.", "en": "Message filtering reduces useless deliveries to uninterested subscribers."},
+    {"ar": "SNS FIFO يتكامل فقط مع SQS FIFO كمشترك للحفاظ على الترتيب.", "en": "SNS FIFO only integrates with SQS FIFO subscribers to preserve order."},
+    {"ar": "DLQ في SNS مُعرَّف على مستوى الاشتراك وليس Topic.", "en": "DLQ in SNS is defined per-subscription, not per-topic."},
+    {"ar": "للرسائل > 256 KB استخدم مكتبة SNS Extended Client مع S3.", "en": "For payloads > 256 KB use the SNS Extended Client Library with S3."}
+  ]
+}

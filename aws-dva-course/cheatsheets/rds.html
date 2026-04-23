@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon RDS — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-blue-600 via-blue-700 to-blue-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="database" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-blue-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">Amazon RDS</h1>
+        </div>
+      </div>
+      <p class="text-lg text-blue-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">قواعد بيانات علائقية مُدارة (MySQL, PostgreSQL, MariaDB, Oracle, SQL Server) مع تصحيحات ونسخ احتياطي آلي.</span>
+        <span class="lang-en">Managed relational databases (MySQL, PostgreSQL, MariaDB, Oracle, SQL Server) with automated patching and backups.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-blue-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">DB Instances</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">خادم قاعدة بيانات على EC2 مُدار بـ RDS بفئات db.t/db.m/db.r/db.x.</span>
+      <span class="lang-en">A managed DB server on EC2 with db.t/db.m/db.r/db.x classes.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Multi-AZ Deployment</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">نسخة احتياطية متزامنة في AZ مختلفة لتحسين HA؛ تحوّل تلقائي عند الفشل.</span>
+      <span class="lang-en">Synchronous standby in another AZ for HA; automatic failover.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Read Replicas</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">حتى 15 نسخة قراءة غير متزامنة داخل/عبر المناطق لتوسيع أحمال القراءة.</span>
+      <span class="lang-en">Up to 15 async read replicas within/cross-region to scale reads.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Automated Backups & Snapshots</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">نسخ احتياطي آلي يومي مع نافذة احتفاظ حتى 35 يومًا، ولقطات يدوية.</span>
+      <span class="lang-en">Daily automated backups up to 35 days retention; plus manual snapshots.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Encryption & IAM Auth</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تشفير KMS في الراحة (يجب تفعيله عند الإنشاء)، وSSL/TLS في النقل، ومصادقة IAM لـ MySQL/PostgreSQL.</span>
+      <span class="lang-en">KMS at rest (must enable at creation), SSL/TLS in transit, IAM auth for MySQL/PostgreSQL.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Parameter & Option Groups</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تخصيص إعدادات المحرّك وتفعيل خصائص (مثل TDE أو memcached).</span>
+      <span class="lang-en">Customize engine parameters and enable features (TDE, memcached).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">RDS Proxy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يجمع الاتصالات ويحسّن التعامل مع Lambda ويقلّل تأثير الفشل.</span>
+      <span class="lang-en">Connection pooling, better Lambda handling, and reduced failover impact.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-blue-700" dir="ltr">Storage Auto-Scaling</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يتوسّع التخزين تلقائيًا حتى حدّ تحدّده أنت.</span>
+      <span class="lang-en">Storage auto-scales up to a max you define.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى نسخ قراءة</span>
+      <span class="lang-en">Max read replicas</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">لـ MySQL/PostgreSQL/MariaDB.</span>
+        <span class="lang-en">For MySQL/PostgreSQL/MariaDB.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">15 per source</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">فترة الاحتفاظ بالنسخ الاحتياطي</span>
+      <span class="lang-en">Backup retention</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">0 = تعطيل النسخ التلقائي.</span>
+        <span class="lang-en">0 disables automated backups.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">0–35 days</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى تخزين (gp3)</span>
+      <span class="lang-en">Max storage (gp3)</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">MySQL/MariaDB/PostgreSQL على gp3 أو io1.</span>
+        <span class="lang-en">MySQL/MariaDB/PostgreSQL on gp3 or io1.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">64 TiB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">وقت فشل Multi-AZ</span>
+      <span class="lang-en">Multi-AZ failover time</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">مدّة تحوّل DNS للمستعد الاحتياطي.</span>
+        <span class="lang-en">DNS switch time to standby.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">60–120 s</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">نوافذ الصيانة</span>
+      <span class="lang-en">Maintenance window</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">لا يمكن تعطيلها لكن يمكن تحديد وقتها.</span>
+        <span class="lang-en">Can't disable, but you can schedule it.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">30-min weekly</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">اتصالات IAM Auth</span>
+      <span class="lang-en">IAM-auth connections</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">لـ MySQL حدّ ناعم.</span>
+        <span class="lang-en">Soft limit for MySQL.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">~200 new / sec</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">حجم صف/عمود</span>
+      <span class="lang-en">Row/BLOB size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">يحكمه المحرّك (مثلاً MySQL 4 GB blob).</span>
+        <span class="lang-en">Engine-specific (e.g., MySQL 4 GB blob).</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">Engine-specific</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-blue-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء قاعدة MySQL Multi-AZ مشفّرة.</span>
+    <span class="lang-en">Create an encrypted Multi-AZ MySQL instance.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws rds create-db-instance --db-instance-identifier prod-db --engine mysql --db-instance-class db.m6g.large --allocated-storage 100 --multi-az --storage-encrypted --master-username admin --master-user-password ****</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء نسخة قراءة.</span>
+    <span class="lang-en">Create a read replica.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws rds create-db-instance-read-replica --db-instance-identifier prod-db-ro --source-db-instance-identifier prod-db</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">أخذ لقطة يدوية.</span>
+    <span class="lang-en">Take a manual snapshot.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws rds create-db-snapshot --db-instance-identifier prod-db --db-snapshot-identifier prod-db-2026-04-23</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">الاستعادة إلى وقت محدّد.</span>
+    <span class="lang-en">Point-in-time restore.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier prod-db --target-db-instance-identifier prod-db-restored --restore-time 2026-04-22T10:00:00Z</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تمكين مصادقة IAM.</span>
+    <span class="lang-en">Enable IAM authentication.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws rds modify-db-instance --db-instance-identifier prod-db --enable-iam-database-authentication --apply-immediately</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-blue-600"></i>
+        <span class="lang-ar">متى تستخدم Amazon RDS؟</span>
+        <span class="lang-en">When to use Amazon RDS</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تطبيق يستخدم SQL تقليدي مع جداول علائقية.</span>
+      <span class="lang-en">Classic SQL app with relational tables.</span>
+    </p>
+    <p class="text-xs text-blue-700 font-mono">RDS MySQL / PostgreSQL</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">أحمال تحتاج HA تلقائيًا مع RPO قريب من الصفر.</span>
+      <span class="lang-en">Workloads needing automatic HA, near-zero RPO.</span>
+    </p>
+    <p class="text-xs text-blue-700 font-mono">RDS Multi-AZ</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تطبيق سحابي بلا خادم يتصل بقاعدة بيانات.</span>
+      <span class="lang-en">Serverless app connecting to a database.</span>
+    </p>
+    <p class="text-xs text-blue-700 font-mono">RDS Proxy + Lambda</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تقليل أثر استعلامات التقارير على الإنتاج.</span>
+      <span class="lang-en">Offload reporting queries from prod.</span>
+    </p>
+    <p class="text-xs text-blue-700 font-mono">Read Replicas</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+<section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+    <h2 class="font-bold text-surface-800 flex items-center gap-2">
+      <i data-lucide="git-compare" class="w-4 h-4"></i>
+      <span class="lang-ar">مقارنة مع البدائل</span>
+      <span class="lang-en">Vs Alternatives</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+        <tr>
+          <th class="text-start px-4 py-2">
+            <span class="lang-ar">الخاصّية</span>
+            <span class="lang-en">Feature</span>
+          </th>
+          <th class="text-start px-4 py-2">Amazon RDS</th>
+          <th class="text-start px-4 py-2">DynamoDB</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">نموذج البيانات</span>
+      <span class="lang-en">Data Model</span>
+    </td>
+    <td class="px-4 py-2 text-blue-700 font-semibold">Relational (SQL)</td>
+    <td class="px-4 py-2 text-surface-600">Key-value / document</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">البنية</span>
+      <span class="lang-en">Schema</span>
+    </td>
+    <td class="px-4 py-2 text-blue-700 font-semibold">Fixed schema</td>
+    <td class="px-4 py-2 text-surface-600">Schema-less</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">التوسّع</span>
+      <span class="lang-en">Scale</span>
+    </td>
+    <td class="px-4 py-2 text-blue-700 font-semibold">Vertical + read replicas</td>
+    <td class="px-4 py-2 text-surface-600">Horizontal (partitions)</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">JOIN والمعاملات</span>
+      <span class="lang-en">Joins & Transactions</span>
+    </td>
+    <td class="px-4 py-2 text-blue-700 font-semibold">Full ACID + JOINs</td>
+    <td class="px-4 py-2 text-surface-600">Single-table + limited tx</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">التسعير</span>
+      <span class="lang-en">Pricing</span>
+    </td>
+    <td class="px-4 py-2 text-blue-700 font-semibold">Instance-hours + storage</td>
+    <td class="px-4 py-2 text-surface-600">Per request / capacity</td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Multi-AZ للتوفّر العالي (ليس للأداء)، Read Replicas لتوسعة القراءة.</span>
+    <span class="lang-en">Multi-AZ is for HA (not performance); Read Replicas scale reads.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لا يمكن تشفير قاعدة بعد إنشائها؛ استعد من لقطة مشفّرة بدلاً من ذلك.</span>
+    <span class="lang-en">You cannot encrypt an existing unencrypted DB; restore from an encrypted snapshot.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">RDS Proxy يقلّل فشل الاتصالات ويسرّع تحوّل Multi-AZ ويناسب Lambda.</span>
+    <span class="lang-en">RDS Proxy reduces connection storms, speeds Multi-AZ failover, and fits Lambda.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">PITR يعتمد على transaction logs المستمرّة خلال فترة الاحتفاظ.</span>
+    <span class="lang-en">Point-in-time restore relies on continuous transaction logs within retention.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لتحويل نسخة قراءة إلى مستقلة: استخدم promote-read-replica.</span>
+    <span class="lang-en">Use promote-read-replica to turn a read replica into a standalone primary.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

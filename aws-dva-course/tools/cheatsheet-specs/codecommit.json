@@ -1,0 +1,45 @@
+{
+  "slug": "codecommit",
+  "name": "AWS CodeCommit",
+  "icon": "git-merge",
+  "color": "green",
+  "tagline_ar": "مستودع Git خاص ومُدار بالكامل على AWS مع تشفير افتراضي وتكامل IAM وCloudWatch Events وSNS.",
+  "tagline_en": "Fully-managed private Git repository on AWS with default encryption, IAM integration, and CloudWatch Events / SNS hooks.",
+  "key_concepts": [
+    {"concept": "Private Git Repo", "desc_ar": "مستودع Git عادي يدعم HTTPS/SSH والكلمات Git credential helper.", "desc_en": "Standard Git repo via HTTPS/SSH with Git credential helper support."},
+    {"concept": "IAM-based access", "desc_ar": "لا يوجد مستخدمين منفصلين؛ تُمنح صلاحيات عبر IAM policies.", "desc_en": "No separate users; permissions granted via IAM policies."},
+    {"concept": "Authentication methods", "desc_ar": "Git credentials (HTTPS) أو SSH keys أو git-remote-codecommit عبر AWS CLI.", "desc_en": "Git credentials (HTTPS), SSH keys, or git-remote-codecommit via AWS CLI."},
+    {"concept": "Encryption", "desc_ar": "تشفير in-transit (HTTPS/SSH) وat-rest عبر AWS KMS تلقائياً.", "desc_en": "In-transit (HTTPS/SSH) and at-rest encryption via AWS KMS by default."},
+    {"concept": "Triggers", "desc_ar": "SNS/Lambda عند أحداث push/merge لتشغيل CI/CD.", "desc_en": "SNS/Lambda on push/merge events to trigger CI/CD."},
+    {"concept": "Notifications", "desc_ar": "تكامل مع AWS Chatbot و SNS لإشعارات الفرق.", "desc_en": "AWS Chatbot and SNS integration for team notifications."},
+    {"concept": "Approval Rule Templates", "desc_ar": "قواعد مراجعة pull requests تفرض عدد الموافقين.", "desc_en": "Approval rule templates enforcing pull-request reviewer counts."},
+    {"concept": "Cross-account access", "desc_ar": "مشاركة عبر IAM role assume من حساب آخر.", "desc_en": "Sharing via IAM role assumption from another account."}
+  ],
+  "limits": [
+    {"limit": "Max file size per push", "limit_en": "Max file per push", "value": "2 GB"},
+    {"limit": "Repo size (soft)", "limit_en": "Repo size (soft)", "value": "Unlimited"},
+    {"limit": "Branches per repo", "limit_en": "Branches per repo", "value": "1000"},
+    {"limit": "Approval rule templates / region", "limit_en": "Approval rule templates/region", "value": "1000"},
+    {"limit": "Regions", "limit_en": "Availability", "value": "Regional service"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء مستودع.", "desc_en": "Create repository.", "cmd": "aws codecommit create-repository --repository-name my-repo"},
+    {"desc_ar": "استنساخ عبر HTTPS مع credential helper.", "desc_en": "Clone via HTTPS with credential helper.", "cmd": "git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/my-repo"},
+    {"desc_ar": "إنشاء pull request.", "desc_en": "Create pull request.", "cmd": "aws codecommit create-pull-request --title 'PR' --targets 'repositoryName=my-repo,sourceReference=feature,destinationReference=main'"},
+    {"desc_ar": "إضافة trigger SNS.", "desc_en": "Add SNS trigger.", "cmd": "aws codecommit put-repository-triggers --repository-name my-repo --triggers file://triggers.json"},
+    {"desc_ar": "إدراج الفروع.", "desc_en": "List branches.", "cmd": "aws codecommit list-branches --repository-name my-repo"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "مستودع Git داخل AWS مع صلاحيات IAM دقيقة", "scenario_en": "In-AWS Git repo with fine-grained IAM", "choice": "CodeCommit"},
+    {"scenario_ar": "مشاريع تتطلب تشفير KMS في السكون", "scenario_en": "Projects needing KMS at-rest encryption", "choice": "CodeCommit (default KMS)"},
+    {"scenario_ar": "دمج سلس مع CodePipeline داخل نفس الحساب", "scenario_en": "Seamless CodePipeline integration in same account", "choice": "CodeCommit source stage"},
+    {"scenario_ar": "فرض موافقات PR عبر قوالب قابلة لإعادة الاستخدام", "scenario_en": "Enforce PR approvals via reusable templates", "choice": "Approval rule templates"}
+  ],
+  "exam_tips": [
+    {"ar": "CodeCommit لا يملك IAM users خاصة به — الصلاحيات من IAM الحالي للحساب.", "en": "CodeCommit has no own IAM users — permissions come from account's IAM."},
+    {"ar": "للوصول HTTPS فعّل Git credentials في ملف تعريف IAM user أو استخدم git-remote-codecommit.", "en": "For HTTPS, enable Git credentials on the IAM user or use git-remote-codecommit."},
+    {"ar": "عمليات push/merge يمكنها استدعاء Lambda/SNS مباشرة كـ triggers.", "en": "push/merge events can trigger Lambda/SNS directly as repository triggers."},
+    {"ar": "Approval Rule Template يمكن تطبيقه على عدة repos في آن واحد لتوحيد سياسة المراجعة.", "en": "Approval Rule Templates apply across multiple repos to standardize review policy."},
+    {"ar": "CodeCommit Deprecation: AWS أعلنت إيقاف التسجيل للعملاء الجدد — الامتحان ما زال يغطي الخدمة.", "en": "CodeCommit is in closed onboarding for new customers — exam still covers the service."}
+  ]
+}

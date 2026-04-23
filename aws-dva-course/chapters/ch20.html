@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 20 — Encryption: KMS, Secrets Manager, SSM Parameter Store | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-red-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثاني — 26%</span>
+          <span class="lang-en">Domain 2 — 26%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٠ من ٣٠</span>
+        <span class="lang-en">Chapter 20 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.837-881</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">التشفير: KMS، Secrets Manager، SSM Parameter Store</span>
+        <span class="lang-en">Encryption: KMS, Secrets Manager, SSM Parameter Store</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">الركيزة التي يرتكز عليها أمان كلّ خدمات AWS. أنواع CMKs، Key Policies، Envelope Encryption، إدارة الأسرار وتدويرها، و الفرق بين Secrets Manager و Parameter Store. مطلب أساسيّ في اختبار DVA.</span>
+        <span class="lang-en">The cornerstone every AWS service's security rests on. CMK types, Key Policies, Envelope Encryption, secret rotation, and Secrets Manager vs Parameter Store. Essential for DVA.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">KMS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CMK</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Envelope Encryption</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Secrets Manager</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Parameter Store</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Rotation</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CMK Types (Symmetric/Asymmetric, AWS-Managed/Customer)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في اختيار نوع المفتاح المناسب.</span>
+      <span class="lang-en">Domain 2 — picking the right key type.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Envelope Encryption & GenerateDataKey</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني والثالث في تشفير ملفات > 4KB.</span>
+      <span class="lang-en">Domains 2 & 3 — encrypting files > 4KB.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Key Policies & Grants</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في التحكّم بالوصول عبر الحسابات.</span>
+      <span class="lang-en">Domain 2 — cross-account key access.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Secrets Manager vs Parameter Store</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في اختيار الأداة المناسبة للأسرار.</span>
+      <span class="lang-en">Domain 2 — picking the right secret store.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Key Rotation (auto/manual)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في تدوير المفاتيح.</span>
+      <span class="lang-en">Domain 2 — rotating keys.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">AWS KMS وأنواع المفاتيح</span>
+      <span class="lang-en">AWS KMS & key types</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>KMS (Key Management Service)</strong> خدمة إدارة مفاتيح التشفير مُدمجة مع أغلب خدمات AWS (S3, EBS, RDS, Secrets Manager...). المفاتيح فيها كانت تُسمّى <em>Customer Master Keys (CMK)</em>، وأُعيدت تسميتها إلى <strong>KMS Keys</strong>. لا تُصدِّر المفتاح الأساسيّ أبداً — تستدعي KMS API لكلّ عمليّة تشفير/فكّ.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>KMS (Key Management Service)</strong> manages encryption keys and is integrated with most AWS services (S3, EBS, RDS, Secrets Manager...). Keys were called <em>Customer Master Keys (CMK)</em>, renamed to <strong>KMS Keys</strong>. The master key never leaves KMS — you call the KMS API for every encrypt/decrypt.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">نوع المفتاح</span><span class="lang-en">Key type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مَن يديره</span><span class="lang-en">Managed by</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">التكلفة</span><span class="lang-en">Cost</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">التدوير التلقائي</span><span class="lang-en">Auto rotation</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWS Owned</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS (مخفيّ عنك)</span><span class="lang-en">AWS (hidden)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مجاني</span><span class="lang-en">Free</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS</span><span class="lang-en">AWS</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWS Managed</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS لحسابك (<span dir="ltr" class="font-mono">aws/service</span>)</span><span class="lang-en">AWS for your account (<span dir="ltr" class="font-mono">aws/service</span>)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مجاني</span><span class="lang-en">Free</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كلّ سنة</span><span class="lang-en">Every 1 year</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Customer Managed</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أنت</span><span class="lang-en">You</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">$1/month + $0.03/10K API</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اختياريّ (٣٦٥ يوم)</span><span class="lang-en">Optional (365 days)</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Imported</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أنت (من خارج AWS)</span><span class="lang-en">You (imported)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">$1/month</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يدويّ فقط عبر alias</span><span class="lang-en">Manual via alias</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Symmetric (AES-256)</span><span class="lang-en">Symmetric (AES-256)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">مفتاح واحد يشفّر ويفكّ. معظم خدمات AWS تستخدمه. لا ينكشف لك أبداً — تستدعي KMS API.</p>
+      <p class="text-sm text-surface-700 lang-en">Single key encrypts and decrypts. Used by most AWS services. Never exposed — you call the KMS API.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Asymmetric (RSA/ECC)</span><span class="lang-en">Asymmetric (RSA/ECC)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">زوج عامّ/خاصّ. الـ Public قابل للتنزيل للتشفير خارج AWS. الـ Private يبقى داخل KMS. للتوقيع الرقميّ أيضاً.</p>
+      <p class="text-sm text-surface-700 lang-en">Public/private pair. Public is downloadable for encryption outside AWS. Private stays inside KMS. Also for digital signing.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> للامتحان: KMS خدمة <strong>إقليميّة (Region-bound)</strong> — مفتاح في <span dir="ltr" class="font-mono">us-east-1</span> لا يعمل في <span dir="ltr" class="font-mono">eu-west-1</span>. لنقل بيانات مشفّرة بين المناطق، استخدم <span dir="ltr" class="font-mono">ReEncrypt</span> بمفتاح الوجهة.</span>
+      <span class="lang-en"> Exam: KMS is <strong>region-bound</strong> — a key in <span dir="ltr" class="font-mono">us-east-1</span> doesn't work in <span dir="ltr" class="font-mono">eu-west-1</span>. To move encrypted data across regions use <span dir="ltr" class="font-mono">ReEncrypt</span> with the destination key.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Envelope Encryption ولماذا نحتاجها</span>
+      <span class="lang-en">Envelope Encryption & why we need it</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">KMS Encrypt API</span> محدود بـ <strong>٤ كيلوبايت</strong>. لتشفير ملفات أكبر نستخدم <strong>Envelope Encryption</strong>: KMS يُنشئ <em>Data Encryption Key (DEK)</em> ويُعيد نسختين: Plaintext لاستخدامها محلّياً، ومشفّرة لحفظها بجانب الملف.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">The <span dir="ltr" class="font-mono">KMS Encrypt API</span> is limited to <strong>4 KB</strong>. To encrypt larger files use <strong>Envelope Encryption</strong>: KMS generates a <em>Data Encryption Key (DEK)</em> and returns two copies: plaintext (for local use) and encrypted (stored alongside the file).</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">١. GenerateDataKey</span><span class="lang-en">1. GenerateDataKey</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">KMS يولّد DEK يعطيك plaintext + encrypted-under-CMK.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">KMS produces a DEK: plaintext + encrypted-under-CMK.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">٢. شفّر محلّياً</span><span class="lang-en">2. Encrypt locally</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تستخدم الـ DEK plaintext لتشفير الملف (AES-256).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Use the plaintext DEK to encrypt the file locally (AES-256).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="archive" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">٣. امحِ الـ plaintext واحفظ الباقي</span><span class="lang-en">3. Wipe plaintext & store</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">احذف الـ DEK plaintext من الذاكرة، احفظ: الملف المشفّر + DEK مشفّرة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Delete the plaintext DEK from memory; store: encrypted file + encrypted DEK.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — Envelope Encryption for a large file
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.*;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+KmsClient kms = KmsClient.create();
+
+// 1. Ask KMS for a DEK
+GenerateDataKeyResponse dk = kms.generateDataKey(GenerateDataKeyRequest.builder()
+    .keyId("alias/acme-data")
+    .keySpec(DataKeySpec.AES_256)
+    .build());
+
+byte[] plaintextDek = dk.plaintext().asByteArray();
+byte[] encryptedDek = dk.ciphertextBlob().asByteArray(); // store alongside
+
+// 2. Encrypt the file locally with the plaintext DEK
+Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(plaintextDek, "AES"));
+byte[] ciphertext = cipher.doFinal(largeFileBytes);
+
+// 3. Wipe the plaintext DEK from memory
+java.util.Arrays.fill(plaintextDek, (byte) 0);
+
+// To decrypt later: call kms.decrypt(encryptedDek) → plaintext DEK → decrypt file.</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> الـ <strong>AWS Encryption SDK</strong> (متوفرة لـ Java/Python/C/JS) تُنفّذ Envelope Encryption تلقائياً وتدعم <strong>Data Key Caching</strong> لتقليل طلبات KMS. استخدمها بدلاً من كتابة الكود يدويّاً.</span>
+      <span class="lang-en"> The <strong>AWS Encryption SDK</strong> (Java/Python/C/JS) implements Envelope Encryption automatically and supports <strong>Data Key Caching</strong> to reduce KMS calls. Use it instead of DIY code.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Key Policies والوصول عبر الحسابات</span>
+      <span class="lang-en">Key Policies & cross-account access</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">بخلاف S3 و IAM، <strong>KMS Key Policies إلزاميّة</strong>. بدون Key Policy صحيحة لا يستطيع حتى الحساب الجذر استخدام المفتاح. الـ Default Policy تمنح Root الحساب كلّ الصلاحيّات، ومن هناك IAM يمنح المستخدمين.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Unlike S3 or IAM, <strong>KMS Key Policies are mandatory</strong>. Without a valid Key Policy even Root can't use the key. The default policy grants Root full access, then IAM delegates to users.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Cross-account Key Policy — allow Account B to use the key
+{
+  "Version": "2012-10-17",
+  "Id": "key-policy-cross-account",
+  "Statement": [
+    {
+      "Sid": "EnableRootAccess",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::111122223333:root" },
+      "Action": "kms:*",
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowCrossAccountUse",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::222233334444:role/CrossAcctReader" },
+      "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Grants</strong> آلية أخفّ من Key Policy: تفويض مؤقّت وصلاحيّات محدّدة (مثلاً خدمة AWS تريد تشفير EBS Snapshot نيابة عنك). الـ Grants لا تحتاج تعديل Key Policy — أكثر مرونة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Grants</strong> are a lighter mechanism than Key Policy: short-term delegation with limited permissions (e.g., an AWS service needs to encrypt an EBS snapshot on your behalf). Grants don't require Key Policy edits — more flexible.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاحتياج</span><span class="lang-en">Need</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الأداة المُفضّلة</span><span class="lang-en">Best tool</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">السماح لحساب آخر باستخدام المفتاح</span><span class="lang-en">Let another account use the key</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Key Policy (+ IAM in other account)</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تفويض مؤقّت لخدمة داخليّة</span><span class="lang-en">Short-term delegation to a service</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Grant</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تقييد أوامر معيّنة على بعض المستخدمين</span><span class="lang-en">Restrict actions per user</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">IAM policy</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الامتثال الصارم (PCI, HIPAA)</span><span class="lang-en">Strict compliance (PCI, HIPAA)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Customer Managed CMK + Key Policy</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">تدوير المفاتيح (Key Rotation)</span>
+      <span class="lang-en">Key rotation</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">التدوير يستبدل مادّة المفتاح داخل KMS دون تغيير الـ <span dir="ltr" class="font-mono">Key ID</span> أو <span dir="ltr" class="font-mono">ARN</span>. البيانات القديمة تبقى قابلة لفكّ التشفير بالمفتاح القديم (KMS يحتفظ بجميع الإصدارات).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Rotation replaces the key material inside KMS without changing the <span dir="ltr" class="font-mono">Key ID</span> or <span dir="ltr" class="font-mono">ARN</span>. Old data stays decryptable with the old version (KMS keeps all versions).</p>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="rotate-cw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">AWS Managed</span><span class="lang-en">AWS Managed</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تلقائي كلّ <strong>سنة</strong>. لا خيار لك.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Automatic every <strong>1 year</strong>. No opt-out.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="repeat" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Customer Managed</span><span class="lang-en">Customer Managed</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">اختياريّ. تلقائي كلّ ٣٦٥ يوم، أو on-demand (زر في Console).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Optional. Automatic every 365 days, or on-demand (Console button).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="edit" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Imported</span><span class="lang-en">Imported</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">لا تدوير تلقائيّ. يدويّ فقط عبر alias يشير لـ Key جديد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">No automatic rotation. Manual only via alias pointing to a new key.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> التدوير التلقائي <strong>لا يُعيد تشفير</strong> البيانات الحاليّة. لتطبيق المفتاح الجديد على بيانات قديمة، يجب فكّها ثمّ إعادة تشفيرها (<span dir="ltr" class="font-mono">ReEncrypt</span>). هذا ممارسة أمان دوريّة في الأنظمة ذات الحساسيّة العالية.</span>
+      <span class="lang-en"> Automatic rotation does <strong>not</strong> re-encrypt existing data. To apply the new key to old data, decrypt and <span dir="ltr" class="font-mono">ReEncrypt</span>. High-security systems schedule this periodically.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">AWS Secrets Manager</span>
+      <span class="lang-en">AWS Secrets Manager</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Secrets Manager</strong> لتخزين الأسرار (كلمات مرور قواعد البيانات، مفاتيح API، شهادات). مُشفّر تلقائياً بـ KMS، يدعم <strong>التدوير التلقائي</strong> عبر Lambda، ومدمج مع RDS, Redshift, DocumentDB لتغيير كلمة مرور الـ DB بدون توقّف.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Secrets Manager</strong> stores secrets (DB passwords, API keys, certificates). Auto-encrypted with KMS, supports <strong>auto-rotation</strong> via Lambda, and integrates with RDS/Redshift/DocumentDB for zero-downtime DB password changes.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — read a secret from Secrets Manager
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.*;
+
+SecretsManagerClient sm = SecretsManagerClient.create();
+
+GetSecretValueResponse secret = sm.getSecretValue(GetSecretValueRequest.builder()
+    .secretId("prod/acme/db-credentials")
+    .build());
+
+String secretString = secret.secretString();
+// Parse JSON: {"username":"admin","password":"..."}
+
+// IMPORTANT: Cache this in-process; don't call SecretsManager on every DB connection.
+// Use the AWS Secrets Manager client-side caching library for Lambda.</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> للمطوّر: <strong>لا تستدعي GetSecretValue في كلّ طلب</strong>. كل استدعاء يُكلّف <span dir="ltr" class="font-mono">$0.05 / 10K calls</span>، ومع Lambda تتضاعف التكلفة. استخدم مكتبة <em>secretsmanager-caching</em> الرسميّة.</span>
+      <span class="lang-en"> Dev tip: <strong>don't call GetSecretValue on every request</strong>. Each call costs <span dir="ltr" class="font-mono">$0.05 / 10K</span>, and Lambda explodes costs. Use the official <em>secretsmanager-caching</em> library.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>التدوير التلقائي</strong>: تُعدّ دالة Lambda تُنفّذ دورة: <code>createSecret</code> → <code>setSecret</code> → <code>testSecret</code> → <code>finishSecret</code>. AWS يوفّر قوالب جاهزة لـ RDS MySQL/PostgreSQL/Aurora.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Auto-rotation</strong>: you configure a Lambda running: <code>createSecret</code> → <code>setSecret</code> → <code>testSecret</code> → <code>finishSecret</code>. AWS provides pre-built templates for RDS MySQL/PostgreSQL/Aurora.</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">SSM Parameter Store و مقارنة بـ Secrets Manager</span>
+      <span class="lang-en">SSM Parameter Store vs Secrets Manager</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>SSM Parameter Store</strong> بديل أرخص بكثير لتخزين الإعدادات والأسرار. يدعم ٣ أنواع: <span dir="ltr" class="font-mono">String</span>، <span dir="ltr" class="font-mono">StringList</span>، و<span dir="ltr" class="font-mono">SecureString</span> (مشفّر بـ KMS). منظّم هرمياً بالـ <code>/</code>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>SSM Parameter Store</strong> is a far cheaper alternative for configs and secrets. Three types: <span dir="ltr" class="font-mono">String</span>, <span dir="ltr" class="font-mono">StringList</span>, <span dir="ltr" class="font-mono">SecureString</span> (KMS-encrypted). Organized hierarchically by <code>/</code>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السِمَة</span><span class="lang-en">Feature</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Secrets Manager</span><span class="lang-en">Secrets Manager</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Parameter Store (Standard)</span><span class="lang-en">Parameter Store (Standard)</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التكلفة</span><span class="lang-en">Cost</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">$0.40/secret/month + $0.05/10K API</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Free</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حجم القيمة</span><span class="lang-en">Value size</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">64 KB</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">4 KB</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التدوير التلقائي</span><span class="lang-en">Auto rotation</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مدمج (Lambda)</span><span class="lang-en">Built-in (Lambda)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا — EventBridge + Lambda يدوياً</span><span class="lang-en">No — EventBridge + Lambda manually</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التشفير (KMS)</span><span class="lang-en">KMS encryption</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إلزاميّ</span><span class="lang-en">Mandatory</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اختياريّ (SecureString فقط)</span><span class="lang-en">Optional (SecureString only)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تكامل RDS</span><span class="lang-en">RDS integration</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مدمج مباشرة</span><span class="lang-en">Native</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يدويّ</span><span class="lang-en">Manual</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">العدد</span><span class="lang-en">Count</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حسب الطلب</span><span class="lang-en">On-demand</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">10K (standard) / 100K (advanced)</td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Store a SecureString parameter
+aws ssm put-parameter \
+  --name /acme/prod/db-password \
+  --value 'SuperSecret!' \
+  --type SecureString \
+  --key-id alias/acme-ssm
+
+# Retrieve it (auto-decrypt with IAM kms:Decrypt on the key)
+aws ssm get-parameter \
+  --name /acme/prod/db-password \
+  --with-decryption
+
+# Retrieve a whole hierarchy
+aws ssm get-parameters-by-path \
+  --path /acme/prod/ \
+  --recursive \
+  --with-decryption</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> <strong>قاعدة الاختيار:</strong> Secrets Manager للأسرار التي تحتاج تدويراً تلقائياً (DB passwords). Parameter Store للإعدادات وللأسرار التي تُدوَّر يدوياً أو التي التكلفة مهمّة فيها. يمكنك <strong>قراءة Secrets Manager secret عبر Parameter Store API</strong> باستخدام المسار <span dir="ltr" class="font-mono">/aws/reference/secretsmanager/&lt;name&gt;</span>.</span>
+      <span class="lang-en"> <strong>Pick rule:</strong> Secrets Manager for secrets needing auto-rotation (DB passwords). Parameter Store for configs and manually-rotated/cost-sensitive secrets. You can <strong>read a Secrets Manager secret through the Parameter Store API</strong> via <span dir="ltr" class="font-mono">/aws/reference/secretsmanager/&lt;name&gt;</span>.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء CMK، وتشفير ملف كبير بـ Envelope Encryption من Java، وتخزين كلمة مرور DB في Secrets Manager مع تدوير تلقائي.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a CMK, envelope-encrypt a large file from Java, and store a DB password in Secrets Manager with auto-rotation.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ CMK من نوع Symmetric</span>
+      <span class="lang-en">Create a Symmetric CMK</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws kms create-key \
+  --description 'Acme app data encryption' \
+  --key-usage ENCRYPT_DECRYPT \
+  --key-spec SYMMETRIC_DEFAULT
+
+aws kms create-alias \
+  --alias-name alias/acme-data \
+  --target-key-id &lt;KEY_ID>
+
+# Enable automatic key rotation (365 days)
+aws kms enable-key-rotation --key-id &lt;KEY_ID></code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">شفّر ملف 10MB عبر Envelope Encryption (Java)</span>
+      <span class="lang-en">Envelope-encrypt a 10MB file (Java)</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">استخدم الكود في القسم ٢. احفظ الملف المشفّر + DEK مشفّرة في S3.</p><p class="text-surface-600 leading-relaxed lang-en">Use the Section 2 code. Save encrypted file + encrypted DEK in S3.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">خزّن كلمة مرور RDS في Secrets Manager</span>
+      <span class="lang-en">Store RDS password in Secrets Manager</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws secretsmanager create-secret \
+  --name prod/acme/rds \
+  --description 'Acme RDS MySQL admin' \
+  --secret-string '{"username":"admin","password":"ChangeMe!"}' \
+  --kms-key-id alias/acme-data</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل التدوير التلقائي كلّ ٣٠ يوم</span>
+      <span class="lang-en">Enable auto-rotation every 30 days</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Console → Secrets Manager → Edit rotation → Choose AWS-provided Lambda for MySQL Single User → 30 days.</p><p class="text-surface-600 leading-relaxed lang-en">Console → Secrets Manager → Edit rotation → Choose AWS-provided Lambda for MySQL Single User → 30 days.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">(اختياريّ) خزّن إعدادات في Parameter Store</span>
+      <span class="lang-en">(Optional) Store configs in Parameter Store</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ssm put-parameter --name /acme/prod/region     --type String       --value us-east-1
+aws ssm put-parameter --name /acme/prod/db-host    --type String       --value acme.rds.amazonaws.com
+aws ssm put-parameter --name /acme/prod/jwt-secret --type SecureString --value 'jwt-secret-val' --key-id alias/acme-data</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">نظّف</span>
+      <span class="lang-en">Clean up</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Secrets في Secrets Manager تنتظر ٧-٣٠ يوم قبل الحذف النهائي. الـ KMS Key أيضاً (٧-٣٠ يوم scheduled deletion).</p><p class="text-surface-600 leading-relaxed lang-en">Secrets Manager secrets wait 7–30 days before permanent deletion. KMS keys too (7–30 day scheduled deletion).</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> لا تفعّل Auto-Rotation في الإنتاج قبل اختبار Lambda في بيئة Dev — تدوير فاشل قد يقطع الاتّصال بـ RDS.</span>
+    <span class="lang-en"> Don't enable auto-rotation in prod before testing the Lambda in Dev — a failed rotation can break RDS connectivity.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Envelope Encryption لـ > 4KB</span>
+        <span class="lang-en">Envelope Encryption for > 4KB</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">GenerateDataKey → شفّر محلّياً → احفظ DEK مشفّرة بجانب الملف.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">GenerateDataKey → encrypt locally → store encrypted DEK alongside.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="lock" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Key Policy إلزاميّة في KMS</span>
+        <span class="lang-en">Key Policy mandatory in KMS</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">بخلاف IAM، لا يعمل المفتاح بدونها — حتى للـ Root.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Unlike IAM, key won't work without it — even for Root.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="repeat" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Secrets Manager للتدوير التلقائي</span>
+        <span class="lang-en">Secrets Manager for auto-rotation</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">مدمج مع RDS؛ Parameter Store أرخص للإعدادات والأسرار الثابتة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">RDS integrated; Parameter Store cheaper for configs/static secrets.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Customer Managed للامتثال</span>
+        <span class="lang-en">Customer Managed for compliance</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">PCI/HIPAA تتطلّب تحكّم كامل في المفتاح والـ Key Policy.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">PCI/HIPAA require full key & policy control.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>EKR</strong> لتشفير الملفات الكبيرة: <strong>E</strong>nvelope (GenerateDataKey) + <strong>K</strong>MS يشفّر الـ DEK + <strong>R</strong>otate (CMK كلّ سنة). ولاختيار الأسرار: <em>Rotation = Secrets Manager، Config = Parameter Store</em>.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>EKR</strong> for encrypting large files: <strong>E</strong>nvelope (GenerateDataKey) + <strong>K</strong>MS encrypts the DEK + <strong>R</strong>otate (CMK yearly). For secret choice: <em>Rotation = Secrets Manager, Config = Parameter Store</em>.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch19.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(20, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch21.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تشفير ملف 50MB وحفظه في S3. ما الطريقة الصحيحة مع KMS؟</span><span class="lang-en">A developer wants to encrypt a 50MB file and store it in S3. Correct KMS approach?</span>",
+        options: [
+          "<span class="lang-ar">استدعاء <span dir="ltr" class="font-mono">kms:Encrypt</span> على الملف كاملاً.</span><span class="lang-en">Call <span dir="ltr" class="font-mono">kms:Encrypt</span> on the full file.</span>",
+          "<span class="lang-ar">استخدام <strong>Envelope Encryption</strong> عبر <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>.</span><span class="lang-en">Use <strong>Envelope Encryption</strong> via <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>.</span>",
+          "<span class="lang-ar">تخزين الملف بدون تشفير.</span><span class="lang-en">Store the file unencrypted.</span>",
+          "<span class="lang-ar">ضغط الملف ثمّ تشفيره.</span><span class="lang-en">Compress then encrypt.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">kms:Encrypt</span> محدود بـ <strong>٤ كيلوبايت</strong>. للملفات الأكبر استخدم Envelope Encryption: <span dir="ltr" class="font-mono">GenerateDataKey</span> يعيد DEK (plaintext + مشفّرة)، تشفّر محلّياً بالـ plaintext، وتحفظ DEK المشفّرة بجانب الملف.</span><span class="lang-en"><span dir="ltr" class="font-mono">kms:Encrypt</span> is capped at <strong>4 KB</strong>. For larger files use Envelope Encryption: <span dir="ltr" class="font-mono">GenerateDataKey</span> returns a DEK (plaintext + encrypted), encrypt locally with plaintext, store the encrypted DEK alongside.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حد ٤KB.</span><span class=\"lang-en\">Exceeds 4KB limit.</span>", "", "<span class=\"lang-ar\">غير مقبول أمنياً.</span><span class=\"lang-en\">Insecure.</span>", "<span class=\"lang-ar\">الضغط لا يحلّ مشكلة الحجم.</span><span class=\"lang-en\">Compression doesn't fix size limit.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <strong>AWS Managed</strong> و <strong>Customer Managed</strong> KMS Key؟</span><span class="lang-en">Difference between <strong>AWS Managed</strong> and <strong>Customer Managed</strong> KMS Key?</span>",
+        options: [
+          "<span class="lang-ar">لا فرق.</span><span class="lang-en">None.</span>",
+          "<span class="lang-ar">AWS Managed مجاني، يُدوَّر سنوياً تلقائياً، ولا تتحكّم في Key Policy. Customer Managed مدفوع ($1/شهر)، تدوير اختياريّ، تحكّم كامل.</span><span class="lang-en">AWS Managed is free, auto-rotated yearly, no Key Policy control. Customer Managed is paid ($1/month), rotation optional, full control.</span>",
+          "<span class="lang-ar">Customer Managed أسرع.</span><span class="lang-en">Customer Managed is faster.</span>",
+          "<span class="lang-ar">AWS Managed غير مشفّر.</span><span class="lang-en">AWS Managed isn't encrypted.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">AWS Managed (<span dir="ltr" class="font-mono">aws/service</span>) مناسب للاستخدام الافتراضيّ مع خدمات AWS. Customer Managed ضروريّ عندما تحتاج: تحكّم في الـ Key Policy (Cross-Account)، تدوير On-demand، Auditing مخصّص، أو امتثال (PCI, HIPAA).</span><span class="lang-en">AWS Managed (<span dir="ltr" class="font-mono">aws/service</span>) suits default use with AWS services. Customer Managed is needed when you want: Key Policy control (cross-account), on-demand rotation, custom auditing, or compliance (PCI, HIPAA).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">فرق جوهريّ.</span><span class=\"lang-en\">Major difference.</span>", "", "<span class=\"lang-ar\">الأداء متقارب.</span><span class=\"lang-en\">Perf similar.</span>", "<span class=\"lang-ar\">كلاهما مشفّر.</span><span class=\"lang-en\">Both encrypted.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Spring Boot يستدعي <span dir="ltr" class="font-mono">GetSecretValue</span> في كلّ طلب ويب ليحصل على كلمة مرور DB. ما المشكلة؟</span><span class="lang-en">A Spring Boot app calls <span dir="ltr" class="font-mono">GetSecretValue</span> on every web request to get the DB password. What's the issue?</span>",
+        options: [
+          "<span class="lang-ar">لا مشكلة.</span><span class="lang-en">No problem.</span>",
+          "<span class="lang-ar">كلفة عالية ($0.05/10K calls) وبطء غير ضروريّ — يجب تخزين الـ Secret مؤقّتاً في الذاكرة.</span><span class="lang-en">High cost ($0.05/10K) and needless latency — cache the secret in-process.</span>",
+          "<span class="lang-ar">خطر أمنيّ.</span><span class="lang-en">Security risk.</span>",
+          "<span class="lang-ar">Secrets Manager لا يسمح بأكثر من استدعاء في الثانية.</span><span class="lang-en">Secrets Manager limits one call per second.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Secrets Manager يفرض تكلفة على كلّ استدعاء ويضيف زمن شبكة. مكتبة <strong>secretsmanager-caching</strong> الرسميّة تخزّن الـ Secret في الذاكرة لمدّة قصيرة وتحدّثه عند التدوير. مع مئات الطلبات في الثانية، الفرق بين $0 و $100+ شهرياً.</span><span class="lang-en">Secrets Manager charges per call and adds network latency. The official <strong>secretsmanager-caching</strong> library keeps the secret in-memory briefly and refreshes on rotation. With hundreds of RPS, difference between $0 and $100+/month.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">المشكلة عمليّة.</span><span class=\"lang-en\">Problem is operational.</span>", "", "<span class=\"lang-ar\">ليس خطراً أمنياً.</span><span class=\"lang-en\">Not a security risk.</span>", "<span class=\"lang-ar\">لا يوجد هذا الحدّ.</span><span class=\"lang-en\">No such limit.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تنوي تدوير CMK يدوياً. ماذا يحدث للبيانات المشفّرة بالمفتاح القديم؟</span><span class="lang-en">Acme plans to rotate a CMK. What happens to data encrypted with the old key?</span>",
+        options: [
+          "<span class="lang-ar">تُحذَف تلقائياً.</span><span class="lang-en">Deleted automatically.</span>",
+          "<span class="lang-ar">تبقى قابلة للفكّ — KMS يحتفظ بجميع إصدارات المفتاح ويختار الإصدار الصحيح عند Decrypt.</span><span class="lang-en">Still decryptable — KMS keeps all versions and selects the right one on Decrypt.</span>",
+          "<span class="lang-ar">يجب فكّها وإعادة تشفيرها قبل التدوير.</span><span class="lang-en">Must be decrypted and re-encrypted before rotation.</span>",
+          "<span class="lang-ar">تُشفَّر تلقائياً بالمفتاح الجديد.</span><span class="lang-en">Auto-re-encrypted with the new key.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">التدوير يحافظ على <span dir="ltr" class="font-mono">KeyId</span> و <span dir="ltr" class="font-mono">ARN</span> ويضيف إصداراً جديداً لمادّة المفتاح. الـ ciphertext القديم يحمل إشارة للإصدار المستخدم، فـ KMS يعرف أيّ إصدار يستخدم عند Decrypt. لا إعادة تشفير تلقائيّة — تبقى البيانات القديمة بالمفتاح القديم حتى تُعيد تشفيرها.</span><span class="lang-en">Rotation keeps <span dir="ltr" class="font-mono">KeyId</span> and <span dir="ltr" class="font-mono">ARN</span> and adds a new key material version. Old ciphertext references its version; KMS knows which to use on Decrypt. No auto re-encryption — old data stays under the old version until you <span dir="ltr" class="font-mono">ReEncrypt</span> it.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تُحذَف.</span><span class=\"lang-en\">Not deleted.</span>", "", "<span class=\"lang-ar\">ليس إلزامياً.</span><span class=\"lang-en\">Not mandatory.</span>", "<span class=\"lang-ar\">لا يحدث تلقائياً.</span><span class=\"lang-en\">Doesn't happen automatically.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ الأسرار التالية تُخزَّن بشكل أفضل في <strong>Secrets Manager</strong> (vs Parameter Store)؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of these are <strong>better in Secrets Manager</strong> than Parameter Store? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">كلمة مرور RDS تحتاج تدويراً تلقائياً.</span><span class="lang-en">RDS password requiring auto-rotation.</span>",
+          "<span class="lang-ar">قيمة Feature Flag ثابتة.</span><span class="lang-en">A static feature flag value.</span>",
+          "<span class="lang-ar">API Key لطرف ثالث يجب تدويره شهرياً.</span><span class="lang-en">Third-party API key to rotate monthly.</span>",
+          "<span class="lang-ar">اسم Region.</span><span class="lang-en">A region name.</span>",
+          "<span class="lang-ar">TLS certificate يجب تدويره كلّ ٩٠ يوم.</span><span class="lang-en">TLS certificate to rotate every 90 days.</span>"
+        ],
+        correct: [0,2,4],
+        explanation: "<span class="lang-ar">Secrets Manager متفوّق حيث يُحتاج <strong>تدوير تلقائي</strong>، <strong>تكامل RDS مدمج</strong>، أو حجم > 4KB (الشهادات). القيم الثابتة والإعدادات البسيطة (Region) تُخزَّن في Parameter Store بدون تكلفة.</span><span class="lang-en">Secrets Manager shines where you need <strong>auto-rotation</strong>, <strong>native RDS integration</strong>, or size >4KB (certificates). Static values and simple configs (Region) go in Parameter Store at no cost.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">ماذا تعيد <span dir="ltr" class="font-mono">kms:GenerateDataKey</span>؟</span><span class="lang-en">What does <span dir="ltr" class="font-mono">kms:GenerateDataKey</span> return?</span>",
+        options: [
+          "<span class="lang-ar">Plaintext DEK + DEK مشفّر بالـ CMK.</span><span class="lang-en">Plaintext DEK + DEK encrypted under the CMK.</span>",
+          "<span class="lang-ar">DEK مشفّر فقط.</span><span class="lang-en">Encrypted DEK only.</span>",
+          "<span class="lang-ar">Public key للتحميل.</span><span class="lang-en">Public key for download.</span>",
+          "<span class="lang-ar">قائمة بالمفاتيح في الحساب.</span><span class="lang-en">List of keys in the account.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">GenerateDataKey</span> يعيد نسختين من نفس DEK: plaintext لتستخدمه فوراً محلّياً في التشفير، ومشفّرة تحفظها بجانب البيانات. هذا قلب آليّة Envelope Encryption. هناك أيضاً <span dir="ltr" class="font-mono">GenerateDataKeyWithoutPlaintext</span> لحالة استخدام لاحق.</span><span class="lang-en"><span dir="ltr" class="font-mono">GenerateDataKey</span> returns two copies of the same DEK: plaintext for immediate local use in encryption, encrypted to store alongside data. This is the core of Envelope Encryption. There's also <span dir="ltr" class="font-mono">GenerateDataKeyWithoutPlaintext</span> for deferred-use cases.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الـ plaintext ضروريّ للتشفير المحلّي.</span><span class=\"lang-en\">Plaintext needed for local encryption.</span>", "", "<span class=\"lang-ar\">هذا <span dir="ltr" class="font-mono">GetPublicKey</span>.</span><span class=\"lang-en\">That's <span dir="ltr" class="font-mono">GetPublicKey</span>.</span>", "<span class=\"lang-ar\">هذا <span dir="ltr" class="font-mono">ListKeys</span>.</span><span class=\"lang-en\">That's <span dir="ltr" class="font-mono">ListKeys</span>.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد أن يستطيع حساب ثانٍ استخدام CMK في حسابها. ما الخطوات الصحيحة؟</span><span class="lang-en">A company wants another account to use its CMK. Correct steps?</span>",
+        options: [
+          "<span class="lang-ar">Key Policy في حساب A يسمح لحساب B، + IAM Policy في B يمنح المستخدم/الدور الصلاحيّات.</span><span class="lang-en">Key Policy in Account A allowing Account B, + IAM Policy in B granting user/role.</span>",
+          "<span class="lang-ar">IAM فقط في B.</span><span class="lang-en">IAM only in B.</span>",
+          "<span class="lang-ar">Key Policy فقط في A.</span><span class="lang-en">Key Policy only in A.</span>",
+          "<span class="lang-ar">Cross-Region Replication.</span><span class="lang-en">Cross-Region Replication.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">الوصول العابر للحسابات في KMS يحتاج <strong>كلا الطرفين</strong>: Key Policy في A تُصرِّح لـ B (اسم الحساب أو الدور)، وفي B سياسة IAM للمستخدم/الدور الفعليّ تسمح له باستخدام المفتاح. غياب أيّ منهما يُفشل الوصول.</span><span class="lang-en">Cross-account KMS access requires <strong>both</strong>: Key Policy in A allowing B (account or role ARN), and IAM Policy in B on the actual user/role. Missing either breaks access.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">IAM وحدها لا تكفي.</span><span class=\"lang-en\">IAM alone isn't enough.</span>", "<span class=\"lang-ar\">Key Policy وحدها لا تكفي.</span><span class=\"lang-en\">Key Policy alone isn't enough.</span>", "", "<span class=\"lang-ar\">Replication لنسخ البيانات، لا المفاتيح.</span><span class=\"lang-en\">Replication copies data, not keys.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق على Lambda يحتاج إعداد <span dir="ltr" class="font-mono">JWT_SECRET</span> مشفّر. ما الأقلّ تكلفة وأبسط؟</span><span class="lang-en">A Lambda needs an encrypted <span dir="ltr" class="font-mono">JWT_SECRET</span> config. Cheapest and simplest?</span>",
+        options: [
+          "<span class="lang-ar">Secrets Manager.</span><span class="lang-en">Secrets Manager.</span>",
+          "<span class="lang-ar">SSM Parameter Store SecureString.</span><span class="lang-en">SSM Parameter Store SecureString.</span>",
+          "<span class="lang-ar">ملف في S3 مشفّر.</span><span class="lang-en">An encrypted S3 file.</span>",
+          "<span class="lang-ar">DynamoDB.</span><span class="lang-en">DynamoDB.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Parameter Store Standard <strong>مجاني</strong> ويدعم SecureString مشفّراً بـ KMS. لا تدوير تلقائي لكنّه غير مطلوب لـ JWT static secret. S3 يتطلّب مزيداً من الإعدادات. DynamoDB لا علاقة له.</span><span class="lang-en">Parameter Store Standard is <strong>free</strong> and supports KMS-encrypted SecureString. No auto-rotation but not needed for a static JWT secret. S3 requires more setup. DynamoDB is unrelated.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Secrets Manager مبالغ — $0.40/شهر لكلّ secret.</span><span class=\"lang-en\">Secrets Manager is overkill — $0.40/month each.</span>", "", "<span class=\"lang-ar\">تعقيد زائد.</span><span class=\"lang-en\">Too complex.</span>", "<span class=\"lang-ar\">غير مناسب.</span><span class=\"lang-en\">Not appropriate.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <strong>Key Policy</strong> و <strong>Grant</strong> في KMS؟</span><span class="lang-en">Difference between <strong>Key Policy</strong> and <strong>Grant</strong> in KMS?</span>",
+        options: [
+          "<span class="lang-ar">Key Policy دائمة ومُدمجة بالمفتاح. Grant مؤقّتة ومحدّدة الأوامر.</span><span class="lang-en">Key Policy is persistent and attached to the key; Grant is temporary and scoped.</span>",
+          "<span class="lang-ar">Grant أقوى.</span><span class="lang-en">Grant is stronger.</span>",
+          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
+          "<span class="lang-ar">Key Policy للمستخدمين فقط.</span><span class="lang-en">Key Policy is users-only.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">Key Policy = المصدر الرئيسي للصلاحيّات، يُعدَّل نادراً، يشمل الجميع. Grant = تفويض مرن ومؤقّت لمستخدم/خدمة معيّنة لأوامر محدّدة (مثلاً KMS Grant تسمح لـ EBS بتشفير snapshot). كلاهما يُقيَّم معاً.</span><span class="lang-en">Key Policy = primary permission source, rarely edited, covers everyone. Grant = flexible temporary delegation to a user/service for specific actions (e.g., a KMS Grant lets EBS encrypt a snapshot). Both are evaluated.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا أحدهما أقوى مطلقاً.</span><span class=\"lang-en\">Neither is stronger.</span>", "", "<span class=\"lang-ar\">مختلفان جوهرياً.</span><span class=\"lang-en\">Fundamentally different.</span>", "<span class=\"lang-ar\">يشمل الأدوار والخدمات.</span><span class=\"lang-en\">Covers roles and services too.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">ما أقصى حجم للقيمة في <strong>Parameter Store Standard Tier</strong>؟</span><span class="lang-en">Max value size in <strong>Parameter Store Standard Tier</strong>?</span>",
+        options: [
+          "<span class="lang-ar">1 KB.</span><span class="lang-en">1 KB.</span>",
+          "<span class="lang-ar">4 KB.</span><span class="lang-en">4 KB.</span>",
+          "<span class="lang-ar">8 KB (Advanced Tier).</span><span class="lang-en">8 KB (Advanced Tier).</span>",
+          "<span class="lang-ar">64 KB.</span><span class="lang-en">64 KB.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Standard = 4 KB (مجاني، حتى 10K parameter). Advanced = 8 KB (مدفوع، حتى 100K، يدعم Policies مثل Expiration). Secrets Manager يدعم 64 KB لكنّه أغلى.</span><span class="lang-en">Standard = 4 KB (free, up to 10K params). Advanced = 8 KB (paid, up to 100K, supports policies like Expiration). Secrets Manager supports 64 KB but costs more.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Java يستخدم <span dir="ltr" class="font-mono">AWS Encryption SDK</span>. لماذا هو أفضل من Envelope Encryption اليدويّ؟</span><span class="lang-en">A Java app uses <span dir="ltr" class="font-mono">AWS Encryption SDK</span>. Why better than DIY Envelope Encryption?</span>",
+        options: [
+          "<span class="lang-ar">أرخص.</span><span class="lang-en">Cheaper.</span>",
+          "<span class="lang-ar">يُنفّذ Envelope Encryption تلقائياً ويدعم Data Key Caching لتقليل استدعاءات KMS.</span><span class="lang-en">Auto-implements Envelope Encryption and supports Data Key Caching to reduce KMS calls.</span>",
+          "<span class="lang-ar">يتخطّى KMS كلياً.</span><span class="lang-en">Bypasses KMS.</span>",
+          "<span class="lang-ar">لا يحتاج إلى IAM.</span><span class="lang-en">No IAM needed.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">AWS Encryption SDK: يكتب المفتاح المشفّر ضمن الـ ciphertext نفسه، يتحقّق من سلامة البيانات، ويدعم <strong>LocalCryptoMaterialsCache</strong> لإعادة استخدام DEKs عبر عدّة رسائل ضمن حدود زمنيّة — يقلّل ضغط KMS.</span><span class="lang-en">AWS Encryption SDK: embeds the encrypted key in the ciphertext itself, verifies integrity, and supports <strong>LocalCryptoMaterialsCache</strong> to reuse DEKs across messages within bounds — reducing KMS pressure.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">نفس تكلفة KMS.</span><span class=\"lang-en\">Same KMS cost.</span>", "", "<span class=\"lang-ar\">يستخدم KMS.</span><span class=\"lang-en\">Uses KMS.</span>", "<span class=\"lang-ar\">IAM مطلوب.</span><span class=\"lang-en\">IAM still needed.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">أيّ API في KMS تستخدم لتشفير بيانات تحت مفتاح Region آخر؟</span><span class="lang-en">Which KMS API do you use to re-encrypt data under a different region's key?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Encrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Encrypt</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">ReEncrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">ReEncrypt</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Decrypt</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Decrypt</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Sign</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">Sign</span>.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">ReEncrypt</span> يفكّ ثم يشفّر في عمليّة واحدة داخل KMS دون أن يغادر الـ plaintext الخدمة. مفيد عند نسخ EBS Snapshot بين المناطق أو تغيير CMK على البيانات دون كشفها للعميل.</span><span class="lang-en"><span dir="ltr" class="font-mono">ReEncrypt</span> decrypts then encrypts in one KMS call without the plaintext leaving the service. Useful for copying EBS Snapshots across regions or changing CMK without exposing plaintext to the client.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يشفّر فقط.</span><span class=\"lang-en\">Only encrypts.</span>", "", "<span class=\"lang-ar\">يفكّ فقط.</span><span class=\"lang-en\">Only decrypts.</span>", "<span class=\"lang-ar\">للتوقيع الرقميّ.</span><span class=\"lang-en\">For digital signing.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">لماذا <strong>لا يستطيع</strong> حتى المستخدم الجذر (Root) استخدام CMK إذا لم تُعرَّف Key Policy؟</span><span class="lang-en">Why can't even Root use a CMK without a Key Policy?</span>",
+        options: [
+          "<span class="lang-ar">AWS تحذف المفتاح.</span><span class="lang-en">AWS deletes the key.</span>",
+          "<span class="lang-ar">KMS تشترط Key Policy صريحة — Default Policy يمنح Root كلّ الصلاحيّات، لكن لو عُدِّلت وحُذِف Root، يُقفَل المفتاح.</span><span class="lang-en">KMS requires an explicit Key Policy — the default grants Root full access, but if edited to remove Root, the key is locked out.</span>",
+          "<span class="lang-ar">Root ممنوع من KMS.</span><span class="lang-en">Root is banned from KMS.</span>",
+          "<span class="lang-ar">MFA مطلوبة.</span><span class="lang-en">MFA required.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Key Policy في KMS <strong>إلزاميّة</strong> (بخلاف سياسات الموارد الأخرى). الـ Default Policy تحتوي بياناً يمنح Root الحساب كلّ الصلاحيّات (<span dir="ltr" class="font-mono">kms:*</span>). إذا حذفت هذا البيان، لا أحد يستطيع الإدارة — تواصل مع AWS Support لاستعادة المفتاح.</span><span class="lang-en">KMS Key Policy is <strong>mandatory</strong> (unlike other resource policies). The default contains a statement granting Root full <span dir="ltr" class="font-mono">kms:*</span>. Remove it and nobody can administer — contact AWS Support to recover the key.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">AWS لا تحذف مفاتيح المستخدمين.</span><span class=\"lang-en\">AWS doesn't delete user keys.</span>", "", "<span class=\"lang-ar\">Root لا يُمنَع.</span><span class=\"lang-en\">Root isn't banned.</span>", "<span class=\"lang-ar\">MFA غير مرتبطة.</span><span class=\"lang-en\">MFA unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">في CloudFormation، كيف تشير إلى سرّ في Secrets Manager ديناميكياً؟</span><span class="lang-en">In CloudFormation, how do you dynamically reference a Secrets Manager secret?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:password}}</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">!GetSecret</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">!GetSecret</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">${secret}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">${secret}</span>.</span>",
+          "<span class="lang-ar">غير مدعوم.</span><span class="lang-en">Not supported.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">CloudFormation يدعم Dynamic References بصيغة <span dir="ltr" class="font-mono">{{resolve:service-name:reference-key}}</span>. للـ Secrets Manager: <span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. للـ Parameter Store: <span dir="ltr" class="font-mono">{{resolve:ssm:param-name:version}}</span> أو <span dir="ltr" class="font-mono">ssm-secure</span>.</span><span class="lang-en">CloudFormation supports Dynamic References via <span dir="ltr" class="font-mono">{{resolve:service-name:reference-key}}</span>. Secrets Manager: <span dir="ltr" class="font-mono">{{resolve:secretsmanager:secret-id:SecretString:json-key:version-stage:version-id}}</span>. Parameter Store: <span dir="ltr" class="font-mono">{{resolve:ssm:param-name:version}}</span> or <span dir="ltr" class="font-mono">ssm-secure</span>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">صيغة مخترعة.</span><span class=\"lang-en\">Made up.</span>", "<span class=\"lang-ar\">صيغة مخترعة.</span><span class=\"lang-en\">Made up.</span>", "", "<span class=\"lang-ar\">مدعوم بالكامل.</span><span class=\"lang-en\">Fully supported.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥ و ٦</span><span class=\"lang-en\">Sections 5 & 6</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <span dir="ltr" class="font-mono">Decrypt</span> و <span dir="ltr" class="font-mono">ReEncrypt</span>؟</span><span class="lang-en">Difference between <span dir="ltr" class="font-mono">Decrypt</span> and <span dir="ltr" class="font-mono">ReEncrypt</span>?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Decrypt</span> يعيد plaintext للعميل؛ <span dir="ltr" class="font-mono">ReEncrypt</span> يفكّ ويشفّر بـ CMK آخر بدون كشف plaintext خارج KMS.</span><span class="lang-en"><span dir="ltr" class="font-mono">Decrypt</span> returns plaintext to the client; <span dir="ltr" class="font-mono">ReEncrypt</span> decrypts and re-encrypts under another CMK without exposing plaintext outside KMS.</span>",
+          "<span class="lang-ar">ReEncrypt أبطأ.</span><span class="lang-en">ReEncrypt is slower.</span>",
+          "<span class="lang-ar">كلاهما نفس الشيء.</span><span class="lang-en">Same thing.</span>",
+          "<span class="lang-ar">ReEncrypt لفكّ التوقيع فقط.</span><span class="lang-en">ReEncrypt is for signature verification only.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">الفائدة الأمنيّة لـ ReEncrypt: الـ plaintext لا يغادر KMS أبداً. مناسب لتبديل CMK، نسخ EBS Snapshots عبر المناطق، أو تغيير ملكيّة البيانات بين حسابات. <span dir="ltr" class="font-mono">Decrypt</span> يعيد الـ plaintext لتطبيقك.</span><span class="lang-en">The security benefit of ReEncrypt: plaintext never leaves KMS. Ideal for rotating CMK, copying EBS Snapshots across regions, or changing data ownership across accounts. <span dir="ltr" class="font-mono">Decrypt</span> returns plaintext to your app.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الأداء متقارب.</span><span class=\"lang-en\">Perf similar.</span>", "", "<span class=\"lang-ar\">مختلفان.</span><span class=\"lang-en\">Different.</span>", "<span class=\"lang-ar\">ReEncrypt لا علاقة له بالتوقيع.</span><span class=\"lang-en\">ReEncrypt is not for signatures.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(20, QUESTIONS);
+      if (isChapterComplete(20)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

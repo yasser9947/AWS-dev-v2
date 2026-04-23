@@ -1,0 +1,53 @@
+{
+  "slug": "codedeploy",
+  "name": "AWS CodeDeploy",
+  "icon": "rocket",
+  "color": "green",
+  "tagline_ar": "خدمة نشر تُنسّق تحديث الكود على EC2/On-Prem/Lambda/ECS باستراتيجيات Canary/Linear/AllAtOnce مع hooks عبر appspec.yml.",
+  "tagline_en": "Deployment service orchestrating updates to EC2/On-Prem/Lambda/ECS with Canary/Linear/AllAtOnce strategies and appspec.yml hooks.",
+  "key_concepts": [
+    {"concept": "Application", "desc_ar": "وحدة منطقية تحوي deployment groups؛ نوعها EC2/OnPrem, Lambda, أو ECS.", "desc_en": "Logical unit containing deployment groups; compute platform EC2/OnPrem, Lambda, or ECS."},
+    {"concept": "Deployment Group", "desc_ar": "مجموعة أهداف النشر (EC2 tags/ASG/Lambda function/ECS service).", "desc_en": "Set of targets (EC2 tags/ASG/Lambda function/ECS service)."},
+    {"concept": "appspec.yml (EC2)", "desc_ar": "يحدّد files/permissions وhooks: ApplicationStop, BeforeInstall, AfterInstall, ApplicationStart, ValidateService.", "desc_en": "Defines files/permissions and hooks: ApplicationStop, BeforeInstall, AfterInstall, ApplicationStart, ValidateService."},
+    {"concept": "appspec.yml (Lambda)", "desc_ar": "يحدّد function versions وhooks: BeforeAllowTraffic, AfterAllowTraffic.", "desc_en": "Defines function versions and hooks: BeforeAllowTraffic, AfterAllowTraffic."},
+    {"concept": "appspec.yml (ECS)", "desc_ar": "يحدّد TaskDefinition/ContainerName وhooks: BeforeInstall, AfterInstall, AfterAllowTestTraffic, BeforeAllowTraffic, AfterAllowTraffic.", "desc_en": "Defines TaskDefinition/ContainerName with hooks: BeforeInstall, AfterInstall, AfterAllowTestTraffic, BeforeAllowTraffic, AfterAllowTraffic."},
+    {"concept": "Deployment Config (EC2)", "desc_ar": "AllAtOnce / HalfAtATime / OneAtATime أو مخصص (min healthy hosts).", "desc_en": "AllAtOnce / HalfAtATime / OneAtATime or custom (min healthy hosts)."},
+    {"concept": "Deployment Config (Lambda/ECS)", "desc_ar": "Canary / Linear / AllAtOnce مع أمثلة Canary10Percent5Minutes و Linear10PercentEvery1Minute.", "desc_en": "Canary / Linear / AllAtOnce with presets like Canary10Percent5Minutes, Linear10PercentEvery1Minute."},
+    {"concept": "Blue/Green", "desc_ar": "طريقة نشر تبني بيئة جديدة وتحوّل الحركة إليها (ممكن لـ EC2/Lambda/ECS).", "desc_en": "Deployment type provisioning new environment and shifting traffic (EC2/Lambda/ECS)."},
+    {"concept": "CodeDeploy Agent", "desc_ar": "خدمة تعمل على EC2/On-Prem لتلقّي تعليمات النشر.", "desc_en": "Daemon running on EC2/On-Prem to receive deployment instructions."}
+  ],
+  "limits": [
+    {"limit": "Concurrent deployments (account)", "limit_en": "Concurrent deployments per account", "value": "1000"},
+    {"limit": "Deployment groups per app", "limit_en": "Deployment groups per app", "value": "1000"},
+    {"limit": "Instances per deployment (EC2)", "limit_en": "Instances per deployment", "value": "1000"},
+    {"limit": "Deployment timeout (default)", "limit_en": "Default deploy timeout", "value": "1 h per event"},
+    {"limit": "appspec.yml size", "limit_en": "appspec.yml size", "value": "32 KB"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء تطبيق Lambda.", "desc_en": "Create Lambda application.", "cmd": "aws deploy create-application --application-name my-app --compute-platform Lambda"},
+    {"desc_ar": "إنشاء deployment group.", "desc_en": "Create deployment group.", "cmd": "aws deploy create-deployment-group --application-name my-app --deployment-group-name prod --service-role-arn arn:... --deployment-config-name CodeDeployDefault.LambdaCanary10Percent5Minutes"},
+    {"desc_ar": "بدء نشر.", "desc_en": "Create deployment.", "cmd": "aws deploy create-deployment --application-name my-app --deployment-group-name prod --revision '{\"revisionType\":\"S3\",\"s3Location\":{...}}'"},
+    {"desc_ar": "إيقاف نشر ومعالجة rollback.", "desc_en": "Stop deployment and rollback.", "cmd": "aws deploy stop-deployment --deployment-id d-123 --auto-rollback-enabled"},
+    {"desc_ar": "حالة النشر.", "desc_en": "Get deployment status.", "cmd": "aws deploy get-deployment --deployment-id d-123"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "نشر ملاحي آمن لـ Lambda بعد Canary", "scenario_en": "Safe Lambda traffic shift via Canary", "choice": "Lambda Canary10Percent5Minutes"},
+    {"scenario_ar": "نشر بلا خدمة موقوفة على ECS خلف ALB", "scenario_en": "Zero-downtime ECS deploy behind ALB", "choice": "Blue/Green ECS"},
+    {"scenario_ar": "حفظ النسخة العاملة في حال الفشل", "scenario_en": "Auto revert on failure", "choice": "Auto rollback on alarm/failure"},
+    {"scenario_ar": "نشر تدريجي نصف الخوادم كل مرة", "scenario_en": "Gradual rollout half of fleet at a time", "choice": "EC2 HalfAtATime"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Lambda configs", "feature_ar": "إعدادات Lambda", "this": "Canary / Linear / AllAtOnce", "alt": "—", "alt_name": "—"},
+    {"feature": "EC2 configs", "feature_ar": "إعدادات EC2", "this": "AllAtOnce / HalfAtATime / OneAtATime", "alt": "—", "alt_name": "—"},
+    {"feature": "Canary example", "feature_ar": "مثال Canary", "this": "Canary10Percent5Minutes", "alt": "Canary10Percent30Minutes", "alt_name": "Variant"},
+    {"feature": "Linear example", "feature_ar": "مثال Linear", "this": "Linear10PercentEvery1Minute", "alt": "Linear10PercentEvery10Minutes", "alt_name": "Variant"},
+    {"feature": "Blue/Green", "feature_ar": "Blue/Green", "this": "EC2 / Lambda / ECS", "alt": "In-place only", "alt_name": "EC2 In-place"}
+  ],
+  "exam_tips": [
+    {"ar": "Lambda deployments تستخدم Canary/Linear/AllAtOnce؛ EC2 تستخدم AllAtOnce/HalfAtATime/OneAtATime.", "en": "Lambda uses Canary/Linear/AllAtOnce; EC2 uses AllAtOnce/HalfAtATime/OneAtATime."},
+    {"ar": "Canary10Percent5Minutes يعني 10% أولاً، ثم 90% بعد 5 دقائق.", "en": "Canary10Percent5Minutes: 10% first, then 90% after 5 minutes."},
+    {"ar": "appspec hooks لـ EC2: ApplicationStop/BeforeInstall/AfterInstall/ApplicationStart/ValidateService (ترتيب مهم).", "en": "EC2 hooks: ApplicationStop/BeforeInstall/AfterInstall/ApplicationStart/ValidateService (order matters)."},
+    {"ar": "ECS Blue/Green يتطلب ALB/NLB مع target groups اثنين (blue/green).", "en": "ECS Blue/Green requires ALB/NLB with two target groups (blue/green)."},
+    {"ar": "Auto rollback يبدأ عند deployment failure أو تفعيل CloudWatch alarm محدد.", "en": "Auto rollback triggers on deployment failure or specified CloudWatch alarm."}
+  ]
+}

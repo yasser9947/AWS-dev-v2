@@ -1,0 +1,46 @@
+{
+  "slug": "codebuild",
+  "name": "AWS CodeBuild",
+  "icon": "hammer",
+  "color": "green",
+  "tagline_ar": "خدمة بناء مُدارة بلا خوادم تُنفّذ buildspec.yml في بيئات مُدارة أو مخصّصة مع دفع حسب الدقيقة.",
+  "tagline_en": "Fully managed serverless build service running buildspec.yml in managed or custom environments with per-minute billing.",
+  "key_concepts": [
+    {"concept": "buildspec.yml", "desc_ar": "ملف في جذر المصدر يصف مراحل install/pre_build/build/post_build والمخرجات artifacts.", "desc_en": "File at source root defining install/pre_build/build/post_build phases and artifacts."},
+    {"concept": "Phases", "desc_ar": "install (أدوات), pre_build (auth/setup), build (التنفيذ), post_build (الختم/النشر).", "desc_en": "install (tools), pre_build (auth/setup), build (run), post_build (finalize/deploy)."},
+    {"concept": "Environment", "desc_ar": "صورة Docker مُدارة من AWS أو مخصّصة من ECR؛ تحدّد compute (SMALL/MEDIUM/LARGE/2XLARGE).", "desc_en": "Managed AWS Docker image or custom ECR image; compute size SMALL/MEDIUM/LARGE/2XLARGE."},
+    {"concept": "Artifacts", "desc_ar": "مخرجات تُرفع إلى S3 (أو secondary artifacts).", "desc_en": "Outputs uploaded to S3 (with optional secondary artifacts)."},
+    {"concept": "Cache", "desc_ar": "S3 cache أو local cache (DOCKER_LAYER/SOURCE/CUSTOM) لتسريع البناء.", "desc_en": "S3 cache or local cache (DOCKER_LAYER/SOURCE/CUSTOM) to speed builds."},
+    {"concept": "Environment variables", "desc_ar": "Plaintext أو parameter-store أو secrets-manager لحقن القيم.", "desc_en": "Plaintext, parameter-store, or secrets-manager references injected as vars."},
+    {"concept": "VPC support", "desc_ar": "تشغيل builds داخل VPC للوصول إلى RDS أو موارد خاصة.", "desc_en": "Run builds inside VPC to reach RDS or private resources."},
+    {"concept": "Reports", "desc_ar": "دعم JUnit/Cucumber لعرض نتائج الاختبارات في Console.", "desc_en": "JUnit/Cucumber test report support visible in console."}
+  ],
+  "limits": [
+    {"limit": "Build timeout", "limit_en": "Build timeout", "value": "5 min – 8 h (default 60 min)"},
+    {"limit": "Queued timeout", "limit_en": "Queued timeout", "value": "Up to 8 h"},
+    {"limit": "Concurrent builds (default)", "limit_en": "Default concurrent builds", "value": "20-60 per region"},
+    {"limit": "Environment disk", "limit_en": "Ephemeral disk", "value": "50-824 GB depending on size"},
+    {"limit": "Max compute", "limit_en": "Max compute", "value": "2XLARGE (72 vCPU / 145 GB)"},
+    {"limit": "Artifact size", "limit_en": "Artifact size", "value": "Limited by S3 (5 TB)"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء مشروع بناء.", "desc_en": "Create build project.", "cmd": "aws codebuild create-project --name my-build --source type=CODECOMMIT,location=... --environment ... --service-role arn:... --artifacts type=S3,location=my-bucket"},
+    {"desc_ar": "بدء بناء.", "desc_en": "Start a build.", "cmd": "aws codebuild start-build --project-name my-build"},
+    {"desc_ar": "متابعة بناء.", "desc_en": "Check a build.", "cmd": "aws codebuild batch-get-builds --ids my-build:abcd-1234"},
+    {"desc_ar": "قائمة المشاريع.", "desc_en": "List projects.", "cmd": "aws codebuild list-projects"},
+    {"desc_ar": "إيقاف بناء.", "desc_en": "Stop build.", "cmd": "aws codebuild stop-build --id my-build:abcd-1234"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "CI مُدار بدون إدارة خوادم Jenkins", "scenario_en": "Managed CI without running Jenkins servers", "choice": "CodeBuild"},
+    {"scenario_ar": "بناء على صور مخصصة من ECR", "scenario_en": "Build on custom images from ECR", "choice": "Custom environment image"},
+    {"scenario_ar": "اختبارات تحتاج اتصال VPC (RDS/ElastiCache)", "scenario_en": "Tests needing VPC access (RDS/ElastiCache)", "choice": "CodeBuild with VPC config"},
+    {"scenario_ar": "بناء متكرر يستخدم تبعيات كثيرة", "scenario_en": "Frequent builds with heavy dependencies", "choice": "S3 or Local cache"}
+  ],
+  "exam_tips": [
+    {"ar": "buildspec.yml يستخدم phases: install/pre_build/build/post_build؛ artifacts ترفع إلى S3.", "en": "buildspec.yml uses phases: install/pre_build/build/post_build; artifacts upload to S3."},
+    {"ar": "env.parameter-store يرجع قيمة من SSM، وenv.secrets-manager يرجع من Secrets Manager.", "en": "env.parameter-store pulls from SSM; env.secrets-manager pulls from Secrets Manager."},
+    {"ar": "CodeBuild افتراضياً خارج VPC؛ فعّل VPC config للوصول إلى RDS الخاصة.", "en": "CodeBuild runs outside VPC by default; enable VPC config for private RDS access."},
+    {"ar": "يستطيع CodeBuild بناء صور Docker ودفعها إلى ECR عبر privileged mode.", "en": "CodeBuild can build Docker images and push to ECR with privileged mode enabled."},
+    {"ar": "CodeBuild يتكامل مع CodePipeline كـ build action وينتج/يستهلك artifacts تلقائياً.", "en": "CodeBuild integrates with CodePipeline as a build action, auto-producing/consuming artifacts."}
+  ]
+}

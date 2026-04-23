@@ -1,0 +1,273 @@
+{
+  "n": 22,
+  "domain": "deployment",
+  "title_ar": "AWS SAM — Serverless Application Model",
+  "title_en": "AWS SAM — Serverless Application Model",
+  "pages": "743-754",
+  "subtitle_ar": "إطار عمل مُبسّط لبناء ونشر تطبيقات Lambda + API Gateway + DynamoDB بـ YAML قصير. SAM يتحوّل تلقائياً إلى CloudFormation.",
+  "subtitle_en": "A simplified framework for building and deploying Lambda + API Gateway + DynamoDB apps with short YAML. SAM transforms into CloudFormation under the hood.",
+  "tags": ["SAM", "Serverless", "Lambda", "CodeDeploy", "Canary"],
+  "objectives": [
+    {"concept": "SAM Template & Transform", "tested_ar": "النطاق الثالث — تعريف Serverless resources بصيغة SAM.", "tested_en": "Domain 3 — defining Serverless resources with SAM."},
+    {"concept": "sam build & sam deploy", "tested_ar": "النطاق الثالث — دورة حياة النشر.", "tested_en": "Domain 3 — deployment lifecycle."},
+    {"concept": "DeploymentPreference", "tested_ar": "النطاق الثالث — Canary و Linear للـ Lambda.", "tested_en": "Domain 3 — Canary & Linear for Lambda."},
+    {"concept": "sam local", "tested_ar": "النطاق الأوّل — اختبار Lambda محلياً.", "tested_en": "Domain 1 — testing Lambda locally."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو SAM ولماذا نستخدمه",
+      "title_en": "What is SAM and why",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS SAM</span> (Serverless Application Model) إطار عمل مفتوح المصدر لبناء ونشر تطبيقات Serverless. الفكرة: كتابة قالب YAML مختصر جداً، يتحوّل تلقائياً إلى CloudFormation كامل. يُقلّل من ١٠٠ سطر إلى ١٥ سطراً لتعريف Lambda + API Gateway + DynamoDB.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">AWS SAM</span> (Serverless Application Model) is an open-source framework for building serverless apps. The idea: write a very short YAML template that auto-transforms into full CloudFormation. It compresses 100 lines to 15 for a Lambda + API Gateway + DynamoDB definition."},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Transform Header</strong> يجب أن يظهر أوّل سطر لتحديد أنّ القالب SAM وليس CloudFormation عاديّ: <span dir=\"ltr\" class=\"font-mono\">Transform: 'AWS::Serverless-2016-10-31'</span>.",
+         "en": "The <strong>Transform header</strong> must appear to mark the template as SAM (not plain CloudFormation): <span dir=\"ltr\" class=\"font-mono\">Transform: 'AWS::Serverless-2016-10-31'</span>."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "zap", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "٣ موارد مُبسّطة", "title_en": "3 shortcut resources", "body_ar": "<span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>، <span dir=\"ltr\" class=\"font-mono\">::Api</span>، <span dir=\"ltr\" class=\"font-mono\">::SimpleTable</span> — كل واحدة تُترجَم إلى عشرات الموارد.", "body_en": "<span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>, <span dir=\"ltr\" class=\"font-mono\">::Api</span>, <span dir=\"ltr\" class=\"font-mono\">::SimpleTable</span> — each expands to many resources."},
+          {"icon": "refresh-cw", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "يستفيد من CloudFormation", "title_en": "Leverages CloudFormation", "body_ar": "كل ميزات CloudFormation متاحة: Outputs، Mappings، Parameters، Conditions.", "body_en": "All CloudFormation features are available: Outputs, Mappings, Parameters, Conditions."},
+          {"icon": "computer", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "اختبار محلّيّ", "title_en": "Local testing", "body_ar": "<span dir=\"ltr\" class=\"font-mono\">sam local invoke</span> يشغّل Lambda محلياً عبر Docker.", "body_en": "<span dir=\"ltr\" class=\"font-mono\">sam local invoke</span> runs Lambda locally via Docker."},
+          {"icon": "rocket", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "CodeDeploy مدمج", "title_en": "CodeDeploy integrated", "body_ar": "نشر تدريجيّ (Canary/Linear) للـ Lambda بسطر واحد.", "body_en": "Gradual deployment (Canary/Linear) for Lambda in a single line."}
+        ]}
+      ]
+    },
+    {
+      "title_ar": "قالب SAM نموذجيّ",
+      "title_en": "A typical SAM template",
+      "blocks": [
+        {"type": "p",
+         "ar": "هذا مثال كامل لتطبيق Serverless مع Lambda و API Gateway و DynamoDB. لاحظ الاختصارات: <strong>Events</strong> يُنشئ API Gateway تلقائياً، <strong>Policies</strong> يُولّد IAM Role مناسباً.",
+         "en": "A complete serverless app with Lambda, API Gateway, and DynamoDB. Note the shortcuts: <strong>Events</strong> auto-creates API Gateway; <strong>Policies</strong> generates an appropriate IAM role."},
+        {"type": "code", "lang": "yaml",
+         "code": "AWSTemplateFormatVersion: '2010-09-09'\nTransform: 'AWS::Serverless-2016-10-31'\nDescription: Acme serverless orders service\n\nGlobals:\n  Function:\n    Runtime: java17\n    MemorySize: 512\n    Timeout: 10\n    Environment:\n      Variables:\n        TABLE_NAME: !Ref OrdersTable\n\nResources:\n  OrdersTable:\n    Type: AWS::Serverless::SimpleTable\n    Properties:\n      PrimaryKey:\n        Name: orderId\n        Type: String\n\n  GetOrderFn:\n    Type: AWS::Serverless::Function\n    Properties:\n      CodeUri: target/orders-1.0.jar\n      Handler: com.acme.orders.GetOrder::handleRequest\n      Policies:\n        - DynamoDBReadPolicy:\n            TableName: !Ref OrdersTable\n      Events:\n        ApiEvent:\n          Type: Api\n          Properties:\n            Path: /orders/{id}\n            Method: GET\n\nOutputs:\n  ApiUrl:\n    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Policy Templates</strong> مثل <span dir=\"ltr\" class=\"font-mono\">DynamoDBReadPolicy</span>، <span dir=\"ltr\" class=\"font-mono\">S3ReadPolicy</span>، <span dir=\"ltr\" class=\"font-mono\">SQSPollerPolicy</span>، <span dir=\"ltr\" class=\"font-mono\">DynamoDBCrudPolicy</span> تُولّد IAM Policies جاهزة بأقل امتياز.",
+         "en": "<strong>Policy Templates</strong> like <span dir=\"ltr\" class=\"font-mono\">DynamoDBReadPolicy</span>, <span dir=\"ltr\" class=\"font-mono\">S3ReadPolicy</span>, <span dir=\"ltr\" class=\"font-mono\">SQSPollerPolicy</span>, <span dir=\"ltr\" class=\"font-mono\">DynamoDBCrudPolicy</span> generate least-privilege IAM policies."}
+      ]
+    },
+    {
+      "title_ar": "دورة النشر: build، deploy، sync",
+      "title_en": "Deployment lifecycle: build, deploy, sync",
+      "blocks": [
+        {"type": "p",
+         "ar": "دورة النشر النموذجيّة تتكوّن من <strong>sam build</strong> (يُجهّز الاعتماديّات في <span dir=\"ltr\" class=\"font-mono\">.aws-sam/</span>)، ثم <strong>sam deploy</strong> (يرفع إلى S3 وينشئ ChangeSet). الـ <strong>sam sync</strong> يسرّع التطوير بتحديث كود Lambda فقط (تجاوز CloudFormation).",
+         "en": "Typical cycle: <strong>sam build</strong> (prepares dependencies in <span dir=\"ltr\" class=\"font-mono\">.aws-sam/</span>), then <strong>sam deploy</strong> (uploads to S3 and creates a ChangeSet). <strong>sam sync</strong> speeds dev by updating only Lambda code (bypasses CloudFormation)."},
+        {"type": "code", "lang": "bash",
+         "code": "# First-time setup\nsam init                         # scaffold new project\nsam validate                     # lint template.yaml\n\n# Build & Deploy\nsam build                        # compile + package deps\nsam deploy --guided              # interactive first deploy (saves to samconfig.toml)\nsam deploy                       # subsequent deploys\n\n# SAM Accelerate — iterate fast (bypasses CFN for code-only changes)\nsam sync --watch                 # auto-redeploy on file change\nsam sync --code                  # code only, no infra update\nsam sync --code --resource-id GetOrderFn  # single function\n\n# Local testing\nsam local invoke GetOrderFn -e event.json\nsam local start-api              # local API Gateway on :3000\nsam local start-lambda           # local Lambda endpoint\nsam local generate-event s3 put  # generate sample events"},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "upload", "title_ar": "sam deploy", "title_en": "sam deploy",
+                  "body_ar": "يمرّ عبر CloudFormation الكامل. بطيء (دقائق) لكنّه آمن وعاكس للبنية التحتية.",
+                  "body_en": "Full CloudFormation path. Slower (minutes) but safe and infra-aware."},
+         "right": {"tone": "emerald", "icon": "zap", "title_ar": "sam sync --code", "title_en": "sam sync --code",
+                   "body_en": "Bypasses CloudFormation, updates Lambda code directly via service APIs. Seconds — ideal for rapid dev, <strong>not</strong> for prod.",
+                   "body_ar": "يتجاوز CloudFormation، يحدّث كود Lambda مباشرةً عبر APIs. ثوانٍ — مثاليّ للتطوير السريع، <strong>ليس</strong> للإنتاج."}
+        }
+      ]
+    },
+    {
+      "title_ar": "النشر التدريجيّ مع CodeDeploy",
+      "title_en": "Gradual deployment with CodeDeploy",
+      "blocks": [
+        {"type": "p",
+         "ar": "SAM يدمج CodeDeploy لنشر Lambda بالتدريج: <strong>AutoPublishAlias</strong> يُنشِئ Alias جديد عند كل نشر، و <strong>DeploymentPreference</strong> يحدّد نمط تحويل الترافيك.",
+         "en": "SAM integrates CodeDeploy for gradual Lambda deployment: <strong>AutoPublishAlias</strong> creates a new alias on each deploy, and <strong>DeploymentPreference</strong> sets the traffic-shift pattern."},
+        {"type": "table",
+         "headers": {"ar": ["النمط", "الوصف", "الاستخدام"], "en": ["Pattern", "Description", "Use case"]},
+         "rows": [
+           [{"mono": true, "value": "Canary10Percent5Minutes"}, {"ar": "١٠٪ ترافيك فوراً، الباقي بعد ٥ دقائق", "en": "10% traffic immediately, rest after 5 min"}, {"ar": "إنتاج حسّاس، تحقّق سريع من الأخطاء", "en": "Critical prod, quick error detection"}],
+           [{"mono": true, "value": "Canary10Percent30Minutes"}, {"ar": "١٠٪ ترافيك فوراً، الباقي بعد ٣٠ دقيقة", "en": "10% traffic immediately, rest after 30 min"}, {"ar": "تحقّق أعمق من مقاييس CloudWatch", "en": "Deeper CloudWatch metric validation"}],
+           [{"mono": true, "value": "Linear10PercentEvery1Minute"}, {"ar": "زيادة ١٠٪ كل دقيقة حتى ١٠٠٪", "en": "Grow 10% every minute until 100%"}, {"ar": "نشر تدريجيّ منتظم", "en": "Smooth progressive rollout"}],
+           [{"mono": true, "value": "Linear10PercentEvery10Minutes"}, {"ar": "زيادة ١٠٪ كل ١٠ دقائق", "en": "Grow 10% every 10 min"}, {"ar": "للإنتاج الأبطأ المراقَب", "en": "For slower, watched production"}],
+           [{"mono": true, "value": "AllAtOnce"}, {"ar": "١٠٠٪ ترافيك فوراً", "en": "100% immediately"}, {"ar": "Dev أو عند الثقة العالية", "en": "Dev or high-confidence updates"}]
+         ]
+        },
+        {"type": "code", "lang": "yaml",
+         "code": "Resources:\n  MyLambda:\n    Type: AWS::Serverless::Function\n    Properties:\n      CodeUri: s3://bucket/code.zip\n      Handler: index.handler\n      Runtime: nodejs20.x\n      AutoPublishAlias: live      # publishes new version + shifts alias\n      DeploymentPreference:\n        Type: Canary10Percent10Minutes\n        Alarms:\n          # auto-rollback if any alarm fires\n          - !Ref LambdaErrorsAlarm\n          - !Ref AliasLatencyAlarm\n        Hooks:\n          PreTraffic:  !Ref PreTrafficValidationFn\n          PostTraffic: !Ref PostTrafficSmokeTestFn"},
+        {"type": "callout", "tone": "warn",
+         "ar": "الـ <strong>Alarms</strong> تُطلِق Rollback تلقائياً. الـ <strong>Hooks</strong> هي Lambda validation functions تعمل قبل/بعد تحويل الترافيك — مفيدة لـ smoke tests. Rollback هنا يعود إلى الإصدار السابق بتغيير Alias، لا بإعادة نشر.",
+         "en": "<strong>Alarms</strong> trigger automatic rollback. <strong>Hooks</strong> are Lambda validation functions running pre/post traffic shift — ideal for smoke tests. Rollback here just points the alias back to the old version, not a redeploy."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء ونشر دالّة Lambda + API Gateway عبر SAM، ثم اختبارها محلياً قبل الرفع.",
+    "goal_en": "Create and deploy a Lambda + API Gateway via SAM, test locally before pushing.",
+    "steps": [
+      {"title_ar": "ثبّت SAM CLI", "title_en": "Install SAM CLI",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "# macOS\nbrew tap aws/tap\nbrew install aws-sam-cli\nsam --version"},
+      {"title_ar": "أنشئ مشروعاً جديداً", "title_en": "Scaffold a new project",
+       "body_ar": "يسألك عن النموذج (Hello World Java 17 Maven مثلاً).",
+       "body_en": "Asks you for a template (e.g. Hello World Java 17 Maven).",
+       "lang": "bash",
+       "code": "sam init \\\n  --runtime java17 \\\n  --package-type Zip \\\n  --app-template hello-world-maven \\\n  --name acme-orders"},
+      {"title_ar": "بني واختبر محلياً", "title_en": "Build and test locally",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "cd acme-orders\nsam build\nsam local invoke HelloWorldFunction -e events/event.json\nsam local start-api   # http://localhost:3000/hello"},
+      {"title_ar": "انشر إلى AWS", "title_en": "Deploy to AWS",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "sam deploy --guided\n# Stack name: acme-orders-dev\n# Region: us-east-1\n# Confirm changes: Y\n# Allow SAM CLI IAM creation: Y\n# Save arguments to samconfig.toml: Y"},
+      {"title_ar": "تطوير سريع بـ sam sync", "title_en": "Rapid dev with sam sync",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "sam sync --watch\n# Modify Java code → auto-redeployed in seconds"},
+      {"title_ar": "تنظيف", "title_en": "Cleanup",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "sam delete --stack-name acme-orders-dev"}
+    ],
+    "warning_ar": "Lambda + API Gateway بعد Free Tier تكلفتهما منخفضة جداً لكن تذكّر الحذف بعد التجربة، خاصّةً إذا وضعت CloudWatch Alarms (تكلفة إضافيّة).",
+    "warning_en": "Lambda + API Gateway cost very little after Free Tier, but delete after testing — especially if you added CloudWatch Alarms (extra cost)."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "ما الهدف من سطر <span dir=\"ltr\" class=\"font-mono\">Transform: 'AWS::Serverless-2016-10-31'</span> في قالب SAM؟",
+      "question_en": "What is the purpose of <span dir=\"ltr\" class=\"font-mono\">Transform: 'AWS::Serverless-2016-10-31'</span> in a SAM template?",
+      "options_ar": ["تحديد إصدار Lambda runtime.", "إخبار CloudFormation أنّ هذا قالب SAM وأن يُوسّع المكرولات.", "تمكين تشفير KMS.", "تفعيل Canary deployment."],
+      "options_en": ["Specify Lambda runtime version.", "Tell CloudFormation this is a SAM template and to expand macros.", "Enable KMS encryption.", "Activate canary deployment."],
+      "correct": 1,
+      "explanation_ar": "سطر <strong>Transform</strong> يُعلِم CloudFormation أنّ القالب يحتوي على SAM macros (مثل <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>) ويحتاج إلى توسيعها إلى موارد CloudFormation كاملة قبل التنفيذ. بدونه، <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::*</span> لا تُفهَم.",
+      "explanation_en": "The <strong>Transform</strong> line tells CloudFormation the template contains SAM macros (like <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>) and needs to expand them into full CloudFormation resources before executing. Without it, <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::*</span> isn't recognized.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "مطوّر يريد نشر Lambda إنتاجي مع تحقّق تدريجيّ: ١٠٪ ترافيك لمدّة ١٠ دقائق، ثم باقي الـ ٩٠٪ دفعةً واحدة. ما DeploymentPreference المناسب؟",
+      "question_en": "A developer wants to deploy prod Lambda with gradual validation: 10% traffic for 10 min, then the rest at once. Which DeploymentPreference?",
+      "options_ar": ["AllAtOnce", "Canary10Percent10Minutes", "Linear10PercentEvery10Minutes", "Linear10PercentEvery1Minute"],
+      "options_en": ["AllAtOnce", "Canary10Percent10Minutes", "Linear10PercentEvery10Minutes", "Linear10PercentEvery1Minute"],
+      "correct": 1,
+      "explanation_ar": "<strong>Canary10Percent10Minutes</strong> هو المعيار: ١٠٪ فوراً للاختبار، انتظار ١٠ دقائق للتحقّق من المقاييس، ثم تحويل الـ ٩٠٪ الباقية دفعة واحدة. Linear يزيد تدريجياً بخطوات متساوية، ليس القفزة الواحدة.",
+      "explanation_en": "<strong>Canary10Percent10Minutes</strong> is the canonical pattern: 10% immediately for testing, wait 10 min to verify metrics, then shift the remaining 90% at once. Linear grows in equal steps, not a single jump.",
+      "wrong_ar": ["لا يُوجد نشر تدريجيّ.", "", "يزيد ١٠٪ كل ١٠ دقائق لمدّة ١٠٠ دقيقة.", "يزيد ١٠٪ كل دقيقة لمدّة ١٠ دقائق."],
+      "wrong_en": ["No gradual shift.", "", "Grows 10% every 10 min for 100 min.", "Grows 10% every 1 min for 10 min."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "مطوّر Java يريد تشغيل Lambda محلياً بدون رفعها إلى AWS للاختبار. ما الأمر الصحيح؟",
+      "question_en": "A Java developer wants to run a Lambda locally without deploying to AWS for testing. Correct command?",
+      "options_ar": ["sam deploy", "sam local invoke", "sam build", "sam sync"],
+      "options_en": ["sam deploy", "sam local invoke", "sam build", "sam sync"],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">sam local invoke</span> يشغّل Lambda محلياً داخل Docker container يحاكي بيئة Lambda. يمكن تمرير Event JSON بـ <span dir=\"ltr\" class=\"font-mono\">-e event.json</span>. للـ API Gateway استخدم <span dir=\"ltr\" class=\"font-mono\">sam local start-api</span>.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">sam local invoke</span> runs Lambda locally in a Docker container mimicking Lambda's environment. Pass event JSON with <span dir=\"ltr\" class=\"font-mono\">-e event.json</span>. For API Gateway, use <span dir=\"ltr\" class=\"font-mono\">sam local start-api</span>.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "دالة Lambda تحتاج قراءة/كتابة من جدول DynamoDB. ما أسرع وأصحّ طريقة لمنح الصلاحيات في SAM؟",
+      "question_en": "A Lambda needs CRUD access on a DynamoDB table. Fastest + cleanest way to grant permissions in SAM?",
+      "options_ar": ["كتابة IAM Policy يدوياً مع AdminAccess.", "استخدام Policy Template مثل DynamoDBCrudPolicy.", "منح Lambda صلاحية كاملة على الحساب.", "عدم الحاجة إلى صلاحيات — الـ SDK يكتشفها."],
+      "options_en": ["Write an inline IAM Policy with AdminAccess.", "Use a Policy Template like DynamoDBCrudPolicy.", "Grant Lambda full account access.", "No permissions needed — SDK auto-detects."],
+      "correct": 1,
+      "explanation_ar": "<strong>Policy Templates</strong> في SAM (مثل <span dir=\"ltr\" class=\"font-mono\">DynamoDBCrudPolicy</span>، <span dir=\"ltr\" class=\"font-mono\">S3ReadPolicy</span>، <span dir=\"ltr\" class=\"font-mono\">SQSPollerPolicy</span>) تُولّد IAM Role بأقلّ امتياز تلقائياً. تمنع أخطاء الصلاحيات المفرطة.",
+      "explanation_en": "<strong>Policy Templates</strong> in SAM (like <span dir=\"ltr\" class=\"font-mono\">DynamoDBCrudPolicy</span>, <span dir=\"ltr\" class=\"font-mono\">S3ReadPolicy</span>, <span dir=\"ltr\" class=\"font-mono\">SQSPollerPolicy</span>) auto-generate a least-privilege IAM role. Prevents excessive-permission mistakes.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "فريق يحتاج تسريع تطوير Lambda المحلّي. يريد كل تعديل كود ينتشر إلى AWS في ثوانٍ بدون انتظار CloudFormation. ما الأمر؟",
+      "question_en": "A team needs fast local dev for Lambda. Each code change should deploy to AWS in seconds without waiting on CloudFormation. Command?",
+      "options_ar": ["sam deploy", "sam sync --code --watch", "sam local invoke", "sam validate"],
+      "options_en": ["sam deploy", "sam sync --code --watch", "sam local invoke", "sam validate"],
+      "correct": 1,
+      "explanation_ar": "<strong>SAM Accelerate (sam sync)</strong> يتجاوز CloudFormation ويحدّث Lambda مباشرةً عبر service APIs. <span dir=\"ltr\" class=\"font-mono\">--code</span> يُحدّث الكود فقط، <span dir=\"ltr\" class=\"font-mono\">--watch</span> يراقب الملفات ويعيد النشر تلقائياً عند التغيير. ليس مخصّصاً للإنتاج — فقط للتطوير.",
+      "explanation_en": "<strong>SAM Accelerate (sam sync)</strong> bypasses CloudFormation and updates Lambda directly via service APIs. <span dir=\"ltr\" class=\"font-mono\">--code</span> updates code only; <span dir=\"ltr\" class=\"font-mono\">--watch</span> watches files and auto-redeploys on change. Not for production — dev only.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "أيّ من الأقسام يُعرّف قيماً مشتركة بين كل Functions في SAM template؟",
+      "question_en": "Which section defines shared values across all Functions in a SAM template?",
+      "options_ar": ["Parameters", "Mappings", "Globals", "Outputs"],
+      "options_en": ["Parameters", "Mappings", "Globals", "Outputs"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">Globals</span> هو قسم خاصّ بـ SAM لتعريف قيم افتراضيّة تُطبَّق على كل Functions أو APIs أو SimpleTables (مثل Runtime، Timeout، Environment Variables). يمكن تجاوزها على مستوى المورد الواحد.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">Globals</span> is a SAM-specific section defining defaults applied to all Functions, APIs, or SimpleTables (Runtime, Timeout, Environment Variables...). Individual resources can override.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q7", "type": "multi",
+      "question_ar": "أيّ من الآتي صحيح عن SAM؟ اختر كل ما ينطبق.",
+      "question_en": "Which are TRUE about SAM? Select all that apply.",
+      "options_ar": ["SAM يتحوّل إلى CloudFormation عند النشر.", "SAM يدعم Outputs و Mappings و Conditions.", "SAM يدعم نشر Lambda تدريجياً عبر CodeDeploy.", "SAM ينشر الموارد بطريقة إمبراطيّة (Imperative)."],
+      "options_en": ["SAM transforms to CloudFormation on deploy.", "SAM supports Outputs, Mappings, Conditions.", "SAM supports gradual Lambda deploy via CodeDeploy.", "SAM deploys imperatively."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "SAM declarative (تعريفيّة) لا إمبراطيّة. يتحوّل إلى CloudFormation، يدعم كل ميزاته، ويدمج CodeDeploy للنشر التدريجيّ لـ Lambda. التعريف بالكود لا بالأوامر المتسلسلة.",
+      "explanation_en": "SAM is declarative, not imperative. Transforms to CloudFormation, supports all its features, integrates CodeDeploy for gradual Lambda deploy. Definition in code, not sequential commands.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "بعد نشر Lambda مع <span dir=\"ltr\" class=\"font-mono\">DeploymentPreference: Canary10Percent5Minutes</span>، ارتفع معدّل الأخطاء فوق عتبة الـ CloudWatch Alarm المُرفَق. ماذا يحدث؟",
+      "question_en": "After deploying Lambda with <span dir=\"ltr\" class=\"font-mono\">DeploymentPreference: Canary10Percent5Minutes</span>, the attached CloudWatch Alarm's error threshold is breached. What happens?",
+      "options_ar": ["النشر يستمرّ؛ Alarms للمراقبة فقط.", "CodeDeploy يُنفّذ Rollback تلقائياً بإعادة Alias إلى الإصدار السابق.", "الـ Stack بالكامل يُحذَف.", "CloudFormation يعلق."],
+      "options_en": ["Deploy continues; alarms are only for monitoring.", "CodeDeploy auto-rolls back by pointing the alias to the previous version.", "The entire stack is deleted.", "CloudFormation hangs."],
+      "correct": 1,
+      "explanation_ar": "عند إطلاق CloudWatch Alarm خلال النشر، CodeDeploy يُجري <strong>Rollback تلقائيّ فوريّ</strong> بإعادة Lambda Alias إلى الإصدار السابق. لا يحتاج إعادة نشر — مجرّد تبديل نقطة الـ Alias. لهذا AutoPublishAlias مطلوب.",
+      "explanation_en": "When a CloudWatch Alarm fires during deploy, CodeDeploy performs an <strong>immediate automatic rollback</strong> by pointing the Lambda alias back to the previous version. No redeploy needed — just a pointer flip. That's why AutoPublishAlias is required.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "فريق يريد بيئتين (dev و prod) بنفس قالب SAM مع قيم مختلفة (Table Name، Instance Size). ما الحل الأمثل؟",
+      "question_en": "A team wants two environments (dev and prod) from the same SAM template with different values (Table Name, Instance Size). Best approach?",
+      "options_ar": ["نسخ القالب وتعديله يدوياً.", "استخدام Parameters مع samconfig.toml بأقسام [dev.deploy.parameters] و [prod.deploy.parameters]، ثم sam deploy --config-env dev.", "تغيير حساب AWS لكل بيئة.", "استخدام sam sync فقط."],
+      "options_en": ["Copy the template and edit manually.", "Use Parameters with samconfig.toml sections [dev.deploy.parameters] and [prod.deploy.parameters], then sam deploy --config-env dev.", "Change AWS account per env.", "Use sam sync only."],
+      "correct": 1,
+      "explanation_ar": "<strong>samconfig.toml</strong> يدعم بيئات متعدّدة مع <span dir=\"ltr\" class=\"font-mono\">[dev.deploy.parameters]</span> و <span dir=\"ltr\" class=\"font-mono\">[prod.deploy.parameters]</span>، كل واحدة بـ stack_name و parameter_overrides خاصّة. <span dir=\"ltr\" class=\"font-mono\">sam deploy --config-env prod</span> يختار القسم المناسب.",
+      "explanation_en": "<strong>samconfig.toml</strong> supports multiple environments via <span dir=\"ltr\" class=\"font-mono\">[dev.deploy.parameters]</span> and <span dir=\"ltr\" class=\"font-mono\">[prod.deploy.parameters]</span>, each with its own stack_name and parameter_overrides. <span dir=\"ltr\" class=\"font-mono\">sam deploy --config-env prod</span> picks the right section.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "أيّ عبارة <strong>خاطئة</strong> عن SAM؟",
+      "question_en": "Which statement about SAM is <strong>FALSE</strong>?",
+      "options_ar": ["SAM يمكنه إنشاء IAM Role تلقائياً من Policy Templates.", "SAM لا يدعم أيّ مورد غير Lambda و API Gateway و DynamoDB.", "sam local start-api يُشغّل API Gateway محلياً على port 3000.", "SAM يستخدم CodeDeploy لنشر Lambda التدريجيّ."],
+      "options_en": ["SAM can create IAM roles automatically from Policy Templates.", "SAM does not support any resources besides Lambda, API Gateway, DynamoDB.", "sam local start-api runs API Gateway locally on port 3000.", "SAM uses CodeDeploy for gradual Lambda deployment."],
+      "correct": 1,
+      "explanation_ar": "العبارة الخاطئة: SAM يدعم <strong>كل</strong> موارد CloudFormation. الموارد المُبسّطة هي <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>، <span dir=\"ltr\" class=\"font-mono\">::Api</span>، <span dir=\"ltr\" class=\"font-mono\">::SimpleTable</span>، لكن يمكنك إضافة أي <span dir=\"ltr\" class=\"font-mono\">AWS::S3::Bucket</span>، <span dir=\"ltr\" class=\"font-mono\">AWS::RDS::DBInstance</span>، إلخ.",
+      "explanation_en": "The false statement: SAM supports <strong>every</strong> CloudFormation resource. The shortcut resources are <span dir=\"ltr\" class=\"font-mono\">AWS::Serverless::Function</span>, <span dir=\"ltr\" class=\"font-mono\">::Api</span>, <span dir=\"ltr\" class=\"font-mono\">::SimpleTable</span>, but you can add any <span dir=\"ltr\" class=\"font-mono\">AWS::S3::Bucket</span>, <span dir=\"ltr\" class=\"font-mono\">AWS::RDS::DBInstance</span>, etc.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    }
+  ],
+  "summary": [
+    {"icon": "sparkles", "title_ar": "SAM اختصار ذكيّ", "title_en": "SAM is smart shorthand",
+     "body_ar": "يتحوّل إلى CloudFormation كامل، مع دعم كل ميزاته.",
+     "body_en": "Transforms into full CloudFormation, keeps all its features."},
+    {"icon": "shield-check", "title_ar": "Policy Templates توفّر الوقت", "title_en": "Policy Templates save time",
+     "body_ar": "DynamoDBCrudPolicy و S3ReadPolicy يُولّدان IAM مناسب تلقائياً.",
+     "body_en": "DynamoDBCrudPolicy, S3ReadPolicy auto-generate appropriate IAM."},
+    {"icon": "rocket", "title_ar": "Canary للإنتاج، AllAtOnce للـ Dev", "title_en": "Canary for prod, AllAtOnce for dev",
+     "body_ar": "DeploymentPreference + Alarms = نشر Lambda آمن.",
+     "body_en": "DeploymentPreference + Alarms = safe Lambda deploys."},
+    {"icon": "computer", "title_ar": "sam local + sam sync = سرعة", "title_en": "sam local + sam sync = speed",
+     "body_ar": "اختبار محلّيّ ثم تحديث كود Lambda بثوانٍ.",
+     "body_en": "Local testing, then seconds-fast code-only updates."}
+  ],
+  "mnemonic_ar": "<strong>\"BLTS\"</strong>: Build → Local → Test → Sync (للتطوير)، أو Build → Deploy (للإنتاج). للـ DeploymentPreference تذكّر <strong>\"Canary سريع، Linear بطيء\"</strong>.",
+  "mnemonic_en": "<strong>\"BLTS\"</strong>: Build → Local → Test → Sync (for dev) or Build → Deploy (for prod). For DeploymentPreference remember <strong>\"Canary fast jump, Linear slow climb\"</strong>.",
+  "prev": 21,
+  "next": 23
+}

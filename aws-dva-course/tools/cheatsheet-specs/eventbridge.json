@@ -1,0 +1,58 @@
+{
+  "slug": "eventbridge",
+  "name": "Amazon EventBridge",
+  "icon": "calendar-clock",
+  "color": "pink",
+  "tagline_ar": "ناقل أحداث مُدار بلا خوادم يربط التطبيقات عبر قواعد ومخطّطات وجداول زمنية للتنسيق بين الخدمات.",
+  "tagline_en": "Serverless event bus that connects applications through rules, schemas, and schedules for service orchestration.",
+  "key_concepts": [
+    {"concept": "Event Bus", "desc_ar": "ناقل يستقبل الأحداث؛ يوجد default و custom و partner (SaaS).", "desc_en": "Receives events; types: default, custom, and partner (SaaS) event buses."},
+    {"concept": "Rule", "desc_ar": "تطابق نمط الحدث أو جدول زمني وتوجّه إلى target واحد أو أكثر (حتى 5).", "desc_en": "Matches event pattern or schedule and routes to up to 5 targets."},
+    {"concept": "Event Pattern", "desc_ar": "مرشّح JSON يطابق source/detail-type/detail لتصفية الأحداث.", "desc_en": "JSON filter matching source/detail-type/detail fields for event selection."},
+    {"concept": "Targets", "desc_ar": "أكثر من 20 وجهة: Lambda, SQS, SNS, Step Functions, Kinesis, ECS task, API Destination.", "desc_en": "20+ destinations: Lambda, SQS, SNS, Step Functions, Kinesis, ECS task, API Destination."},
+    {"concept": "Schema Registry", "desc_ar": "يكتشف ويخزن مخطّطات الأحداث وينشئ code bindings لـ Java/Python/TS.", "desc_en": "Discovers and stores event schemas; generates code bindings for Java/Python/TS."},
+    {"concept": "Scheduler", "desc_ar": "EventBridge Scheduler: جدولة cron/rate لمرة واحدة أو متكررة بدقة عالية ومقياس كبير.", "desc_en": "EventBridge Scheduler: one-time/recurring cron/rate scheduling at high scale."},
+    {"concept": "Archive & Replay", "desc_ar": "يخزّن الأحداث لفترة محددة ويُعيد تشغيلها لاختبار السيناريوهات.", "desc_en": "Archives events for a retention period and replays them for testing."},
+    {"concept": "API Destinations", "desc_ar": "استدعاء HTTPS endpoints خارجية عبر connections مع OAuth/API Key.", "desc_en": "Invoke external HTTPS endpoints using connections with OAuth/API Key auth."},
+    {"concept": "Pipes", "desc_ar": "EventBridge Pipes: point-to-point من مصدر (SQS/Kinesis/DynamoDB Streams) إلى هدف مع filter/enrich.", "desc_en": "EventBridge Pipes: point-to-point source (SQS/Kinesis/DynamoDB Streams) to target with filter/enrich."}
+  ],
+  "limits": [
+    {"limit": "Targets per rule", "limit_en": "Targets per rule", "value": "5"},
+    {"limit": "Rules per event bus", "limit_en": "Rules per event bus", "value": "300"},
+    {"limit": "Event size", "limit_en": "Max event entry size", "value": "256 KB"},
+    {"limit": "PutEvents throughput (default)", "limit_en": "PutEvents default TPS", "value": "10,000 req/s"},
+    {"limit": "Invocations per second per rule", "limit_en": "Invocations/sec per rule", "value": "18,750"},
+    {"limit": "Archive retention", "limit_en": "Archive retention", "value": "0 = indefinite"},
+    {"limit": "Scheduler flexible window", "limit_en": "Scheduler flexible window", "value": "0-1440 min"},
+    {"limit": "Cross-account/region", "limit_en": "Cross-account/region", "value": "Supported"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء قاعدة مجدولة بمعدل.", "desc_en": "Create schedule-based rule.", "cmd": "aws events put-rule --name nightly-rule --schedule-expression 'rate(1 day)'"},
+    {"desc_ar": "إنشاء قاعدة بنمط حدث.", "desc_en": "Create rule with event pattern.", "cmd": "aws events put-rule --name s3-upload --event-pattern '{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"]}'"},
+    {"desc_ar": "إضافة هدف Lambda للقاعدة.", "desc_en": "Add Lambda target to rule.", "cmd": "aws events put-targets --rule s3-upload --targets 'Id=1,Arn=arn:aws:lambda:us-east-1:123:function:proc'"},
+    {"desc_ar": "إرسال حدث مخصص.", "desc_en": "Put custom event.", "cmd": "aws events put-events --entries 'Source=my.app,DetailType=OrderPlaced,Detail={\"id\":\"1\"}'"},
+    {"desc_ar": "إنشاء جدولة عبر Scheduler.", "desc_en": "Create schedule via Scheduler.", "cmd": "aws scheduler create-schedule --name daily --schedule-expression 'cron(0 9 * * ? *)' --target '{...}' --flexible-time-window '{\"Mode\":\"OFF\"}'"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "ربط أنظمة مختلفة بأحداث متحررة (decoupled)", "scenario_en": "Decouple systems through events", "choice": "Custom event bus + rules"},
+    {"scenario_ar": "تنفيذ مهام مجدولة cron/rate لـ Lambda/ECS", "scenario_en": "Scheduled cron/rate tasks for Lambda/ECS", "choice": "EventBridge Scheduler"},
+    {"scenario_ar": "استقبال أحداث من SaaS (Zendesk/Datadog)", "scenario_en": "Ingest events from SaaS (Zendesk/Datadog)", "choice": "Partner event bus"},
+    {"scenario_ar": "نقل رسائل SQS/Kinesis إلى هدف مع تحويل", "scenario_en": "Move SQS/Kinesis messages to a target with transform", "choice": "EventBridge Pipes"},
+    {"scenario_ar": "استدعاء HTTPS خارجي آمن من حدث AWS", "scenario_en": "Invoke external HTTPS securely from AWS events", "choice": "API Destinations + Connections"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Routing model", "feature_ar": "نموذج التوجيه", "this": "Event pattern + rules (1:N)", "alt": "Topic-based pub/sub (1:N)", "alt_name": "SNS"},
+    {"feature": "Filtering", "feature_ar": "التصفية", "this": "Rich JSON content filtering", "alt": "Message attribute filtering only", "alt_name": "SNS"},
+    {"feature": "Schema registry", "feature_ar": "Schema Registry", "this": "Built-in discovery + bindings", "alt": "None", "alt_name": "SNS"},
+    {"feature": "Archive & Replay", "feature_ar": "الأرشفة والإعادة", "this": "Native support", "alt": "Not supported", "alt_name": "SNS"},
+    {"feature": "Latency", "feature_ar": "الكمون", "this": "~half second (eventing)", "alt": "Sub-100 ms (notification)", "alt_name": "SNS"},
+    {"feature": "Targets", "feature_ar": "الأهداف", "this": "20+ AWS + API destinations", "alt": "Lambda/SQS/HTTP/Email/SMS", "alt_name": "SNS"}
+  ],
+  "exam_tips": [
+    {"ar": "EventBridge Scheduler هو الخليفة الحديث لـ CloudWatch Events scheduled rules؛ استخدمه للجداول الجديدة.", "en": "EventBridge Scheduler is the modern successor to CloudWatch Events scheduled rules for new schedules."},
+    {"ar": "عند وجود SaaS event source اختر Partner event bus وليس ناقل مخصص.", "en": "For SaaS sources pick Partner event bus — not a custom bus."},
+    {"ar": "نمط الحدث يطابق مصفوفة واحدة على الأقل؛ حقول غير موجودة لا تُطابَق.", "en": "Event pattern must match at least one array; missing fields don't match."},
+    {"ar": "لإعادة معالجة الأحداث بعد حادث، فعّل Archive ثم استخدم Replay.", "en": "To reprocess events after an incident, enable Archive then use Replay."},
+    {"ar": "EventBridge Pipes يدعم filter + enrich (Lambda/Step Functions) قبل التسليم.", "en": "EventBridge Pipes supports filter + enrich (Lambda/Step Functions) before delivery."}
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "lambda",
+  "name": "AWS Lambda",
+  "icon": "zap",
+  "color": "amber",
+  "tagline_ar": "حوسبة بدون خوادم — ادفع لكل ميلي ثانية تشغيل مع توسعة تلقائية فائقة.",
+  "tagline_en": "Serverless compute — pay per millisecond with automatic hyper-scaling.",
+  "key_concepts": [
+    {"concept": "Invocation Models", "desc_ar": "Sync (API Gateway، ALB)، Async (S3، SNS)، Event Source Mapping (SQS، Kinesis، DynamoDB Streams).", "desc_en": "Sync (API Gateway, ALB), Async (S3, SNS), Event Source Mapping (SQS, Kinesis, DynamoDB Streams)."},
+    {"concept": "Execution Role", "desc_ar": "IAM Role تُعطى للدالة للوصول إلى خدمات AWS — لا تُستخدم Access Keys.", "desc_en": "IAM Role granting function AWS access — never hardcode keys."},
+    {"concept": "Memory & CPU", "desc_ar": "تخصيص الذاكرة يحدّد CPU تلقائيًا (1792 MB = 1 vCPU كامل).", "desc_en": "Memory allocation implicitly sets CPU (1792 MB = 1 full vCPU)."},
+    {"concept": "Cold Start", "desc_ar": "بدء تشغيل بارد عند أوّل طلب أو بعد عدم نشاط — Provisioned Concurrency يلغيه.", "desc_en": "First-request warmup — Provisioned Concurrency eliminates it."},
+    {"concept": "Layers", "desc_ar": "طبقات مشتركة للمكتبات (حتى 5 لكل دالة) لتقليل حجم الحزمة وإعادة الاستخدام.", "desc_en": "Shared library layers (up to 5 per function) to reduce package size."},
+    {"concept": "Destinations & DLQ", "desc_ar": "Async: Destinations (SQS/SNS/Lambda/EventBridge) للنجاح/الفشل، أو DLQ التقليدية.", "desc_en": "Async: Destinations (SQS/SNS/Lambda/EventBridge) for success/failure, or legacy DLQ."},
+    {"concept": "VPC Integration", "desc_ar": "الدالة تعمل داخل VPC عبر ENI — يحتاج NAT Gateway للإنترنت.", "desc_en": "Function runs inside VPC via ENI — needs NAT Gateway for internet."},
+    {"concept": "Versions & Aliases", "desc_ar": "Version = لقطة ثابتة من الكود. Alias = مؤشّر قابل للتحويل (blue/green، canary).", "desc_en": "Version = immutable snapshot. Alias = pointer (blue/green, canary)."}
+  ],
+  "limits": [
+    {"limit": "أقصى مدّة تنفيذ", "limit_en": "Max execution duration", "value": "15 minutes", "note_ar": "900 ثانية حدّ صلب.", "note_en": "Hard limit of 900 seconds."},
+    {"limit": "الذاكرة", "limit_en": "Memory", "value": "128 MB – 10,240 MB", "note_ar": "يزيد بخطوات 1 MB.", "note_en": "Increments of 1 MB."},
+    {"limit": "Package size (zip)", "limit_en": "ZIP package size", "value": "50 MB (50 MB upload / 250 MB unzipped)", "note_ar": "Container Image حتى 10 GB.", "note_en": "Container image up to 10 GB."},
+    {"limit": "/tmp storage", "limit_en": "/tmp storage", "value": "512 MB – 10,240 MB", "note_ar": "EFS للمزيد.", "note_en": "Use EFS for more."},
+    {"limit": "Concurrent executions", "limit_en": "Account concurrency", "value": "1,000 (soft)", "note_ar": "قابل للزيادة لعشرات الآلاف.", "note_en": "Can be raised to tens of thousands."},
+    {"limit": "Payload size (sync)", "limit_en": "Sync payload size", "value": "6 MB", "note_ar": "للـ async: 256 KB.", "note_en": "Async: 256 KB."},
+    {"limit": "Env vars size", "limit_en": "Env vars size", "value": "4 KB", "note_ar": "مجموع الكتلة.", "note_en": "Total block."},
+    {"limit": "Layers per function", "limit_en": "Layers per function", "value": "5", "note_ar": "حدّ صلب.", "note_en": "Hard limit."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء دالة.", "desc_en": "Create function.", "cmd": "aws lambda create-function --function-name acme-api --runtime java17 --role arn:aws:iam::111:role/exec --handler com.acme.Handler --zip-file fileb://fn.zip"},
+    {"desc_ar": "تحديث الكود.", "desc_en": "Update code.", "cmd": "aws lambda update-function-code --function-name acme-api --zip-file fileb://fn.zip --publish"},
+    {"desc_ar": "استدعاء الدالة.", "desc_en": "Invoke function.", "cmd": "aws lambda invoke --function-name acme-api --payload '{\"id\":1}' --cli-binary-format raw-in-base64-out out.json"},
+    {"desc_ar": "حجز Provisioned Concurrency.", "desc_en": "Set Provisioned Concurrency.", "cmd": "aws lambda put-provisioned-concurrency-config --function-name acme-api --qualifier PROD --provisioned-concurrent-executions 50"},
+    {"desc_ar": "إنشاء Alias.", "desc_en": "Create alias.", "cmd": "aws lambda create-alias --function-name acme-api --name PROD --function-version 12"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "API REST/GraphQL خلف API Gateway.", "scenario_en": "REST/GraphQL API behind API Gateway.", "choice": "Lambda (Sync invocation)"},
+    {"scenario_ar": "معالجة ملفات عند رفعها إلى S3.", "scenario_en": "Process files on S3 upload.", "choice": "Lambda (Async from S3 event)"},
+    {"scenario_ar": "استهلاك من SQS أو Kinesis.", "scenario_en": "Consume from SQS or Kinesis.", "choice": "Lambda Event Source Mapping"},
+    {"scenario_ar": "مهام طويلة > 15 دقيقة.", "scenario_en": "Long-running > 15 min.", "choice": "Step Functions / Fargate / Batch"},
+    {"scenario_ar": "زمن استجابة منخفض جدًا (< 10 ms).", "scenario_en": "Ultra-low latency (< 10 ms).", "choice": "Provisioned Concurrency or CloudFront Functions"}
+  ],
+  "exam_tips": [
+    {"ar": "Java + cold start = أسوأ مزيج — استخدم Provisioned Concurrency أو SnapStart.", "en": "Java + cold start = worst combo — use Provisioned Concurrency or SnapStart."},
+    {"ar": "Reserved Concurrency يحمي خدمات downstream من فيضان الدالة.", "en": "Reserved Concurrency protects downstream from function flood."},
+    {"ar": "Lambda في VPC بدون NAT = لا إنترنت.", "en": "Lambda in VPC without NAT = no internet."},
+    {"ar": "Event Source Mapping يقرأ من SQS/Kinesis — Lambda نفسها لا تحتاج IAM للقراءة.", "en": "ESM pulls from SQS/Kinesis — Lambda doesn't need IAM to read."},
+    {"ar": "استخدم Aliases + CodeDeploy لنشر Canary/Linear بأمان.", "en": "Use Aliases + CodeDeploy for safe Canary/Linear deploys."}
+  ]
+}

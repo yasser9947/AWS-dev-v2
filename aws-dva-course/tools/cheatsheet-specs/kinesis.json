@@ -1,0 +1,56 @@
+{
+  "slug": "kinesis",
+  "name": "Amazon Kinesis",
+  "icon": "activity",
+  "color": "teal",
+  "tagline_ar": "منصّة بيانات متدفّقة لحظيّة: Data Streams للتدفق الخام، Firehose للتحميل المُدار، وManaged Flink للتحليل الفوري.",
+  "tagline_en": "Real-time streaming data platform: Data Streams for raw ingest, Firehose for managed delivery, Managed Flink for real-time analytics.",
+  "key_concepts": [
+    {"concept": "Data Streams", "desc_ar": "تدفّق بيانات قابل لإعادة التشغيل، احتفاظ 24 ساعة حتى 365 يوم.", "desc_en": "Replayable data stream with 24h to 365d retention."},
+    {"concept": "Shard", "desc_ar": "وحدة مقياس: 1 MB/s write, 2 MB/s read, 1000 records/s في وضع Provisioned.", "desc_en": "Scaling unit (Provisioned): 1 MB/s write, 2 MB/s read, 1000 records/s."},
+    {"concept": "On-Demand mode", "desc_ar": "مقياس تلقائي بدون إدارة shards؛ يبدأ 4 MB/s write ويتضاعف تلقائياً.", "desc_en": "Auto-scaling without shard management; starts 4 MB/s write, auto-doubles."},
+    {"concept": "Partition Key", "desc_ar": "يحدد إلى أي shard يذهب الريكورد؛ يؤثّر على التوزيع (hot shards).", "desc_en": "Determines shard assignment; impacts distribution (hot shards)."},
+    {"concept": "Consumers", "desc_ar": "Classic (shared 2 MB/s) أو Enhanced Fan-Out (EFO) مخصص 2 MB/s لكل consumer.", "desc_en": "Classic (shared 2 MB/s) or Enhanced Fan-Out (EFO) 2 MB/s per consumer."},
+    {"concept": "KPL / KCL", "desc_ar": "مكتبة المنتج (Kinesis Producer Library) مع batching، ومكتبة المستهلك (KCL) لتوزيع العمل.", "desc_en": "Kinesis Producer Library (batching) and Kinesis Client Library (worker coordination)."},
+    {"concept": "Firehose", "desc_ar": "تسليم مُدار إلى S3/Redshift/OpenSearch/Splunk مع buffering وتحويل.", "desc_en": "Managed delivery to S3/Redshift/OpenSearch/Splunk with buffering and transform."},
+    {"concept": "Managed Service for Apache Flink", "desc_ar": "تحليل تدفّقي عبر SQL أو Flink لاحتساب مقاييس لحظية.", "desc_en": "Real-time stream analytics via SQL or Flink for live metrics."}
+  ],
+  "limits": [
+    {"limit": "Shard write", "limit_en": "Per-shard write", "value": "1 MB/s or 1000 rec/s"},
+    {"limit": "Shard read (Classic)", "limit_en": "Per-shard read (Classic)", "value": "2 MB/s shared"},
+    {"limit": "EFO read per consumer", "limit_en": "EFO per consumer", "value": "2 MB/s dedicated"},
+    {"limit": "Max record size", "limit_en": "Max record size", "value": "1 MB"},
+    {"limit": "Retention", "limit_en": "Stream retention", "value": "24 h – 365 days"},
+    {"limit": "Firehose buffer", "limit_en": "Firehose buffer", "value": "1-128 MB / 60-900 s"},
+    {"limit": "EFO consumers per stream", "limit_en": "EFO consumers per stream", "value": "20"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء تدفّق بيانات بوضع On-Demand.", "desc_en": "Create on-demand data stream.", "cmd": "aws kinesis create-stream --stream-name orders --stream-mode-details StreamMode=ON_DEMAND"},
+    {"desc_ar": "كتابة ريكورد.", "desc_en": "Put a record.", "cmd": "aws kinesis put-record --stream-name orders --partition-key user-1 --data $(echo -n '{\"id\":1}' | base64)"},
+    {"desc_ar": "تسجيل EFO consumer.", "desc_en": "Register an EFO consumer.", "cmd": "aws kinesis register-stream-consumer --stream-arn arn:aws:kinesis:...:orders --consumer-name analytics"},
+    {"desc_ar": "إنشاء Firehose إلى S3.", "desc_en": "Create Firehose delivery to S3.", "cmd": "aws firehose create-delivery-stream --delivery-stream-name to-s3 --s3-destination-configuration RoleARN=...,BucketARN=arn:aws:s3:::logs"},
+    {"desc_ar": "قراءة shard iterator.", "desc_en": "Read via shard iterator.", "cmd": "aws kinesis get-shard-iterator --stream-name orders --shard-id shardId-0 --shard-iterator-type TRIM_HORIZON"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "بثّ قابل لإعادة التشغيل مع مستهلكين متعددين", "scenario_en": "Replayable stream with multiple consumers", "choice": "Kinesis Data Streams"},
+    {"scenario_ar": "تحميل أحجام كبيرة إلى S3/Redshift بدون خوادم", "scenario_en": "Serverless bulk load to S3/Redshift", "choice": "Kinesis Data Firehose"},
+    {"scenario_ar": "حسابات لحظية window-based (tumbling/sliding)", "scenario_en": "Real-time windowed analytics", "choice": "Managed Flink"},
+    {"scenario_ar": "جمع لقطات فيديو حيّة", "scenario_en": "Live video capture and processing", "choice": "Kinesis Video Streams"},
+    {"scenario_ar": "قراءة منخفضة الكمون بدون تنافس بين المستهلكين", "scenario_en": "Low-latency reads without consumer contention", "choice": "Data Streams + EFO"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Delivery model", "feature_ar": "نموذج التسليم", "this": "Pull (consumer-driven)", "alt": "Push to destinations", "alt_name": "Firehose"},
+    {"feature": "Replay", "feature_ar": "إعادة التشغيل", "this": "Yes (up to 365 days)", "alt": "No (fire-and-forget)", "alt_name": "Firehose"},
+    {"feature": "Latency", "feature_ar": "الكمون", "this": "~200 ms (Classic) / 70 ms (EFO)", "alt": "60 s buffer minimum", "alt_name": "Firehose"},
+    {"feature": "Consumer code", "feature_ar": "كود المستهلك", "this": "KCL / Lambda / EFO required", "alt": "Fully managed (no code)", "alt_name": "Firehose"},
+    {"feature": "Transformation", "feature_ar": "التحويل", "this": "Client-side / Lambda consumer", "alt": "Built-in Lambda transform", "alt_name": "Firehose"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Per shard-hour + PUT units", "alt": "Per GB ingested", "alt_name": "Firehose"}
+  ],
+  "exam_tips": [
+    {"ar": "Firehose = near-real-time بحدّ أدنى 60 ثانية buffer؛ ليس لحظياً حقيقياً.", "en": "Firehose is near-real-time with 60 s min buffer — not truly real-time."},
+    {"ar": "احتفاظ Data Streams الافتراضي 24 ساعة؛ زد حتى 365 يوم لإعادة المعالجة.", "en": "Data Streams default retention is 24 h; extend to 365 days for reprocessing."},
+    {"ar": "Hot shard = سوء اختيار partition key؛ استخدم UUID أو مفتاح موزّع.", "en": "Hot shard = bad partition key; pick UUID or well-distributed key."},
+    {"ar": "EFO يعطي 2 MB/s مخصصة لكل consumer مع latency ~70 ms بدلاً من 200 ms.", "en": "EFO gives dedicated 2 MB/s per consumer with ~70 ms latency vs 200 ms."},
+    {"ar": "Firehose يدعم تحويل Lambda وتحويل Parquet/ORC قبل الكتابة إلى S3.", "en": "Firehose supports Lambda transforms and Parquet/ORC conversion before S3 write."}
+  ]
+}

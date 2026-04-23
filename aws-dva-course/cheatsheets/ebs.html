@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon EBS — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-slate-600 via-slate-700 to-slate-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="hard-drive" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-slate-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">Amazon EBS</h1>
+        </div>
+      </div>
+      <p class="text-lg text-slate-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">تخزين كتلي دائم يرتبط بمثيلات EC2 داخل نفس نطاق التوفّر مع لقطات آمنة في S3.</span>
+        <span class="lang-en">Persistent block storage attached to EC2 within an AZ, with snapshots backed by S3.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-slate-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Volume Types</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">gp3/gp2 (SSD عام)، io2/io1 (SSD عالي الأداء)، st1 (HDD متسلسل)، sc1 (HDD بارد).</span>
+      <span class="lang-en">gp3/gp2 (general SSD), io2/io1 (provisioned IOPS), st1 (throughput HDD), sc1 (cold HDD).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">AZ-Scoped</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">حجم EBS يعيش داخل AZ واحدة ولا يمكن ربطه بمثيل في AZ أخرى مباشرة.</span>
+      <span class="lang-en">An EBS volume lives in a single AZ; cannot attach to an instance in another AZ directly.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Snapshots</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">لقطات تفاضلية تُخزّن في S3، يمكن نسخها عبر المناطق والحسابات.</span>
+      <span class="lang-en">Incremental snapshots stored in S3; copyable across Regions and accounts.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Encryption</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تشفير الحجم والبيانات أثناء الراحة والنقل عبر KMS؛ اللقطات الناتجة مشفّرة أيضًا.</span>
+      <span class="lang-en">Volume & data encryption at rest and in transit via KMS; resulting snapshots also encrypted.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Multi-Attach</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يدعم io1/io2 ربط نفس الحجم بمثيلات Nitro متعدّدة داخل نفس AZ.</span>
+      <span class="lang-en">io1/io2 support attaching the same volume to multiple Nitro instances in one AZ.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Elastic Volumes</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تعديل الحجم والنوع والـ IOPS بدون إيقاف المثيل.</span>
+      <span class="lang-en">Modify size, type, and IOPS without stopping the instance.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Data Lifecycle Manager</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">أتمتة إنشاء اللقطات والاحتفاظ بها ومسحها وفق جدول محدّد.</span>
+      <span class="lang-en">Automate snapshot creation, retention, and deletion on a schedule.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-slate-700" dir="ltr">Fast Snapshot Restore</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">تفعيل الاستعادة الفورية للقطة دون تأخير أوّل قراءة.</span>
+      <span class="lang-en">Eliminate first-touch latency when restoring from a snapshot.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-slate-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى حجم حجم gp3/gp2</span>
+      <span class="lang-en">Max gp3/gp2 volume size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">نفس الحدّ لـ io1/io2 وst1 وsc1.</span>
+        <span class="lang-en">Same for io1/io2, st1, sc1.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">16 TiB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى IOPS لـ gp3</span>
+      <span class="lang-en">Max gp3 IOPS</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">تكوين مستقل عن الحجم حتى 16k.</span>
+        <span class="lang-en">Provisioned independently of size up to 16k.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">16,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى IOPS لـ io2 Block Express</span>
+      <span class="lang-en">Max io2 Block Express IOPS</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">على مثيلات R5b/X2idn المدعومة.</span>
+        <span class="lang-en">Supported on R5b/X2idn instances.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">256,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى Throughput لـ gp3</span>
+      <span class="lang-en">Max gp3 throughput</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">يتدرّج مستقلاً عن IOPS.</span>
+        <span class="lang-en">Scales independently of IOPS.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1,000 MiB/s</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">نسبة IOPS:GiB لـ io1</span>
+      <span class="lang-en">io1 IOPS:GiB ratio</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">io2 يصل إلى 500:1.</span>
+        <span class="lang-en">io2 supports up to 500:1.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">50:1</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Multi-Attach نطاق</span>
+      <span class="lang-en">Multi-Attach scope</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">داخل AZ واحدة فقط.</span>
+        <span class="lang-en">Within a single AZ.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">Up to 16 Nitro instances</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">اللقطات لكل منطقة</span>
+      <span class="lang-en">Snapshots per Region</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حدّ ناعم قابل للزيادة.</span>
+        <span class="lang-en">Soft limit, can be increased.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">100,000 (default)</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-slate-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء حجم gp3 بحجم 100 GiB في AZ.</span>
+    <span class="lang-en">Create a 100 GiB gp3 volume in an AZ.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 create-volume --volume-type gp3 --size 100 --availability-zone us-east-1a --encrypted</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">ربط الحجم بمثيل EC2.</span>
+    <span class="lang-en">Attach the volume to an EC2 instance.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 attach-volume --volume-id vol-0abcd --instance-id i-0abcd --device /dev/sdf</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء لقطة من حجم EBS.</span>
+    <span class="lang-en">Create a snapshot from an EBS volume.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 create-snapshot --volume-id vol-0abcd --description "nightly"</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">نسخ لقطة إلى منطقة أخرى.</span>
+    <span class="lang-en">Copy a snapshot to another region.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 copy-snapshot --source-region us-east-1 --source-snapshot-id snap-0abcd --destination-region eu-west-1</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تعديل حجم gp2 وترقيته إلى gp3.</span>
+    <span class="lang-en">Modify a gp2 volume and upgrade to gp3.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws ec2 modify-volume --volume-id vol-0abcd --volume-type gp3 --iops 6000 --throughput 250</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-slate-600"></i>
+        <span class="lang-ar">متى تستخدم Amazon EBS؟</span>
+        <span class="lang-en">When to use Amazon EBS</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">قاعدة بيانات عالية الأداء على EC2.</span>
+      <span class="lang-en">High-performance database on EC2.</span>
+    </p>
+    <p class="text-xs text-slate-700 font-mono">io2 Block Express</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تطبيق عام بتكلفة وأداء متوازنين.</span>
+      <span class="lang-en">General-purpose workloads with balanced cost.</span>
+    </p>
+    <p class="text-xs text-slate-700 font-mono">gp3</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">أحمال تسلسلية كبيرة مثل Big Data.</span>
+      <span class="lang-en">Large sequential workloads like Big Data.</span>
+    </p>
+    <p class="text-xs text-slate-700 font-mono">st1 (Throughput-optimized HDD)</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">أرشفة بوصول نادر وسعر منخفض.</span>
+      <span class="lang-en">Infrequent-access archival at low cost.</span>
+    </p>
+    <p class="text-xs text-slate-700 font-mono">sc1 (Cold HDD)</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+<section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+    <h2 class="font-bold text-surface-800 flex items-center gap-2">
+      <i data-lucide="git-compare" class="w-4 h-4"></i>
+      <span class="lang-ar">مقارنة مع البدائل</span>
+      <span class="lang-en">Vs Alternatives</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+        <tr>
+          <th class="text-start px-4 py-2">
+            <span class="lang-ar">الخاصّية</span>
+            <span class="lang-en">Feature</span>
+          </th>
+          <th class="text-start px-4 py-2">Amazon EBS</th>
+          <th class="text-start px-4 py-2">Instance Store</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">النطاق</span>
+      <span class="lang-en">Scope</span>
+    </td>
+    <td class="px-4 py-2 text-slate-700 font-semibold">Single AZ (block)</td>
+    <td class="px-4 py-2 text-surface-600">Single AZ, ephemeral</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">الاستمرارية</span>
+      <span class="lang-en">Persistence</span>
+    </td>
+    <td class="px-4 py-2 text-slate-700 font-semibold">Persists beyond instance stop</td>
+    <td class="px-4 py-2 text-surface-600">Lost on stop/terminate</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">اللقطات</span>
+      <span class="lang-en">Snapshots</span>
+    </td>
+    <td class="px-4 py-2 text-slate-700 font-semibold">Incremental to S3</td>
+    <td class="px-4 py-2 text-surface-600">Not supported</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">المشاركة</span>
+      <span class="lang-en">Shared access</span>
+    </td>
+    <td class="px-4 py-2 text-slate-700 font-semibold">Multi-Attach (io1/io2)</td>
+    <td class="px-4 py-2 text-surface-600">Not shareable</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">أقصى أداء</span>
+      <span class="lang-en">Performance ceiling</span>
+    </td>
+    <td class="px-4 py-2 text-slate-700 font-semibold">io2 BX 256k IOPS</td>
+    <td class="px-4 py-2 text-surface-600">Millions of IOPS (NVMe)</td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">لا يمكن ربط حجم EBS بمثيل في AZ مختلفة؛ الحلّ إنشاء لقطة ثمّ استعادتها في AZ الهدف.</span>
+    <span class="lang-en">You cannot attach EBS across AZs; snapshot and restore it in the target AZ.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">gp3 ترقية مباشرة لـ gp2 مع IOPS و Throughput قابلَين للتكوين المستقل.</span>
+    <span class="lang-en">gp3 replaces gp2 and lets you provision IOPS and throughput independently.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">اللقطات تفاضلية وتُخزّن في S3 المُدار من AWS (لا يظهر في حسابك).</span>
+    <span class="lang-en">Snapshots are incremental and stored in AWS-managed S3 (not visible in your account).</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">تشفير حجم غير مشفّر يتطلّب: لقطة → نسخة مشفّرة → حجم جديد منها.</span>
+    <span class="lang-en">To encrypt an unencrypted volume: snapshot → encrypted copy → new volume from copy.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Multi-Attach يتطلّب نظام ملفّات متوافق مع المشاركة مثل GFS2 أو Lustre.</span>
+    <span class="lang-en">Multi-Attach requires a clustered filesystem such as GFS2 or Lustre.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

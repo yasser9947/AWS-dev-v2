@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 02 — Amazon EC2 Basics | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-surface-500/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>
+          <span class="lang-ar">أساسيات</span>
+          <span class="lang-en">Foundations</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢ من ٣٠</span>
+        <span class="lang-en">Chapter 2 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.39-71</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">أساسيات Amazon EC2</span>
+        <span class="lang-en">Amazon EC2 Basics</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">الحوسبة المرنة في السحابة: أنواع الخوادم، وأنظمة الأسعار، ومجموعات الأمان، وأزواج المفاتيح. هذه هي اللبنة الأساس التي تُبنى عليها أغلب خدمات AWS.</span>
+        <span class="lang-en">Elastic compute in the cloud: instance types, purchasing options, Security Groups, and key pairs. EC2 is the foundational building block for most AWS services.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">EC2</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Instance Types</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Security Groups</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">AMI</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Pricing</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">EC2 Instance Types</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاقان الأول والثالث في سياق اختيار الخادم المناسب للحمل.</span>
+      <span class="lang-en">Domains 1 & 3 — choosing the right instance for a workload.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Security Groups</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في أسئلة عزل الشبكة والتحكّم بالمنافذ.</span>
+      <span class="lang-en">Domain 2 — network isolation and port control questions.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">User Data</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث في أتمتة إعداد الخوادم عند الإطلاق.</span>
+      <span class="lang-en">Domain 3 — automating instance setup at boot.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Purchasing Options</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أسئلة تحسين التكلفة.</span>
+      <span class="lang-en">Domain 4 — cost optimization questions.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هي EC2 ولماذا تستخدمها</span>
+      <span class="lang-en">What is EC2 and why</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">اسم <span dir="ltr" class="font-mono text-brand-700">EC2</span> اختصار لـ Elastic Compute Cloud، وهي خدمة تأجير الخوادم الافتراضية من AWS. تعدّ الأكثر استخداماً من بين خدمات AWS، وتمنحك تحكّماً كاملاً في نظام التشغيل ومكتبات التشغيل والتطبيقات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">EC2</span> stands for Elastic Compute Cloud — AWS's virtual server rental service. It's the most-used AWS service, giving you full control over the OS, runtime, and applications.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="server" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">استئجار خوادم افتراضية</span><span class="lang-en">Rent virtual machines</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تختار نوع الخادم (CPU و RAM) ونظام التشغيل وتدفع بالساعة أو بالثانية.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Pick instance type (CPU/RAM), OS, pay per hour or per second.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="hard-drive" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">تخزين على أقراص افتراضية</span><span class="lang-en">Storage on virtual disks</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">EBS للتخزين المستمرّ، Instance Store للأداء العالي، EFS للمشاركة بين الخوادم.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">EBS for persistent, Instance Store for high perf, EFS for shared.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="scale" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">توزيع الحِمل</span><span class="lang-en">Load balancing</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Elastic Load Balancer يوزّع الطلبات على عدّة خوادم.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Elastic Load Balancer distributes traffic across instances.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">توسعة تلقائية</span><span class="lang-en">Auto scaling</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Auto Scaling Group يزيد/يقلّل عدد الخوادم حسب الحِمل.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Auto Scaling Group grows/shrinks instance count with demand.</p>
+  </div>
+</div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">تسمية أنواع الخوادم وقراءتها</span>
+      <span class="lang-en">Reading instance type names</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">أسماء الخوادم في EC2 تتبع نمطاً موحّداً مثل <span dir="ltr" class="font-mono text-brand-700">m5.2xlarge</span>. فهمك لهذا النمط ضروريّ لاختيار الخادم المناسب وللإجابة على أسئلة الامتحان.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">EC2 instance names follow a standard pattern like <span dir="ltr" class="font-mono text-brand-700">m5.2xlarge</span>. Understanding it is essential for choosing the right instance and for exam questions.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الجزء</span><span class="lang-en">Part</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المعنى</span><span class="lang-en">Meaning</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">مثال</span><span class="lang-en">Example</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحرف الأول</span><span class="lang-en">First letter</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فئة الاستخدام (الحساب، الذاكرة، التخزين، ...)</span><span class="lang-en">Family (compute, memory, storage, ...)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">m = general, c = compute, r = memory</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الرقم</span><span class="lang-en">Number</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الجيل</span><span class="lang-en">Generation</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">5, 6, 7</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحجم</span><span class="lang-en">Size</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كمّية الموارد</span><span class="lang-en">Resource size</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">nano, small, ..., 2xlarge, 24xlarge</td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">فئات شائعة</span><span class="lang-en">Common families</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">m = عامّة الغرض (متوازن). c = حوسبة مكثّفة (CPU). r = ذاكرة كبيرة (RAM). i = تخزين محلّي سريع. t = بدأ باستخدامات خفيفة (burstable).</p>
+      <p class="text-sm text-surface-700 lang-en">m = general purpose (balanced). c = compute-optimized. r = memory-optimized. i = storage-optimized. t = burstable.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="timer" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">وحدات الدفع</span><span class="lang-en">Billing units</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">معظم الخوادم تُحسَب بالثانية (بحد أدنى 60 ثانية). ويندوز يُحسَب بالساعة. الدفع يبدأ من لحظة الإطلاق وينتهي عند الإيقاف.</p>
+      <p class="text-sm text-surface-700 lang-en">Most Linux instances billed per second (min 60s). Windows billed per hour. Billing starts at launch, stops at shutdown.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> الـ <span dir="ltr" class="font-mono">t</span> instances عندها مفهوم <strong>CPU Credits</strong>. لو استهلكت كل رصيدك، أداء الخادم يتراجع. <strong>T unlimited</strong> يسمح بتجاوز الرصيد مقابل تكلفة إضافية.</span>
+      <span class="lang-en"> <span dir="ltr" class="font-mono">t</span> instances use <strong>CPU Credits</strong>. If you run out, performance throttles. <strong>T unlimited</strong> allows bursting beyond credits for extra cost.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">خيارات الشراء (Pricing)</span>
+      <span class="lang-en">Purchasing options</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">AWS تقدّم خمس طرق لشراء خوادم EC2، وكل طريقة لها حالة استخدام مختلفة. هذه أكثر المواضيع التي يسأل عنها الامتحان في سياق تحسين التكلفة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">AWS offers five ways to purchase EC2, each with a different use case. This is one of the most exam-tested topics around cost optimization.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">On-Demand</span><span class="lang-en">On-Demand</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ادفع بالساعة/الثانية بدون التزام. الأغلى لكنّه الأكثر مرونة. مناسب للأحمال غير المتوقّعة والتجارب القصيرة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Pay per hour/second, no commitment. Most expensive but most flexible. Good for short unpredictable workloads.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="calendar" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Reserved Instances</span><span class="lang-en">Reserved Instances</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">التزام سنة أو ثلاث سنوات بخصم حتى ٧٢٪. مناسب لأحمال ثابتة طويلة المدى (قواعد البيانات مثلاً).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">1 or 3-year commitment, up to 72% discount. Good for steady long-running workloads (databases, etc.).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Savings Plans</span><span class="lang-en">Savings Plans</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">التزام بـ $/ساعة بدلاً من خادم محدّد. أكثر مرونة من RI. يشمل EC2 و Lambda و Fargate.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Commit to $/hour rather than specific instance. More flexible than RI. Covers EC2, Lambda, Fargate.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Spot Instances</span><span class="lang-en">Spot Instances</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">خصم حتى ٩٠٪ مقابل إمكانية إنهاء الخادم بإشعار دقيقتين. مناسب لأعمال Batch و Big Data.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Up to 90% discount, can be terminated with 2-minute notice. Good for batch, Big Data jobs.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="server" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Dedicated Hosts</span><span class="lang-en">Dedicated Hosts</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">خادم فيزيائيّ كامل مخصّص لك. للامتثال التنظيمي أو تراخيص BYOL.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Physical server dedicated to you. For compliance or BYOL licensing.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="box" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Dedicated Instances</span><span class="lang-en">Dedicated Instances</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">خوادم على جهاز فيزيائي لا يشاركه غيرك، لكن AWS تديره. بديل أرخص من Dedicated Hosts.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Instances on hardware no other customer shares, but AWS manages. Cheaper than Dedicated Hosts.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> للاختيار في الامتحان: Spot للـ batch، Reserved للأحمال الثابتة، Savings Plans للمرونة، Dedicated للامتثال. On-Demand هو الافتراضي لكن الأغلى.</span>
+      <span class="lang-en"> Exam picks: Spot for batch, Reserved for steady workloads, Savings Plans for flexibility, Dedicated for compliance. On-Demand is default but priciest.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">مجموعات الأمان (Security Groups)</span>
+      <span class="lang-en">Security Groups</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">مجموعات الأمان هي جدار ناريّ افتراضيّ على مستوى الخادم. تحدّد أيّ المنافذ مفتوحة، ومن أيّ مصدر. تُطبَّق على مستوى <strong>ENI (Elastic Network Interface)</strong> لا على الخادم مباشرةً، ممّا يعني أنّ الخادم الواحد يمكن أن يرتبط بعدّة مجموعات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Security Groups are virtual firewalls at the instance level. They define which ports are open and from which source. They apply to <strong>ENIs (Elastic Network Interfaces)</strong>, not directly to instances, so one instance can attach multiple SGs.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخاصّية</span><span class="lang-en">Property</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السلوك</span><span class="lang-en">Behavior</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">القواعد</span><span class="lang-en">Rules</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Allow فقط. لا يوجد Deny. كل المنافذ مغلقة افتراضياً.</span><span class="lang-en">Allow-only. No Deny rules. Everything closed by default.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحالة</span><span class="lang-en">State</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Stateful — الطلب الخارج يرجع تلقائياً (outbound reply allowed).</span><span class="lang-en">Stateful — outbound replies auto-allowed.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">المصدر</span><span class="lang-en">Source</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">IP أو CIDR أو مجموعة أمان أخرى.</span><span class="lang-en">IP, CIDR, or another Security Group.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">النطاق</span><span class="lang-en">Scope</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مرتبطة بـ VPC واحد. لا يمكن مشاركتها بين VPCs.</span><span class="lang-en">Bound to one VPC. Not shareable across VPCs.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Create a Security Group allowing SSH + HTTP
+aws ec2 create-security-group \
+  --group-name web-sg \
+  --description 'Web server SG' \
+  --vpc-id vpc-0a1b2c3d
+
+# Allow SSH from your IP only
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-0123abcd \
+  --protocol tcp --port 22 --cidr 203.0.113.5/32
+
+# Allow HTTP from anywhere
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-0123abcd \
+  --protocol tcp --port 80 --cidr 0.0.0.0/0</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>Connection refused</strong> يعني أنّ التطبيق لا يستمع على المنفذ (مشكلة في الخادم). <strong>Connection timeout</strong> يعني أنّ الطلب لم يصل أصلاً (مشكلة في Security Group أو Network ACL). هذا الفرق يُسأل كثيراً في الامتحان.</span>
+      <span class="lang-en"> <strong>Connection refused</strong> = application not listening on port (server problem). <strong>Connection timeout</strong> = request never arrived (Security Group or NACL problem). This distinction is asked frequently.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أزواج المفاتيح (Key Pairs) و User Data</span>
+      <span class="lang-en">Key Pairs & User Data</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">للاتّصال بخوادم Linux عبر SSH تحتاج إلى <strong>زوج مفاتيح (Key Pair)</strong>: مفتاح عامّ تحتفظ به AWS ومفتاح خاصّ تنزّله مرّة واحدة. ولا يمكن استرجاع المفتاح الخاصّ إذا ضاع — ستحتاج لإنشاء زوج جديد.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">To SSH into Linux instances you need a <strong>Key Pair</strong>: public key kept by AWS, private key downloaded once. If the private key is lost, you cannot recover it — you must generate a new pair.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Connect via SSH (after setting permissions on the .pem file)
+chmod 400 ~/.ssh/acme-prod.pem
+ssh -i ~/.ssh/acme-prod.pem ec2-user@ec2-54-123-45-67.compute-1.amazonaws.com
+
+# 'ec2-user' is the default user for Amazon Linux
+# 'ubuntu' for Ubuntu, 'admin' for Debian, 'centos' for CentOS</code></pre>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>User Data</strong> هو سكربت bash يعمل <u>مرّة واحدة</u> عند أوّل إطلاق للخادم. يُستخدم لتثبيت البرامج وتحديث النظام وتشغيل الخدمات تلقائياً. يعمل بصلاحيات root. حجمه لا يتجاوز ١٦ كيلوبايت.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>User Data</strong> is a bash script that runs <u>once</u> on first instance boot. Used to install software, patch the system, start services automatically. Runs as root. Max 16KB.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash">#!/bin/bash
+# Example user data for a web server
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo '&lt;h1>Hello from Acme Corp&lt;/h1>' > /var/www/html/index.html</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> User Data مشفّر بـ base64 عند الإرسال، لكنّه يُحفَظ على الخادم بصيغة غير مشفّرة في <span dir="ltr" class="font-mono">/var/lib/cloud/instance/user-data.txt</span>. <strong>لا تضع أسراراً في User Data</strong>؛ استخدم Secrets Manager أو SSM Parameter Store.</span>
+      <span class="lang-en"> User Data is base64-encoded in transit but stored unencrypted at <span dir="ltr" class="font-mono">/var/lib/cloud/instance/user-data.txt</span>. <strong>Never put secrets in User Data</strong> — use Secrets Manager or SSM Parameter Store.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">حالات الخادم وإدارته من SDK</span>
+      <span class="lang-en">Instance states & SDK management</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">للخادم في EC2 ستّ حالات رئيسية. فهمها مهمّ لأنّ الامتحان يسأل عن الفرق في السلوك والتسعير بين الحالات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">EC2 instances have 6 main states. Understanding them matters because the exam asks about behavior and billing differences.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحالة</span><span class="lang-en">State</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السلوك</span><span class="lang-en">Behavior</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الفوترة</span><span class="lang-en">Billing</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">pending</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يبدأ الإطلاق</span><span class="lang-en">Booting</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا تُحتسَب</span><span class="lang-en">Not billed</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">running</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يعمل طبيعياً</span><span class="lang-en">Operating normally</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تُحتسَب كامل</span><span class="lang-en">Full billing</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">stopping</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يتم إيقافه</span><span class="lang-en">Shutting down</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تُحتسَب</span><span class="lang-en">Billed</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">stopped</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">موقوف — البيانات في EBS محفوظة، IP العام يتغيّر عند إعادة التشغيل</span><span class="lang-en">Stopped — EBS data persists, public IP changes on restart</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EBS فقط</span><span class="lang-en">EBS only</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">shutting-down</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يتم حذفه</span><span class="lang-en">Being terminated</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا تُحتسَب</span><span class="lang-en">Not billed</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">terminated</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">محذوف نهائياً. EBS يُحذَف افتراضياً</span><span class="lang-en">Permanently deleted. EBS deleted by default</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا تُحتسَب</span><span class="lang-en">Not billed</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — launch a new EC2 instance
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.*;
+
+Ec2Client ec2 = Ec2Client.create();
+
+RunInstancesResponse response = ec2.runInstances(RunInstancesRequest.builder()
+    .imageId("ami-0abc1234")              // Amazon Linux AMI
+    .instanceType(InstanceType.T3_MICRO)
+    .minCount(1).maxCount(1)
+    .keyName("acme-prod")
+    .securityGroupIds("sg-0123abcd")
+    .userData(java.util.Base64.getEncoder()
+        .encodeToString("#!/bin/bash\nyum install -y httpd".getBytes()))
+    .build());
+
+String instanceId = response.instances().get(0).instanceId();
+System.out.println("Launched: " + instanceId);</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> الـ <span dir="ltr" class="font-mono">Ec2Client</span> في Java SDK v2 يدير <strong>retries</strong> و <strong>signing</strong> تلقائياً. عند تشغيله داخل خادم EC2 آخر، يأخذ الصلاحيات تلقائياً من الـ IAM Role المرتبط بالخادم (Instance Profile). لا تضع مفاتيح في الكود أبداً.</span>
+      <span class="lang-en"> Java SDK v2 <span dir="ltr" class="font-mono">Ec2Client</span> handles retries and signing automatically. When running inside another EC2 instance, it picks up credentials from the attached IAM Role (Instance Profile). Never hardcode keys.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إطلاق خادم EC2 صغير، والاتّصال به عبر SSH، ثم إيقافه وحذفه.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Launch a small EC2 instance, SSH in, then stop and terminate it.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختر AMI ونوع الخادم</span>
+      <span class="lang-en">Pick an AMI and instance type</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من الـ Console: Amazon Linux 2023، نوع <span dir="ltr" class="font-mono">t3.micro</span> (يدخل ضمن Free Tier).</p><p class="text-surface-600 leading-relaxed lang-en">In Console: Amazon Linux 2023, <span dir="ltr" class="font-mono">t3.micro</span> (Free Tier eligible).</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ زوج مفاتيح جديد وحمّله</span>
+      <span class="lang-en">Create a new key pair and download it</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احفظ الـ <span dir="ltr" class="font-mono">.pem</span> في مكان آمن. لا يمكن تحميله مرّة أخرى.</p><p class="text-surface-600 leading-relaxed lang-en">Save the <span dir="ltr" class="font-mono">.pem</span> somewhere safe — you cannot re-download it.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اسمح بـ SSH من IP الخاصّ بك</span>
+      <span class="lang-en">Allow SSH from your IP only</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">في Security Group: أضف قاعدة <span dir="ltr" class="font-mono">port 22</span> من <span dir="ltr" class="font-mono">My IP</span> (أضيق نطاق ممكن).</p><p class="text-surface-600 leading-relaxed lang-en">In Security Group: add rule <span dir="ltr" class="font-mono">port 22</span> from <span dir="ltr" class="font-mono">My IP</span> (narrowest possible range).</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اتّصل واختبر</span>
+      <span class="lang-en">Connect and test</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">chmod 400 ~/Downloads/my-key.pem
+ssh -i ~/Downloads/my-key.pem ec2-user@&lt;PUBLIC_IP>
+
+# Inside the instance:
+uname -a
+curl http://169.254.169.254/latest/meta-data/instance-id</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أوقف الخادم ثم احذفه</span>
+      <span class="lang-en">Stop then terminate</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">لا تترك خادماً شغّالاً بدون حاجة. حتى <span dir="ltr" class="font-mono">t3.micro</span> بعد تجاوز Free Tier يكلّف حوالي ٨ دولارات شهرياً.</p><p class="text-surface-600 leading-relaxed lang-en">Don't leave instances running unused. Even <span dir="ltr" class="font-mono">t3.micro</span> after Free Tier is ~$8/month.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> احذف الـ Security Group والـ Key Pair إن لم تعد بحاجة إليهما. الـ Volumes المرتبطة بـ terminated instance تُحذَف افتراضياً إلّا إذا غيّرت <span dir="ltr" class="font-mono">Delete on Termination</span>.</span>
+    <span class="lang-en"> Delete the Security Group and Key Pair if unused. EBS volumes attached to a terminated instance are deleted by default unless <span dir="ltr" class="font-mono">Delete on Termination</span> was unchecked.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="server" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">EC2 هي بنية تحتية كخدمة</span>
+        <span class="lang-en">EC2 = IaaS</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">تتحكّم بـ OS والمكتبات والأمان. AWS تدير الأجهزة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">You control OS, libraries, security. AWS manages hardware.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٥ خيارات للشراء</span>
+        <span class="lang-en">5 pricing options</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">On-Demand / Reserved / Savings Plans / Spot / Dedicated.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">On-Demand / Reserved / Savings Plans / Spot / Dedicated.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Security Groups Stateful</span>
+        <span class="lang-en">Security Groups stateful</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Allow-only. الردود الخارجة مسموحة تلقائياً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Allow-only. Return traffic auto-allowed.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">استخدم IAM Roles لا مفاتيح</span>
+        <span class="lang-en">Use IAM Roles, not keys</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">أرفق Role بالخادم؛ الـ SDK يأخذ الصلاحيات تلقائياً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Attach a role; SDK picks up credentials automatically.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للتمييز بين timeout و refused: <strong>Timeout</strong> = ما وصل أصلاً (Security Group). <strong>Refused</strong> = وصل لكن ما في خدمة (التطبيق متوقّف). فكّر فيها كـ "الباب مقفول" vs "الباب مفتوح لكن ما في أحد".</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">To distinguish timeout vs refused: <strong>Timeout</strong> = never arrived (Security Group). <strong>Refused</strong> = arrived but no listener (app down). Think "locked door" vs "open door, no one home".</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch01.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(2, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch03.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تشغّل قاعدة بيانات تعمل ٢٤/٧ على خادم EC2 لمدّة سنة كاملة على الأقلّ. أيّ خيار الدفع الأمثل لتقليل التكلفة؟</span><span class="lang-en">Acme runs a 24/7 database on EC2 for at least one year. Best pricing option to minimize cost?</span>",
+        options: [
+          "<span class="lang-ar">On-Demand</span><span class="lang-en">On-Demand</span>",
+          "<span class="lang-ar">Spot Instances</span><span class="lang-en">Spot Instances</span>",
+          "<span class="lang-ar">Reserved Instance (1-year standard)</span><span class="lang-en">Reserved Instance (1-year standard)</span>",
+          "<span class="lang-ar">Dedicated Host</span><span class="lang-en">Dedicated Host</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">الحِمل ثابت وطويل الأمد — Reserved Instance لمدّة سنة يعطي خصماً يصل إلى ٧٥٪ مقابل الالتزام. Spot غير مناسب لقاعدة بيانات لأنّها قد تُنهى بإشعار دقيقتين.</span><span class="lang-en">Steady 24/7 workload — 1-year RI gives up to 75% discount for the commitment. Spot isn't suitable for a database since it can be terminated with 2-minute notice.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الأغلى، غير مناسب للأحمال الطويلة.</span><span class=\"lang-en\">Most expensive, not ideal for long-running.</span>", "<span class=\"lang-ar\">يمكن أن يُنهى في أيّ وقت — خطر على قاعدة البيانات.</span><span class=\"lang-en\">Can be terminated anytime — risky for a DB.</span>", "", "<span class=\"lang-ar\">يُستخدم للامتثال أو BYOL، مكلف للأحمال الاعتيادية.</span><span class=\"lang-en\">For compliance or BYOL, expensive for normal workloads.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣ — خيارات الشراء</span><span class=\"lang-en\">Section 3 — Purchasing options</span>"
+      },
+      {
+        id: "q2",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العبارات التالية صحيحة عن Security Groups؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which statements are true about Security Groups? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">تحتوي على قواعد Allow فقط — لا توجد قواعد Deny.</span><span class="lang-en">They only have Allow rules — no Deny.</span>",
+          "<span class="lang-ar">Stateful — الردود الخارجة مسموحة تلقائياً.</span><span class="lang-en">Stateful — outbound replies are auto-allowed.</span>",
+          "<span class="lang-ar">يمكن أن تسمح بمصدرها مجموعة أمان أخرى.</span><span class="lang-en">They can reference another Security Group as a source.</span>",
+          "<span class="lang-ar">يمكن مشاركة مجموعة الأمان بين VPCs مختلفة.</span><span class="lang-en">Can be shared across different VPCs.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">مجموعات الأمان Stateful و Allow-only، ويمكنها الإشارة إلى مجموعات أخرى كمصدر. لكنّها مرتبطة بـ VPC واحد ولا تُشارَك عبر VPCs. Network ACLs هي Stateless وتسمح بـ Deny.</span><span class="lang-en">SGs are stateful and allow-only, can reference other SGs. But tied to one VPC. NACLs are stateless and support Deny.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤ — مجموعات الأمان</span><span class=\"lang-en\">Section 4 — Security Groups</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر حاول الاتّصال بـ SSH إلى خادم EC2 فحصل على خطأ <span dir="ltr" class="font-mono">Connection timeout</span>. ما السبب الأرجح؟</span><span class="lang-en">A developer tries to SSH into an EC2 instance and gets <span dir="ltr" class="font-mono">Connection timeout</span>. Most likely cause?</span>",
+        options: [
+          "<span class="lang-ar">خدمة SSH متوقّفة داخل الخادم.</span><span class="lang-en">SSH service is stopped on the instance.</span>",
+          "<span class="lang-ar">Security Group لا يسمح بالمنفذ ٢٢ من عنوان IP الخاصّ به.</span><span class="lang-en">Security Group doesn't allow port 22 from his IP.</span>",
+          "<span class="lang-ar">المفتاح الخاصّ خاطئ.</span><span class="lang-en">Wrong private key.</span>",
+          "<span class="lang-ar">اسم المستخدم خاطئ.</span><span class="lang-en">Wrong username.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Timeout</strong> يعني أنّ الطلب لم يصل أصلاً — المسبّب الأكثر شيوعاً مجموعة أمان أو NACL تمنع المنفذ. <strong>Connection refused</strong> يعني وصل الطلب لكن لا خدمة تستمع (خطأ SSH داخل الخادم). المفتاح أو المستخدم الخاطئ يعطيان <strong>Permission denied</strong>.</span><span class="lang-en"><strong>Timeout</strong> = request never arrived — most common cause is SG/NACL blocking the port. <strong>Connection refused</strong> = arrived but no listener (SSH service issue). Wrong key/username gives <strong>Permission denied</strong>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعطي Connection refused لا timeout.</span><span class=\"lang-en\">Would give Connection refused, not timeout.</span>", "", "<span class=\"lang-ar\">يعطي Permission denied.</span><span class=\"lang-en\">Gives Permission denied.</span>", "<span class=\"lang-ar\">يعطي Permission denied.</span><span class=\"lang-en\">Gives Permission denied.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤ — الفخّ الشائع</span><span class=\"lang-en\">Section 4 — Common pitfall</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">متى يعمل User Data في EC2؟</span><span class="lang-en">When does User Data run on EC2?</span>",
+        options: [
+          "<span class="lang-ar">عند كلّ إعادة تشغيل للخادم.</span><span class="lang-en">On every reboot.</span>",
+          "<span class="lang-ar">مرّة واحدة فقط عند أوّل إطلاق للخادم.</span><span class="lang-en">Once only — at the first boot.</span>",
+          "<span class="lang-ar">يوميّاً بشكل مجدول.</span><span class="lang-en">Daily, scheduled.</span>",
+          "<span class="lang-ar">عند تحديث AMI.</span><span class="lang-en">When AMI is updated.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">User Data يُنفَّذ مرّة واحدة فقط عند أوّل إطلاق للخادم. لتشغيل شيء عند كل إقلاع، استخدم <span dir="ltr" class="font-mono">cloud-init</span> بإعدادات مختلفة أو اجعل الخدمة تبدأ تلقائياً عبر systemd.</span><span class="lang-en">User Data runs only once at first boot. For on-every-boot work, use cloud-init with different config or systemd auto-start.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">أحد المطوّرين يريد تشغيل مهامّ معالجة دفعات ضخمة (batch) تعمل لساعات قليلة، ولا مشكلة لو توقّفت وبدأت من جديد. أيّ الخيارات الأفضل؟</span><span class="lang-en">A developer runs batch processing jobs that take a few hours and can handle interruptions. Best option?</span>",
+        options: [
+          "<span class="lang-ar">On-Demand</span><span class="lang-en">On-Demand</span>",
+          "<span class="lang-ar">Spot Instances</span><span class="lang-en">Spot Instances</span>",
+          "<span class="lang-ar">Reserved Instances</span><span class="lang-en">Reserved Instances</span>",
+          "<span class="lang-ar">Dedicated Hosts</span><span class="lang-en">Dedicated Hosts</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Spot هو الأمثل للأحمال التي تتحمّل الانقطاع: خصم حتى ٩٠٪ مقابل احتمال إنهاء الخادم بإشعار دقيقتين. مناسب بشكل خاصّ لمعالجة Big Data وفك ترميز الفيديو و ML training.</span><span class="lang-en">Spot is ideal for interruption-tolerant workloads: up to 90% discount with a 2-min termination notice. Perfect for Big Data, video encoding, ML training.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">خادم EC2 في حالة <span dir="ltr" class="font-mono">stopped</span>. أيّ العبارات صحيحة؟</span><span class="lang-en">An EC2 instance is in <span dir="ltr" class="font-mono">stopped</span> state. Which is true?</span>",
+        options: [
+          "<span class="lang-ar">تُحتسَب ساعات التشغيل بشكل كامل.</span><span class="lang-en">Full instance-hour billing applies.</span>",
+          "<span class="lang-ar">لا تُحتسَب رسوم EC2 لكن تُحتسَب رسوم EBS المرتبط، و IP العام يتغيّر عند إعادة التشغيل.</span><span class="lang-en">No EC2 billing but EBS still billed, and public IP changes on restart.</span>",
+          "<span class="lang-ar">البيانات في EBS تُحذَف.</span><span class="lang-en">EBS data is deleted.</span>",
+          "<span class="lang-ar">عنوان IP الخاصّ (Private IP) يتغيّر.</span><span class="lang-en">Private IP changes.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">في حالة stopped: رسوم EC2 توقف، لكن رسوم EBS تستمرّ (التخزين قائم). IP العام الافتراضي يتغيّر (استخدم Elastic IP إن كنت تحتاج ثباته). IP الخاصّ يبقى كما هو. البيانات في EBS محفوظة.</span><span class="lang-en">When stopped: no EC2 charges but EBS still billed. Public IP changes on restart (use Elastic IP if stability needed). Private IP stays. EBS data persists.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا، فقط EBS.</span><span class=\"lang-en\">Only EBS is billed.</span>", "", "<span class=\"lang-ar\">البيانات في EBS محفوظة، فقط Instance Store يُحذَف.</span><span class=\"lang-en\">EBS data persists; only Instance Store is wiped.</span>", "<span class=\"lang-ar\">الـ Private IP يبقى كما هو.</span><span class=\"lang-en\">Private IP stays the same.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — حالات الخادم</span><span class=\"lang-en\">Section 6 — Instance states</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر فقد ملف الـ <span dir="ltr" class="font-mono">.pem</span> لخادم EC2. ما الحلّ؟</span><span class="lang-en">A developer lost the <span dir="ltr" class="font-mono">.pem</span> file for an EC2 instance. What's the fix?</span>",
+        options: [
+          "<span class="lang-ar">التواصل مع دعم AWS لاسترجاعه.</span><span class="lang-en">Contact AWS Support.</span>",
+          "<span class="lang-ar">لا يمكن استرجاعه — أنشئ زوج مفاتيح جديد وأرفقه بالخادم بإعادة إنشائه من AMI، أو بتعديل authorized_keys عبر EC2 Instance Connect.</span><span class="lang-en">Cannot be recovered — create new key pair and attach via AMI recreate, or edit authorized_keys via EC2 Instance Connect.</span>",
+          "<span class="lang-ar">حذف الخادم وإعادة إنشائه بنفس المفتاح.</span><span class="lang-en">Delete and recreate with same key.</span>",
+          "<span class="lang-ar">فكّ تشفير المفتاح من AWS Console.</span><span class="lang-en">Decrypt key from Console.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">AWS لا تحتفظ بالمفتاح الخاصّ. الحلول العمليّة: استخدام EC2 Instance Connect (المتاح في معظم AMIs الحديثة) لحقن مفتاح جديد، أو إنشاء AMI من الخادم ثم تشغيله بمفتاح جديد، أو عبر AWS Systems Manager Session Manager.</span><span class="lang-en">AWS doesn't keep the private key. Practical fixes: EC2 Instance Connect to inject a new key, or create an AMI and relaunch with a new key, or use SSM Session Manager.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">أيّ فئة من خوادم EC2 مناسبة لتطبيق Spring Boot بحاجة إلى ذاكرة كبيرة (ذاكرة تخزين مؤقّت داخلية ضخمة)؟</span><span class="lang-en">Which EC2 family fits a Spring Boot app needing large memory (big in-memory cache)?</span>",
+        options: [
+          "<span class="lang-ar"><span class="font-mono">c6g</span> (Compute optimized)</span><span class="lang-en"><span class="font-mono">c6g</span> (Compute optimized)</span>",
+          "<span class="lang-ar"><span class="font-mono">r6i</span> (Memory optimized)</span><span class="lang-en"><span class="font-mono">r6i</span> (Memory optimized)</span>",
+          "<span class="lang-ar"><span class="font-mono">i4i</span> (Storage optimized)</span><span class="lang-en"><span class="font-mono">i4i</span> (Storage optimized)</span>",
+          "<span class="lang-ar"><span class="font-mono">t4g</span> (Burstable)</span><span class="lang-en"><span class="font-mono">t4g</span> (Burstable)</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">فئة <span dir="ltr" class="font-mono">r</span> مخصّصة للذاكرة (RAM) ومناسبة لأحمال تعتمد على التخزين المؤقّت في الذاكرة مثل Redis أو Spring Boot مع EHCache ضخمة. فئة <span dir="ltr" class="font-mono">c</span> للحوسبة المكثّفة، <span dir="ltr" class="font-mono">i</span> للتخزين المحلّي، <span dir="ltr" class="font-mono">t</span> للأحمال الخفيفة.</span><span class="lang-en">The <span dir="ltr" class="font-mono">r</span> family is memory-optimized — ideal for memory-heavy workloads like Redis or Spring Boot with large EHCache. <span dir="ltr" class="font-mono">c</span> = compute, <span dir="ltr" class="font-mono">i</span> = local storage, <span dir="ltr" class="font-mono">t</span> = light/burstable.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">أين يُوصى بتخزين كلمات المرور التي يحتاجها تطبيق يعمل على EC2؟</span><span class="lang-en">Where should you store passwords needed by an app running on EC2?</span>",
+        options: [
+          "<span class="lang-ar">داخل User Data.</span><span class="lang-en">Inside User Data.</span>",
+          "<span class="lang-ar">كمتغيّرات بيئة في الصورة (AMI).</span><span class="lang-en">As env vars in the AMI.</span>",
+          "<span class="lang-ar">في AWS Secrets Manager أو SSM Parameter Store، والوصول عبر IAM Role.</span><span class="lang-en">In AWS Secrets Manager or SSM Parameter Store, accessed via IAM Role.</span>",
+          "<span class="lang-ar">في ملف داخل EBS غير مشفّر.</span><span class="lang-en">In an unencrypted file on EBS.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">الممارسة المثلى: تخزين الأسرار في Secrets Manager (مع تدوير تلقائي) أو SSM Parameter Store (أرخص، يدعم SecureString)، ومنح الخادم IAM Role يسمح له بالقراءة. أبداً لا تضع كلمات المرور في User Data (متاحة بدون تشفير على الخادم).</span><span class="lang-en">Best practice: Secrets Manager (with auto-rotation) or SSM Parameter Store (cheaper, supports SecureString), access via IAM Role. Never User Data (stored plaintext on instance).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">User Data محفوظ بدون تشفير على الخادم.</span><span class=\"lang-en\">User Data is stored plaintext on the instance.</span>", "<span class=\"lang-ar\">يظهر في أيّ فحص AMI.</span><span class=\"lang-en\">Visible in any AMI inspection.</span>", "", "<span class=\"lang-ar\">ممارسة خطرة — أيّ وصول للقرص يكشف الأسرار.</span><span class=\"lang-en\">Any disk access exposes secrets.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥ — تنبيه الأسرار</span><span class=\"lang-en\">Section 5 — Secrets warning</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق جافا يعمل على خادم EC2 ويحتاج إلى الوصول إلى S3 bucket. ما الطريقة الصحيحة لإعطائه الصلاحيات؟</span><span class="lang-en">A Java app on EC2 needs to access an S3 bucket. Correct way to grant permissions?</span>",
+        options: [
+          "<span class="lang-ar">تخزين مفاتيح AWS (Access Key + Secret) في ملفّ داخل الخادم.</span><span class="lang-en">Store AWS Access Keys in a file on the instance.</span>",
+          "<span class="lang-ar">إنشاء IAM User وحقن مفاتيحه في متغيّرات بيئة.</span><span class="lang-en">Create an IAM User and put its keys in env vars.</span>",
+          "<span class="lang-ar">إرفاق IAM Role بالخادم (Instance Profile) وتفويضه صلاحية S3.</span><span class="lang-en">Attach an IAM Role (Instance Profile) to the instance with S3 permissions.</span>",
+          "<span class="lang-ar">إعطاء الخادم عنوان IP ثابت ومنحه استثناء في Bucket Policy.</span><span class="lang-en">Give the instance a static IP and whitelist it in the Bucket Policy.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">الطريقة المثلى دائماً: <strong>IAM Role</strong> مرفق بالخادم. الـ SDK يأخذ الصلاحيات تلقائياً من Instance Metadata Service (IMDS)، وتُدوَّر المفاتيح تلقائياً، ولا تحتاج تخزين أيّ سرّ. أيّ طريقة تتضمّن مفاتيح مكتوبة في الخادم ممارسة سيّئة.</span><span class="lang-en">Always: <strong>IAM Role</strong> attached to the instance. The SDK picks up credentials from IMDS, keys rotate automatically, and no secret is stored. Any method involving hardcoded keys is bad practice.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ كبير — أيّ من يقرأ القرص يحصل على المفاتيح.</span><span class=\"lang-en\">Huge security risk — anyone reading the disk gets the keys.</span>", "<span class=\"lang-ar\">أفضل من السابق لكن لا يزال يتطلّب إدارة مفاتيح يدوياً.</span><span class=\"lang-en\">Better but still needs manual key management.</span>", "", "<span class=\"lang-ar\">لا تتحكّم الـ IP بالصلاحيات في AWS، والصلاحيات مسؤولية IAM.</span><span class=\"lang-en\">IP doesn't grant permissions in AWS — IAM does.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — نصيحة السينيور</span><span class=\"lang-en\">Section 6 — Senior dev tip</span>"
+      },
+      {
+        id: "q11",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من العناصر التالية يُحفَظ عند <strong>إيقاف</strong> الخادم (stop) ويُفقَد عند <strong>حذفه</strong> (terminate)؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of the following are <strong>preserved</strong> when you stop an instance but <strong>lost</strong> when you terminate it? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">EBS Volumes (افتراضياً).</span><span class="lang-en">EBS Volumes (by default).</span>",
+          "<span class="lang-ar">Instance Store volumes.</span><span class="lang-en">Instance Store volumes.</span>",
+          "<span class="lang-ar">Elastic IP المرفق (إن لم يُفصل يدوياً).</span><span class="lang-en">Attached Elastic IP (if not disassociated).</span>",
+          "<span class="lang-ar">Private IP الأساسي.</span><span class="lang-en">Primary private IP.</span>",
+          "<span class="lang-ar">بيانات الذاكرة (RAM).</span><span class="lang-en">RAM contents.</span>"
+        ],
+        correct: [0,2,3],
+        explanation: "<span class="lang-ar">EBS محفوظ عند stop، ويُحذَف عند terminate (افتراضياً يمكن تغييره). Elastic IP يبقى مربوطاً ما دام لم يُفصل. Private IP يبقى كما هو في كلتا الحالتين. Instance Store يُحذَف عند stop! والـ RAM يُمسح عند stop.</span><span class="lang-en">EBS persists on stop, deleted on terminate (default, can change). Elastic IP remains attached unless disassociated. Private IP persists in both. Instance Store is wiped on stop! RAM is wiped on stop.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد نسخة مطابقة من خادم EC2 تحتوي على نفس التطبيق والإعدادات لاستخدامها في Auto Scaling Group. ما الحلّ الأمثل؟</span><span class="lang-en">A developer wants an exact copy of an EC2 instance (with app and config) for use in an Auto Scaling Group. Best approach?</span>",
+        options: [
+          "<span class="lang-ar">نسخ ملفّات النظام يدوياً إلى خادم جديد.</span><span class="lang-en">Manually copy files to a new instance.</span>",
+          "<span class="lang-ar">إنشاء AMI من الخادم الحالي ثمّ استخدامه كمصدر للـ Launch Template.</span><span class="lang-en">Create an AMI from the current instance and use it as Launch Template source.</span>",
+          "<span class="lang-ar">استخدام Snapshot للـ EBS فقط.</span><span class="lang-en">Use only an EBS Snapshot.</span>",
+          "<span class="lang-ar">إعادة كتابة User Data من الصفر.</span><span class="lang-en">Rewrite User Data from scratch.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>AMI (Amazon Machine Image)</strong> هو الحلّ المعياريّ. يلتقط صورة كاملة للنظام (OS، مكتبات، تطبيقات، إعدادات، بيانات EBS) ويمكن استخدامها لإطلاق خوادم جديدة متطابقة بسرعة. Snapshot هو نسخة من EBS فقط (لا يشمل الإعدادات).</span><span class="lang-en"><strong>AMI (Amazon Machine Image)</strong> is the standard. Captures a full system image (OS, libraries, apps, config, EBS data) to launch identical instances quickly. A Snapshot is just EBS (no config).</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(2, QUESTIONS);
+      if (isChapterComplete(2)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

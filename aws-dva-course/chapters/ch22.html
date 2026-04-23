@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 22 — AWS SAM — Serverless Application Model | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٢ من ٣٠</span>
+        <span class="lang-en">Chapter 22 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.743-754</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS SAM — Serverless Application Model</span>
+        <span class="lang-en">AWS SAM — Serverless Application Model</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">إطار عمل مُبسّط لبناء ونشر تطبيقات Lambda + API Gateway + DynamoDB بـ YAML قصير. SAM يتحوّل تلقائياً إلى CloudFormation.</span>
+        <span class="lang-en">A simplified framework for building and deploying Lambda + API Gateway + DynamoDB apps with short YAML. SAM transforms into CloudFormation under the hood.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">SAM</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Serverless</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Lambda</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodeDeploy</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Canary</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SAM Template & Transform</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — تعريف Serverless resources بصيغة SAM.</span>
+      <span class="lang-en">Domain 3 — defining Serverless resources with SAM.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">sam build & sam deploy</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — دورة حياة النشر.</span>
+      <span class="lang-en">Domain 3 — deployment lifecycle.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">DeploymentPreference</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Canary و Linear للـ Lambda.</span>
+      <span class="lang-en">Domain 3 — Canary & Linear for Lambda.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">sam local</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأوّل — اختبار Lambda محلياً.</span>
+      <span class="lang-en">Domain 1 — testing Lambda locally.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو SAM ولماذا نستخدمه</span>
+      <span class="lang-en">What is SAM and why</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">AWS SAM</span> (Serverless Application Model) إطار عمل مفتوح المصدر لبناء ونشر تطبيقات Serverless. الفكرة: كتابة قالب YAML مختصر جداً، يتحوّل تلقائياً إلى CloudFormation كامل. يُقلّل من ١٠٠ سطر إلى ١٥ سطراً لتعريف Lambda + API Gateway + DynamoDB.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">AWS SAM</span> (Serverless Application Model) is an open-source framework for building serverless apps. The idea: write a very short YAML template that auto-transforms into full CloudFormation. It compresses 100 lines to 15 for a Lambda + API Gateway + DynamoDB definition.</p>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Transform Header</strong> يجب أن يظهر أوّل سطر لتحديد أنّ القالب SAM وليس CloudFormation عاديّ: <span dir="ltr" class="font-mono">Transform: 'AWS::Serverless-2016-10-31'</span>.</span>
+      <span class="lang-en"> The <strong>Transform header</strong> must appear to mark the template as SAM (not plain CloudFormation): <span dir="ltr" class="font-mono">Transform: 'AWS::Serverless-2016-10-31'</span>.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">٣ موارد مُبسّطة</span><span class="lang-en">3 shortcut resources</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">AWS::Serverless::Function</span>، <span dir="ltr" class="font-mono">::Api</span>، <span dir="ltr" class="font-mono">::SimpleTable</span> — كل واحدة تُترجَم إلى عشرات الموارد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en"><span dir="ltr" class="font-mono">AWS::Serverless::Function</span>, <span dir="ltr" class="font-mono">::Api</span>, <span dir="ltr" class="font-mono">::SimpleTable</span> — each expands to many resources.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">يستفيد من CloudFormation</span><span class="lang-en">Leverages CloudFormation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل ميزات CloudFormation متاحة: Outputs، Mappings، Parameters، Conditions.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All CloudFormation features are available: Outputs, Mappings, Parameters, Conditions.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="computer" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">اختبار محلّيّ</span><span class="lang-en">Local testing</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">sam local invoke</span> يشغّل Lambda محلياً عبر Docker.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en"><span dir="ltr" class="font-mono">sam local invoke</span> runs Lambda locally via Docker.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="rocket" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CodeDeploy مدمج</span><span class="lang-en">CodeDeploy integrated</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نشر تدريجيّ (Canary/Linear) للـ Lambda بسطر واحد.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Gradual deployment (Canary/Linear) for Lambda in a single line.</p>
+  </div>
+</div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">قالب SAM نموذجيّ</span>
+      <span class="lang-en">A typical SAM template</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هذا مثال كامل لتطبيق Serverless مع Lambda و API Gateway و DynamoDB. لاحظ الاختصارات: <strong>Events</strong> يُنشئ API Gateway تلقائياً، <strong>Policies</strong> يُولّد IAM Role مناسباً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A complete serverless app with Lambda, API Gateway, and DynamoDB. Note the shortcuts: <strong>Events</strong> auto-creates API Gateway; <strong>Policies</strong> generates an appropriate IAM role.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml">AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Acme serverless orders service
+
+Globals:
+  Function:
+    Runtime: java17
+    MemorySize: 512
+    Timeout: 10
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref OrdersTable
+
+Resources:
+  OrdersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: orderId
+        Type: String
+
+  GetOrderFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: target/orders-1.0.jar
+      Handler: com.acme.orders.GetOrder::handleRequest
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /orders/{id}
+            Method: GET
+
+Outputs:
+  ApiUrl:
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Policy Templates</strong> مثل <span dir="ltr" class="font-mono">DynamoDBReadPolicy</span>، <span dir="ltr" class="font-mono">S3ReadPolicy</span>، <span dir="ltr" class="font-mono">SQSPollerPolicy</span>، <span dir="ltr" class="font-mono">DynamoDBCrudPolicy</span> تُولّد IAM Policies جاهزة بأقل امتياز.</span>
+      <span class="lang-en"> <strong>Policy Templates</strong> like <span dir="ltr" class="font-mono">DynamoDBReadPolicy</span>, <span dir="ltr" class="font-mono">S3ReadPolicy</span>, <span dir="ltr" class="font-mono">SQSPollerPolicy</span>, <span dir="ltr" class="font-mono">DynamoDBCrudPolicy</span> generate least-privilege IAM policies.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">دورة النشر: build، deploy، sync</span>
+      <span class="lang-en">Deployment lifecycle: build, deploy, sync</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">دورة النشر النموذجيّة تتكوّن من <strong>sam build</strong> (يُجهّز الاعتماديّات في <span dir="ltr" class="font-mono">.aws-sam/</span>)، ثم <strong>sam deploy</strong> (يرفع إلى S3 وينشئ ChangeSet). الـ <strong>sam sync</strong> يسرّع التطوير بتحديث كود Lambda فقط (تجاوز CloudFormation).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Typical cycle: <strong>sam build</strong> (prepares dependencies in <span dir="ltr" class="font-mono">.aws-sam/</span>), then <strong>sam deploy</strong> (uploads to S3 and creates a ChangeSet). <strong>sam sync</strong> speeds dev by updating only Lambda code (bypasses CloudFormation).</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># First-time setup
+sam init                         # scaffold new project
+sam validate                     # lint template.yaml
+
+# Build & Deploy
+sam build                        # compile + package deps
+sam deploy --guided              # interactive first deploy (saves to samconfig.toml)
+sam deploy                       # subsequent deploys
+
+# SAM Accelerate — iterate fast (bypasses CFN for code-only changes)
+sam sync --watch                 # auto-redeploy on file change
+sam sync --code                  # code only, no infra update
+sam sync --code --resource-id GetOrderFn  # single function
+
+# Local testing
+sam local invoke GetOrderFn -e event.json
+sam local start-api              # local API Gateway on :3000
+sam local start-lambda           # local Lambda endpoint
+sam local generate-event s3 put  # generate sample events</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="upload" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">sam deploy</span><span class="lang-en">sam deploy</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يمرّ عبر CloudFormation الكامل. بطيء (دقائق) لكنّه آمن وعاكس للبنية التحتية.</p>
+      <p class="text-sm text-surface-700 lang-en">Full CloudFormation path. Slower (minutes) but safe and infra-aware.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">sam sync --code</span><span class="lang-en">sam sync --code</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يتجاوز CloudFormation، يحدّث كود Lambda مباشرةً عبر APIs. ثوانٍ — مثاليّ للتطوير السريع، <strong>ليس</strong> للإنتاج.</p>
+      <p class="text-sm text-surface-700 lang-en">Bypasses CloudFormation, updates Lambda code directly via service APIs. Seconds — ideal for rapid dev, <strong>not</strong> for prod.</p>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">النشر التدريجيّ مع CodeDeploy</span>
+      <span class="lang-en">Gradual deployment with CodeDeploy</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">SAM يدمج CodeDeploy لنشر Lambda بالتدريج: <strong>AutoPublishAlias</strong> يُنشِئ Alias جديد عند كل نشر، و <strong>DeploymentPreference</strong> يحدّد نمط تحويل الترافيك.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">SAM integrates CodeDeploy for gradual Lambda deployment: <strong>AutoPublishAlias</strong> creates a new alias on each deploy, and <strong>DeploymentPreference</strong> sets the traffic-shift pattern.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النمط</span><span class="lang-en">Pattern</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوصف</span><span class="lang-en">Description</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Canary10Percent5Minutes</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">١٠٪ ترافيك فوراً، الباقي بعد ٥ دقائق</span><span class="lang-en">10% traffic immediately, rest after 5 min</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إنتاج حسّاس، تحقّق سريع من الأخطاء</span><span class="lang-en">Critical prod, quick error detection</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Canary10Percent30Minutes</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">١٠٪ ترافيك فوراً، الباقي بعد ٣٠ دقيقة</span><span class="lang-en">10% traffic immediately, rest after 30 min</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تحقّق أعمق من مقاييس CloudWatch</span><span class="lang-en">Deeper CloudWatch metric validation</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Linear10PercentEvery1Minute</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">زيادة ١٠٪ كل دقيقة حتى ١٠٠٪</span><span class="lang-en">Grow 10% every minute until 100%</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نشر تدريجيّ منتظم</span><span class="lang-en">Smooth progressive rollout</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Linear10PercentEvery10Minutes</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">زيادة ١٠٪ كل ١٠ دقائق</span><span class="lang-en">Grow 10% every 10 min</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">للإنتاج الأبطأ المراقَب</span><span class="lang-en">For slower, watched production</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AllAtOnce</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">١٠٠٪ ترافيك فوراً</span><span class="lang-en">100% immediately</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Dev أو عند الثقة العالية</span><span class="lang-en">Dev or high-confidence updates</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml">Resources:
+  MyLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://bucket/code.zip
+      Handler: index.handler
+      Runtime: nodejs20.x
+      AutoPublishAlias: live      # publishes new version + shifts alias
+      DeploymentPreference:
+        Type: Canary10Percent10Minutes
+        Alarms:
+          # auto-rollback if any alarm fires
+          - !Ref LambdaErrorsAlarm
+          - !Ref AliasLatencyAlarm
+        Hooks:
+          PreTraffic:  !Ref PreTrafficValidationFn
+          PostTraffic: !Ref PostTrafficSmokeTestFn</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> الـ <strong>Alarms</strong> تُطلِق Rollback تلقائياً. الـ <strong>Hooks</strong> هي Lambda validation functions تعمل قبل/بعد تحويل الترافيك — مفيدة لـ smoke tests. Rollback هنا يعود إلى الإصدار السابق بتغيير Alias، لا بإعادة نشر.</span>
+      <span class="lang-en"> <strong>Alarms</strong> trigger automatic rollback. <strong>Hooks</strong> are Lambda validation functions running pre/post traffic shift — ideal for smoke tests. Rollback here just points the alias back to the old version, not a redeploy.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء ونشر دالّة Lambda + API Gateway عبر SAM، ثم اختبارها محلياً قبل الرفع.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create and deploy a Lambda + API Gateway via SAM, test locally before pushing.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ثبّت SAM CLI</span>
+      <span class="lang-en">Install SAM CLI</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># macOS
+brew tap aws/tap
+brew install aws-sam-cli
+sam --version</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ مشروعاً جديداً</span>
+      <span class="lang-en">Scaffold a new project</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">يسألك عن النموذج (Hello World Java 17 Maven مثلاً).</p><p class="text-surface-600 leading-relaxed lang-en">Asks you for a template (e.g. Hello World Java 17 Maven).</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">sam init \
+  --runtime java17 \
+  --package-type Zip \
+  --app-template hello-world-maven \
+  --name acme-orders</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">بني واختبر محلياً</span>
+      <span class="lang-en">Build and test locally</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">cd acme-orders
+sam build
+sam local invoke HelloWorldFunction -e events/event.json
+sam local start-api   # http://localhost:3000/hello</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">انشر إلى AWS</span>
+      <span class="lang-en">Deploy to AWS</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">sam deploy --guided
+# Stack name: acme-orders-dev
+# Region: us-east-1
+# Confirm changes: Y
+# Allow SAM CLI IAM creation: Y
+# Save arguments to samconfig.toml: Y</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">تطوير سريع بـ sam sync</span>
+      <span class="lang-en">Rapid dev with sam sync</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">sam sync --watch
+# Modify Java code → auto-redeployed in seconds</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">تنظيف</span>
+      <span class="lang-en">Cleanup</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">sam delete --stack-name acme-orders-dev</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Lambda + API Gateway بعد Free Tier تكلفتهما منخفضة جداً لكن تذكّر الحذف بعد التجربة، خاصّةً إذا وضعت CloudWatch Alarms (تكلفة إضافيّة).</span>
+    <span class="lang-en"> Lambda + API Gateway cost very little after Free Tier, but delete after testing — especially if you added CloudWatch Alarms (extra cost).</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٠ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (10 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">SAM اختصار ذكيّ</span>
+        <span class="lang-en">SAM is smart shorthand</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">يتحوّل إلى CloudFormation كامل، مع دعم كل ميزاته.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Transforms into full CloudFormation, keeps all its features.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Policy Templates توفّر الوقت</span>
+        <span class="lang-en">Policy Templates save time</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">DynamoDBCrudPolicy و S3ReadPolicy يُولّدان IAM مناسب تلقائياً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">DynamoDBCrudPolicy, S3ReadPolicy auto-generate appropriate IAM.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="rocket" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Canary للإنتاج، AllAtOnce للـ Dev</span>
+        <span class="lang-en">Canary for prod, AllAtOnce for dev</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">DeploymentPreference + Alarms = نشر Lambda آمن.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">DeploymentPreference + Alarms = safe Lambda deploys.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="computer" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">sam local + sam sync = سرعة</span>
+        <span class="lang-en">sam local + sam sync = speed</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">اختبار محلّيّ ثم تحديث كود Lambda بثوانٍ.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Local testing, then seconds-fast code-only updates.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>"BLTS"</strong>: Build → Local → Test → Sync (للتطوير)، أو Build → Deploy (للإنتاج). للـ DeploymentPreference تذكّر <strong>"Canary سريع، Linear بطيء"</strong>.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>"BLTS"</strong>: Build → Local → Test → Sync (for dev) or Build → Deploy (for prod). For DeploymentPreference remember <strong>"Canary fast jump, Linear slow climb"</strong>.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch21.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(22, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch23.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">ما الهدف من سطر <span dir="ltr" class="font-mono">Transform: 'AWS::Serverless-2016-10-31'</span> في قالب SAM؟</span><span class="lang-en">What is the purpose of <span dir="ltr" class="font-mono">Transform: 'AWS::Serverless-2016-10-31'</span> in a SAM template?</span>",
+        options: [
+          "<span class="lang-ar">تحديد إصدار Lambda runtime.</span><span class="lang-en">Specify Lambda runtime version.</span>",
+          "<span class="lang-ar">إخبار CloudFormation أنّ هذا قالب SAM وأن يُوسّع المكرولات.</span><span class="lang-en">Tell CloudFormation this is a SAM template and to expand macros.</span>",
+          "<span class="lang-ar">تمكين تشفير KMS.</span><span class="lang-en">Enable KMS encryption.</span>",
+          "<span class="lang-ar">تفعيل Canary deployment.</span><span class="lang-en">Activate canary deployment.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">سطر <strong>Transform</strong> يُعلِم CloudFormation أنّ القالب يحتوي على SAM macros (مثل <span dir="ltr" class="font-mono">AWS::Serverless::Function</span>) ويحتاج إلى توسيعها إلى موارد CloudFormation كاملة قبل التنفيذ. بدونه، <span dir="ltr" class="font-mono">AWS::Serverless::*</span> لا تُفهَم.</span><span class="lang-en">The <strong>Transform</strong> line tells CloudFormation the template contains SAM macros (like <span dir="ltr" class="font-mono">AWS::Serverless::Function</span>) and needs to expand them into full CloudFormation resources before executing. Without it, <span dir="ltr" class="font-mono">AWS::Serverless::*</span> isn't recognized.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد نشر Lambda إنتاجي مع تحقّق تدريجيّ: ١٠٪ ترافيك لمدّة ١٠ دقائق، ثم باقي الـ ٩٠٪ دفعةً واحدة. ما DeploymentPreference المناسب؟</span><span class="lang-en">A developer wants to deploy prod Lambda with gradual validation: 10% traffic for 10 min, then the rest at once. Which DeploymentPreference?</span>",
+        options: [
+          "<span class="lang-ar">AllAtOnce</span><span class="lang-en">AllAtOnce</span>",
+          "<span class="lang-ar">Canary10Percent10Minutes</span><span class="lang-en">Canary10Percent10Minutes</span>",
+          "<span class="lang-ar">Linear10PercentEvery10Minutes</span><span class="lang-en">Linear10PercentEvery10Minutes</span>",
+          "<span class="lang-ar">Linear10PercentEvery1Minute</span><span class="lang-en">Linear10PercentEvery1Minute</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Canary10Percent10Minutes</strong> هو المعيار: ١٠٪ فوراً للاختبار، انتظار ١٠ دقائق للتحقّق من المقاييس، ثم تحويل الـ ٩٠٪ الباقية دفعة واحدة. Linear يزيد تدريجياً بخطوات متساوية، ليس القفزة الواحدة.</span><span class="lang-en"><strong>Canary10Percent10Minutes</strong> is the canonical pattern: 10% immediately for testing, wait 10 min to verify metrics, then shift the remaining 90% at once. Linear grows in equal steps, not a single jump.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يُوجد نشر تدريجيّ.</span><span class=\"lang-en\">No gradual shift.</span>", "", "<span class=\"lang-ar\">يزيد ١٠٪ كل ١٠ دقائق لمدّة ١٠٠ دقيقة.</span><span class=\"lang-en\">Grows 10% every 10 min for 100 min.</span>", "<span class=\"lang-ar\">يزيد ١٠٪ كل دقيقة لمدّة ١٠ دقائق.</span><span class=\"lang-en\">Grows 10% every 1 min for 10 min.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر Java يريد تشغيل Lambda محلياً بدون رفعها إلى AWS للاختبار. ما الأمر الصحيح؟</span><span class="lang-en">A Java developer wants to run a Lambda locally without deploying to AWS for testing. Correct command?</span>",
+        options: [
+          "<span class="lang-ar">sam deploy</span><span class="lang-en">sam deploy</span>",
+          "<span class="lang-ar">sam local invoke</span><span class="lang-en">sam local invoke</span>",
+          "<span class="lang-ar">sam build</span><span class="lang-en">sam build</span>",
+          "<span class="lang-ar">sam sync</span><span class="lang-en">sam sync</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">sam local invoke</span> يشغّل Lambda محلياً داخل Docker container يحاكي بيئة Lambda. يمكن تمرير Event JSON بـ <span dir="ltr" class="font-mono">-e event.json</span>. للـ API Gateway استخدم <span dir="ltr" class="font-mono">sam local start-api</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">sam local invoke</span> runs Lambda locally in a Docker container mimicking Lambda's environment. Pass event JSON with <span dir="ltr" class="font-mono">-e event.json</span>. For API Gateway, use <span dir="ltr" class="font-mono">sam local start-api</span>.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">دالة Lambda تحتاج قراءة/كتابة من جدول DynamoDB. ما أسرع وأصحّ طريقة لمنح الصلاحيات في SAM؟</span><span class="lang-en">A Lambda needs CRUD access on a DynamoDB table. Fastest + cleanest way to grant permissions in SAM?</span>",
+        options: [
+          "<span class="lang-ar">كتابة IAM Policy يدوياً مع AdminAccess.</span><span class="lang-en">Write an inline IAM Policy with AdminAccess.</span>",
+          "<span class="lang-ar">استخدام Policy Template مثل DynamoDBCrudPolicy.</span><span class="lang-en">Use a Policy Template like DynamoDBCrudPolicy.</span>",
+          "<span class="lang-ar">منح Lambda صلاحية كاملة على الحساب.</span><span class="lang-en">Grant Lambda full account access.</span>",
+          "<span class="lang-ar">عدم الحاجة إلى صلاحيات — الـ SDK يكتشفها.</span><span class="lang-en">No permissions needed — SDK auto-detects.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Policy Templates</strong> في SAM (مثل <span dir="ltr" class="font-mono">DynamoDBCrudPolicy</span>، <span dir="ltr" class="font-mono">S3ReadPolicy</span>، <span dir="ltr" class="font-mono">SQSPollerPolicy</span>) تُولّد IAM Role بأقلّ امتياز تلقائياً. تمنع أخطاء الصلاحيات المفرطة.</span><span class="lang-en"><strong>Policy Templates</strong> in SAM (like <span dir="ltr" class="font-mono">DynamoDBCrudPolicy</span>, <span dir="ltr" class="font-mono">S3ReadPolicy</span>, <span dir="ltr" class="font-mono">SQSPollerPolicy</span>) auto-generate a least-privilege IAM role. Prevents excessive-permission mistakes.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">فريق يحتاج تسريع تطوير Lambda المحلّي. يريد كل تعديل كود ينتشر إلى AWS في ثوانٍ بدون انتظار CloudFormation. ما الأمر؟</span><span class="lang-en">A team needs fast local dev for Lambda. Each code change should deploy to AWS in seconds without waiting on CloudFormation. Command?</span>",
+        options: [
+          "<span class="lang-ar">sam deploy</span><span class="lang-en">sam deploy</span>",
+          "<span class="lang-ar">sam sync --code --watch</span><span class="lang-en">sam sync --code --watch</span>",
+          "<span class="lang-ar">sam local invoke</span><span class="lang-en">sam local invoke</span>",
+          "<span class="lang-ar">sam validate</span><span class="lang-en">sam validate</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>SAM Accelerate (sam sync)</strong> يتجاوز CloudFormation ويحدّث Lambda مباشرةً عبر service APIs. <span dir="ltr" class="font-mono">--code</span> يُحدّث الكود فقط، <span dir="ltr" class="font-mono">--watch</span> يراقب الملفات ويعيد النشر تلقائياً عند التغيير. ليس مخصّصاً للإنتاج — فقط للتطوير.</span><span class="lang-en"><strong>SAM Accelerate (sam sync)</strong> bypasses CloudFormation and updates Lambda directly via service APIs. <span dir="ltr" class="font-mono">--code</span> updates code only; <span dir="ltr" class="font-mono">--watch</span> watches files and auto-redeploys on change. Not for production — dev only.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">أيّ من الأقسام يُعرّف قيماً مشتركة بين كل Functions في SAM template؟</span><span class="lang-en">Which section defines shared values across all Functions in a SAM template?</span>",
+        options: [
+          "<span class="lang-ar">Parameters</span><span class="lang-en">Parameters</span>",
+          "<span class="lang-ar">Mappings</span><span class="lang-en">Mappings</span>",
+          "<span class="lang-ar">Globals</span><span class="lang-en">Globals</span>",
+          "<span class="lang-ar">Outputs</span><span class="lang-en">Outputs</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">Globals</span> هو قسم خاصّ بـ SAM لتعريف قيم افتراضيّة تُطبَّق على كل Functions أو APIs أو SimpleTables (مثل Runtime، Timeout، Environment Variables). يمكن تجاوزها على مستوى المورد الواحد.</span><span class="lang-en"><span dir="ltr" class="font-mono">Globals</span> is a SAM-specific section defining defaults applied to all Functions, APIs, or SimpleTables (Runtime, Timeout, Environment Variables...). Individual resources can override.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q7",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن SAM؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about SAM? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">SAM يتحوّل إلى CloudFormation عند النشر.</span><span class="lang-en">SAM transforms to CloudFormation on deploy.</span>",
+          "<span class="lang-ar">SAM يدعم Outputs و Mappings و Conditions.</span><span class="lang-en">SAM supports Outputs, Mappings, Conditions.</span>",
+          "<span class="lang-ar">SAM يدعم نشر Lambda تدريجياً عبر CodeDeploy.</span><span class="lang-en">SAM supports gradual Lambda deploy via CodeDeploy.</span>",
+          "<span class="lang-ar">SAM ينشر الموارد بطريقة إمبراطيّة (Imperative).</span><span class="lang-en">SAM deploys imperatively.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">SAM declarative (تعريفيّة) لا إمبراطيّة. يتحوّل إلى CloudFormation، يدعم كل ميزاته، ويدمج CodeDeploy للنشر التدريجيّ لـ Lambda. التعريف بالكود لا بالأوامر المتسلسلة.</span><span class="lang-en">SAM is declarative, not imperative. Transforms to CloudFormation, supports all its features, integrates CodeDeploy for gradual Lambda deploy. Definition in code, not sequential commands.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">بعد نشر Lambda مع <span dir="ltr" class="font-mono">DeploymentPreference: Canary10Percent5Minutes</span>، ارتفع معدّل الأخطاء فوق عتبة الـ CloudWatch Alarm المُرفَق. ماذا يحدث؟</span><span class="lang-en">After deploying Lambda with <span dir="ltr" class="font-mono">DeploymentPreference: Canary10Percent5Minutes</span>, the attached CloudWatch Alarm's error threshold is breached. What happens?</span>",
+        options: [
+          "<span class="lang-ar">النشر يستمرّ؛ Alarms للمراقبة فقط.</span><span class="lang-en">Deploy continues; alarms are only for monitoring.</span>",
+          "<span class="lang-ar">CodeDeploy يُنفّذ Rollback تلقائياً بإعادة Alias إلى الإصدار السابق.</span><span class="lang-en">CodeDeploy auto-rolls back by pointing the alias to the previous version.</span>",
+          "<span class="lang-ar">الـ Stack بالكامل يُحذَف.</span><span class="lang-en">The entire stack is deleted.</span>",
+          "<span class="lang-ar">CloudFormation يعلق.</span><span class="lang-en">CloudFormation hangs.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">عند إطلاق CloudWatch Alarm خلال النشر، CodeDeploy يُجري <strong>Rollback تلقائيّ فوريّ</strong> بإعادة Lambda Alias إلى الإصدار السابق. لا يحتاج إعادة نشر — مجرّد تبديل نقطة الـ Alias. لهذا AutoPublishAlias مطلوب.</span><span class="lang-en">When a CloudWatch Alarm fires during deploy, CodeDeploy performs an <strong>immediate automatic rollback</strong> by pointing the Lambda alias back to the previous version. No redeploy needed — just a pointer flip. That's why AutoPublishAlias is required.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">فريق يريد بيئتين (dev و prod) بنفس قالب SAM مع قيم مختلفة (Table Name، Instance Size). ما الحل الأمثل؟</span><span class="lang-en">A team wants two environments (dev and prod) from the same SAM template with different values (Table Name, Instance Size). Best approach?</span>",
+        options: [
+          "<span class="lang-ar">نسخ القالب وتعديله يدوياً.</span><span class="lang-en">Copy the template and edit manually.</span>",
+          "<span class="lang-ar">استخدام Parameters مع samconfig.toml بأقسام [dev.deploy.parameters] و [prod.deploy.parameters]، ثم sam deploy --config-env dev.</span><span class="lang-en">Use Parameters with samconfig.toml sections [dev.deploy.parameters] and [prod.deploy.parameters], then sam deploy --config-env dev.</span>",
+          "<span class="lang-ar">تغيير حساب AWS لكل بيئة.</span><span class="lang-en">Change AWS account per env.</span>",
+          "<span class="lang-ar">استخدام sam sync فقط.</span><span class="lang-en">Use sam sync only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>samconfig.toml</strong> يدعم بيئات متعدّدة مع <span dir="ltr" class="font-mono">[dev.deploy.parameters]</span> و <span dir="ltr" class="font-mono">[prod.deploy.parameters]</span>، كل واحدة بـ stack_name و parameter_overrides خاصّة. <span dir="ltr" class="font-mono">sam deploy --config-env prod</span> يختار القسم المناسب.</span><span class="lang-en"><strong>samconfig.toml</strong> supports multiple environments via <span dir="ltr" class="font-mono">[dev.deploy.parameters]</span> and <span dir="ltr" class="font-mono">[prod.deploy.parameters]</span>, each with its own stack_name and parameter_overrides. <span dir="ltr" class="font-mono">sam deploy --config-env prod</span> picks the right section.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">أيّ عبارة <strong>خاطئة</strong> عن SAM؟</span><span class="lang-en">Which statement about SAM is <strong>FALSE</strong>?</span>",
+        options: [
+          "<span class="lang-ar">SAM يمكنه إنشاء IAM Role تلقائياً من Policy Templates.</span><span class="lang-en">SAM can create IAM roles automatically from Policy Templates.</span>",
+          "<span class="lang-ar">SAM لا يدعم أيّ مورد غير Lambda و API Gateway و DynamoDB.</span><span class="lang-en">SAM does not support any resources besides Lambda, API Gateway, DynamoDB.</span>",
+          "<span class="lang-ar">sam local start-api يُشغّل API Gateway محلياً على port 3000.</span><span class="lang-en">sam local start-api runs API Gateway locally on port 3000.</span>",
+          "<span class="lang-ar">SAM يستخدم CodeDeploy لنشر Lambda التدريجيّ.</span><span class="lang-en">SAM uses CodeDeploy for gradual Lambda deployment.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">العبارة الخاطئة: SAM يدعم <strong>كل</strong> موارد CloudFormation. الموارد المُبسّطة هي <span dir="ltr" class="font-mono">AWS::Serverless::Function</span>، <span dir="ltr" class="font-mono">::Api</span>، <span dir="ltr" class="font-mono">::SimpleTable</span>، لكن يمكنك إضافة أي <span dir="ltr" class="font-mono">AWS::S3::Bucket</span>، <span dir="ltr" class="font-mono">AWS::RDS::DBInstance</span>، إلخ.</span><span class="lang-en">The false statement: SAM supports <strong>every</strong> CloudFormation resource. The shortcut resources are <span dir="ltr" class="font-mono">AWS::Serverless::Function</span>, <span dir="ltr" class="font-mono">::Api</span>, <span dir="ltr" class="font-mono">::SimpleTable</span>, but you can add any <span dir="ltr" class="font-mono">AWS::S3::Bucket</span>, <span dir="ltr" class="font-mono">AWS::RDS::DBInstance</span>, etc.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(22, QUESTIONS);
+      if (isChapterComplete(22)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

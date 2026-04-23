@@ -1,0 +1,49 @@
+{
+  "slug": "iam",
+  "name": "AWS IAM",
+  "icon": "user-lock",
+  "color": "red",
+  "tagline_ar": "إدارة الهويات والصلاحيات بدقّة عبر المستخدمين والأدوار والمجموعات والسياسات.",
+  "tagline_en": "Fine-grained identity and permission management via users, roles, groups, and policies.",
+  "key_concepts": [
+    {"concept": "Users / Groups / Roles", "desc_ar": "المستخدم هوية دائمة، المجموعة تجمع مستخدمين، والدور هوية مؤقتة يتحمّلها خدمة أو مستخدم.", "desc_en": "User = permanent identity; Group = collection of users; Role = temporary identity assumed by a service or user."},
+    {"concept": "Identity vs Resource Policy", "desc_ar": "Identity Policy تُلصق بالهوية، Resource Policy تُلصق بالمورد مثل S3 Bucket Policy أو Lambda.", "desc_en": "Identity policy attached to identity; resource policy attached to resource (S3 bucket, Lambda, etc.)."},
+    {"concept": "Managed vs Inline Policy", "desc_ar": "Managed قابلة لإعادة الاستخدام (AWS أو العميل)، بينما Inline مرتبطة مباشرة بهوية واحدة.", "desc_en": "Managed policies are reusable (AWS or customer); inline is tied to a single identity."},
+    {"concept": "Permission Boundary", "desc_ar": "حدّ أعلى للصلاحيات الممكنة لمستخدم/دور حتى لو أُلصقت سياسات أكثر صلاحية.", "desc_en": "Maximum permission ceiling for a user/role even if broader policies are attached."},
+    {"concept": "Policy Evaluation Logic", "desc_ar": "Explicit Deny تغلب كل شيء، ثم Allow صريح، والافتراضي Deny ضمني.", "desc_en": "Explicit Deny > Explicit Allow > Implicit Deny (default)."},
+    {"concept": "IAM Conditions", "desc_ar": "شروط دقيقة مثل aws:SourceIp، aws:MultiFactorAuthPresent، s3:prefix للتحكم حسب السياق.", "desc_en": "Fine-grained conditions like aws:SourceIp, aws:MultiFactorAuthPresent, s3:prefix."},
+    {"concept": "IAM Access Analyzer", "desc_ar": "يكشف عن الموارد المُشاركة خارج الحساب ويقدّم اقتراحات تضييق الصلاحيات.", "desc_en": "Detects resources shared outside the account; recommends narrowing permissions."},
+    {"concept": "MFA & Hardware Keys", "desc_ar": "يدعم MFA افتراضي (TOTP)، ومفاتيح U2F، وFIDO2 لحماية الحسابات الحسّاسة.", "desc_en": "Supports virtual MFA (TOTP), U2F, and FIDO2 hardware keys for sensitive accounts."}
+  ],
+  "limits": [
+    {"limit": "عدد المستخدمين لكل حساب", "limit_en": "Users per account", "value": "5,000", "note_ar": "قابل للزيادة عبر الدعم.", "note_en": "Can be increased via support."},
+    {"limit": "عدد الأدوار لكل حساب", "limit_en": "Roles per account", "value": "1,000", "note_ar": "قابل للزيادة.", "note_en": "Can be increased."},
+    {"limit": "سياسات مُدارة لكل هوية", "limit_en": "Managed policies per identity", "value": "10 (قابلة للزيادة)", "note_ar": "الحدّ الافتراضي 10 ويمكن رفعه.", "note_en": "Default 10, can be raised."},
+    {"limit": "حجم سياسة Managed", "limit_en": "Managed policy size", "value": "6,144 chars", "note_ar": "بعد إزالة المسافات الفارغة.", "note_en": "After whitespace removal."},
+    {"limit": "حجم سياسة Inline", "limit_en": "Inline policy size", "value": "2,048 (user) / 10,240 (role) / 5,120 (group)", "note_ar": "تختلف حسب نوع الهوية.", "note_en": "Varies by identity type."},
+    {"limit": "المجموعات لكل مستخدم", "limit_en": "Groups per user", "value": "10", "note_ar": "الحدّ الصلب 10.", "note_en": "Hard limit of 10."},
+    {"limit": "مفاتيح الوصول لكل مستخدم", "limit_en": "Access keys per user", "value": "2", "note_ar": "للتسهيل التدوير.", "note_en": "To facilitate rotation."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء دور يتحمّله EC2.", "desc_en": "Create a role assumed by EC2.", "cmd": "aws iam create-role --role-name AcmeAppRole --assume-role-policy-document file://trust.json"},
+    {"desc_ar": "إلصاق سياسة مُدارة بدور.", "desc_en": "Attach managed policy to a role.", "cmd": "aws iam attach-role-policy --role-name AcmeAppRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"},
+    {"desc_ar": "محاكاة قرار السياسة لمستخدم.", "desc_en": "Simulate policy decision for a user.", "cmd": "aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::111:user/dev --action-names s3:PutObject"},
+    {"desc_ar": "تدوير مفاتيح الوصول.", "desc_en": "Rotate access keys.", "cmd": "aws iam create-access-key --user-name yasir && aws iam delete-access-key --access-key-id AKIA..."},
+    {"desc_ar": "إنشاء Permission Boundary.", "desc_en": "Set a permission boundary.", "cmd": "aws iam put-user-permissions-boundary --user-name dev --permissions-boundary arn:aws:iam::111:policy/DevBoundary"},
+    {"desc_ar": "قراءة آخر استخدام للدور.", "desc_en": "Check last-used info for a role.", "cmd": "aws iam get-role --role-name AcmeAppRole --query Role.RoleLastUsed"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تطبيق EC2 يحتاج قراءة من S3.", "scenario_en": "EC2 app needs to read S3.", "choice": "IAM Role for EC2 (instance profile)"},
+    {"scenario_ar": "Lambda تحتاج الوصول لخدمات AWS.", "scenario_en": "Lambda accessing AWS services.", "choice": "Execution Role"},
+    {"scenario_ar": "منح حساب آخر وصولاً مؤقتًا.", "scenario_en": "Grant temporary access to another account.", "choice": "IAM Role + AssumeRole (STS)"},
+    {"scenario_ar": "منع تصعيد الصلاحيات لمطوّر.", "scenario_en": "Prevent privilege escalation by a dev.", "choice": "Permission Boundary"},
+    {"scenario_ar": "مستخدم تطبيق خارجي (B2B).", "scenario_en": "External app user (B2B).", "choice": "IAM User with access keys (or better: IAM Role Anywhere)"}
+  ],
+  "exam_tips": [
+    {"ar": "Explicit Deny دائمًا يتغلّب على Allow مهما كان مصدره.", "en": "Explicit Deny always beats Allow, no matter the source."},
+    {"ar": "لا تستخدم Access Keys على EC2 — استخدم IAM Role عبر Instance Profile.", "en": "Never put Access Keys on EC2 — use IAM Role via Instance Profile."},
+    {"ar": "Permission Boundary لا يمنح صلاحيات بل يُحدّد سقف الصلاحيات.", "en": "Permission Boundary doesn't grant — it caps what can ever be granted."},
+    {"ar": "Access Analyzer يكشف Public/Shared resources — حلّ سريع للأمان.", "en": "Access Analyzer flags public/shared resources — quick security win."},
+    {"ar": "Credentials Report + Access Advisor = تنظيف الصلاحيات الميّتة.", "en": "Credentials Report + Access Advisor = clean up unused permissions."}
+  ]
+}

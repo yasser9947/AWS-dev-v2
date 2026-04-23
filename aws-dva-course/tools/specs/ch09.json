@@ -1,0 +1,387 @@
+{
+  "n": 9,
+  "domain": "development",
+  "title_ar": "Amazon S3 — الأساسيّات والمستوى المتقدّم",
+  "title_en": "Amazon S3 — Basics & Advanced",
+  "pages": "214-238, 253-265",
+  "subtitle_ar": "تخزين كائنات سحابي لا متناهي: الـ buckets و الـ objects و الصلاحيات، و versioning و replication و lifecycle، و storage classes و event notifications و presigned URLs و multipart upload. هذا الفصل يُختبَر بكثافة في DVA-C02.",
+  "subtitle_en": "Infinite cloud object storage: buckets and objects, security, versioning, replication, lifecycle rules, storage classes, event notifications, presigned URLs, and multipart upload. Heavily tested on DVA-C02.",
+  "tags": ["S3", "Bucket Policies", "Versioning", "Lifecycle", "Storage Classes", "Presigned URLs", "Multipart"],
+  "objectives": [
+    {"concept": "Bucket Policies & Access Control", "tested_ar": "النطاق الثاني — التحكّم بالوصول ومنع التسريبات.", "tested_en": "Domain 2 — access control and leak prevention."},
+    {"concept": "Versioning & Lifecycle", "tested_ar": "النطاق الأول — إدارة دورة حياة البيانات وتحسين التكلفة.", "tested_en": "Domain 1 — data lifecycle management and cost optimization."},
+    {"concept": "Storage Classes", "tested_ar": "النطاق الرابع — اختيار الفئة الأمثل حسب نمط الوصول.", "tested_en": "Domain 4 — choosing storage class by access pattern."},
+    {"concept": "Presigned URLs & Event Notifications", "tested_ar": "النطاق الأول — التكامل مع Lambda و SQS و SNS.", "tested_en": "Domain 1 — integrations with Lambda, SQS, SNS."}
+  ],
+  "sections": [
+    {
+      "title_ar": "Buckets و Objects وقواعد التسمية",
+      "title_en": "Buckets, Objects, and Naming",
+      "blocks": [
+        {"type": "p",
+         "ar": "S3 يُخزّن <strong>objects</strong> (ملفّات) داخل <strong>buckets</strong> (حاويات). الاسم العالميّ للـ bucket فريد عبر جميع حسابات AWS والمناطق. الـ bucket يُنشَأ في منطقة محدّدة، لكن الواجهة تُظهِر S3 كأنّه خدمة عالميّة.",
+         "en": "S3 stores <strong>objects</strong> (files) inside <strong>buckets</strong> (containers). Bucket names are globally unique across all accounts and regions. A bucket is region-bound, though S3 feels global in the UI."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "tag", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "قواعد تسمية الـ bucket", "title_en": "Bucket naming rules", "body_ar": "٣-٦٣ حرفاً، حروف صغيرة وأرقام فقط، لا يبدأ بـ xn-- ولا ينتهي بـ -s3alias، ليس عنوان IP.", "body_en": "3-63 chars, lowercase + digits only, not starting with xn-- or ending with -s3alias, not an IP."},
+          {"icon": "key", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "مفتاح الـ object", "title_en": "Object key", "body_ar": "المسار الكامل: s3://bucket/folder/file.txt. مكوّن من prefix + اسم الملف. لا توجد \"مجلّدات\" حقيقية — مجرّد / في المفاتيح.", "body_en": "Full path: s3://bucket/folder/file.txt. It's prefix + name. There are no real \"folders\" — just / in keys."},
+          {"icon": "hard-drive", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "حدود حجم الـ object", "title_en": "Object size limits", "body_ar": "الحد الأقصى ٥ تيرابايت لكل object. أي object أكبر من ٥ جيجابايت يجب رفعه عبر Multipart Upload.", "body_en": "Max 5 TB per object. Anything over 5 GB must use multipart upload."},
+          {"icon": "hash", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Metadata و Tags", "title_en": "Metadata & Tags", "body_ar": "كل object يحمل metadata (system + user) و tags (حتى ١٠) و Version ID إن فعّلت versioning.", "body_en": "Each object has metadata (system+user), tags (up to 10), and a Version ID if versioning is on."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>لا يمكنك البحث داخل metadata أو tags من S3 مباشرة</strong>. إذا احتجت بحثاً سريعاً فخزّن الفهرس في DynamoDB مع الـ object key. هذا سؤال متكرّر في الامتحان.",
+         "en": "<strong>You cannot search metadata or tags directly in S3</strong>. If you need searchable lookups, index them in DynamoDB alongside the object key. Frequent exam question."}
+      ]
+    },
+    {
+      "title_ar": "Bucket Policies و IAM و Block Public Access",
+      "title_en": "Bucket Policies, IAM, and Block Public Access",
+      "blocks": [
+        {"type": "p",
+         "ar": "S3 يدعم سياستَي أمان: <strong>User-Based</strong> (IAM Policy مرتبطة بالمستخدم/الدور)، و <strong>Resource-Based</strong> (Bucket Policy مكتوبة بـ JSON على الـ bucket). القاعدة: يمكن للـ principal الوصول إذا <u>سمحت</u> IAM Policy <u>أو</u> Bucket Policy، <u>وليس هناك DENY صريح</u>.",
+         "en": "S3 has two security layers: <strong>User-Based</strong> (IAM Policies attached to users/roles) and <strong>Resource-Based</strong> (JSON Bucket Policies on the bucket). Rule: access is granted if IAM <u>OR</u> Bucket Policy allows it, <u>AND</u> no explicit DENY."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"DenyUnencryptedUploads\",\n      \"Effect\": \"Deny\",\n      \"Principal\": \"*\",\n      \"Action\": \"s3:PutObject\",\n      \"Resource\": \"arn:aws:s3:::acme-prod/*\",\n      \"Condition\": {\n        \"StringNotEquals\": { \"s3:x-amz-server-side-encryption\": \"AES256\" }\n      }\n    },\n    {\n      \"Sid\": \"DenyInsecureTransport\",\n      \"Effect\": \"Deny\",\n      \"Principal\": \"*\",\n      \"Action\": \"s3:*\",\n      \"Resource\": [\n        \"arn:aws:s3:::acme-prod\",\n        \"arn:aws:s3:::acme-prod/*\"\n      ],\n      \"Condition\": { \"Bool\": { \"aws:SecureTransport\": \"false\" } }\n    }\n  ]\n}"},
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>Block Public Access</strong> هو مفتاح أمنيّ على مستوى الـ bucket (أو الحساب) يعطّل أيّ محاولة لجعل الـ bucket عامّاً عبر ACL أو Bucket Policy. AWS تفعّله افتراضياً لأيّ bucket جديد منذ ٢٠٢٣. أطفئه فقط إذا كنت متأكّداً (static website hosting).",
+         "en": "<strong>Block Public Access</strong> is a bucket- or account-level switch that overrides ACLs or policies that try to make the bucket public. AWS enables it by default on new buckets since 2023. Only disable for known public use (static website hosting)."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — upload with server-side encryption (SSE-S3)\nimport software.amazon.awssdk.services.s3.S3Client;\nimport software.amazon.awssdk.services.s3.model.*;\nimport software.amazon.awssdk.core.sync.RequestBody;\n\nS3Client s3 = S3Client.create();\n\ns3.putObject(PutObjectRequest.builder()\n    .bucket(\"acme-prod\")\n    .key(\"reports/q1.pdf\")\n    .serverSideEncryption(ServerSideEncryption.AES256)          // SSE-S3\n    .contentType(\"application/pdf\")\n    .metadata(java.util.Map.of(\"author\", \"acme-reports-svc\"))    // user metadata\n    .build(),\n    RequestBody.fromFile(java.nio.file.Path.of(\"/tmp/q1.pdf\")));"}
+      ]
+    },
+    {
+      "title_ar": "Versioning و Replication",
+      "title_en": "Versioning & Replication",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Versioning</strong> يحفظ نسخة تاريخيّة لكل تعديل على object ضمن نفس المفتاح. يُفعَّل على مستوى الـ bucket. مفيد للحماية من الحذف أو الكتابة الخاطئة. عند الحذف، S3 يضع <strong>Delete Marker</strong> بدلاً من الحذف الفعليّ. لاستعادة النسخة الأصلية، احذف الـ Delete Marker.",
+         "en": "<strong>Versioning</strong> preserves a historical copy of every modification to an object under the same key. Enabled at bucket level. Protects against accidental deletes/overwrites. On delete, S3 places a <strong>Delete Marker</strong> instead of actually deleting. Remove the marker to restore the original."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "copy", "title_ar": "Same-Region Replication (SRR)", "title_en": "Same-Region Replication (SRR)",
+                  "body_ar": "نسخ async داخل نفس المنطقة. حالات: تجميع logs من عدّة buckets، نسخ بين بيئة production و staging.",
+                  "body_en": "Async copy within the same region. Use cases: log aggregation across buckets, prod-to-staging replication."},
+         "right": {"tone": "emerald", "icon": "globe", "title_ar": "Cross-Region Replication (CRR)", "title_en": "Cross-Region Replication (CRR)",
+                   "body_ar": "نسخ async عبر المناطق. حالات: الامتثال (Compliance)، تقليل الـ latency للمستخدمين في مناطق أخرى، نسخ احتياطيّ جغرافيّ.",
+                   "body_en": "Async copy across regions. Use cases: compliance, lower latency for users in other regions, geographic backup."}
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "ثلاث نقاط حرجة في الـ replication: (١) يجب تفعيل Versioning في المصدر والوجهة. (٢) يتم نسخ الـ objects الجديدة فقط — القديمة لا تُنسَخ إلّا عبر <strong>S3 Batch Replication</strong>. (٣) <strong>لا يوجد \"chaining\"</strong> — إذا كان bucket1→bucket2→bucket3 فالمحتوى من bucket1 لن يصل إلى bucket3.",
+         "en": "Three critical points: (1) Versioning must be on at source AND destination. (2) Only new objects are replicated; existing require <strong>S3 Batch Replication</strong>. (3) <strong>No chaining</strong> — bucket1→bucket2→bucket3 does NOT forward from bucket1 to bucket3."},
+        {"type": "callout", "tone": "key",
+         "ar": "DELETE operations: يمكن اختيار نسخ الـ Delete Markers (optional). لكن الحذف بـ version ID محدّد <strong>لا يُنسَخ أبداً</strong> — لتجنّب انتشار الحذف الخبيث عبر المناطق.",
+         "en": "DELETE ops: replicating Delete Markers is optional. But deletes targeting a specific version ID are <strong>never replicated</strong> — to prevent malicious deletes from propagating."}
+      ]
+    },
+    {
+      "title_ar": "Storage Classes و Lifecycle Rules",
+      "title_en": "Storage Classes & Lifecycle Rules",
+      "blocks": [
+        {"type": "p",
+         "ar": "S3 يقدّم ٧ فئات تخزين تتراوح في التكلفة والـ availability ووقت الاسترجاع. اختيار الفئة المناسبة هو أحد أكبر روافع تحسين التكلفة في DVA-C02.",
+         "en": "S3 offers 7 storage classes varying in cost, availability, and retrieval time. Picking the right class is one of the biggest cost-optimization levers on DVA-C02."},
+        {"type": "table",
+         "headers": {"ar": ["الفئة", "حالة الاستخدام", "الـ Availability", "وقت الاسترجاع"], "en": ["Class", "Use Case", "Availability", "Retrieval"]},
+         "rows": [
+           [{"mono": true, "value": "Standard"}, {"ar": "بيانات ساخنة تُستخدَم باستمرار", "en": "Hot, frequently accessed"}, {"mono": true, "value": "99.99%"}, {"mono": true, "value": "ms"}],
+           [{"mono": true, "value": "Intelligent-Tiering"}, {"ar": "نمط وصول متقلّب — ينقل تلقائياً بين الطبقات", "en": "Unpredictable access — auto-tiers"}, {"mono": true, "value": "99.9%"}, {"mono": true, "value": "ms"}],
+           [{"mono": true, "value": "Standard-IA"}, {"ar": "وصول نادر لكن سريع عند الحاجة", "en": "Infrequent but needs fast access"}, {"mono": true, "value": "99.9%"}, {"mono": true, "value": "ms"}],
+           [{"mono": true, "value": "One Zone-IA"}, {"ar": "بيانات قابلة لإعادة الإنشاء في AZ واحد", "en": "Recreatable data in one AZ"}, {"mono": true, "value": "99.5%"}, {"mono": true, "value": "ms"}],
+           [{"mono": true, "value": "Glacier Instant"}, {"ar": "أرشيف يُقرَأ ربع سنوي", "en": "Accessed once per quarter"}, {"mono": true, "value": "99.9%"}, {"mono": true, "value": "ms"}],
+           [{"mono": true, "value": "Glacier Flexible"}, {"ar": "أرشيف — 90 يوم كحد أدنى", "en": "Archive — 90-day min"}, {"mono": true, "value": "99.99%"}, {"ar": "١-١٢ ساعة", "en": "1-12 hours"}],
+           [{"mono": true, "value": "Glacier Deep Archive"}, {"ar": "أرشيف طويل — 180 يوم كحد أدنى", "en": "Long archive — 180-day min"}, {"mono": true, "value": "99.99%"}, {"ar": "١٢-٤٨ ساعة", "en": "12-48 hours"}]
+         ]
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Lifecycle Rules</strong> تنقل الـ objects تلقائياً بين الفئات. <strong>Transition Actions</strong>: \"انقل إلى Glacier بعد ٩٠ يوماً\". <strong>Expiration Actions</strong>: \"احذف الـ logs بعد ٣٦٥ يوماً\" أو \"احذف النسخ القديمة\". يمكن تطبيقها على prefix أو tag محدّد.",
+         "en": "<strong>Lifecycle Rules</strong> auto-transition objects between classes. <strong>Transition Actions</strong>: \"Move to Glacier after 90 days\". <strong>Expiration Actions</strong>: \"Delete logs after 365 days\" or \"remove old versions\". Can target a prefix or tag."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"Rules\": [\n    {\n      \"ID\": \"ArchiveOldReports\",\n      \"Filter\": { \"Prefix\": \"reports/\" },\n      \"Status\": \"Enabled\",\n      \"Transitions\": [\n        { \"Days\": 30, \"StorageClass\": \"STANDARD_IA\" },\n        { \"Days\": 180, \"StorageClass\": \"GLACIER\" }\n      ],\n      \"Expiration\": { \"Days\": 2555 }\n    },\n    {\n      \"ID\": \"CleanupIncompleteUploads\",\n      \"Status\": \"Enabled\",\n      \"Filter\": {},\n      \"AbortIncompleteMultipartUpload\": { \"DaysAfterInitiation\": 7 }\n    }\n  ]\n}"},
+        {"type": "callout", "tone": "tip",
+         "ar": "استخدم <strong>S3 Analytics — Storage Class Analysis</strong> كتقرير أوّل قبل كتابة lifecycle rules. يعطيك توصيات Standard → Standard-IA بناءً على نمط الوصول الفعليّ. لا يعمل للـ One-Zone IA أو Glacier.",
+         "en": "Use <strong>S3 Analytics — Storage Class Analysis</strong> as a first report before writing lifecycle rules. Gives Standard → Standard-IA recommendations from real access patterns. Not for One-Zone IA or Glacier."}
+      ]
+    },
+    {
+      "title_ar": "Performance: Multipart Upload و Transfer Acceleration و Byte-Range",
+      "title_en": "Performance: Multipart Upload, Transfer Acceleration, Byte-Range",
+      "blocks": [
+        {"type": "p",
+         "ar": "S3 يتمدّد تلقائياً لطلبات عالية: <strong>3500 PUT/COPY/POST/DELETE أو 5500 GET/HEAD لكلّ ثانية لكلّ prefix</strong> — ولا حدود على عدد الـ prefixes. توزيع المحتوى على عدّة prefixes يزيد الأداء.",
+         "en": "S3 auto-scales to heavy workloads: <strong>3500 PUT/COPY/POST/DELETE or 5500 GET/HEAD requests per second per prefix</strong> — unlimited prefixes. Distribute across prefixes to multiply throughput."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "upload", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Multipart Upload", "title_en": "Multipart Upload", "body_ar": "موصى به للملفّات >100MB، إلزاميّ >5GB. الـ SDK يفعلها تلقائياً في Java v2. يتوازى الرفع ويعيد الأجزاء الفاشلة فقط.", "body_en": "Recommended for >100MB, mandatory for >5GB. Java SDK v2 handles automatically. Parallel uploads, retry only failed parts."},
+          {"icon": "zap", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Transfer Acceleration", "title_en": "Transfer Acceleration", "body_ar": "يرسِل الملفّ إلى أقرب edge location ثم ينقله عبر شبكة AWS السريعة. مفيد للرفع من مواقع بعيدة جغرافياً. متوافق مع multipart.", "body_en": "Ships file to nearest edge, then over AWS's fast backbone. Useful for uploads across continents. Works with multipart."},
+          {"icon": "layers", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Byte-Range Fetches", "title_en": "Byte-Range Fetches", "body_ar": "طلب أجزاء من الـ object بالتوازي. يسرّع التنزيل ويدعم الاستمرار بعد الانقطاع. مفيد لقراءة header ملفّ كبير فقط.", "body_en": "Request specific byte ranges in parallel. Speeds downloads, supports resume after failure. Great for reading just the header of a big file."},
+          {"icon": "gauge", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "S3 Select & Glacier Select", "title_en": "S3 Select & Glacier Select", "body_ar": "استرجع صفوف/أعمدة محدّدة من CSV/JSON/Parquet داخل S3 مباشرة بـ SQL — بدلاً من تحميل الملف كاملاً.", "body_en": "Run SQL on CSV/JSON/Parquet inside S3 to fetch only needed rows/columns — instead of downloading the whole file."}
+        ]},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — multipart upload is handled by S3TransferManager (async, parallel)\nimport software.amazon.awssdk.services.s3.S3AsyncClient;\nimport software.amazon.awssdk.transfer.s3.S3TransferManager;\nimport software.amazon.awssdk.transfer.s3.model.*;\nimport java.nio.file.Path;\n\nS3AsyncClient s3Async = S3AsyncClient.crtBuilder().build(); // CRT-based, native multipart\nS3TransferManager tm = S3TransferManager.builder().s3Client(s3Async).build();\n\nUploadFileRequest req = UploadFileRequest.builder()\n    .putObjectRequest(p -> p.bucket(\"acme-prod\").key(\"dumps/big-backup.tar\"))\n    .source(Path.of(\"/data/big-backup.tar\"))                  // 20 GB file\n    .addTransferListener(software.amazon.awssdk.transfer.s3.progress.LoggingTransferListener.create())\n    .build();\n\nFileUpload upload = tm.uploadFile(req);\nupload.completionFuture().join();                              // wait\nSystem.out.println(\"ETag: \" + upload.completionFuture().get().response().eTag());"}
+      ]
+    },
+    {
+      "title_ar": "Event Notifications و Presigned URLs و S3 Object Lambda",
+      "title_en": "Event Notifications, Presigned URLs, and S3 Object Lambda",
+      "blocks": [
+        {"type": "p",
+         "ar": "S3 يصدِر أحداثاً عند إنشاء/حذف/استعادة الـ objects. يمكن إرسالها إلى <strong>SNS</strong> أو <strong>SQS</strong> أو <strong>Lambda</strong> مباشرةً، أو إلى <strong>EventBridge</strong> للحصول على فلترة JSON متقدّمة وتوجيه لأكثر من ١٨ خدمة.",
+         "en": "S3 emits events on object create/delete/restore. Can route directly to <strong>SNS</strong>, <strong>SQS</strong>, <strong>Lambda</strong>, or to <strong>EventBridge</strong> for advanced JSON filtering and fan-out to 18+ services."},
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>IAM Permissions للإشعارات</strong>: S3 يحتاج resource-policy على الهدف (SNS Topic، SQS Queue، Lambda) يسمح لـ <span dir=\"ltr\" class=\"font-mono\">s3.amazonaws.com</span> بالنشر. هذا شرط حرج ومصدر شائع لأخطاء الامتحان.",
+         "en": "<strong>IAM for notifications</strong>: S3 needs a resource policy on the target (SNS Topic, SQS Queue, Lambda) allowing <span dir=\"ltr\" class=\"font-mono\">s3.amazonaws.com</span> to publish. Critical and a common exam-error source."},
+        {"type": "p",
+         "ar": "<strong>Presigned URLs</strong> تعطي مستخدماً غير مُوثَّق صلاحيّة محدودة الزمن لرفع أو تنزيل object دون مشاركة مفاتيحك. الرابط يُوقَّع بـ SigV4 ويحمل <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>. الاستخدامات: صفحات الرفع من العميل، روابط تنزيل مؤقّتة.",
+         "en": "<strong>Presigned URLs</strong> grant unauthenticated users time-limited upload/download rights without exposing your keys. Signed with SigV4 and carry <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires</span>. Use cases: client-side uploads, temporary download links."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — generate a presigned download URL valid for 15 minutes\nimport software.amazon.awssdk.services.s3.presigner.S3Presigner;\nimport software.amazon.awssdk.services.s3.presigner.model.*;\nimport software.amazon.awssdk.services.s3.model.GetObjectRequest;\nimport java.time.Duration;\n\ntry (S3Presigner presigner = S3Presigner.create()) {\n    GetObjectRequest get = GetObjectRequest.builder()\n        .bucket(\"acme-prod\")\n        .key(\"invoices/2025/inv-9821.pdf\")\n        .build();\n\n    GetObjectPresignRequest pr = GetObjectPresignRequest.builder()\n        .signatureDuration(Duration.ofMinutes(15))\n        .getObjectRequest(get)\n        .build();\n\n    PresignedGetObjectRequest presigned = presigner.presignGetObject(pr);\n    System.out.println(\"Download URL: \" + presigned.url());  // shareable for 15 min\n}"},
+        {"type": "callout", "tone": "senior",
+         "ar": "<strong>S3 Object Lambda</strong> يسمح بتعديل المحتوى أثناء استرجاعه: يمرّ الطلب عبر دالة Lambda تعدّل الـ response (إزالة PII، ضغط، ترجمة، إضافة watermark). يحلّ مشكلة الحاجة لنسخ متعدّدة من نفس الملف لاحتياجات مختلفة.",
+         "en": "<strong>S3 Object Lambda</strong> lets you transform objects on retrieval: requests pass through a Lambda that modifies the response (strip PII, compress, translate, watermark). Removes the need for multiple copies of the same file for different consumers."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إعداد bucket إنتاجيّ: versioning، سياسة حذف تلقائيّ بعد 365 يوم، تشفير إلزاميّ، وإشعار Lambda عند رفع object.",
+    "goal_en": "Set up a production bucket: versioning, 365-day auto-delete, mandatory encryption, and Lambda notification on upload.",
+    "steps": [
+      {"title_ar": "أنشئ الـ bucket وفعّل الـ versioning", "title_en": "Create bucket & enable versioning",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws s3api create-bucket --bucket acme-prod-data \\\n  --region eu-west-1 \\\n  --create-bucket-configuration LocationConstraint=eu-west-1\n\naws s3api put-bucket-versioning \\\n  --bucket acme-prod-data \\\n  --versioning-configuration Status=Enabled"},
+      {"title_ar": "فعّل Block Public Access و Default Encryption", "title_en": "Enable Block Public Access & Default Encryption",
+       "body_ar": "هاتان الإعدادتان حرجتان لأيّ bucket إنتاجيّ.",
+       "body_en": "These two settings are critical for any production bucket.",
+       "code": "aws s3api put-public-access-block --bucket acme-prod-data \\\n  --public-access-block-configuration \\\n  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true\n\naws s3api put-bucket-encryption --bucket acme-prod-data \\\n  --server-side-encryption-configuration \\\n  '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"AES256\"}}]}'"},
+      {"title_ar": "اكتب Bucket Policy ترفض الرفع غير المشفّر", "title_en": "Write bucket policy denying unencrypted uploads",
+       "body_ar": "",
+       "body_en": "",
+       "code": "# bucket-policy.json\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Sid\": \"DenyNoEncryption\",\n    \"Effect\": \"Deny\",\n    \"Principal\": \"*\",\n    \"Action\": \"s3:PutObject\",\n    \"Resource\": \"arn:aws:s3:::acme-prod-data/*\",\n    \"Condition\": {\n      \"Null\": { \"s3:x-amz-server-side-encryption\": \"true\" }\n    }\n  }]\n}\n\naws s3api put-bucket-policy --bucket acme-prod-data \\\n  --policy file://bucket-policy.json"},
+      {"title_ar": "أضف Lifecycle Rule للحذف بعد ٣٦٥ يوم", "title_en": "Add lifecycle rule to delete after 365 days",
+       "body_ar": "احذف أيضاً النسخ غير المكتملة من Multipart Upload بعد ٧ أيام.",
+       "body_en": "Also clean up incomplete multipart uploads after 7 days.",
+       "code": "aws s3api put-bucket-lifecycle-configuration --bucket acme-prod-data \\\n  --lifecycle-configuration file://lifecycle.json"},
+      {"title_ar": "اربط S3 Event Notification بـ Lambda", "title_en": "Connect S3 event notification to Lambda",
+       "body_ar": "تأكّد من إضافة resource policy على الـ Lambda تسمح لـ s3.amazonaws.com بالاستدعاء.",
+       "body_en": "Make sure the Lambda resource policy allows s3.amazonaws.com to invoke it.",
+       "code": "aws lambda add-permission --function-name ProcessUpload \\\n  --statement-id s3-invoke --action lambda:InvokeFunction \\\n  --principal s3.amazonaws.com \\\n  --source-arn arn:aws:s3:::acme-prod-data\n\naws s3api put-bucket-notification-configuration \\\n  --bucket acme-prod-data \\\n  --notification-configuration file://notif.json"}
+    ],
+    "warning_ar": "افحص دائماً <strong>Block Public Access</strong> قبل نشر bucket — تسريب bucket عامّ هو سبب الأغلبية الساحقة من حوادث تسرّب بيانات AWS.",
+    "warning_en": "Always verify <strong>Block Public Access</strong> before going live — a misconfigured public bucket is the #1 cause of AWS data leaks."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق Java يرفع ملفّات ٨ جيجابايت إلى S3 عبر put-object. يفشل بشكل متكرّر. ما الحلّ الأنسب؟",
+      "question_en": "A Java app uploads 8 GB files to S3 via put-object. It fails repeatedly. Best fix?",
+      "options_ar": ["ترقية نوع الخادم.", "استخدام Multipart Upload (إلزاميّ للملفّات >5GB)، أفضل عبر S3TransferManager في SDK v2.", "تقسيم الملفّ يدوياً إلى ملفّات أصغر.", "استخدام SSH بدلاً من HTTPS."],
+      "options_en": ["Upgrade instance type.", "Use Multipart Upload (mandatory for >5GB files); use S3TransferManager in SDK v2.", "Manually split into smaller files.", "Use SSH instead of HTTPS."],
+      "correct": 1,
+      "explanation_ar": "أيّ ملف أكبر من ٥ جيجابايت يتطلّب Multipart Upload. Java SDK v2 يوفّر <span dir=\"ltr\" class=\"font-mono\">S3TransferManager</span> يفعل ذلك تلقائياً بالتوازي مع retry لكلّ part على حدة.",
+      "explanation_en": "Files >5GB require multipart upload. Java SDK v2's <span dir=\"ltr\" class=\"font-mono\">S3TransferManager</span> handles it automatically in parallel with per-part retries.",
+      "wrong_ar": ["الخادم ليس العنق.", "", "يُفقِد التطبيق ذريّة العمليّة — ليس حلاً مهنياً.", "S3 لا يدعم SSH."],
+      "wrong_en": ["Instance isn't the bottleneck.", "", "Loses atomicity — not professional.", "S3 doesn't support SSH."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q2", "type": "multi",
+      "question_ar": "أيّ من الخيارات التالية صحيح عن S3 Replication؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about S3 Replication? Select all that apply.",
+      "options_ar": ["يجب تفعيل Versioning في المصدر والوجهة.", "يدعم النسخ المتسلسل bucket1→bucket2→bucket3.", "يُنسَخ فقط الـ objects الجديدة بعد التفعيل (القديمة تحتاج S3 Batch Replication).", "DELETE بـ version ID محدّد يُنسَخ دائماً."],
+      "options_en": ["Versioning must be enabled on both source and destination.", "Supports chaining bucket1→bucket2→bucket3.", "Only new objects after enablement are replicated (existing require S3 Batch Replication).", "DELETE with a specific version ID is always replicated."],
+      "correct": [0, 2],
+      "explanation_ar": "Versioning شرط. لا يوجد chaining. الـ objects القديمة لا تُنسَخ. DELETE بـ version ID لا يُنسَخ (لتجنّب انتشار الحذف الخبيث).",
+      "explanation_en": "Versioning is required. No chaining. Existing objects are not replicated. DELETE with version ID isn't replicated (prevents malicious deletes propagating).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "فريق يريد مشاركة ملفّ PDF خاصّ من S3 مع مورّد خارجيّ دون إعطائه حساب AWS، لمدّة ساعة واحدة فقط. ما الأسلوب الصحيح؟",
+      "question_en": "A team wants to share a private S3 PDF with an external vendor for 1 hour only, without giving them an AWS account. Right approach?",
+      "options_ar": ["جعل الـ bucket عامّاً مؤقّتاً.", "إنشاء Presigned URL بصلاحيّة ساعة واحدة عبر SDK.", "إرسال Access Keys للمورّد.", "نسخ الملف إلى bucket آخر."],
+      "options_en": ["Temporarily make the bucket public.", "Generate a Presigned URL valid for 1 hour via SDK.", "Send the vendor Access Keys.", "Copy to another bucket."],
+      "correct": 1,
+      "explanation_ar": "Presigned URL هو الحلّ المعياريّ — رابط مؤقّت موقّع بـ SigV4 يحمل صلاحيّة <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires=3600</span>. لا يكشف مفاتيحك ولا يجعل الـ bucket عامّاً.",
+      "explanation_en": "Presigned URL is the standard — a time-bound, SigV4-signed link with <span dir=\"ltr\" class=\"font-mono\">X-Amz-Expires=3600</span>. Neither exposes your keys nor publicizes the bucket.",
+      "wrong_ar": ["تسريب أمنيّ خطير.", "", "ممنوع منعاً باتّاً — خرق للممارسات الأمنية.", "لا يحلّ مشكلة الوصول."],
+      "wrong_en": ["Major security risk.", "", "Strictly forbidden — breach of best practice.", "Doesn't solve access."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "تطبيق يُنشئ thumbnail لأيّ صورة جديدة تُرفَع على S3. الحلّ الأنسب والأقلّ تكلفةً؟",
+      "question_en": "An app generates thumbnails for every image uploaded to S3. Best, lowest-cost solution?",
+      "options_ar": ["خادم EC2 يفحص الـ bucket كلّ دقيقة.", "S3 Event Notification تستدعي Lambda عند PUT مع object name filter لصور jpg.", "استخدام S3 Batch Operations.", "نسخة يدويّة كلّ ليلة."],
+      "options_en": ["An EC2 server polls the bucket every minute.", "S3 Event Notification invokes Lambda on PUT with name filter *.jpg.", "Use S3 Batch Operations.", "Manual nightly copy."],
+      "correct": 1,
+      "explanation_ar": "النمط المعياريّ للـ serverless — S3 Event → Lambda. الفلترة بالاسم تمنع استدعاءات غير ضرورية. تكلفة pennies.",
+      "explanation_en": "Classic serverless pattern — S3 Event → Lambda. Name filter avoids unnecessary invocations. Pennies in cost.",
+      "wrong_ar": ["يدفع مقابل خادم قائم و polling مستمر.", "", "للعمليّات الجماعيّة على مجموعات موجودة، لا للإشعار الفوريّ.", "لا يتعامل مع الصور الجديدة فوراً."],
+      "wrong_en": ["Paying for a running instance and constant polling.", "", "For bulk ops on existing sets, not real-time.", "Doesn't react to new uploads."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "شركة تخزّن logs في S3 ولا تصل إليها إلّا مرّة واحدة ربع سنوياً لأغراض امتثاليّة. أيّ storage class الأمثل من حيث التكلفة؟",
+      "question_en": "A company stores logs in S3, accesses them once a quarter for compliance. Most cost-effective class?",
+      "options_ar": ["S3 Standard", "S3 Standard-IA", "S3 Glacier Instant Retrieval", "S3 Glacier Deep Archive"],
+      "options_en": ["S3 Standard", "S3 Standard-IA", "S3 Glacier Instant Retrieval", "S3 Glacier Deep Archive"],
+      "correct": 2,
+      "explanation_ar": "<strong>Glacier Instant Retrieval</strong> مصمَّم تحديداً للوصول ربع السنويّ مع استرجاع بملّيثانية. أرخص من Standard-IA. Deep Archive أرخص لكن الاسترجاع يستغرق ١٢-٤٨ ساعة.",
+      "explanation_en": "<strong>Glacier Instant Retrieval</strong> is designed exactly for quarterly access with millisecond retrieval. Cheaper than Standard-IA. Deep Archive is cheaper but retrieval takes 12-48h.",
+      "wrong_ar": ["الأغلى، غير مبرّر للوصول ربع السنويّ.", "مصمَّم للوصول الشهريّ تقريباً، أغلى من Glacier Instant.", "", "الاسترجاع ١٢-٤٨ ساعة — قد يكون مقبولاً لكن Instant أنسب للامتثال السريع."],
+      "wrong_en": ["Most expensive, overkill.", "Monthly-ish access, pricier than Glacier Instant.", "", "Retrieval 12-48h — may be OK but Instant fits compliance queries better."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "تطبيق يصل إلى bucket يحتوي على ١٠٠ ألف prefix مختلف. ما أقصى GET/HEAD total يمكن أن يحصل عليه نظرياً بالثانية؟",
+      "question_en": "An app queries a bucket with 100k unique prefixes. Theoretical max GET/HEAD throughput per second?",
+      "options_ar": ["٣٥٠٠", "٥٥٠٠", "٥٥٠,٠٠٠,٠٠٠ (5500 × 100,000 prefix)", "١٠,٠٠٠"],
+      "options_en": ["3500", "5500", "550,000,000 (5500 × 100k prefixes)", "10,000"],
+      "correct": 2,
+      "explanation_ar": "حدّ الـ GET/HEAD هو ٥٥٠٠ لكل prefix، وليس للـ bucket كاملاً. لا يوجد حدّ على عدد الـ prefixes. لذلك التوزيع يضرب السعة مباشرةً.",
+      "explanation_en": "GET/HEAD limit is 5500 per prefix, not per bucket. Unlimited prefixes means distribution multiplies capacity linearly.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "فريق يحتاج تفعيل تشفير إلزاميّ لأيّ object يُرفَع إلى bucket. الحلّ الأضمن؟",
+      "question_en": "A team needs to enforce encryption on every PUT to a bucket. Most robust approach?",
+      "options_ar": ["الاعتماد على الـ developers لإضافة encryption header في الكود.", "تفعيل Default Encryption على الـ bucket + Bucket Policy ترفض أيّ PUT بدون encryption header.", "استخدام VPC Endpoint.", "فرض TLS."],
+      "options_en": ["Rely on developers to include encryption header in code.", "Enable Default Encryption + Bucket Policy denying any PUT without encryption header.", "Use a VPC Endpoint.", "Enforce TLS."],
+      "correct": 1,
+      "explanation_ar": "Default Encryption يطبّق التشفير تلقائياً. Bucket Policy يمنع تحايُل الـ clients. معاً يشكّلان حاجزَين (defense in depth).",
+      "explanation_en": "Default Encryption applies it automatically. Bucket Policy blocks client-side bypass. Together = defense in depth.",
+      "wrong_ar": ["غير موثوق — يعتمد على جودة الكود.", "", "يتعلّق بالشبكة لا التشفير.", "يحمي أثناء النقل لا أثناء التخزين."],
+      "wrong_en": ["Unreliable — depends on code quality.", "", "Network-related, not encryption.", "Protects in transit, not at rest."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "شركة تريد تطبيق \"لا يمكن حذف object في bucket لمدّة ٧ سنوات\" (WORM). ما الميزة المناسبة؟",
+      "question_en": "A company wants WORM (\"no delete for 7 years\") on a bucket. Which feature?",
+      "options_ar": ["Versioning وحده", "S3 Object Lock مع retention mode Governance أو Compliance", "Glacier", "Bucket Policy DENY"],
+      "options_en": ["Versioning alone", "S3 Object Lock with Governance or Compliance retention mode", "Glacier", "Bucket Policy DENY"],
+      "correct": 1,
+      "explanation_ar": "<strong>S3 Object Lock</strong> يوفّر WORM — Compliance mode لا يمكن لأحد (حتى الـ root user) تعديله خلال فترة الاحتفاظ. يجب تفعيله عند إنشاء الـ bucket. Versioning شرط مساعد لكن لا يفرض WORM.",
+      "explanation_en": "<strong>S3 Object Lock</strong> provides WORM — Compliance mode can't be overridden even by root during retention. Must be enabled at bucket creation. Versioning is a prerequisite but doesn't enforce WORM.",
+      "reference_ar": "القسم ٣ + المعرفة المتقدمة",
+      "reference_en": "Section 3 + advanced knowledge"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "مطوّر يلاحظ أنّ lifecycle rule نقلت objects من Standard إلى Standard-IA بعد ١٠ أيام. ما العيب؟",
+      "question_en": "A developer notices a lifecycle rule moved objects from Standard to Standard-IA after just 10 days. What's the issue?",
+      "options_ar": ["لا عيب، الإعداد صحيح.", "Standard-IA يفرض رسوماً لحد أدنى ٣٠ يوماً من التخزين، فالنقل المبكّر سيسبّب تكلفة إضافية.", "يجب أن تكون الـ objects أكبر من ١ جيجابايت.", "الـ lifecycle لا يعمل على Standard."],
+      "options_en": ["No issue.", "Standard-IA has a 30-day minimum storage charge; early transitions trigger extra cost.", "Objects must be >1 GB.", "Lifecycle doesn't work on Standard."],
+      "correct": 1,
+      "explanation_ar": "Standard-IA و One Zone-IA يفرضان حد أدنى ٣٠ يوماً. Glacier/Glacier Instant ٩٠ يوماً، Deep Archive ١٨٠ يوماً. النقل قبل هذه الفترات يفرض رسوم كأنّ الـ object بقي المدّة كاملة.",
+      "explanation_en": "Standard-IA and One Zone-IA have 30-day minimums. Glacier/Glacier Instant = 90 days, Deep Archive = 180 days. Early transitions still pay for the full minimum as if the object stayed there.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "multi",
+      "question_ar": "أيّ من الحالات التالية مناسبة لـ <strong>Transfer Acceleration</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are suitable for <strong>Transfer Acceleration</strong>? Select all that apply.",
+      "options_ar": ["رفع ملفّات من مستخدمين موزّعين عبر القارّات إلى bucket مركزيّ.", "تنزيل داخل نفس الـ Region.", "رفع متوازن مع Multipart Upload.", "نقل بيانات بين AZs داخل نفس الـ Region."],
+      "options_en": ["Uploads from users across continents to a central bucket.", "Download inside the same region.", "Parallelized upload with Multipart.", "Data transfer between AZs in the same region."],
+      "correct": [0, 2],
+      "explanation_ar": "Transfer Acceleration يفيد عندما يكون المستخدم بعيداً جغرافياً عن الـ bucket — يستخدم أقرب edge location ثم شبكة AWS السريعة. متوافق مع Multipart. لا قيمة مضافة داخل نفس الـ region.",
+      "explanation_en": "Transfer Acceleration helps when users are far from the bucket — uses nearest edge then AWS backbone. Multipart-compatible. No value inside the same region.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "شركة تطلب من المطوّرين تقديم صور PII-free للمستخدمين العامّين بينما يجب أن يراها فريق الامتثال بالكامل — دون تخزين نسختين. الحلّ؟",
+      "question_en": "A company needs public users to see PII-free images while compliance sees the full version — without storing two copies. Solution?",
+      "options_ar": ["S3 Select", "S3 Object Lambda — دالة تعدّل الـ response أثناء الاسترجاع.", "Lifecycle Rules", "Versioning"],
+      "options_en": ["S3 Select", "S3 Object Lambda — Lambda modifies the response on retrieval.", "Lifecycle Rules", "Versioning"],
+      "correct": 1,
+      "explanation_ar": "<strong>S3 Object Lambda</strong> يعدّل مخرجات GetObject حسب السياق (role يطلب، المستخدم، ...). يمكن أن يُعيد نسخة مُعقَّمة للعموم وكاملة للامتثال، بدون تخزين مزدوج.",
+      "explanation_en": "<strong>S3 Object Lambda</strong> transforms GetObject output based on context (requesting role, user, etc.). Returns sanitized for public, full for compliance, without dual storage.",
+      "wrong_ar": ["لاستعلام SQL على CSV/JSON/Parquet.", "", "لنقل storage class، لا للتعديل أثناء القراءة.", "لتتبّع التاريخ، لا للتحويل."],
+      "wrong_en": ["SQL on CSV/JSON/Parquet.", "", "Changes storage class, not on-read transformation.", "Historical tracking, not transformation."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يحاول استرجاع object من bucket مشفّر بـ KMS لكن يحصل على AccessDenied رغم أنّ لديه صلاحيّة s3:GetObject. السبب الأرجح؟",
+      "question_en": "A developer can't GetObject from a KMS-encrypted bucket even with s3:GetObject permission, getting AccessDenied. Most likely cause?",
+      "options_ar": ["الصلاحيّة kms:Decrypt غير معطاة له في KMS Key Policy.", "الـ bucket عام.", "الـ object تالف.", "أزال Block Public Access."],
+      "options_en": ["Missing kms:Decrypt permission on the KMS Key Policy.", "Bucket is public.", "Object is corrupt.", "Disabled Block Public Access."],
+      "correct": 0,
+      "explanation_ar": "للـ objects المشفّرة بـ SSE-KMS، المستخدم يحتاج صلاحيّتين: <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span> + <span dir=\"ltr\" class=\"font-mono\">kms:Decrypt</span> على الـ CMK المستخدم. هذا فخّ شائع.",
+      "explanation_en": "For SSE-KMS objects, the user needs both <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span> + <span dir=\"ltr\" class=\"font-mono\">kms:Decrypt</span> on the CMK. Common trap.",
+      "wrong_ar": ["لا يفسّر AccessDenied لمستخدم مُوثَّق.", "لا علاقة للتلف بالصلاحيات.", "لا علاقة له بالحصول على ملف خاص."],
+      "wrong_en": ["Doesn't explain authenticated access denial.", "Corruption unrelated to permissions.", "Unrelated to getting a private file."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "شركة لديها bucket في us-east-1 ومستخدمون في أوروبا يشتكون من بطء التنزيل. الحلّ الأنسب والأقلّ تكلفة؟",
+      "question_en": "A company has a bucket in us-east-1 and European users complain of slow downloads. Best low-cost fix?",
+      "options_ar": ["Transfer Acceleration على الـ bucket.", "CloudFront أمام الـ bucket لتخزين نسخ مؤقّتة في edge locations.", "نسخ كامل لـ bucket في eu-west-1.", "ترقية الشبكة."],
+      "options_en": ["Transfer Acceleration on the bucket.", "CloudFront in front of the bucket to cache at edge locations.", "Full bucket copy in eu-west-1.", "Upgrade networking."],
+      "correct": 1,
+      "explanation_ar": "<strong>CloudFront</strong> الأمثل للتنزيل المتكرّر — ينسخ المحتوى إلى edge locations قريبة من المستخدمين. Transfer Acceleration مصمَّم للرفع أكثر من التنزيل، ولا يقدّم تخزيناً مؤقّتاً. CRR مكلف لبيانات كبيرة.",
+      "explanation_en": "<strong>CloudFront</strong> is ideal for repeated downloads — caches content at edges near users. Transfer Acceleration is more upload-focused and doesn't cache. CRR is expensive for large data.",
+      "wrong_ar": ["يركّز على الرفع لا التنزيل المتكرر.", "", "تكلفة تخزين ونقل مزدوجة.", "الشبكة ليست العنق."],
+      "wrong_en": ["Upload-focused, not download-caching.", "", "Double storage + replication cost.", "Network isn't the bottleneck."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "بعد تفعيل versioning، المطوّر يحذف object ثم يشاهد <strong>Delete Marker</strong>. كيف يستعيد الملف الأصليّ؟",
+      "question_en": "After enabling versioning, a dev deletes an object and sees a <strong>Delete Marker</strong>. How to restore?",
+      "options_ar": ["من المستحيل — الحذف نهائيّ.", "احذف الـ Delete Marker (عبر الـ version ID الخاصّ به)، فتظهر النسخة السابقة.", "أعد رفع نفس الملف.", "انتقل إلى Glacier."],
+      "options_en": ["Impossible — delete is permanent.", "Delete the Delete Marker (by its version ID), and the prior version resurfaces.", "Re-upload the file.", "Move to Glacier."],
+      "correct": 1,
+      "explanation_ar": "مع versioning، DELETE لا يمحو الـ object — يضيف Delete Marker كنسخة جديدة أعلى. حذف هذا الـ marker يكشف النسخة الأصلية. هذا هو الغرض الأساسيّ من versioning.",
+      "explanation_en": "With versioning, DELETE doesn't remove — it adds a Delete Marker on top. Removing that marker exposes the original. That's versioning's primary purpose.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "فريق يحتاج إعطاء تطبيق مستضاف على EC2 صلاحيّة قراءة وكتابة على bucket محدّد فقط. أفضل الممارسات؟",
+      "question_en": "An EC2-hosted app needs read/write on one specific bucket. Best practice?",
+      "options_ar": ["مفاتيح IAM User في متغيّرات البيئة.", "IAM Role مرفق بالخادم (Instance Profile) مع policy محدودة لـ arn:aws:s3:::bucket-name/*.", "Bucket ACL.", "تعطيل Block Public Access."],
+      "options_en": ["IAM User keys in env vars.", "IAM Role attached to the instance (Instance Profile) with policy scoped to arn:aws:s3:::bucket-name/*.", "Bucket ACL.", "Disable Block Public Access."],
+      "correct": 1,
+      "explanation_ar": "IAM Role مع least-privilege هو المعيار. الـ SDK يأخذ الصلاحيات من IMDS تلقائياً، ومفاتيح مؤقّتة تُدوَّر، ولا حاجة لإدارة أسرار.",
+      "explanation_en": "IAM Role with least-privilege is the standard. SDK auto-fetches creds from IMDS, tempo keys auto-rotate, no secrets to manage.",
+      "wrong_ar": ["ممارسة سيّئة، مفاتيح مكتوبة.", "", "ACL طريقة قديمة، معطَّلة افتراضياً للـ buckets الحديثة.", "لا علاقة بمنح تطبيق محدّد."],
+      "wrong_en": ["Bad practice, hardcoded keys.", "", "ACLs are legacy, disabled by default on new buckets.", "Unrelated to granting specific app access."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    }
+  ],
+  "summary": [
+    {"icon": "shield", "title_ar": "Block Public Access افتراضيّ", "title_en": "Block Public Access by default",
+     "body_ar": "يمنع أيّ bucket عامّ. أطفئه فقط إذا كنت متأكّداً (website hosting).",
+     "body_en": "Blocks any public bucket. Only disable for known use (website hosting)."},
+    {"icon": "history", "title_ar": "Versioning حماية من الحذف", "title_en": "Versioning protects from delete",
+     "body_ar": "حذف = Delete Marker قابل للإزالة. Replication يتطلّب Versioning.",
+     "body_en": "Delete = removable Delete Marker. Replication requires Versioning."},
+    {"icon": "layers", "title_ar": "Lifecycle = تخفيض تكلفة تلقائيّ", "title_en": "Lifecycle = auto-cost savings",
+     "body_ar": "Standard → IA → Glacier → Deep Archive → Expire. استخدم S3 Analytics للتوصيات.",
+     "body_en": "Standard → IA → Glacier → Deep Archive → Expire. Use S3 Analytics for recs."},
+    {"icon": "zap", "title_ar": "Multipart إلزاميّ >5GB", "title_en": "Multipart mandatory >5GB",
+     "body_ar": "S3TransferManager في Java SDK v2 يفعلها تلقائياً بالتوازي.",
+     "body_en": "Java SDK v2's S3TransferManager handles it in parallel automatically."}
+  ],
+  "mnemonic_ar": "لحفظ فئات Glacier: <strong>Instant (ms)</strong> للربع سنوي، <strong>Flexible (1-12h)</strong> للأرشيف المعتاد، <strong>Deep (12-48h)</strong> للأرشيف طويل الأمد. فكّر فيها كسرعة سيارة/قطار/سفينة.",
+  "mnemonic_en": "For Glacier classes: <strong>Instant (ms)</strong> for quarterly access, <strong>Flexible (1-12h)</strong> for regular archive, <strong>Deep (12-48h)</strong> for long-term. Think car / train / ship speeds.",
+  "prev": 8,
+  "next": 10
+}

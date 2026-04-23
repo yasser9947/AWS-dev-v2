@@ -1,0 +1,427 @@
+{
+  "n": 11,
+  "domain": "development",
+  "title_ar": "AWS Lambda — المتقدّم: التزامن والـ Layers والنشر",
+  "title_en": "AWS Lambda Advanced — Concurrency, Layers, Versions, Deployment",
+  "pages": "576-607",
+  "subtitle_ar": "الفصل الثاني لـ Lambda: Cold Starts و Provisioned Concurrency و Reserved Concurrency، ربط VPC، Lambda Layers، EFS، Container Images، Versions & Aliases للـ blue-green، ونشر مع CodeDeploy. هنا تُتقن إدارة إنتاجيّة حقيقية.",
+  "subtitle_en": "Lambda part 2: cold starts, Provisioned & Reserved Concurrency, VPC networking, Layers, EFS, container images, Versions & Aliases for blue-green, and CodeDeploy. This is where you learn real production mastery.",
+  "tags": ["Concurrency", "Cold Starts", "Provisioned Concurrency", "Layers", "EFS", "Versions", "Aliases", "CodeDeploy"],
+  "objectives": [
+    {"concept": "Concurrency & Cold Starts", "tested_ar": "النطاقان الأول والثالث — ضبط الأداء ومنع الـ throttling.", "tested_en": "Domains 1 & 3 — performance tuning and throttle prevention."},
+    {"concept": "Versions & Aliases", "tested_ar": "النطاق الثالث — blue-green و canary deployments.", "tested_en": "Domain 3 — blue-green and canary deployments."},
+    {"concept": "Layers & Container Images", "tested_ar": "النطاق الثالث — تنظيم الحزم وإدارة التبعيّات.", "tested_en": "Domain 3 — packaging and dependency management."},
+    {"concept": "VPC & EFS Integration", "tested_ar": "النطاق الأول — الوصول إلى موارد خاصّة وتخزين مشترك.", "tested_en": "Domain 1 — private resources and shared storage."}
+  ],
+  "sections": [
+    {
+      "title_ar": "Concurrency و Throttling و Cold Starts",
+      "title_en": "Concurrency, Throttling, and Cold Starts",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Concurrency</strong> = عدد الـ instances التي تُشغَّل في نفس اللحظة. الحد الافتراضيّ للحساب = <strong>١٠٠٠ تنفيذ متزامن</strong> لكل Region (قابل للرفع). عند التجاوز: sync = <span dir=\"ltr\" class=\"font-mono\">ThrottleError (429)</span>، async = retry تلقائيّ لمدّة ٦ ساعات ثم DLQ.",
+         "en": "<strong>Concurrency</strong> = how many instances run simultaneously. Default account limit = <strong>1000 concurrent executions</strong> per region (raisable). On overage: sync = <span dir=\"ltr\" class=\"font-mono\">ThrottleError (429)</span>, async = auto-retry for 6 hours then DLQ."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "lock", "title_ar": "Reserved Concurrency", "title_en": "Reserved Concurrency",
+                  "body_ar": "سقف صارم على دالة معيّنة + يحجز لها السعة من الـ pool المشترك. يمنعها من ابتلاع كلّ الحصّة، ويضمن لها حدّاً أدنى.",
+                  "body_en": "Hard cap on a function + reserves capacity from the shared pool. Prevents it from eating all account concurrency, guarantees a floor."},
+         "right": {"tone": "emerald", "icon": "zap", "title_ar": "Provisioned Concurrency", "title_en": "Provisioned Concurrency",
+                   "body_ar": "تهيئة instances مُحمَّلة مسبقاً — بدون cold starts. أغلى لكنّه ضروريّ للزمن الحرج. يمكن ربطه بـ Application Auto Scaling.",
+                   "body_en": "Pre-initialized instances — zero cold starts. More expensive but necessary for latency-critical paths. Integrates with Application Auto Scaling."}
+        },
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "snowflake", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "ما هو Cold Start؟", "title_en": "What is a cold start?", "body_ar": "عند إنشاء instance جديدة: تحميل الكود، تشغيل init (خارج الـ handler)، ثم المعالجة. Java ‌و‌ .NET أبطأ لأنّ JVM تحتاج تحميل classes.", "body_en": "When a fresh instance spins up: code load, init (outside handler), then processing. Java and .NET are slower because JVM needs class loading."},
+          {"icon": "clock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "حدود الـ init", "title_en": "Init limits", "body_ar": "الـ init time ليس ضمن duration المفوتَرة لكن يؤثّر على المستخدم. بَسّط التبعيّات واستخدم GraalVM للـ Java عند الحاجة.", "body_en": "Init time isn't billed as duration but affects users. Trim dependencies and consider GraalVM for Java."},
+          {"icon": "gauge", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "ذاكرة CPU linked", "title_en": "Memory-CPU coupling", "body_ar": "١٢٨MB→١٠GB. زيادة RAM = زيادة vCPU. كامل vCPU عند ١٧٩٢MB. أكثر من ذلك = multi-threading مطلوب (حتى ٦ vCPU).", "body_en": "128MB→10GB. More RAM = more vCPU. Full vCPU at 1792MB. Beyond that needs multi-threading (up to 6 vCPU)."},
+          {"icon": "activity", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Timeout", "title_en": "Timeout", "body_ar": "افتراضيّ ٣ ثوانٍ، أقصى ٩٠٠ ثانية (١٥ دقيقة). للمهام الأطول استخدم Step Functions أو ECS/Fargate.", "body_en": "Default 3s, max 900s (15 min). For longer jobs use Step Functions or ECS/Fargate."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "قاعدة إنتاجيّة: <strong>Reserved Concurrency</strong> لعزل دالة حساسة عن باقي الحساب، و<strong>Provisioned Concurrency</strong> عندما يكون cold start غير مقبول (مثلاً login endpoint). قيسها بـ CloudWatch metric <span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization</span>.",
+         "en": "Prod rule: use <strong>Reserved Concurrency</strong> to isolate a critical function from the rest of the account, and <strong>Provisioned Concurrency</strong> when cold start is unacceptable (e.g., login endpoint). Tune with CloudWatch metric <span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization</span>."},
+        {"type": "code", "lang": "java",
+         "code": "// GOOD: init clients OUTSIDE the handler — reused across warm invocations\nimport software.amazon.awssdk.services.dynamodb.DynamoDbClient;\nimport com.amazonaws.services.lambda.runtime.*;\n\npublic class OrderHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {\n\n    // Static = loaded once per execution context (warm start reuses this)\n    private static final DynamoDbClient ddb = DynamoDbClient.builder()\n        .httpClientBuilder(software.amazon.awssdk.http.apache.ApacheHttpClient.builder())\n        .build();\n\n    private static final String TABLE = System.getenv(\"ORDERS_TABLE\");\n\n    @Override\n    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent evt, Context ctx) {\n        // Just request-specific logic here — no heavy init\n        return new APIGatewayProxyResponseEvent().withStatusCode(200);\n    }\n}"}
+      ]
+    },
+    {
+      "title_ar": "Lambda داخل VPC و الوصول للإنترنت",
+      "title_en": "Lambda in a VPC & Internet Access",
+      "blocks": [
+        {"type": "p",
+         "ar": "افتراضياً Lambda تعمل في شبكة AWS المُدارة. لتصل إلى موارد خاصّة (RDS، ElastiCache، EC2 داخل VPC) عرّف <strong>VPC ID</strong> و <strong>Subnets</strong> و <strong>Security Groups</strong>. Lambda ينشئ <strong>ENI</strong> في الـ subnets لتنفيذ الاستدعاءات.",
+         "en": "By default Lambda runs in AWS-managed networking. To reach private resources (RDS, ElastiCache, EC2 in VPC), specify <strong>VPC ID</strong>, <strong>Subnets</strong>, and <strong>Security Groups</strong>. Lambda creates <strong>ENIs</strong> in the subnets for invocations."},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>نشر Lambda في public subnet لا يعطيه إنترنت</strong>. لا يملك Public IP. الحل الصحيح: subnet خاصّ مع NAT Gateway لإخراج الطلبات، أو VPC Endpoints للوصول لخدمات AWS بشكل خاص. CloudWatch Logs يعمل حتى بدون أيّ endpoint.",
+         "en": "<strong>Deploying Lambda in a public subnet does NOT give it internet</strong>. It has no public IP. Correct: private subnet + NAT Gateway for outbound, or VPC Endpoints for private AWS access. CloudWatch Logs works even with no endpoint."},
+        {"type": "table",
+         "headers": {"ar": ["الوصول إلى", "الأداة المطلوبة"], "en": ["To reach", "What you need"]},
+         "rows": [
+           [{"ar": "RDS في subnet خاصّ", "en": "RDS in private subnet"}, {"ar": "Lambda داخل نفس VPC + SG يسمح بالمنفذ", "en": "Lambda in same VPC + SG allowing the port"}],
+           [{"ar": "الإنترنت (API خارجي)", "en": "Internet (external API)"}, {"ar": "NAT Gateway في public subnet + route", "en": "NAT Gateway in public subnet + route"}],
+           [{"ar": "DynamoDB/S3 بدون إنترنت", "en": "DynamoDB/S3 without internet"}, {"ar": "Gateway VPC Endpoint", "en": "Gateway VPC Endpoint"}],
+           [{"ar": "خدمات AWS الأخرى", "en": "Other AWS services"}, {"ar": "Interface VPC Endpoint (PrivateLink)", "en": "Interface VPC Endpoint (PrivateLink)"}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "Managed Policy <strong>AWSLambdaVPCAccessExecutionRole</strong> ضروريّ لنشر Lambda في VPC (يسمح بإنشاء/حذف ENIs).",
+         "en": "The managed policy <strong>AWSLambdaVPCAccessExecutionRole</strong> is required for VPC-deployed Lambdas (allows ENI create/delete)."}
+      ]
+    },
+    {
+      "title_ar": "Lambda Layers و EFS و ‎/tmp",
+      "title_en": "Lambda Layers, EFS, and /tmp",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Lambda Layers</strong> = أرشيفات zip تحتوي على مكتبات/runtimes مشتركة تُضاف إلى عدّة دوالّ. حتى <strong>٥ layers لكلّ دالة</strong>، الحجم الإجماليّ المفكوك ≤ ٢٥٠MB. تُقلّل حجم حزمة كل دالة وتُسرّع النشر.",
+         "en": "<strong>Lambda Layers</strong> = zip archives of shared libraries/runtimes attached to multiple functions. Up to <strong>5 layers per function</strong>, total unpacked ≤ 250MB. Reduces per-function package size and speeds deployments."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "folder", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "‎/tmp (ephemeral)", "title_en": "/tmp (ephemeral)", "body_ar": "٥١٢MB-١٠GB. تُمسَح عند إعادة الـ instance. مفيدة للتحميل المؤقّت (ZIP، صور) أو cache بين استدعاءات warm.", "body_en": "512MB-10GB. Wiped on instance rebuild. Good for transient download (ZIP, images) or cache across warm invocations."},
+          {"icon": "package", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Layers (immutable)", "title_en": "Layers (immutable)", "body_ar": "حد أقصى ٥ لكل دالة. ٢٥٠MB إجماليّ مفكوك. غير قابلة للتعديل بعد النشر — تُنشَأ إصدارة جديدة.", "body_en": "Max 5 per function. 250MB total unpacked. Immutable after publish — create a new version instead."},
+          {"icon": "server", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "S3", "title_en": "S3", "body_ar": "تخزين دائم أو لحفظ checkpoints و نتائج نهائية. يتطلّب IAM. Object storage، ليس filesystem.", "body_en": "Durable storage for checkpoints and final results. Needs IAM. Object storage, not filesystem."},
+          {"icon": "hard-drive", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "EFS", "title_en": "EFS", "body_ar": "Network filesystem مشترك. يحتاج VPC. مناسب لبيانات كبيرة مشتركة بين دوالّ (ML models). اعتنِ بـ connection limits.", "body_en": "Shared network filesystem. Needs VPC. Good for large shared data across functions (ML models). Mind connection limits."}
+        ]},
+        {"type": "table",
+         "headers": {"ar": ["الخيار", "الحجم", "الثبات", "المشاركة", "السرعة"], "en": ["Option", "Size", "Persistence", "Sharing", "Speed"]},
+         "rows": [
+           [{"mono": true, "value": "/tmp"}, {"mono": true, "value": "512MB - 10GB"}, {"ar": "عابر", "en": "Ephemeral"}, {"ar": "لا", "en": "No"}, {"ar": "الأسرع", "en": "Fastest"}],
+           [{"mono": true, "value": "Layers"}, {"mono": true, "value": "250MB (5 layers)"}, {"ar": "دائم (immutable)", "en": "Durable (immutable)"}, {"ar": "نعم", "en": "Yes"}, {"ar": "الأسرع", "en": "Fastest"}],
+           [{"mono": true, "value": "S3"}, {"ar": "مرن", "en": "Elastic"}, {"ar": "دائم", "en": "Durable"}, {"ar": "نعم", "en": "Yes"}, {"ar": "سريع", "en": "Fast"}],
+           [{"mono": true, "value": "EFS"}, {"ar": "مرن", "en": "Elastic"}, {"ar": "دائم", "en": "Durable"}, {"ar": "نعم", "en": "Yes"}, {"ar": "سريع جداً", "en": "Very Fast"}]
+         ]
+        },
+        {"type": "callout", "tone": "senior",
+         "ar": "للتطبيقات الكبيرة، ادمج <strong>Layers</strong> (للـ AWS SDK و dependencies الثقيلة) + <strong>/tmp</strong> (للتحميل الديناميكيّ) + <strong>EFS</strong> (للبيانات المشتركة عبر دوالّ). هذا النمط يقلّل الـ cold start ويحسّن الـ reuse.",
+         "en": "For large apps, combine <strong>Layers</strong> (for AWS SDK and heavy deps) + <strong>/tmp</strong> (for dynamic downloads) + <strong>EFS</strong> (for data shared across functions). This pattern trims cold starts and maximizes reuse."},
+        {"type": "code", "lang": "bash",
+         "code": "# Create a Lambda Layer from a zipped jars directory\nzip -r dependencies.zip java/lib/\n\naws lambda publish-layer-version \\\n  --layer-name common-aws-sdk \\\n  --description \"AWS SDK v2 + Jackson\" \\\n  --zip-file fileb://dependencies.zip \\\n  --compatible-runtimes java17 java21 \\\n  --compatible-architectures arm64\n\n# Attach to a function\naws lambda update-function-configuration \\\n  --function-name OrderProcessor \\\n  --layers arn:aws:lambda:eu-west-1:123456789012:layer:common-aws-sdk:3"}
+      ]
+    },
+    {
+      "title_ar": "نشر Lambda: Zip و Container Images و CloudFormation",
+      "title_en": "Deploying Lambda: Zip, Container Images, CloudFormation",
+      "blocks": [
+        {"type": "p",
+         "ar": "هناك ثلاث طرق لنشر Lambda: <strong>Zip</strong> (حتى ٥٠MB مضغوط، ٢٥٠MB مفكوك)، <strong>Container Image</strong> (حتى ١٠GB من ECR)، و<strong>CloudFormation/SAM</strong> للبنية كاملةً.",
+         "en": "Three ways to deploy Lambda: <strong>Zip</strong> (up to 50MB zipped, 250MB unzipped), <strong>Container Image</strong> (up to 10GB from ECR), and <strong>CloudFormation/SAM</strong> for full IaC."},
+        {"type": "table",
+         "headers": {"ar": ["الحدّ", "Zip", "Container Image"], "en": ["Limit", "Zip", "Container Image"]},
+         "rows": [
+           [{"ar": "حجم الحزمة", "en": "Package size"}, {"mono": true, "value": "50MB zipped / 250MB unzipped"}, {"mono": true, "value": "10GB"}],
+           [{"ar": "المصدر", "en": "Source"}, {"ar": "رفع مباشر أو S3", "en": "Direct upload or S3"}, {"mono": true, "value": "Amazon ECR"}],
+           [{"ar": "Runtime", "en": "Runtime"}, {"ar": "مُدار من AWS", "en": "AWS-managed"}, {"ar": "يجب أن تنفّذ Lambda Runtime API", "en": "Must implement Lambda Runtime API"}],
+           [{"ar": "الأنسب لـ", "en": "Best for"}, {"ar": "كود عاديّ + تبعيات مقبولة", "en": "Normal code + reasonable deps"}, {"ar": "تبعيّات ضخمة، ML models، أدوات نظام", "en": "Huge deps, ML models, system tooling"}]
+         ]
+        },
+        {"type": "code", "lang": "yaml",
+         "code": "# SAM template for a Lambda with inline Java code and a layer\nAWSTemplateFormatVersion: '2010-09-09'\nTransform: AWS::Serverless-2016-10-31\n\nResources:\n  OrderProcessor:\n    Type: AWS::Serverless::Function\n    Properties:\n      CodeUri: ./target/order-processor-1.0.0.jar\n      Handler: com.acme.OrderHandler::handleRequest\n      Runtime: java17\n      MemorySize: 1024\n      Timeout: 30\n      Tracing: Active                     # X-Ray on\n      ReservedConcurrentExecutions: 50   # cap concurrency\n      Layers:\n        - !Ref CommonLayer\n      Environment:\n        Variables:\n          ORDERS_TABLE: !Ref OrdersTable\n      Events:\n        Api:\n          Type: Api\n          Properties: { Path: /orders, Method: POST }\n\n  CommonLayer:\n    Type: AWS::Serverless::LayerVersion\n    Properties:\n      LayerName: common-sdk\n      ContentUri: ./layer\n      CompatibleRuntimes: [java17]\n\n  OrdersTable:\n    Type: AWS::DynamoDB::Table\n    Properties:\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - { AttributeName: orderId, AttributeType: S }\n      KeySchema:\n        - { AttributeName: orderId, KeyType: HASH }"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "في CloudFormation مع S3 source: إذا غيّرت الـ code في S3 لكن لم تغيّر <span dir=\"ltr\" class=\"font-mono\">S3Bucket</span> أو <span dir=\"ltr\" class=\"font-mono\">S3Key</span> أو <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion</span>، <strong>CloudFormation لن يحدّث الدالة</strong>. استخدم versioned bucket ومرّر الـ version.",
+         "en": "In CloudFormation with S3 source: if you change the code in S3 but not the <span dir=\"ltr\" class=\"font-mono\">S3Bucket</span>, <span dir=\"ltr\" class=\"font-mono\">S3Key</span>, or <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion</span>, <strong>CloudFormation won't update</strong>. Use a versioned bucket and pass the version."},
+        {"type": "code", "lang": "bash",
+         "code": "# Container Image Lambda — Dockerfile building from AWS base image\nFROM public.ecr.aws/lambda/java:17\n\nCOPY target/classes/ ${LAMBDA_TASK_ROOT}/\nCOPY target/dependency/ ${LAMBDA_TASK_ROOT}/lib/\n\nCMD [ \"com.acme.OrderHandler::handleRequest\" ]\n\n# Build, push to ECR, create the function\ndocker build -t order-processor .\naws ecr create-repository --repository-name order-processor\ndocker tag order-processor:latest 123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1\ndocker push 123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1\n\naws lambda create-function --function-name OrderProcessor \\\n  --package-type Image \\\n  --code ImageUri=123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1 \\\n  --role arn:aws:iam::123456789012:role/lambda-exec"}
+      ]
+    },
+    {
+      "title_ar": "Versions و Aliases و CodeDeploy",
+      "title_en": "Versions, Aliases & CodeDeploy",
+      "blocks": [
+        {"type": "p",
+         "ar": "عند التطوير، أنت تعمل على <strong>$LATEST</strong> (mutable). عند النشر، تُنشِئ <strong>Version</strong> (snapshot غير قابل للتعديل، رقم متزايد، ARN خاصّ). <strong>Alias</strong> = pointer قابل للتعديل إلى إصدار، ويُستخدَم لفصل البيئات (dev/test/prod) ولتوزيع الترافيك.",
+         "en": "Development happens on <strong>$LATEST</strong> (mutable). To release, publish a <strong>Version</strong> (immutable snapshot, incrementing number, own ARN). An <strong>Alias</strong> = mutable pointer to a version, used to separate environments (dev/test/prod) and to split traffic."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "git-branch", "title_ar": "Version (immutable)", "title_en": "Version (immutable)",
+                  "body_ar": "Code + configuration كاملاً. ARN محدّد. لا يتغيّر. مناسب لإطلاق إنتاجيّ موثوق.",
+                  "body_en": "Code + full config. Specific ARN. Never changes. For reliable production releases."},
+         "right": {"tone": "emerald", "icon": "tag", "title_ar": "Alias (mutable pointer)", "title_en": "Alias (mutable pointer)",
+                   "body_ar": "\"prod\" يشير إلى V12، يمكن تحديثه ليشير إلى V13. يدعم توزيع الترافيك (٩٥٪ V12 / ٥٪ V13 للـ canary).",
+                   "body_en": "\"prod\" points at V12; flip it to V13. Supports weighted routing (95% V12 / 5% V13 for canary)."}
+        },
+        {"type": "code", "lang": "bash",
+         "code": "# Publish a new version from $LATEST\naws lambda publish-version \\\n  --function-name OrderProcessor \\\n  --description \"Add idempotency guard\"\n# → returns Version: \"4\"\n\n# Point the 'prod' alias at v3 with 10% traffic on v4 (canary)\naws lambda create-alias --function-name OrderProcessor \\\n  --name prod --function-version 3 \\\n  --routing-config AdditionalVersionWeights={\"4\"=0.10}\n\n# Later, flip alias 100% to v4\naws lambda update-alias --function-name OrderProcessor \\\n  --name prod --function-version 4"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Aliases لا يمكن أن تشير إلى Aliases أخرى</strong> — فقط إلى versions. هذا قيد تصميميّ لمنع الحلقات.",
+         "en": "<strong>Aliases cannot reference other aliases</strong> — only versions. A design constraint to prevent cycles."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "git-merge", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "AllAtOnce", "title_en": "AllAtOnce", "body_ar": "نقل ١٠٠٪ من الترافيك فوراً. الأسرع لكنّ الأكثر خطورة.", "body_en": "Shift 100% immediately. Fastest but riskiest."},
+          {"icon": "activity", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Linear", "title_en": "Linear", "body_ar": "Linear10PercentEvery3Minutes، Linear10PercentEvery10Minutes.", "body_en": "Linear10PercentEvery3Minutes, Linear10PercentEvery10Minutes."},
+          {"icon": "bird", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Canary", "title_en": "Canary", "body_ar": "جرّب X٪ لفترة ثم ١٠٠٪: Canary10Percent5Minutes، Canary10Percent30Minutes.", "body_en": "Try X% for a window then 100%: Canary10Percent5Minutes, Canary10Percent30Minutes."}
+        ]},
+        {"type": "code", "lang": "yaml",
+         "code": "# CodeDeploy AppSpec for Lambda blue-green via alias\nversion: 0.0\n\nResources:\n  - myLambdaFunction:\n      Type: AWS::Lambda::Function\n      Properties:\n        Name: OrderProcessor\n        Alias: prod                           # the alias being shifted\n        CurrentVersion: 3                     # where traffic is now\n        TargetVersion: 4                      # where to shift it\n\n# Pre & Post traffic hooks run another Lambda to validate health\nHooks:\n  - BeforeAllowTraffic: pre-validate-function\n  - AfterAllowTraffic: post-validate-function"},
+        {"type": "callout", "tone": "senior",
+         "ar": "نمط مؤسّسيّ: (١) أنشِئ alias واحد لكلّ بيئة (<span dir=\"ltr\" class=\"font-mono\">dev</span>، <span dir=\"ltr\" class=\"font-mono\">staging</span>، <span dir=\"ltr\" class=\"font-mono\">prod</span>). (٢) API Gateway و EventBridge يشيرون إلى ARN الـ alias لا إلى $LATEST. (٣) النشر يغيّر الـ alias فقط — rollback لحظيّ عبر إعادة الـ alias إلى نسخة سابقة.",
+         "en": "Enterprise pattern: (1) one alias per env (<span dir=\"ltr\" class=\"font-mono\">dev</span>, <span dir=\"ltr\" class=\"font-mono\">staging</span>, <span dir=\"ltr\" class=\"font-mono\">prod</span>). (2) API Gateway and EventBridge point to the alias ARN, never $LATEST. (3) Deployment only flips the alias — rollback is instant by pointing the alias back."}
+      ]
+    },
+    {
+      "title_ar": "Lambda Function URL و CodeGuru Profiling و الحدود",
+      "title_en": "Lambda Function URL, CodeGuru Profiling & Limits",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Lambda Function URL</strong> = endpoint HTTPS جاهز لدالة دون API Gateway أو ALB. الـ URL ثابت بصيغة <span dir=\"ltr\" class=\"font-mono\">https://&lt;url-id&gt;.lambda-url.&lt;region&gt;.on.aws</span>. يدعم CORS و AuthType (NONE للعامّ، AWS_IAM للمحمي).",
+         "en": "<strong>Lambda Function URL</strong> = ready-made HTTPS endpoint for a function without API Gateway or ALB. URL format: <span dir=\"ltr\" class=\"font-mono\">https://&lt;url-id&gt;.lambda-url.&lt;region&gt;.on.aws</span>. Supports CORS and AuthType (NONE for public, AWS_IAM for auth)."},
+        {"type": "callout", "tone": "warn",
+         "ar": "Function URL لا يدعم PrivateLink — يعمل عبر الإنترنت العامّ فقط. إن احتجت خصوصيّة شبكيّة استخدم API Gateway VPC Endpoint أو ALB داخليّ.",
+         "en": "Function URL doesn't support PrivateLink — it's public-internet only. For network privacy use API Gateway VPC endpoint or internal ALB."},
+        {"type": "p",
+         "ar": "<strong>CodeGuru Profiler</strong> يعطي رؤى أداء تشغيلية لـ Lambda (Java و Python). فعّله من console؛ يضيف layer خاصّ و AmazonCodeGuruProfilerAgentAccess policy تلقائياً. مفيد لتحديد طرق تستهلك الـ CPU أو تسبّب cold starts طويلة.",
+         "en": "<strong>CodeGuru Profiler</strong> gives runtime perf insights for Lambda (Java and Python). Enable from console; it adds a layer and the AmazonCodeGuruProfilerAgentAccess policy automatically. Pinpoints hot methods and long cold starts."},
+        {"type": "table",
+         "headers": {"ar": ["الحد", "القيمة"], "en": ["Limit", "Value"]},
+         "rows": [
+           [{"ar": "الذاكرة", "en": "Memory"}, {"mono": true, "value": "128MB - 10GB (1MB increments)"}],
+           [{"ar": "timeout أقصى", "en": "Max timeout"}, {"mono": true, "value": "900 seconds (15 min)"}],
+           [{"ar": "متغيّرات البيئة", "en": "Environment variables"}, {"mono": true, "value": "4 KB total"}],
+           [{"ar": "/tmp size", "en": "/tmp size"}, {"mono": true, "value": "512 MB - 10 GB"}],
+           [{"ar": "التزامن الافتراضيّ", "en": "Default concurrency"}, {"mono": true, "value": "1000 (raisable)"}],
+           [{"ar": "حجم zip package (compressed)", "en": "Zip package (compressed)"}, {"mono": true, "value": "50 MB"}],
+           [{"ar": "حجم uncompressed", "en": "Uncompressed code+deps"}, {"mono": true, "value": "250 MB"}],
+           [{"ar": "container image", "en": "Container image"}, {"mono": true, "value": "10 GB"}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "أفضل الممارسات السبع: (١) حمل الـ init خارج الـ handler، (٢) استخدم env vars لكل config، (٣) قلّل حجم الحزمة، (٤) قسّم الدوالّ الكبيرة، (٥) استخدم Layers عند التكرار، (٦) تجنّب الاستدعاءات التكرارية (recursive)، (٧) Idempotency في async.",
+         "en": "Seven best practices: (1) heavy init outside handler, (2) env vars for all config, (3) minimize package size, (4) split large functions, (5) use Layers where repeated, (6) avoid recursive self-invocation, (7) idempotency in async."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "نشر Lambda Java مع canary deployment عبر alias، Provisioned Concurrency، و Layer مشترك.",
+    "goal_en": "Deploy a Java Lambda with canary deployment via alias, Provisioned Concurrency, and shared Layer.",
+    "steps": [
+      {"title_ar": "ابنِ Layer للمكتبات المشتركة", "title_en": "Build a Layer with shared libs",
+       "body_ar": "",
+       "body_en": "",
+       "code": "mkdir -p layer/java/lib\ncp ~/.m2/repository/**/jackson-core-2.*.jar layer/java/lib/\ncp ~/.m2/repository/**/aws-sdk-java-v2-*.jar layer/java/lib/\n\ncd layer && zip -r ../common.zip . && cd ..\n\naws lambda publish-layer-version --layer-name common \\\n  --zip-file fileb://common.zip \\\n  --compatible-runtimes java17"},
+      {"title_ar": "ارفع الدالة مع Reserved Concurrency", "title_en": "Deploy the function with reserved concurrency",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws lambda create-function --function-name OrderProcessor \\\n  --runtime java17 --handler com.acme.OrderHandler::handleRequest \\\n  --role arn:aws:iam::123456789012:role/lambda-exec \\\n  --zip-file fileb://function.jar \\\n  --memory-size 1024 --timeout 30 \\\n  --layers arn:aws:lambda:eu-west-1:123456789012:layer:common:1\n\naws lambda put-function-concurrency --function-name OrderProcessor \\\n  --reserved-concurrent-executions 100"},
+      {"title_ar": "أنشئ version و alias prod", "title_en": "Publish version & create prod alias",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws lambda publish-version --function-name OrderProcessor\n# returns version 1\n\naws lambda create-alias --function-name OrderProcessor \\\n  --name prod --function-version 1"},
+      {"title_ar": "فعّل Provisioned Concurrency على alias", "title_en": "Enable Provisioned Concurrency on alias",
+       "body_ar": "هذا يضمن cold start صفر على المسار الإنتاجيّ.",
+       "body_en": "Guarantees zero cold starts on the production path.",
+       "code": "aws lambda put-provisioned-concurrency-config \\\n  --function-name OrderProcessor \\\n  --qualifier prod \\\n  --provisioned-concurrent-executions 10"},
+      {"title_ar": "أطلق canary من v1 إلى v2 عبر CodeDeploy", "title_en": "Roll canary from v1 to v2 via CodeDeploy",
+       "body_ar": "نشر v2، ثم CodeDeploy يحوّل ١٠٪ من الـ traffic لمدّة ٥ دقائق، يختبر، ثم يكمل إلى ١٠٠٪.",
+       "body_en": "Publish v2, then CodeDeploy shifts 10% for 5 min, validates, then completes to 100%.",
+       "code": "# After uploading v2 code:\naws lambda publish-version --function-name OrderProcessor\n\n# Deploy via SAM (auto-configures CodeDeploy)\nsam deploy --stack-name order-processor \\\n  --capabilities CAPABILITY_IAM \\\n  --parameter-overrides DeploymentPreference=Canary10Percent5Minutes"}
+    ],
+    "warning_ar": "Provisioned Concurrency يُفوَّتَر حتى إذا لم يُستخدَم. قِس utilization دائماً قبل زيادة العدد. للدوالّ غير الحسّاسة للـ latency اتركها بدون provisioned.",
+    "warning_en": "Provisioned Concurrency is billed even when idle. Always measure utilization before scaling up. For latency-tolerant functions, skip it entirely."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "ما الفرق الجوهريّ بين Reserved Concurrency و Provisioned Concurrency؟",
+      "question_en": "Key difference between Reserved and Provisioned Concurrency?",
+      "options_ar": ["لا يوجد فرق.", "Reserved = سقف + حجز سعة من الحساب (لا يمنع cold start). Provisioned = instances مُحمَّلة مسبقاً (يمنع cold start). يُدفَع لها حتى لو لم تُستخدم.", "Provisioned مجاني.", "Reserved يعطي cold start أسرع."],
+      "options_en": ["No difference.", "Reserved = cap + reserves account capacity (doesn't eliminate cold starts). Provisioned = pre-initialized instances (eliminates cold starts). Paid even when idle.", "Provisioned is free.", "Reserved improves cold starts."],
+      "correct": 1,
+      "explanation_ar": "Reserved يحدّد سقفاً على الدالة ويحجز لها السعة. Provisioned يحضّر instances جاهزة للاستقبال دون cold start — مكلِف لكنّه ضروريّ للزمن الحرج.",
+      "explanation_en": "Reserved caps & reserves capacity. Provisioned pre-warms instances, eliminating cold starts — costly but essential for latency-critical paths.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "دالة Lambda داخل VPC تحتاج استدعاء API خارجيّ. ما الإعداد المطلوب؟",
+      "question_en": "A Lambda in a VPC needs to call an external API. What's required?",
+      "options_ar": ["نشر الدالة في public subnet.", "إرفاق Elastic IP.", "نشر الدالة في private subnet مع route إلى NAT Gateway في public subnet.", "استخدام IGW مباشرةً."],
+      "options_en": ["Deploy in a public subnet.", "Attach an Elastic IP.", "Deploy in a private subnet with a route to a NAT Gateway in a public subnet.", "Use an IGW directly."],
+      "correct": 2,
+      "explanation_ar": "Lambda لا يحصل على Public IP حتى في public subnet. الحل الصحيح: private subnet + NAT Gateway في public subnet للخروج. Internet Gateway لا يكفي لأنّ Lambda بلا Public IP.",
+      "explanation_en": "Lambda gets no public IP even in a public subnet. Correct: private subnet + NAT Gateway in public subnet for egress. IGW alone insufficient because Lambda has no public IP.",
+      "wrong_ar": ["لا يعطي إنترنت تلقائياً.", "Lambda لا يقبل Elastic IP.", "", "IGW بحاجة Public IP."],
+      "wrong_en": ["Doesn't auto-grant internet.", "Lambda can't have Elastic IP.", "", "IGW needs a public IP."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "Java Lambda لديه timeout ٣ ثوانٍ ومستوى RAM ١٢٨MB. يحدث timeout في كلّ استدعاء. الحل الأوّل المجدي؟",
+      "question_en": "A Java Lambda with 3s timeout and 128MB RAM times out every invocation. First fix to try?",
+      "options_ar": ["زيادة timeout إلى ١٥ دقيقة.", "زيادة RAM (الذاكرة مرتبطة بـ vCPU — زيادتها تزيد سرعة JVM بشكل كبير).", "الانتقال إلى container image.", "إلغاء Active Tracing."],
+      "options_en": ["Raise timeout to 15 min.", "Increase RAM (memory is coupled to vCPU — JVM runs dramatically faster).", "Switch to container image.", "Disable Active Tracing."],
+      "correct": 1,
+      "explanation_ar": "في Lambda، زيادة الـ RAM تزيد vCPU تلقائياً. JVM تستفيد كثيراً من الـ CPU الإضافيّ — رفع الذاكرة من ١٢٨ إلى ٥١٢MB قد يقلّص الـ duration بنسبة ٧٠٪+. الـ timeout قد يكون حلاً أخيراً.",
+      "explanation_en": "In Lambda, more RAM = more vCPU. JVM benefits hugely from extra CPU — raising 128→512MB can cut duration by 70%+. Timeout is a last resort.",
+      "wrong_ar": ["يُعالج العرض لا السبب الجذريّ (بطء JVM).", "", "لا يحلّ مشكلة CPU-bound.", "قد يقلل شيئاً، لكن ليس السبب الرئيسيّ."],
+      "wrong_en": ["Treats symptom, not root (slow JVM).", "", "Doesn't solve CPU-bound issue.", "Might help a bit, but not the main cause."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ من هذه الإعدادات صحيحة لـ Lambda Layers؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about Lambda Layers? Select all.",
+      "options_ar": ["أقصى ٥ layers لكل دالة.", "الحجم الإجماليّ المفكوك ≤ ٢٥٠MB (يشمل الكود).", "Layer immutable بعد النشر — لا يمكن تعديله.", "يمكن أن تشير Layer إلى Layer أخرى بشكل متسلسل."],
+      "options_en": ["Max 5 layers per function.", "Total unpacked ≤ 250MB (includes code).", "Layer is immutable after publish — cannot be edited.", "A Layer can reference another Layer (chaining)."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "٥ layers، ٢٥٠MB مفكوك، immutable (أنشئ إصدارة جديدة بدلاً من التعديل). لا يوجد chaining للـ Layers.",
+      "explanation_en": "5 layers, 250MB unpacked, immutable (publish a new version instead). No Layer chaining.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "شركة تريد إطلاق نسخة جديدة من Lambda لكن بنقل ١٠٪ من الترافيك لـ ٥ دقائق أوّلاً، ثم الكامل إذا نجح الاختبار. أسرع طريقة؟",
+      "question_en": "A company wants to roll a new Lambda version with 10% traffic for 5 min, then 100% if healthy. Fastest path?",
+      "options_ar": ["نشر بأمر AllAtOnce.", "استخدام Alias مع Routing Config AdditionalVersionWeights يدوياً.", "AWS CodeDeploy مع Canary10Percent5Minutes deployment preference.", "إعادة النشر كلّياً."],
+      "options_en": ["Deploy AllAtOnce.", "Manually set Alias Routing Config AdditionalVersionWeights.", "AWS CodeDeploy with Canary10Percent5Minutes preference.", "Full redeploy."],
+      "correct": 2,
+      "explanation_ar": "<strong>CodeDeploy مع deployment preference Canary10Percent5Minutes</strong> يوتمت هذا تماماً مع dashboards و rollback. SAM يدعمها مباشرةً بـ property واحد. الإعداد اليدويّ ممكن لكنّه أبطأ وأعرضة للخطأ.",
+      "explanation_en": "<strong>CodeDeploy + Canary10Percent5Minutes</strong> automates this end-to-end with dashboards and rollback. SAM supports it with one property. Manual routing works but is slower and error-prone.",
+      "wrong_ar": ["بدون canary = مخاطرة.", "ممكن لكن يدويّ.", "", "إنهاء كامل، لا canary."],
+      "wrong_en": ["No canary = risky.", "Possible but manual.", "", "Full cutover, no canary."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "Lambda لديها PROD alias يشير إلى V3. تمّ نشر V4. كيف يُجرى rollback فوريّ إذا اكتُشف خطأ في V4؟",
+      "question_en": "A Lambda's PROD alias points to V3. V4 is deployed. How to instantly roll back if V4 breaks?",
+      "options_ar": ["حذف V4.", "تحديث الـ alias ليشير إلى V3 مرّة أخرى — عمليّة ذريّة (atomic).", "إعادة نشر الكود القديم.", "إعادة تشغيل الحساب."],
+      "options_en": ["Delete V4.", "Update the alias to point to V3 again — atomic operation.", "Redeploy the old code.", "Restart the account."],
+      "correct": 1,
+      "explanation_ar": "الـ alias pointer قابل للتحديث فوراً. <span dir=\"ltr\" class=\"font-mono\">update-alias --function-version 3</span> يعيد الترافيك إلى V3 فوراً دون إعادة نشر الكود. V4 يبقى متاحاً للفحص.",
+      "explanation_en": "Alias is a mutable pointer updatable instantly. <span dir=\"ltr\" class=\"font-mono\">update-alias --function-version 3</span> swings traffic back immediately without redeploying. V4 remains for investigation.",
+      "wrong_ar": ["لا يُعيد الترافيك — فقط يحذف نسخة.", "", "بطيء جداً عند حاجة فوريّة.", "لا قيمة له."],
+      "wrong_en": ["Doesn't flip traffic — just deletes.", "", "Too slow for urgency.", "Meaningless."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "دالة ML Lambda تحتاج تحميل model ٢GB من S3 في كلّ cold start، وتعمل على ٥٠ request/ثانية. الحل الأمثل؟",
+      "question_en": "An ML Lambda downloads a 2GB model from S3 on every cold start, at 50 req/s. Best fix?",
+      "options_ar": ["رفع الـ RAM إلى الحد الأقصى.", "تخزين الـ model في Lambda Layer (إذا <250MB) أو EFS واستخدام EFS من Lambda في VPC (مناسب لـ 2GB).", "تقسيم الـ model إلى أجزاء.", "زيادة timeout."],
+      "options_en": ["Max out RAM.", "Store the model in a Lambda Layer (if <250MB) or EFS and mount EFS from Lambda in VPC (fits 2GB).", "Split the model into parts.", "Increase timeout."],
+      "correct": 1,
+      "explanation_ar": "٢GB أكبر من حد Layer. EFS مثاليّ: ينشر في VPC، يُقَرَأ كـ local filesystem، مشترك بين instances، لا cold-start download. /tmp يمكن أن يُستخدم كـ cache ثانوي على warm invocations.",
+      "explanation_en": "2GB exceeds Layer limit. EFS is ideal: VPC-deployed, read as local filesystem, shared across instances, no cold-start download. /tmp can act as secondary warm cache.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "Java Lambda يفتح DB connection داخل الـ handler. ما الخطأ المعماريّ الأساسيّ؟",
+      "question_en": "A Java Lambda opens a DB connection inside the handler. Core architectural mistake?",
+      "options_ar": ["عدم تسجيل الاتصال.", "الاتصال يُنشَأ في كلّ استدعاء — يضرب الأداء بشدّة ويستنزف aggregate connections. الصحيح: إنشاء الـ client static خارج الـ handler.", "استخدام Java.", "عدم تشفير الاتصال."],
+      "options_en": ["Not logging the connection.", "Connection created on every invocation — destroys perf and blows aggregate DB connections. Correct: static client outside handler.", "Using Java.", "No encryption."],
+      "correct": 1,
+      "explanation_ar": "الـ execution context يُعاد استخدامه بين warm invocations — استغلها. عميل DB، SDK، HTTP client كلّها يجب أن تُنشَأ مرّة واحدة (static/module-level). هذا من أشيع أخطاء الـ Lambda.",
+      "explanation_en": "Execution context is reused across warm invocations — leverage it. DB client, SDK, HTTP client should be created once (static/module-level). One of the most common Lambda mistakes.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "ما الحدّ الأقصى لحجم Lambda container image من ECR؟",
+      "question_en": "Max Lambda container image size from ECR?",
+      "options_ar": ["٥٠ MB", "٢٥٠ MB", "١ GB", "١٠ GB"],
+      "options_en": ["50 MB", "250 MB", "1 GB", "10 GB"],
+      "correct": 3,
+      "explanation_ar": "Container images حتى ١٠GB من ECR — الطريقة الموصى بها لـ ML workloads و تبعيّات ضخمة. Zip محدود بـ ٥٠MB مضغوط/٢٥٠MB مفكوك.",
+      "explanation_en": "Container images up to 10GB from ECR — the recommended path for ML workloads and massive dependencies. Zip is limited to 50MB zipped/250MB unzipped.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "multi",
+      "question_ar": "أيّ من هذه الإجراءات تُحسِّن cold start لـ Java Lambda؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which improve cold start for Java Lambda? Select all.",
+      "options_ar": ["Provisioned Concurrency على الـ alias.", "تقليل عدد classes في الحزمة وإزالة التبعيّات غير المستخدمة.", "زيادة RAM (أسرع JVM start).", "وضع init للـ SDK clients داخل الـ handler."],
+      "options_en": ["Provisioned Concurrency on alias.", "Trim classes and remove unused dependencies.", "More RAM (faster JVM start).", "Put SDK client init inside the handler."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "Provisioned Concurrency يقضي على cold start. تقليل الـ classpath يسرّع تحميل JVM. زيادة RAM = CPU أكثر = JVM أسرع. إنشاء الـ client داخل الـ handler يزيد الـ cold start ويُهدر الـ execution context.",
+      "explanation_en": "Provisioned Concurrency eliminates cold starts. Smaller classpath = faster JVM load. More RAM = more CPU = faster JVM. Initializing clients inside the handler worsens cold start and wastes context reuse.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "Lambda Function URL يحتاج حمايته بحيث لا يستطيع الوصول إليه إلّا مستخدمو IAM في حساب آخر. ما AuthType؟",
+      "question_en": "Lambda Function URL must only be reachable by IAM users in another account. Which AuthType?",
+      "options_ar": ["NONE مع Bucket Policy.", "AWS_IAM — مع resource-based policy تسمح للحساب الآخر + identity policy في الحساب الآخر تسمح بـ lambda:InvokeFunctionUrl.", "Cognito only.", "لا يمكن."],
+      "options_en": ["NONE with Bucket Policy.", "AWS_IAM — resource-based policy allowing other account + identity policy in the other account allowing lambda:InvokeFunctionUrl.", "Cognito only.", "Not possible."],
+      "correct": 1,
+      "explanation_ar": "AuthType AWS_IAM يفرض التوقيع بـ SigV4. للـ cross-account تحتاج: (١) resource-based policy على الـ function URL تسمح للـ principal من الحساب B، (٢) identity-based policy في الحساب B تسمح بـ lambda:InvokeFunctionUrl.",
+      "explanation_en": "AuthType AWS_IAM requires SigV4. For cross-account: (1) resource-based policy on Function URL allowing principal from account B, (2) identity-based policy in account B allowing lambda:InvokeFunctionUrl.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يلاحظ أنّ CloudFormation لا يحدِّث الدالة رغم تغيير الكود في S3. السبب؟",
+      "question_en": "A dev notices CloudFormation isn't updating the function even though S3 code changed. Cause?",
+      "options_ar": ["Bug في CloudFormation.", "لم يتغيّر S3Bucket أو S3Key أو S3ObjectVersion في template — CloudFormation يكتشف التغيير عبر هذه الحقول فقط.", "لم يُرفَع الكود.", "الـ role غير صالح."],
+      "options_en": ["CloudFormation bug.", "Neither S3Bucket, S3Key, nor S3ObjectVersion changed in the template — CloudFormation only detects updates through those fields.", "Code not uploaded.", "Invalid role."],
+      "correct": 1,
+      "explanation_ar": "CloudFormation لا يفحص محتوى S3 — يعتمد على تغيير التعريف في الـ template. الحلّ: versioned bucket ومرّر <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion</span> جديد في كلّ نشر. أو استخدم SAM الذي يدير ذلك تلقائياً.",
+      "explanation_en": "CloudFormation doesn't inspect S3 content — it relies on template changes. Fix: use a versioned bucket and pass a new <span dir=\"ltr\" class=\"font-mono\">S3ObjectVersion</span> each deploy. Or use SAM, which handles this automatically.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "فريق يشغّل Lambda في حساب A ويريد أن يستدعيه Lambda في حساب B. ما أبسط إعداد؟",
+      "question_en": "Team runs Lambda in Account A and wants a Lambda in Account B to invoke it. Simplest setup?",
+      "options_ar": ["جعل الدالة عامّة.", "إضافة resource policy على Lambda A تسمح لـ Lambda B's execution role، و Lambda B تستدعي ARN الـ Lambda A عبر SDK.", "مشاركة execution role.", "استخدام S3 بالوسط."],
+      "options_en": ["Make the function public.", "Add resource policy on Lambda A allowing Lambda B's exec role; Lambda B invokes Lambda A's ARN via SDK.", "Share execution roles.", "S3 as a middle layer."],
+      "correct": 1,
+      "explanation_ar": "Cross-account Lambda invoke: (١) resource policy على A تسمح لـ role من B، (٢) role من B يحتوي على lambda:InvokeFunction على ARN A. SDK invoke العاديّ يعمل بعد ذلك.",
+      "explanation_en": "Cross-account Lambda invoke: (1) resource policy on A allowing B's role, (2) B's role has lambda:InvokeFunction on A's ARN. Standard SDK invoke works after that.",
+      "wrong_ar": ["خطر أمنيّ.", "", "ممنوع، لا يمكن مشاركة execution roles.", "تعقيد غير مبرّر."],
+      "wrong_en": ["Security risk.", "", "Can't share exec roles.", "Needless complexity."],
+      "reference_ar": "القسم ٦ + ch10",
+      "reference_en": "Section 6 + ch10"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "أيّ metric في CloudWatch تستخدمها لضبط Provisioned Concurrency؟",
+      "question_en": "Which CloudWatch metric do you use to tune Provisioned Concurrency?",
+      "options_ar": ["Duration", "Invocations", "ProvisionedConcurrencyUtilization", "Errors"],
+      "options_en": ["Duration", "Invocations", "ProvisionedConcurrencyUtilization", "Errors"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization</span> = (used / provisioned). أبقِها ٧٠-٨٠٪. أعلى = نقص، أقل = دفع مبالغ فيه. يمكن أتمتتها عبر Application Auto Scaling.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">ProvisionedConcurrencyUtilization</span> = used / provisioned. Target 70-80%. Higher = under-provisioned, lower = overpay. Automate via Application Auto Scaling.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "تطبيق Lambda يحتاج مكتبة C++ ضخمة غير متوفّرة في runtime افتراضيّ. الأنسب؟",
+      "question_en": "A Lambda needs a huge C++ library unavailable in default runtimes. Best option?",
+      "options_ar": ["Zip package عادي.", "Custom Runtime API + layer.", "Container Image مع base image تُنفِّذ Lambda Runtime API.", "EC2 مع Docker."],
+      "options_en": ["Normal zip package.", "Custom Runtime API + layer.", "Container Image with base image implementing Lambda Runtime API.", "EC2 with Docker."],
+      "correct": 2,
+      "explanation_ar": "Container Image = المرونة القصوى. يصل إلى ١٠GB، تنتخب أيّ distro، تجمع system dependencies. يجب أن تنفّذ الـ base image الـ Lambda Runtime API (AWS يوفّر صور base). Custom Runtime بديل لكن أصعب في التغليف.",
+      "explanation_en": "Container Image = maximum flexibility. Up to 10GB, any distro, bundle system deps. Base image must implement Lambda Runtime API (AWS provides bases). Custom Runtime is an alternative but harder to package.",
+      "wrong_ar": ["الحد ٢٥٠MB ولا يناسب C++ الضخم.", "ممكن لكن Container Image أسهل للـ C++.", "", "ليس Lambda."],
+      "wrong_en": ["250MB cap can't fit big C++.", "Possible but Container is easier for C++.", "", "Not Lambda."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    }
+  ],
+  "summary": [
+    {"icon": "gauge", "title_ar": "RAM = CPU", "title_en": "RAM = CPU",
+     "body_ar": "زيادة الذاكرة ترفع vCPU. Java يستفيد كثيراً. كامل vCPU عند ١٧٩٢MB.",
+     "body_en": "More memory = more vCPU. Java gains hugely. Full vCPU at 1792MB."},
+    {"icon": "snowflake", "title_ar": "Cold start حَكِّم!", "title_en": "Control cold starts",
+     "body_ar": "init خارج الـ handler. Provisioned Concurrency للزمن الحرج. Layers لإعادة الاستخدام.",
+     "body_en": "Init outside handler. Provisioned Concurrency for latency-critical. Layers for reuse."},
+    {"icon": "git-branch", "title_ar": "Versions + Aliases = blue-green", "title_en": "Versions + Aliases = blue-green",
+     "body_ar": "$LATEST للتطوير، Version immutable للإنتاج، Alias قابل للتحويل. Aliases لا تُشير لـ Aliases.",
+     "body_en": "$LATEST for dev, immutable Version for prod, mutable Alias to switch. Aliases cannot point to other aliases."},
+    {"icon": "network", "title_ar": "VPC = NAT للإنترنت", "title_en": "VPC = NAT for internet",
+     "body_ar": "Public subnet لا يعطي إنترنت. Private subnet + NAT Gateway، أو VPC Endpoints لخدمات AWS.",
+     "body_en": "Public subnet doesn't grant internet. Use private subnet + NAT Gateway, or VPC Endpoints for AWS services."}
+  ],
+  "mnemonic_ar": "للذاكرة/CPU في Lambda: <strong>١٧٩٢</strong> = رقم سحريّ = vCPU كامل. اقرأها \"ألف سبعمائة اثنان وتسعون\" وتذكّر: قبل = جزء CPU، بعد = multi-threading مطلوب. للنشر: <strong>V</strong>ersion محفور، <strong>A</strong>lias قابل للتحويل، <strong>C</strong>odeDeploy يوتمت التحوّل.",
+  "mnemonic_en": "For Lambda memory/CPU: <strong>1792</strong> MB = magic full-vCPU threshold. Below = fractional CPU, above = multi-threading needed (up to 6 vCPU). For deployment: <strong>V</strong>ersion frozen, <strong>A</strong>lias mutable, <strong>C</strong>odeDeploy automates the swap.",
+  "prev": 10,
+  "next": 12
+}

@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 12 — Amazon DynamoDB | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-blue-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الأول — 32%</span>
+          <span class="lang-en">Domain 1 — 32%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٢ من ٣٠</span>
+        <span class="lang-en">Chapter 12 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.608-661</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Amazon DynamoDB</span>
+        <span class="lang-en">Amazon DynamoDB</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">قاعدة بيانات NoSQL مُدارة بالكامل و serverless، توفّر زمن استجابة بالأجزاء من الألف من الثانية على أيّ مقياس. فهم مفاتيح التقسيم والفهارس وأنماط القراءة/الكتابة حجر الأساس للامتحان.</span>
+        <span class="lang-en">A fully managed, serverless NoSQL database with single-digit millisecond latency at any scale. Mastering partition keys, indexes, and read/write patterns is the exam's bedrock.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DynamoDB</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">NoSQL</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">GSI</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">LSI</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DAX</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Streams</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">TTL</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Partition Keys & Hot Partitions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في اختيار المفتاح الصحيح لتوزيع الحِمل وتجنّب الاختناق.</span>
+      <span class="lang-en">Domain 1 — pick the right key to distribute load and avoid throttling.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">GSI vs LSI</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في أسئلة متى نستخدم كل واحد، وتأثير الـ WCU/RCU.</span>
+      <span class="lang-en">Domain 1 — when to use each, and their capacity implications.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">DAX & Caching</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول والرابع في حلّ مشاكل الـ Hot Keys.</span>
+      <span class="lang-en">Domains 1 & 4 — solving hot key problems.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Streams & Event-Driven</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في تكامل DynamoDB مع Lambda و Kinesis.</span>
+      <span class="lang-en">Domain 1 — integrating DynamoDB with Lambda & Kinesis.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Transactions & Conditional Writes</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في ضمان اتّساق البيانات (ACID).</span>
+      <span class="lang-en">Domain 1 — ensuring data consistency (ACID).</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هي DynamoDB ومفاهيم أساسية</span>
+      <span class="lang-en">What is DynamoDB & core concepts</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><span dir="ltr" class="font-mono text-brand-700">DynamoDB</span> قاعدة بيانات <strong>NoSQL</strong> مُدارة بالكامل من AWS، تدعم النسخ التلقائي بين مناطق التوفّر، وتقدّم زمن استجابة ثابت بأجزاء من الألف من الثانية على أيّ مقياس — ملايين الطلبات في الثانية وتريليونات الصفوف ومئات التيرابايت. هي الخيار المعياريّ لتطبيقات Lambda + API Gateway لأنّها serverless بطبيعتها.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><span dir="ltr" class="font-mono text-brand-700">DynamoDB</span> is AWS's fully managed <strong>NoSQL</strong> database with automatic multi-AZ replication. It offers consistent single-digit millisecond latency at any scale — millions of requests/sec, trillions of rows, 100s of TB. It's the default pick for Lambda + API Gateway stacks because it's inherently serverless.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="database" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">جداول (Tables)</span><span class="lang-en">Tables</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل جدول يحتاج <strong>Primary Key</strong> يُحدّد عند الإنشاء. عدد العناصر غير محدود.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Every table needs a <strong>Primary Key</strong> defined at creation. Items per table are unlimited.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="file" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">عناصر (Items)</span><span class="lang-en">Items</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يعادل الصف في SQL. الحدّ الأقصى لحجم العنصر <strong>٤٠٠ كيلوبايت</strong>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Equivalent to a row in SQL. Max item size is <strong>400 KB</strong>.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="tag" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">سمات (Attributes)</span><span class="lang-en">Attributes</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل عنصر يحتوي سمات قابلة للإضافة بمرور الوقت. Schema-less بعد المفتاح.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Each item has attributes you can add over time. Schema-less beyond the key.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">أنواع البيانات</span><span class="lang-en">Data Types</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Scalar: <span class="font-mono">String, Number, Binary, Boolean, Null</span>. Document: <span class="font-mono">List, Map</span>. Set: <span class="font-mono">String/Number/Binary Set</span>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Scalar: <span class="font-mono">String, Number, Binary, Boolean, Null</span>. Document: <span class="font-mono">List, Map</span>. Set: <span class="font-mono">String/Number/Binary Set</span>.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> DynamoDB <strong>لا تدعم joins</strong> ولا <strong>aggregations (SUM/AVG)</strong>. يجب تصميم البيانات بحيث تكون كل بيانات الاستعلام في صفّ واحد. هذا مفهوم single-table design.</span>
+      <span class="lang-en"> DynamoDB has <strong>no joins</strong> and <strong>no aggregations (SUM/AVG)</strong>. Model your data so all data for a query lives in one row — that's single-table design.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Primary Keys و Partitions والـ Hot Keys</span>
+      <span class="lang-en">Primary Keys, Partitions, and Hot Keys</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">للـ Primary Key خياران: <strong>Partition Key وحده (HASH)</strong> حيث يجب أن يكون فريداً لكل عنصر، أو <strong>Partition Key + Sort Key (HASH + RANGE)</strong> حيث يجب أن تكون الـ combination فريدة. البيانات تُجمَّع فيزيائياً حسب الـ Partition Key ويتم فرزها داخلياً حسب الـ Sort Key.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Primary Key has two options: <strong>Partition Key alone (HASH)</strong> which must be unique per item, or <strong>Partition Key + Sort Key (HASH + RANGE)</strong> where the combination must be unique. Data is physically grouped by Partition Key and sorted internally by Sort Key.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Partition Key جيّد</span><span class="lang-en">Good Partition Key</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">قيمة ذات cardinality عالية وتوزيع متساوٍ. مثال: <span dir="ltr" class="font-mono">user_id</span>, <span dir="ltr" class="font-mono">order_id</span>, UUID. توزّع الحِمل بين الـ partitions بالتساوي.</p>
+      <p class="text-sm text-surface-700 lang-en">High cardinality, evenly distributed. Example: <span dir="ltr" class="font-mono">user_id</span>, <span dir="ltr" class="font-mono">order_id</span>, UUID. Spreads load evenly across partitions.</p>
+    </div>
+    <div class="bg-gradient-to-br from-red-50 to-white border-2 border-red-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center">
+          <i data-lucide="flame" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Partition Key سيّئ (Hot Key)</span><span class="lang-en">Bad Partition Key (Hot Key)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">قيم قليلة أو منحازة. مثال: <span dir="ltr" class="font-mono">country</span> (معظم الطلبات سيضرب US)، <span dir="ltr" class="font-mono">status</span> (قيم قليلة). يسبّب <strong>ProvisionedThroughputExceededException</strong>.</p>
+      <p class="text-sm text-surface-700 lang-en">Low-cardinality or skewed. Example: <span dir="ltr" class="font-mono">country</span> (most hit US), <span dir="ltr" class="font-mono">status</span> (few values). Causes <strong>ProvisionedThroughputExceededException</strong>.</p>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar">البيانات تُخزَّن في <strong>partitions</strong> داخلية تديرها AWS. الـ Partition Key يمر على hashing algorithm ليُحدَّد الـ partition الذي سيخزَّن فيه. الـ WCU و RCU توزَّعان بالتساوي بين الـ partitions، فإن ضربت كل الطلبات partition واحد ستحصل على throttling حتى لو كانت الـ capacity الكلّية كبيرة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Data is stored in internal <strong>partitions</strong> managed by AWS. The Partition Key is hashed to determine which partition holds the item. WCU and RCU are split evenly across partitions — if all your traffic hits one partition, you'll be throttled even when total capacity is high.</p>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> حلول الـ Hot Partition: (١) <strong>Write Sharding</strong> — أضف suffix عشوائي أو محسوب للـ Partition Key لتوزيع الكتابة. (٢) <strong>DAX</strong> لحلّ Hot Keys في القراءة. (٣) <strong>Exponential backoff</strong> في الـ SDK (موجود تلقائياً). (٤) استخدم On-Demand mode إن كانت الأحمال غير متوقّعة.</span>
+      <span class="lang-en"> Hot Partition fixes: (1) <strong>Write Sharding</strong> — add random or calculated suffix to the Partition Key to spread writes. (2) <strong>DAX</strong> for read-side Hot Keys. (3) <strong>Exponential backoff</strong> in SDK (already built-in). (4) Switch to On-Demand mode for unpredictable workloads.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — Enhanced DynamoDB Client with partition + sort key
+import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+
+DynamoDbEnhancedClient enhanced = DynamoDbEnhancedClient.builder()
+    .dynamoDbClient(DynamoDbClient.create())
+    .build();
+
+DynamoDbTable&lt;Order> orders = enhanced.table("Orders",
+    TableSchema.fromBean(Order.class));
+
+// Query items for a given userId (partition key) with orderId > 100 (sort key)
+QueryConditional q = QueryConditional.sortGreaterThan(
+    Key.builder().partitionValue("user-42").sortValue(100).build());
+
+orders.query(r -> r.queryConditional(q).limit(25))
+      .items().forEach(System.out::println);</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Capacity Modes: Provisioned vs On-Demand</span>
+      <span class="lang-en">Capacity Modes: Provisioned vs On-Demand</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لكل جدول وضعان لإدارة الإنتاجية. <strong>Provisioned</strong>: تحدّد RCU/WCU مقدّماً وتدفع للـ capacity المحجوز. <strong>On-Demand</strong>: تدفع مقابل الاستخدام الفعلي (RRU/WRU). يمكن التبديل بينهما مرّة كل ٢٤ ساعة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Each table has two capacity modes. <strong>Provisioned</strong>: specify RCU/WCU upfront, pay for reserved capacity. <strong>On-Demand</strong>: pay for actual use (RRU/WRU). Switching modes is allowed once every 24 hours.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">البُعد</span><span class="lang-en">Dimension</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Provisioned</span><span class="lang-en">Provisioned</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">On-Demand</span><span class="lang-en">On-Demand</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التسعير</span><span class="lang-en">Pricing</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أرخص للأحمال الثابتة</span><span class="lang-en">Cheaper for steady load</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٢.٥× أغلى لكل وحدة</span><span class="lang-en">2.5× more per unit</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التخطيط</span><span class="lang-en">Planning</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يتطلّب تقدير الحِمل</span><span class="lang-en">Requires estimation</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">بدون تخطيط</span><span class="lang-en">Zero planning</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Auto Scaling</span><span class="lang-en">Auto Scaling</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">متاح، يرفع/يخفّض RCU/WCU</span><span class="lang-en">Available, scales RCU/WCU</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تلقائي بلا حدود</span><span class="lang-en">Automatic, unlimited</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Throttling</span><span class="lang-en">Throttling</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ممكن عند تجاوز الـ burst</span><span class="lang-en">Possible when burst exhausted</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا throttling (نظرياً)</span><span class="lang-en">No throttling (practically)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الاستخدام المثالي</span><span class="lang-en">Best for</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أحمال متوقّعة</span><span class="lang-en">Predictable traffic</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أحمال متقلّبة/غير معلومة</span><span class="lang-en">Spiky/unknown traffic</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> <strong>١ WCU</strong> = كتابة واحدة بالثانية لعنصر حتى ١ KB. <strong>١ RCU</strong> = قراءة متّسقة قوية (Strongly Consistent) لعنصر حتى ٤ KB بالثانية، أو قراءتان Eventually Consistent. الأحجام تُقرَّب للأعلى. القراءة المتّسقة قوية تستهلك <strong>ضعف</strong> الـ RCU.</span>
+      <span class="lang-en"> <strong>1 WCU</strong> = 1 write/sec for items up to 1 KB. <strong>1 RCU</strong> = 1 Strongly Consistent read/sec up to 4 KB, or 2 Eventually Consistent reads. Sizes round up. Strongly Consistent reads cost <strong>2×</strong> the RCU.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Strongly Consistent Read — pass consistentRead(true)
+GetItemResponse resp = ddb.getItem(b -> b
+    .tableName("Orders")
+    .key(Map.of("orderId", AttributeValue.fromS("o-42")))
+    .consistentRead(true));      // doubles RCU cost
+
+// Eventually Consistent Read (default) — ~half the cost
+GetItemResponse eventual = ddb.getItem(b -> b
+    .tableName("Orders")
+    .key(Map.of("orderId", AttributeValue.fromS("o-42"))));</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Queries و Scans و Conditional Writes و PartiQL</span>
+      <span class="lang-en">Queries, Scans, Conditional Writes & PartiQL</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عمليات القراءة الأساسية: <strong>GetItem</strong> (على الـ Primary Key)، <strong>Query</strong> (على Partition Key + شرط Sort Key)، <strong>Scan</strong> (يقرأ الجدول كله — مكلف). <strong>BatchGetItem</strong> يقرأ حتى ١٠٠ عنصر من جداول متعدّدة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Core read operations: <strong>GetItem</strong> (on Primary Key), <strong>Query</strong> (on Partition Key + Sort Key condition), <strong>Scan</strong> (reads entire table — expensive). <strong>BatchGetItem</strong> reads up to 100 items across multiple tables.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Query (مُفضَّل)</span><span class="lang-en">Query (preferred)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يتطلّب Partition Key (<span dir="ltr" class="font-mono">=</span> operator)، مع شرط اختياري على Sort Key (<span dir="ltr" class="font-mono">=, &lt;, &gt;, between, begins_with</span>). يعيد حتى ١ MB أو حسب <span dir="ltr" class="font-mono">Limit</span>.</p>
+      <p class="text-sm text-surface-700 lang-en">Requires Partition Key (<span dir="ltr" class="font-mono">=</span> operator), optional Sort Key condition (<span dir="ltr" class="font-mono">=, &lt;, &gt;, between, begins_with</span>). Returns up to 1 MB or per <span dir="ltr" class="font-mono">Limit</span>.</p>
+    </div>
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="scan" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Scan (مكلف)</span><span class="lang-en">Scan (expensive)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يقرأ الجدول كلّه ثم يفلتر. يستهلك RCU كثيراً. استخدم <strong>Parallel Scan</strong> للسرعة، و <span dir="ltr" class="font-mono">Limit</span>/<span dir="ltr" class="font-mono">FilterExpression</span> للتحكّم.</p>
+      <p class="text-sm text-surface-700 lang-en">Reads whole table then filters. Burns RCU. Use <strong>Parallel Scan</strong> for speed, <span dir="ltr" class="font-mono">Limit</span>/<span dir="ltr" class="font-mono">FilterExpression</span> for control.</p>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Conditional Writes</strong>: تقبل الـ Put/Update/Delete فقط إذا تحقّق شرط (<span dir="ltr" class="font-mono">attribute_exists, attribute_not_exists, contains, begins_with, size, IN, between</span>). تُستخدم لـ <strong>Optimistic Locking</strong> ومنع استبدال البيانات غير المقصود.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Conditional Writes</strong>: accept Put/Update/Delete only if a condition holds (<span dir="ltr" class="font-mono">attribute_exists, attribute_not_exists, contains, begins_with, size, IN, between</span>). Used for <strong>Optimistic Locking</strong> and preventing accidental overwrites.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Conditional Update — only decrement stock if current > 0
+UpdateItemResponse resp = ddb.updateItem(b -> b
+    .tableName("Inventory")
+    .key(Map.of("sku", AttributeValue.fromS("ABC-123")))
+    .updateExpression("SET stock = stock - :qty")
+    .conditionExpression("stock >= :qty")
+    .expressionAttributeValues(Map.of(
+        ":qty", AttributeValue.fromN("1"))));
+
+// Optimistic Locking pattern — only update if version matches
+ddb.updateItem(b -> b
+    .tableName("Orders").key(key)
+    .updateExpression("SET #s = :new, version = version + :one")
+    .conditionExpression("version = :current")
+    .expressionAttributeNames(Map.of("#s", "status"))
+    .expressionAttributeValues(Map.of(
+        ":new",     AttributeValue.fromS("SHIPPED"),
+        ":current", AttributeValue.fromN("3"),
+        ":one",     AttributeValue.fromN("1"))));</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> <strong>PartiQL</strong> هو SQL-compatible query language لـ DynamoDB. يدعم <span dir="ltr" class="font-mono">SELECT, INSERT, UPDATE, DELETE</span> (لا يدعم كل SQL). مفيد للمطوّرين القادمين من عالم SQL مثلك.</span>
+      <span class="lang-en"> <strong>PartiQL</strong> is a SQL-compatible query language for DynamoDB. Supports <span dir="ltr" class="font-mono">SELECT, INSERT, UPDATE, DELETE</span> (not full SQL). Useful for devs coming from SQL backgrounds like yours.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الفهارس: GSI vs LSI</span>
+      <span class="lang-en">Indexes: GSI vs LSI</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الفهارس تُمكّنك من الاستعلام بأنماط مختلفة عن الـ Primary Key. نوعان: <strong>LSI</strong> (Local Secondary Index) و <strong>GSI</strong> (Global Secondary Index). الفرق بينهما من أهمّ مواضيع الامتحان.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Indexes let you query using patterns other than the Primary Key. Two types: <strong>LSI</strong> (Local Secondary Index) and <strong>GSI</strong> (Global Secondary Index). Their differences are heavily exam-tested.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخاصّية</span><span class="lang-en">Property</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">LSI</span><span class="lang-en">LSI</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">GSI</span><span class="lang-en">GSI</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Partition Key</span><span class="lang-en">Partition Key</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نفس مفتاح الجدول</span><span class="lang-en">Same as table</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أيّ attribute</span><span class="lang-en">Any attribute</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Sort Key</span><span class="lang-en">Sort Key</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Sort Key بديل</span><span class="lang-en">Alternate sort key</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اختياري مختلف</span><span class="lang-en">Optional, different</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">وقت الإنشاء</span><span class="lang-en">When created</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>عند إنشاء الجدول فقط</strong></span><span class="lang-en"><strong>At table creation only</strong></span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">في أيّ وقت (add/modify)</span><span class="lang-en">Anytime (add/modify)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">العدد الأقصى</span><span class="lang-en">Max count</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٥ لكل جدول</span><span class="lang-en">5 per table</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">٢٠ (افتراضي)</span><span class="lang-en">20 (default)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الـ Capacity</span><span class="lang-en">Capacity</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يشارك WCU/RCU مع الجدول</span><span class="lang-en">Shares table WCU/RCU</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>WCU/RCU مستقلّة</strong></span><span class="lang-en"><strong>Independent WCU/RCU</strong></span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Consistency</span><span class="lang-en">Consistency</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Eventual أو Strong</span><span class="lang-en">Eventual or Strong</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar"><strong>Eventual فقط</strong></span><span class="lang-en"><strong>Eventual only</strong></span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> خطر GSI: لو كانت الكتابات على الـ GSI مختنقة (throttled)، فإنّ <strong>الجدول الرئيسي كله سيختنق</strong> أيضاً — حتى لو كانت WCU للجدول كافية. اختر Partition Key للـ GSI بعناية وخصّص WCU كافية. الـ LSI يستخدم نفس الـ capacity بلا مشاكل.</span>
+      <span class="lang-en"> GSI gotcha: if writes to the GSI are throttled, the <strong>main table throttles too</strong> — even if table WCU is fine. Choose your GSI partition key carefully and provision enough WCU. LSI uses the table's capacity without this problem.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Create a GSI on an existing table (no downtime)
+aws dynamodb update-table \
+  --table-name Orders \
+  --attribute-definitions \
+      AttributeName=customerId,AttributeType=S \
+      AttributeName=orderDate,AttributeType=S \
+  --global-secondary-index-updates \
+    '[{"Create":{"IndexName":"byCustomer",
+        "KeySchema":[{"AttributeName":"customerId","KeyType":"HASH"},
+                     {"AttributeName":"orderDate","KeyType":"RANGE"}],
+        "Projection":{"ProjectionType":"ALL"},
+        "ProvisionedThroughput":{"ReadCapacityUnits":5,"WriteCapacityUnits":5}}}]'</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">DAX و Streams و TTL و Transactions</span>
+      <span class="lang-en">DAX, Streams, TTL & Transactions</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">DAX — كاش DynamoDB</span><span class="lang-en">DAX — DynamoDB cache</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">in-memory cache بـ microseconds latency. متوافق ١٠٠٪ مع DynamoDB API (بدون تغيير الكود). TTL افتراضي ٥ دقائق. يحلّ مشكلة Hot Keys في القراءة. حتى ١٠ nodes في الـ cluster.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">In-memory cache with microseconds latency. 100% DynamoDB-API compatible (no code changes). Default TTL 5 minutes. Solves read-side Hot Keys. Up to 10 nodes per cluster.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Streams — تدفّق التعديلات</span><span class="lang-en">Streams — change feed</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تدفّق مُرتَّب لكل create/update/delete. يُقرأ بواسطة Lambda أو KCL. خيارات: KEYS_ONLY / NEW_IMAGE / OLD_IMAGE / NEW_AND_OLD_IMAGES. احتفاظ ٢٤ ساعة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Ordered feed of create/update/delete. Read via Lambda or KCL. Options: KEYS_ONLY / NEW_IMAGE / OLD_IMAGE / NEW_AND_OLD_IMAGES. 24-hour retention.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">TTL — حذف تلقائي</span><span class="lang-en">TTL — auto delete</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يحذف العناصر بعد timestamp محدّد (Unix epoch). لا يستهلك WCU. يحذف من الـ indexes أيضاً. مفيد للجلسات والبيانات المؤقتة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Deletes items after a given timestamp (Unix epoch). Consumes <strong>no WCU</strong>. Also deletes from indexes. Great for sessions and temp data.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Transactions — ACID</span><span class="lang-en">Transactions — ACID</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">All-or-nothing عبر عدّة جداول. <span dir="ltr" class="font-mono">TransactGetItems</span> و <span dir="ltr" class="font-mono">TransactWriteItems</span>. تستهلك <strong>ضعف</strong> الـ WCU/RCU (prepare + commit).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All-or-nothing across tables. <span dir="ltr" class="font-mono">TransactGetItems</span> and <span dir="ltr" class="font-mono">TransactWriteItems</span>. Consumes <strong>2×</strong> WCU/RCU (prepare + commit).</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> كمطوّر Spring Boot سينيور: عند حاجتك لـ <strong>SAGA pattern</strong> أو تزامن عبر microservices، استخدم DynamoDB Streams مع Lambda بدل Kafka لتوفير البنية التحتية. وللـ <strong>Idempotency</strong> (مطلب شائع في المدفوعات)، استخدم Conditional Writes بـ <span dir="ltr" class="font-mono">attribute_not_exists(idempotency_key)</span>.</span>
+      <span class="lang-en"> Senior Spring Boot dev tip: for <strong>SAGA patterns</strong> or microservice synchronization, use DynamoDB Streams + Lambda instead of Kafka — zero infra. For <strong>idempotency</strong> (common in payments), use Conditional Writes with <span dir="ltr" class="font-mono">attribute_not_exists(idempotency_key)</span>.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// TransactWriteItems: atomically move money between two accounts
+TransactWriteItemsRequest tx = TransactWriteItemsRequest.builder()
+  .transactItems(
+    TransactWriteItem.builder().update(Update.builder()
+      .tableName("Accounts").key(Map.of("id", AttributeValue.fromS("A")))
+      .updateExpression("SET balance = balance - :amt")
+      .conditionExpression("balance >= :amt")
+      .expressionAttributeValues(Map.of(":amt", AttributeValue.fromN("100")))
+      .build()).build(),
+    TransactWriteItem.builder().update(Update.builder()
+      .tableName("Accounts").key(Map.of("id", AttributeValue.fromS("B")))
+      .updateExpression("SET balance = balance + :amt")
+      .expressionAttributeValues(Map.of(":amt", AttributeValue.fromN("100")))
+      .build()).build())
+  .build();
+
+ddb.transactWriteItems(tx);  // atomic — both succeed or both fail</code></pre>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء جدول DynamoDB مع GSI و TTL و Streams، ومعالجة التغييرات بـ Lambda.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a DynamoDB table with GSI, TTL, and Streams, and process changes with Lambda.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ جدولاً مع مفتاح composite</span>
+      <span class="lang-en">Create a table with composite key</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Partition Key: <span dir="ltr" class="font-mono">userId (String)</span>، Sort Key: <span dir="ltr" class="font-mono">orderId (String)</span>. Capacity: On-Demand.</p><p class="text-surface-600 leading-relaxed lang-en">Partition Key: <span dir="ltr" class="font-mono">userId (String)</span>, Sort Key: <span dir="ltr" class="font-mono">orderId (String)</span>. Capacity: On-Demand.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws dynamodb create-table --table-name Orders \
+  --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=orderId,AttributeType=S \
+  --key-schema AttributeName=userId,KeyType=HASH AttributeName=orderId,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل Streams</span>
+      <span class="lang-en">Enable Streams</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">اختر <span dir="ltr" class="font-mono">NEW_AND_OLD_IMAGES</span> لرؤية التغييرات كاملةً.</p><p class="text-surface-600 leading-relaxed lang-en">Choose <span dir="ltr" class="font-mono">NEW_AND_OLD_IMAGES</span> to see full change record.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws dynamodb update-table --table-name Orders \
+  --stream-specification StreamEnabled=true,StreamViewType=NEW_AND_OLD_IMAGES</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل TTL على حقل expiresAt</span>
+      <span class="lang-en">Enable TTL on expiresAt attribute</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">يجب أن يكون Number type بصيغة Unix epoch بالثواني.</p><p class="text-surface-600 leading-relaxed lang-en">Must be Number type in Unix epoch seconds.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws dynamodb update-time-to-live --table-name Orders \
+  --time-to-live-specification Enabled=true,AttributeName=expiresAt</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Lambda واربطها بالـ Stream</span>
+      <span class="lang-en">Create Lambda and wire it to the Stream</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أضف صلاحية <span dir="ltr" class="font-mono">AWSLambdaDynamoDBExecutionRole</span> للـ Lambda. استخدم Event Source Mapping.</p><p class="text-surface-600 leading-relaxed lang-en">Attach <span dir="ltr" class="font-mono">AWSLambdaDynamoDBExecutionRole</span> to Lambda. Use Event Source Mapping.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختبر بإدراج عنصر</span>
+      <span class="lang-en">Test by inserting an item</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws dynamodb put-item --table-name Orders --item '{
+  "userId":{"S":"u-1"},
+  "orderId":{"S":"o-1"},
+  "total":{"N":"99.9"},
+  "expiresAt":{"N":"1800000000"}
+}'</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> احذف Streams والجدول بعد التجربة. Streams لها تكلفة صغيرة على read requests حتى لو كان الجدول خامل.</span>
+    <span class="lang-en"> Delete Streams and the table after testing. Streams have a small cost per read request even on idle tables.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٨ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (18 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">اختر Partition Key بعناية</span>
+        <span class="lang-en">Pick Partition Keys wisely</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">cardinality عالية وتوزيع متساوٍ لتجنّب hot partitions.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">High cardinality, even distribution — avoid hot partitions.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="layers" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">GSI vs LSI</span>
+        <span class="lang-en">GSI vs LSI</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">GSI مرن (أيّ وقت، capacity مستقلّ). LSI عند الإنشاء فقط (٥ أقصى).</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">GSI flexible (anytime, own capacity). LSI at creation only (max 5).</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">DAX للـ Hot Reads</span>
+        <span class="lang-en">DAX for hot reads</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">in-memory cache بدون تغيير كود، يحلّ مشكلة Hot Keys القرائية.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">In-memory cache, zero code changes, fixes read Hot Keys.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Transactions & TTL</span>
+        <span class="lang-en">Transactions & TTL</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Transactions تعطي ACID (٢× capacity). TTL يحذف تلقائياً بدون WCU.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Transactions give ACID (2× capacity). TTL auto-deletes at no WCU cost.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للتفريق بين Query و Scan: <strong>Query = Precise (مفتاح مُحدَّد)</strong>، <strong>Scan = Sweep (يقرأ كل شيء)</strong>. إذا رأيت كلمة "Scan" في حلّ مقترح — غالباً هو الإجابة الخاطئة في الامتحان.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Query vs Scan: <strong>Query = Precise (keyed)</strong>, <strong>Scan = Sweep (reads all)</strong>. If you see "Scan" as a proposed solution — it's usually the wrong exam answer.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch11.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(12, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch13.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يصمّم جدول DynamoDB لتطبيق أفلام. أيّ الحقول التالية أفضل كـ Partition Key لتوزيع البيانات بشكل متساوٍ؟</span><span class="lang-en">A developer designs a DynamoDB table for a movies app. Which field makes the best Partition Key for even data distribution?</span>",
+        options: [
+          "<span class="lang-ar"><span class="font-mono">movie_language</span></span><span class="lang-en"><span class="font-mono">movie_language</span></span>",
+          "<span class="lang-ar"><span class="font-mono">producer_name</span></span><span class="lang-en"><span class="font-mono">producer_name</span></span>",
+          "<span class="lang-ar"><span class="font-mono">movie_id (UUID)</span></span><span class="lang-en"><span class="font-mono">movie_id (UUID)</span></span>",
+          "<span class="lang-ar"><span class="font-mono">release_year</span></span><span class="lang-en"><span class="font-mono">release_year</span></span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">أفضل Partition Key هو الذي له <strong>cardinality عالية</strong> وتوزيع متساوٍ. <span class="font-mono">movie_id</span> (UUID) يضمن مفاتيح فريدة وتوزيع مثالي. الـ language منحاز للإنجليزية، والـ year يُركّز الأحمال على السنة الحالية، و <span class="font-mono">producer_name</span> له منتجين مشهورين أكثر من غيرهم.</span><span class="lang-en">Best Partition Key = <strong>high cardinality</strong> and even distribution. <span class="font-mono">movie_id</span> (UUID) guarantees uniqueness and perfect spread. Language is skewed to English, year concentrates current-year load, and <span class="font-mono">producer_name</span> has popular producers dominating.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قيم قليلة ومنحازة للإنجليزية — hot partition.</span><span class=\"lang-en\">Few values, skewed to English — hot partition.</span>", "<span class=\"lang-ar\">منتجون مشهورون يستقطبون معظم الطلبات.</span><span class=\"lang-en\">Popular producers dominate traffic.</span>", "", "<span class=\"lang-ar\">الأحمال تتركّز على آخر سنة.</span><span class=\"lang-en\">Latest year captures most load.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — Partition Keys و Hot Keys</span><span class=\"lang-en\">Section 2 — Partition Keys & Hot Keys</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يقرأ نفس عنصر DynamoDB ملايين المرّات في الثانية (Hot Key) ويواجه <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. ما الحلّ الأمثل <u>دون تغيير كود التطبيق</u>؟</span><span class="lang-en">An app reads the same DynamoDB item millions of times/sec (Hot Key) and hits <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. Best fix <u>without code changes</u>?</span>",
+        options: [
+          "<span class="lang-ar">إضافة DAX أمام الجدول.</span><span class="lang-en">Add DAX in front of the table.</span>",
+          "<span class="lang-ar">رفع RCU بشكل كبير.</span><span class="lang-en">Massively increase RCU.</span>",
+          "<span class="lang-ar">تحويل الجدول إلى Scan بدل Query.</span><span class="lang-en">Switch from Query to Scan.</span>",
+          "<span class="lang-ar">تقليل حجم العنصر.</span><span class="lang-en">Reduce item size.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>DAX</strong> (DynamoDB Accelerator) هو in-memory cache متوافق ١٠٠٪ مع DynamoDB API — يعمل دون تغيير الكود ويحلّ Hot Keys مباشرة بـ microseconds latency. رفع RCU لن يحلّ مشكلة الـ hot partition لأنّ الـ capacity موزّعة بين الـ partitions. Scan أسوأ في هذا السيناريو.</span><span class="lang-en"><strong>DAX</strong> is an in-memory cache 100% API-compatible with DynamoDB — no code changes, fixes Hot Keys with microsecond latency. Raising RCU won't help since capacity is per-partition. Scan is worse here.</span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">الـ capacity موزّعة على الـ partitions، وزيادتها لا تحلّ hot partition.</span><span class=\"lang-en\">Capacity is per-partition; scaling RCU doesn't fix hot partition.</span>", "<span class=\"lang-ar\">Scan يضاعف المشكلة (يقرأ الجدول كله).</span><span class=\"lang-en\">Scan makes it worse (reads whole table).</span>", "<span class=\"lang-ar\">حجم العنصر ليس السبب الرئيسي للـ hot key.</span><span class=\"lang-en\">Item size isn't the root cause.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — DAX</span><span class=\"lang-en\">Section 6 — DAX</span>"
+      },
+      {
+        id: "q3",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العبارات التالية صحيحة عن <strong>GSI</strong> (Global Secondary Index)؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about <strong>GSI</strong> (Global Secondary Index)? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">يمكن إضافته/تعديله بعد إنشاء الجدول.</span><span class="lang-en">Can be added/modified after table creation.</span>",
+          "<span class="lang-ar">يدعم Strongly Consistent Reads.</span><span class="lang-en">Supports Strongly Consistent Reads.</span>",
+          "<span class="lang-ar">له RCU/WCU مستقلّة عن الجدول.</span><span class="lang-en">Has independent RCU/WCU from the table.</span>",
+          "<span class="lang-ar">إذا اختنقت كتابة GSI، يختنق الجدول الرئيسي معه.</span><span class="lang-en">If GSI writes throttle, main table throttles too.</span>",
+          "<span class="lang-ar">يستخدم نفس Partition Key للجدول الأصلي.</span><span class="lang-en">Uses the same Partition Key as the base table.</span>"
+        ],
+        correct: [0,2,3],
+        explanation: "<span class="lang-ar">GSI يمكن إنشاؤه في أيّ وقت ويملك capacity مستقلّة. <strong>الاختناق في الـ GSI يُسبّب اختناق الجدول الرئيسي</strong> — فخّ مشهور في الامتحان. GSI يدعم <strong>Eventually Consistent Reads فقط</strong>. Partition Key يمكن أن يكون أيّ attribute (على عكس LSI).</span><span class="lang-en">GSI can be created anytime and has independent capacity. <strong>GSI write throttling cascades to the main table</strong> — common exam trap. GSI supports <strong>Eventually Consistent Reads only</strong>. Its Partition Key can be any attribute (unlike LSI).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين <span dir="ltr" class="font-mono">FilterExpression</span> و <span dir="ltr" class="font-mono">ConditionExpression</span> في DynamoDB؟</span><span class="lang-en">What's the difference between <span dir="ltr" class="font-mono">FilterExpression</span> and <span dir="ltr" class="font-mono">ConditionExpression</span>?</span>",
+        options: [
+          "<span class="lang-ar">FilterExpression للـ reads (Query/Scan)؛ ConditionExpression للـ writes (Put/Update/Delete).</span><span class="lang-en">FilterExpression is for reads (Query/Scan); ConditionExpression is for writes (Put/Update/Delete).</span>",
+          "<span class="lang-ar">كلاهما يعمل على writes فقط.</span><span class="lang-en">Both are for writes only.</span>",
+          "<span class="lang-ar">FilterExpression أسرع من ConditionExpression.</span><span class="lang-en">FilterExpression is faster.</span>",
+          "<span class="lang-ar">ConditionExpression يُستخدم في Scan فقط.</span><span class="lang-en">ConditionExpression is for Scan only.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>FilterExpression</strong> يفلتر نتائج القراءة <u>بعد</u> جلبها من الجدول (لا يوفّر RCU — يُطبَّق على البيانات القادمة). <strong>ConditionExpression</strong> يمنع عمليات الكتابة (Put/Update/Delete/BatchWriteItem) من الحدوث إذا لم يتحقّق الشرط — يُستخدم للـ Optimistic Locking.</span><span class="lang-en"><strong>FilterExpression</strong> filters read results <u>after</u> fetching (saves no RCU — applied post-retrieval). <strong>ConditionExpression</strong> prevents write ops (Put/Update/Delete/BatchWriteItem) when the condition fails — used for Optimistic Locking.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">شركة فنتك تريد تنفيذ تحويل نقود بين حسابين في جدولين مختلفين. العملية يجب أن تكون all-or-nothing. ما الخيار الأمثل؟</span><span class="lang-en">A fintech needs to transfer money between two accounts in two tables atomically (all-or-nothing). Best option?</span>",
+        options: [
+          "<span class="lang-ar">PutItem مرّتين متتاليتين.</span><span class="lang-en">Two sequential PutItems.</span>",
+          "<span class="lang-ar">BatchWriteItem.</span><span class="lang-en">BatchWriteItem.</span>",
+          "<span class="lang-ar">TransactWriteItems.</span><span class="lang-en">TransactWriteItems.</span>",
+          "<span class="lang-ar">Optimistic Locking باستخدام Conditional Writes على كل عنصر منفصلاً.</span><span class="lang-en">Optimistic Locking with separate Conditional Writes per item.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>TransactWriteItems</strong> يوفّر ACID عبر جداول متعدّدة: إمّا تنجح كل العمليات أو لا شيء. BatchWriteItem ليس atomic — كل عنصر مستقلّ وقد ينجح بعضها ويفشل الآخر. العمليات المتتابعة ليست atomic وتترك البيانات في حالة غير متّسقة عند الفشل. ملاحظة: Transactions تستهلك ٢× WCU.</span><span class="lang-en"><strong>TransactWriteItems</strong> gives ACID across multiple tables: all succeed or all fail. BatchWriteItem isn't atomic — items are independent. Sequential ops aren't atomic either. Note: transactions cost 2× WCU.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس atomic — أحدهما قد يفشل.</span><span class=\"lang-en\">Not atomic — one can fail.</span>", "<span class=\"lang-ar\">كل عنصر مستقلّ؛ ليس transactional.</span><span class=\"lang-en\">Each item independent; not transactional.</span>", "", "<span class=\"lang-ar\">معقّد ولا يوفّر atomicity عبر العنصرين.</span><span class=\"lang-en\">Complex; not atomic across both items.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يحتاج ١٠ Strongly Consistent Reads بالثانية لعناصر حجم ٦ KB. ما عدد الـ RCU المطلوب؟</span><span class="lang-en">An app needs 10 Strongly Consistent Reads/sec for 6 KB items. How many RCU?</span>",
+        options: [
+          "<span class="lang-ar">١٠</span><span class="lang-en">10</span>",
+          "<span class="lang-ar">٢٠</span><span class="lang-en">20</span>",
+          "<span class="lang-ar">٤٠</span><span class="lang-en">40</span>",
+          "<span class="lang-ar">٥</span><span class="lang-en">5</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">١ RCU = Strongly Consistent Read واحدة لعنصر حتى ٤ KB. عنصر ٦ KB يُقرّب لـ ٨ KB، فيحتاج ٢ RCU لكل قراءة. إذن: <strong>١٠ × ٢ = ٢٠ RCU</strong>. لو كانت Eventually Consistent لكانت النتيجة ١٠.</span><span class="lang-en">1 RCU = 1 Strongly Consistent Read up to 4 KB. A 6 KB item rounds to 8 KB = 2 RCU per read. So <strong>10 × 2 = 20 RCU</strong>. Eventually Consistent would be 10.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذا حساب Eventually Consistent (ضعف سرعة Strong).</span><span class=\"lang-en\">That's Eventually Consistent math (2× Strong's rate).</span>", "", "<span class=\"lang-ar\">محسوب على أساس ٤× بدل ٢×.</span><span class=\"lang-en\">Computed as 4× instead of 2×.</span>", "<span class=\"lang-ar\">غير كافٍ لـ Strong Consistency.</span><span class=\"lang-en\">Insufficient for Strong Consistency.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد حذف جلسات المستخدمين تلقائياً بعد ٣٠ يوماً بدون استهلاك WCU. ما الحلّ؟</span><span class="lang-en">A developer needs to auto-delete user sessions after 30 days without consuming WCU. Solution?</span>",
+        options: [
+          "<span class="lang-ar">تشغيل Lambda مجدولة بـ EventBridge لحذف الجلسات.</span><span class="lang-en">Schedule a Lambda via EventBridge to delete sessions.</span>",
+          "<span class="lang-ar">استخدام DynamoDB TTL مع attribute Unix epoch.</span><span class="lang-en">Use DynamoDB TTL with a Unix epoch attribute.</span>",
+          "<span class="lang-ar">Scan + DeleteItem يومياً.</span><span class="lang-en">Daily Scan + DeleteItem.</span>",
+          "<span class="lang-ar">تعيين <span class="font-mono">expiresAt</span> في Conditional Expression.</span><span class="lang-en">Set <span class="font-mono">expiresAt</span> in a Conditional Expression.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>DynamoDB TTL</strong> مصمّم بالضبط لهذا الغرض: سمة من نوع Number بصيغة Unix epoch seconds، وتُحذَف العناصر تلقائياً خلال بضعة أيام بعد الـ timestamp — <u>بدون استهلاك WCU</u>. الحذف يمرّ عبر Streams أيضاً. Scan + DeleteItem مكلف جداً.</span><span class="lang-en"><strong>DynamoDB TTL</strong> is designed exactly for this: a Number attribute in Unix epoch seconds, items auto-delete within a few days of the timestamp — <u>without consuming WCU</u>. Deletes also flow through Streams. Scan + DeleteItem is very expensive.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يعمل لكنّه يستهلك WCU ويكلّف أكثر.</span><span class=\"lang-en\">Works but consumes WCU and costs more.</span>", "", "<span class=\"lang-ar\">مكلف جداً (Scan يقرأ كل الجدول).</span><span class=\"lang-en\">Very expensive (Scan reads everything).</span>", "<span class=\"lang-ar\">Conditional Expression لا يحذف — يمنع فقط.</span><span class=\"lang-en\">Condition Expressions don't delete — just gate.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ — TTL</span><span class=\"lang-en\">Section 6 — TTL</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">أيّ العبارات صحيحة عن DynamoDB Streams؟</span><span class="lang-en">Which is true about DynamoDB Streams?</span>",
+        options: [
+          "<span class="lang-ar">Streams يحتفظ بالبيانات لمدّة ٧ أيام.</span><span class="lang-en">Streams retains data for 7 days.</span>",
+          "<span class="lang-ar">يمكن قراءته عبر Lambda Event Source Mapping و KCL.</span><span class="lang-en">Can be read via Lambda Event Source Mapping or KCL.</span>",
+          "<span class="lang-ar">يملأ نفسه تلقائياً بالبيانات القديمة عند التفعيل.</span><span class="lang-en">Backfills with old data on enable.</span>",
+          "<span class="lang-ar">يُرسل بيانات مضغوطة فقط.</span><span class="lang-en">Only sends compressed data.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">DynamoDB Streams يُقرَأ بواسطة: Lambda (عبر Event Source Mapping — synchronous)، KCL apps، أو يمكن إرساله لـ Kinesis Data Streams. الاحتفاظ <strong>٢٤ ساعة فقط</strong>. لا يملأ نفسه بالبيانات السابقة عند التفعيل — فقط التغييرات الجديدة.</span><span class="lang-en">DynamoDB Streams is consumed by: Lambda (via Event Source Mapping — synchronous), KCL apps, or piped to Kinesis Data Streams. Retention is <strong>24 hours only</strong>. No backfill — only new changes after enable.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">٢٤ ساعة فقط وليس ٧ أيام.</span><span class=\"lang-en\">24 hours only, not 7 days.</span>", "", "<span class=\"lang-ar\">التغييرات السابقة لا تظهر عند التفعيل.</span><span class=\"lang-en\">Prior changes don't appear after enable.</span>", "<span class=\"lang-ar\">لا توجد صيغة مضغوطة خاصة.</span><span class=\"lang-en\">No special compressed mode.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تطوّر تطبيق Spring Boot على Lambda يحتاج استعلام المستخدمين <u>حسب البريد الإلكتروني</u>، لكن الـ Primary Key هو userId. ما الحلّ الأمثل؟</span><span class="lang-en">Acme's Spring Boot Lambda needs to query users <u>by email</u>, but Primary Key is userId. Best solution?</span>",
+        options: [
+          "<span class="lang-ar">Scan مع FilterExpression على email.</span><span class="lang-en">Scan with FilterExpression on email.</span>",
+          "<span class="lang-ar">إنشاء GSI على email كـ Partition Key.</span><span class="lang-en">Create a GSI with email as Partition Key.</span>",
+          "<span class="lang-ar">إنشاء LSI على email.</span><span class="lang-en">Create an LSI on email.</span>",
+          "<span class="lang-ar">تغيير الـ Primary Key ليصبح email.</span><span class="lang-en">Change Primary Key to email.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>GSI</strong> هو الحلّ المعياري لإضافة نمط استعلام جديد بعد إنشاء الجدول. email سيصبح Partition Key للـ GSI. LSI يتطلّب نفس Partition Key للجدول الأصلي (userId) لذا لا يناسب. تغيير Primary Key يتطلّب إعادة بناء الجدول كاملاً. Scan مكلف جداً.</span><span class="lang-en"><strong>GSI</strong> is the canonical way to add a new query pattern after table creation. Email becomes the GSI Partition Key. LSI requires the same partition key as the table (userId), so it doesn't apply. Changing Primary Key requires rebuilding the table. Scan is very expensive.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مكلف — يقرأ الجدول كلّه.</span><span class=\"lang-en\">Expensive — reads whole table.</span>", "", "<span class=\"lang-ar\">LSI يشترط نفس Partition Key للجدول.</span><span class=\"lang-en\">LSI needs the same partition key as the table.</span>", "<span class=\"lang-ar\">يتطلّب إعادة بناء الجدول كاملاً.</span><span class=\"lang-en\">Requires full table rebuild.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">متى يجب استخدام <strong>On-Demand</strong> capacity mode بدل Provisioned؟</span><span class="lang-en">When should you pick <strong>On-Demand</strong> over Provisioned capacity?</span>",
+        options: [
+          "<span class="lang-ar">دائماً — أرخص.</span><span class="lang-en">Always — cheaper.</span>",
+          "<span class="lang-ar">أحمال مُتوقَّعة مستقرّة ٢٤/٧.</span><span class="lang-en">Predictable, steady 24/7 workloads.</span>",
+          "<span class="lang-ar">أحمال جديدة غير معلومة أو متقلّبة بشدّة.</span><span class="lang-en">New/unknown or highly spiky workloads.</span>",
+          "<span class="lang-ar">جداول بأقلّ من ١ GB حجم.</span><span class="lang-en">Tables under 1 GB.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">On-Demand مناسب لـ: أحمال غير متوقّعة، تطبيقات جديدة، اختبار/dev، ذروات مفاجئة. الثمن ٢.٥× Provisioned لكل وحدة، لكنّه يُلغي خطر الـ throttling ويوفّر تكاليف التخطيط. Provisioned أرخص للأحمال الثابتة ٢٤/٧.</span><span class="lang-en">On-Demand suits: unpredictable workloads, new apps, dev/test, sudden spikes. It's 2.5× per-unit price but eliminates throttling risk and planning overhead. Provisioned is cheaper for steady 24/7 load.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أغلى ٢.٥× للوحدة.</span><span class=\"lang-en\">2.5× more per unit.</span>", "<span class=\"lang-ar\">استخدم Provisioned + RI هنا.</span><span class=\"lang-en\">Use Provisioned + RI here.</span>", "", "<span class=\"lang-ar\">الحجم ليس المعيار.</span><span class=\"lang-en\">Size isn't the criterion.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q11",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ العمليات التالية تُعدّ <strong>Conditional Writes</strong> في DynamoDB؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which operations can be <strong>Conditional Writes</strong>? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">PutItem</span><span class="lang-en">PutItem</span>",
+          "<span class="lang-ar">GetItem</span><span class="lang-en">GetItem</span>",
+          "<span class="lang-ar">UpdateItem</span><span class="lang-en">UpdateItem</span>",
+          "<span class="lang-ar">DeleteItem</span><span class="lang-en">DeleteItem</span>",
+          "<span class="lang-ar">BatchWriteItem</span><span class="lang-en">BatchWriteItem</span>",
+          "<span class="lang-ar">Scan</span><span class="lang-en">Scan</span>"
+        ],
+        correct: [0,2,3,4],
+        explanation: "<span class="lang-ar">Conditional Writes تنطبق على عمليات <u>الكتابة</u>: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> و <strong>Scan</strong> عمليات قراءة — تستخدم FilterExpression بدل ConditionExpression.</span><span class="lang-en">Conditional Writes apply to <u>write</u> ops: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> and <strong>Scan</strong> are reads — use FilterExpression instead.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">حجم عنصر DynamoDB <strong>الأقصى</strong>؟</span><span class="lang-en">What's the <strong>maximum</strong> DynamoDB item size?</span>",
+        options: [
+          "<span class="lang-ar">٦٤ KB</span><span class="lang-en">64 KB</span>",
+          "<span class="lang-ar">٢٥٦ KB</span><span class="lang-en">256 KB</span>",
+          "<span class="lang-ar">٤٠٠ KB</span><span class="lang-en">400 KB</span>",
+          "<span class="lang-ar">١ MB</span><span class="lang-en">1 MB</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">الحدّ الأقصى <strong>٤٠٠ KB</strong> لكل عنصر. للبيانات الأكبر (صور/فيديوهات) استخدم pattern <strong>S3 + DynamoDB</strong>: خزّن الـ blob في S3 واحفظ الـ URL والـ metadata في DynamoDB.</span><span class="lang-en">Max is <strong>400 KB</strong> per item. For larger data (images/videos), use the <strong>S3 + DynamoDB</strong> pattern: store the blob in S3, keep URL and metadata in DynamoDB.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">اثنان من العملاء يحاولان تحديث نفس العنصر في نفس الوقت. كيف تضمن أنّ التحديث الأحدث لا يدمر تحديث الأقدم (Optimistic Locking)؟</span><span class="lang-en">Two clients update the same item concurrently. How do you ensure the later write doesn't clobber the earlier one (Optimistic Locking)?</span>",
+        options: [
+          "<span class="lang-ar">استخدام Strongly Consistent Reads فقط.</span><span class="lang-en">Use Strongly Consistent Reads only.</span>",
+          "<span class="lang-ar">استخدام ConditionExpression على حقل <span class="font-mono">version</span> يُزاد مع كل تحديث.</span><span class="lang-en">ConditionExpression on a <span class="font-mono">version</span> attribute that increments with each update.</span>",
+          "<span class="lang-ar">رفع RCU.</span><span class="lang-en">Increase RCU.</span>",
+          "<span class="lang-ar">استخدام DAX.</span><span class="lang-en">Use DAX.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Optimistic Locking</strong> في DynamoDB يُنفَّذ عبر <strong>Conditional Writes</strong>: اقرأ العنصر مع الـ version، ثم حدّث مع <span class="font-mono">conditionExpression: 'version = :oldVersion'</span> وزد الـ version في الـ update. إن تغيّرت النسخة بين القراءة والكتابة، العملية تفشل ويعيد التطبيق المحاولة.</span><span class="lang-en"><strong>Optimistic Locking</strong> in DynamoDB uses <strong>Conditional Writes</strong>: read the item with its version, then update with <span class="font-mono">conditionExpression: 'version = :oldVersion'</span> and increment version. If the version changed between read/write, the op fails and the app retries.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يمنع السباق إذا قرأ الاثنان قبل الكتابة.</span><span class=\"lang-en\">Doesn't prevent the race if both read first.</span>", "", "<span class=\"lang-ar\">RCU لا يحلّ قضايا التزامن.</span><span class=\"lang-en\">RCU doesn't solve concurrency.</span>", "<span class=\"lang-ar\">DAX للقراءة فقط.</span><span class=\"lang-en\">DAX is read-only.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">ما حدّ BatchGetItem؟</span><span class="lang-en">What's BatchGetItem's limit?</span>",
+        options: [
+          "<span class="lang-ar">٢٥ عنصر، ١٦ MB</span><span class="lang-en">25 items, 16 MB</span>",
+          "<span class="lang-ar">١٠٠ عنصر، ١٦ MB</span><span class="lang-en">100 items, 16 MB</span>",
+          "<span class="lang-ar">٥٠٠ عنصر، ٤٠٠ KB</span><span class="lang-en">500 items, 400 KB</span>",
+          "<span class="lang-ar">١٠٠٠ عنصر، ١ MB</span><span class="lang-en">1000 items, 1 MB</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>BatchGetItem</strong>: حتى ١٠٠ عنصر أو ١٦ MB إجمالي. <strong>BatchWriteItem</strong>: حتى ٢٥ عنصر (PutItem/DeleteItem) أو ١٦ MB. البطء/الفشل يعود في <span class="font-mono">UnprocessedKeys</span> — استخدم exponential backoff.</span><span class="lang-en"><strong>BatchGetItem</strong>: up to 100 items or 16 MB total. <strong>BatchWriteItem</strong>: up to 25 items (PutItem/DeleteItem) or 16 MB. Failures return in <span class="font-mono">UnprocessedKeys</span> — apply exponential backoff.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يصوّت على مرشحَين فقط (A و B)، ويستخدم <span dir="ltr" class="font-mono">candidateId</span> كـ Partition Key. النتيجة hot partition. ما الحلّ الأنسب للكتابة؟</span><span class="lang-en">A voting app has only two candidates (A, B) using <span dir="ltr" class="font-mono">candidateId</span> as Partition Key — hot partition. Best write-side fix?</span>",
+        options: [
+          "<span class="lang-ar">إضافة DAX.</span><span class="lang-en">Add DAX.</span>",
+          "<span class="lang-ar">تحويل إلى On-Demand mode.</span><span class="lang-en">Switch to On-Demand mode.</span>",
+          "<span class="lang-ar">Write Sharding: إضافة suffix عشوائي للـ Partition Key (<span class="font-mono">A_1, A_2, ...</span>).</span><span class="lang-en">Write Sharding: add random suffix to Partition Key (<span class="font-mono">A_1, A_2, ...</span>).</span>",
+          "<span class="lang-ar">رفع عدد الـ partitions يدوياً.</span><span class="lang-en">Manually raise partition count.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>Write Sharding</strong> هو الحلّ المعياري لـ hot partition في الكتابة: أضف suffix (عشوائي أو محسوب) لتحويل Partition Key واحد إلى عشرات الـ partitions. DAX للـ reads فقط. On-Demand يساعد لكنّه لا يحلّ hot partition في الأساس. عدد الـ partitions تديره AWS تلقائياً.</span><span class="lang-en"><strong>Write Sharding</strong> is the standard write-hot-partition fix: append a suffix (random or calculated) to turn one Partition Key into many. DAX is read-only. On-Demand helps but doesn't fundamentally fix hot partitions. Partition count is auto-managed by AWS.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">DAX للقراءة فقط.</span><span class=\"lang-en\">DAX is read-only.</span>", "<span class=\"lang-ar\">يساعد لكن لا يحلّ جذر المشكلة.</span><span class=\"lang-en\">Helps but doesn't fix the root cause.</span>", "", "<span class=\"lang-ar\">لا يمكن التحكّم اليدوي.</span><span class=\"lang-en\">Can't manually control count.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q16",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد حفظ ملفات صور للمنتجات تصل إلى ٢ MB لكل صورة مع بياناتها. ما النمط الأمثل؟</span><span class="lang-en">A developer needs to store product images up to 2 MB each with metadata. Best pattern?</span>",
+        options: [
+          "<span class="lang-ar">حفظ الصورة كـ Binary attribute في DynamoDB.</span><span class="lang-en">Store image as a Binary attribute in DynamoDB.</span>",
+          "<span class="lang-ar">تقسيم الصورة لعدّة عناصر.</span><span class="lang-en">Split across multiple items.</span>",
+          "<span class="lang-ar">حفظ الصورة في S3 والـ metadata والرابط في DynamoDB.</span><span class="lang-en">Store image in S3, metadata & URL in DynamoDB.</span>",
+          "<span class="lang-ar">استخدام Instance Store.</span><span class="lang-en">Use Instance Store.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">نمط <strong>Large Objects</strong>: S3 للـ blobs (أرخص، لا قيود حجم عمليّة)، DynamoDB للـ metadata والـ URL. حدّ عنصر DynamoDB ٤٠٠ KB، فصورة ٢ MB لا تدخل. تقسيمها يُعقّد التطبيق.</span><span class="lang-en"><strong>Large Objects</strong> pattern: S3 for blobs (cheaper, no practical size limit), DynamoDB for metadata and URL. DynamoDB item max is 400 KB — 2 MB won't fit. Splitting adds complexity.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتجاوز حدّ ٤٠٠ KB للعنصر.</span><span class=\"lang-en\">Exceeds 400 KB item limit.</span>", "<span class=\"lang-ar\">يُعقّد الكود بدون فائدة.</span><span class=\"lang-en\">Unnecessary complexity.</span>", "", "<span class=\"lang-ar\">ليس مخصّصاً للتخزين المشترك.</span><span class=\"lang-en\">Not for shared storage.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q17",
+        type: "single",
+        question: "<span class="lang-ar">كم تستهلك عملية Transactional Write لعنصر حجم ٥ KB من الـ WCU؟</span><span class="lang-en">How many WCU does a Transactional Write for a 5 KB item consume?</span>",
+        options: [
+          "<span class="lang-ar">٥ WCU</span><span class="lang-en">5 WCU</span>",
+          "<span class="lang-ar">٦ WCU</span><span class="lang-en">6 WCU</span>",
+          "<span class="lang-ar">١٠ WCU</span><span class="lang-en">10 WCU</span>",
+          "<span class="lang-ar">١٢ WCU</span><span class="lang-en">12 WCU</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">Transactional Writes تستهلك <strong>ضعف</strong> الـ WCU العادية (prepare + commit). عنصر ٥ KB يحتاج ٥ WCU عادية (١ WCU لكل KB) فيصبح <strong>٥ × ٢ = ١٠ WCU</strong> للـ Transactional Write. نفس المبدأ للـ RCU.</span><span class="lang-en">Transactional Writes cost <strong>2×</strong> regular WCU (prepare + commit). A 5 KB item needs 5 WCU regular (1 WCU/KB) → <strong>5 × 2 = 10 WCU</strong> transactional. Same logic for RCU.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذه تكلفة الكتابة العادية.</span><span class=\"lang-en\">That's the non-transactional cost.</span>", "<span class=\"lang-ar\">حسبة خاطئة.</span><span class=\"lang-en\">Wrong math.</span>", "", "<span class=\"lang-ar\">أكثر من اللازم.</span><span class=\"lang-en\">Too high.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q18",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يحتاج قراءة ميزانية مستخدم فوراً بعد الكتابة (لا تأخير). ما الإعداد الصحيح في DynamoDB؟</span><span class="lang-en">An app needs to read a user's balance immediately after a write — no lag tolerated. Correct DynamoDB setting?</span>",
+        options: [
+          "<span class="lang-ar">الإعداد الافتراضي (Eventually Consistent).</span><span class="lang-en">Default (Eventually Consistent).</span>",
+          "<span class="lang-ar">ConsistentRead = true (Strongly Consistent).</span><span class="lang-en">ConsistentRead = true (Strongly Consistent).</span>",
+          "<span class="lang-ar">إضافة DAX.</span><span class="lang-en">Add DAX.</span>",
+          "<span class="lang-ar">استخدام Scan بدل GetItem.</span><span class="lang-en">Use Scan instead of GetItem.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Strongly Consistent Read</strong> يعيد دائماً آخر قيمة مكتوبة (بعد تأكيد كل الـ replicas). اضبط <span class="font-mono">ConsistentRead=true</span> في GetItem/BatchGetItem/Query/Scan. التكلفة: ٢× RCU. الـ Eventually Consistent قد يعطي بيانات قديمة بسبب الـ replication. DAX قد يخفي الكتابة الأحدث.</span><span class="lang-en"><strong>Strongly Consistent Read</strong> always returns the latest committed value (after all replicas ack). Set <span class="font-mono">ConsistentRead=true</span> on GetItem/BatchGetItem/Query/Scan. Cost: 2× RCU. Eventually Consistent may return stale data due to replication. DAX can hide newer writes.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قد يعطي بيانات قديمة.</span><span class=\"lang-en\">May return stale data.</span>", "", "<span class=\"lang-ar\">قد يخفي آخر كتابة (cache lag).</span><span class=\"lang-en\">May hide latest write (cache lag).</span>", "<span class=\"lang-ar\">Scan مكلف ولا يضمن consistency أكثر.</span><span class=\"lang-en\">Scan is expensive; doesn't help consistency.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(12, QUESTIONS);
+      if (isChapterComplete(12)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

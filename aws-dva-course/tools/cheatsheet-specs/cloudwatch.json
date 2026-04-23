@@ -1,0 +1,57 @@
+{
+  "slug": "cloudwatch",
+  "name": "Amazon CloudWatch",
+  "icon": "gauge",
+  "color": "amber",
+  "tagline_ar": "منصّة المراقبة: Metrics وLogs وAlarms وEvents وDashboards وSynthetics لرؤية شاملة لصحة وأداء الأنظمة.",
+  "tagline_en": "Observability platform: Metrics, Logs, Alarms, Events, Dashboards, Synthetics for end-to-end system health and performance.",
+  "key_concepts": [
+    {"concept": "Metrics", "desc_ar": "سلاسل زمنية موزّعة على namespaces/dimensions؛ standard كل دقيقة، detailed/custom بدقة أعلى.", "desc_en": "Time series grouped by namespace/dimensions; standard per minute, detailed/custom higher resolution."},
+    {"concept": "High-resolution metric", "desc_ar": "خصوصية 1 ثانية عبر PutMetricData StorageResolution=1.", "desc_en": "1-second granularity via PutMetricData StorageResolution=1."},
+    {"concept": "Logs", "desc_ar": "CloudWatch Logs: Log Groups → Log Streams؛ retention قابل للضبط 1 يوم – Never Expire.", "desc_en": "CloudWatch Logs: Log Groups → Log Streams; retention 1 day – Never Expire."},
+    {"concept": "Logs Insights", "desc_ar": "استعلام SQL-like على log groups (5 خلف المجموعات كحد).", "desc_en": "SQL-like query over log groups (up to 50 groups per query)."},
+    {"concept": "Metric Filter", "desc_ar": "يستخرج أرقام من Logs ويحوّلها إلى CloudWatch metric.", "desc_en": "Extracts values from Logs into a CloudWatch metric."},
+    {"concept": "Alarms", "desc_ar": "حالات OK/INSUFFICIENT_DATA/ALARM على metric؛ تشغّل SNS, Auto Scaling, EC2 action.", "desc_en": "OK/INSUFFICIENT_DATA/ALARM states on a metric; trigger SNS, Auto Scaling, or EC2 actions."},
+    {"concept": "Composite Alarm", "desc_ar": "يجمع عدة alarms بتعابير AND/OR لتقليل noise.", "desc_en": "Combines multiple alarms via AND/OR rule expressions to reduce noise."},
+    {"concept": "Synthetics Canaries", "desc_ar": "سكربتات Lambda (Puppeteer/Selenium) تفحص endpoints دورياً.", "desc_en": "Lambda scripts (Puppeteer/Selenium) periodically probing endpoints."},
+    {"concept": "CloudWatch Agent", "desc_ar": "يجمع system metrics ولوجات من EC2/On-Prem عبر ملف JSON config.", "desc_en": "Collects system metrics and logs from EC2/On-Prem via JSON config."}
+  ],
+  "limits": [
+    {"limit": "Metric retention", "limit_en": "Metric retention", "value": "15 mo rollup"},
+    {"limit": "1-minute metric retention", "limit_en": "1-min metric retention", "value": "15 days"},
+    {"limit": "5-minute metric retention", "limit_en": "5-min metric retention", "value": "63 days"},
+    {"limit": "High-res (1s) retention", "limit_en": "1s high-res retention", "value": "3 hours"},
+    {"limit": "Dimensions per metric", "limit_en": "Dimensions per metric", "value": "30"},
+    {"limit": "Alarms per region", "limit_en": "Alarms per region", "value": "5000"},
+    {"limit": "Log event size", "limit_en": "Log event size", "value": "256 KB"},
+    {"limit": "Logs ingest", "limit_en": "Logs ingest", "value": "PutLogEvents 5 req/s/stream"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "نشر metric مخصص.", "desc_en": "Publish a custom metric.", "cmd": "aws cloudwatch put-metric-data --namespace MyApp --metric-name Orders --value 1 --unit Count"},
+    {"desc_ar": "إنشاء alarm على CPU.", "desc_en": "Create CPU alarm.", "cmd": "aws cloudwatch put-metric-alarm --alarm-name high-cpu --metric-name CPUUtilization --namespace AWS/EC2 --threshold 80 --comparison-operator GreaterThanThreshold --evaluation-periods 2 --period 60 --statistic Average --alarm-actions arn:aws:sns:..."},
+    {"desc_ar": "استعلام Logs Insights.", "desc_en": "Run Logs Insights query.", "cmd": "aws logs start-query --log-group-name /aws/lambda/f --start-time 1700000000 --end-time 1700003600 --query-string 'fields @timestamp,@message | filter @message like /ERROR/'"},
+    {"desc_ar": "تصدير لوجات إلى S3.", "desc_en": "Export logs to S3.", "cmd": "aws logs create-export-task --log-group-name /aws/lambda/f --from 1700000000000 --to 1700003600000 --destination my-bucket"},
+    {"desc_ar": "ضبط احتفاظ log group.", "desc_en": "Set log group retention.", "cmd": "aws logs put-retention-policy --log-group-name /aws/lambda/f --retention-in-days 30"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "مراقبة صحة موارد AWS برسوم بيانية وalarms", "scenario_en": "Monitor AWS resources with graphs and alarms", "choice": "Metrics + Alarms + Dashboards"},
+    {"scenario_ar": "تحليل سجلات تطبيقية ضخمة", "scenario_en": "Analyze large application logs", "choice": "Logs Insights"},
+    {"scenario_ar": "إشعار عند أخطاء محددة في اللوجات", "scenario_en": "Alert on specific log errors", "choice": "Metric Filter + Alarm"},
+    {"scenario_ar": "فحص واجهة المستخدم دورياً", "scenario_en": "Periodic UI/availability probes", "choice": "Synthetics Canary"},
+    {"scenario_ar": "جمع metrics/logs من EC2/On-Prem", "scenario_en": "Collect metrics/logs from EC2/On-Prem", "choice": "CloudWatch Agent"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Data type", "feature_ar": "نوع البيانات", "this": "Numeric time series", "alt": "Raw text events", "alt_name": "Logs"},
+    {"feature": "Retention (default)", "feature_ar": "الاحتفاظ الافتراضي", "this": "15 months (rollup)", "alt": "Never expire by default", "alt_name": "Logs"},
+    {"feature": "Query language", "feature_ar": "لغة الاستعلام", "this": "CloudWatch Metric math", "alt": "Logs Insights (SQL-like)", "alt_name": "Logs"},
+    {"feature": "Use case", "feature_ar": "حالة الاستخدام", "this": "Dashboards + Alarms", "alt": "Debugging + audit", "alt_name": "Logs"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Per metric + API calls", "alt": "Per GB ingested + stored", "alt_name": "Logs"}
+  ],
+  "exam_tips": [
+    {"ar": "1-minute metrics تُحفظ 15 يوم، 5-minute 63 يوم، 1-hour 455 يوم (15 شهر).", "en": "1-min metrics retained 15 days, 5-min 63 days, 1-hour 455 days (15 months)."},
+    {"ar": "High-resolution (1s) alarms ممكنة فقط مع custom metrics StorageResolution=1 ويدعمها period=10s أو 30s.", "en": "High-res (1s) alarms only with custom metrics StorageResolution=1 and period 10s or 30s."},
+    {"ar": "EC2 Standard Monitoring = كل 5 دقائق؛ Detailed Monitoring = كل دقيقة (مدفوع).", "en": "EC2 Standard Monitoring = every 5 min; Detailed Monitoring = every 1 min (paid)."},
+    {"ar": "Metric Filter يحوّل لوجات إلى metric — لا يغيّر محتوى اللوج ولا يعيد معالجة قديمة.", "en": "Metric Filter turns logs into a metric — doesn't modify logs or process history."},
+    {"ar": "Alarm يدخل INSUFFICIENT_DATA عندما لا توجد datapoints — يمكن اعتبارها OK أو ALARM.", "en": "Alarm enters INSUFFICIENT_DATA on missing data — treat as OK or ALARM via TreatMissingData."}
+  ]
+}

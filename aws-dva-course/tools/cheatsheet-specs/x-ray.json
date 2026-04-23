@@ -1,0 +1,46 @@
+{
+  "slug": "x-ray",
+  "name": "AWS X-Ray",
+  "icon": "scan-search",
+  "color": "amber",
+  "tagline_ar": "خدمة Distributed Tracing تُظهر خدمة-خدمة كخريطة (Service Map) مع segments وsubsegments لتشخيص الكمون والأخطاء.",
+  "tagline_en": "Distributed tracing service rendering service-to-service calls as a Service Map with segments/subsegments to diagnose latency and errors.",
+  "key_concepts": [
+    {"concept": "Trace", "desc_ar": "مسار الطلب عبر عدة خدمات، مُعرَّف بواسطة Trace ID موحّد.", "desc_en": "End-to-end request path through services identified by a Trace ID."},
+    {"concept": "Segment", "desc_ar": "عمل خدمة واحدة (Lambda/EC2/ECS) ضمن trace.", "desc_en": "Work done by a single service (Lambda/EC2/ECS) within a trace."},
+    {"concept": "Subsegment", "desc_ar": "عملية داخلية: DB call, HTTP, custom timing.", "desc_en": "Internal operation: DB call, HTTP, or custom timing block."},
+    {"concept": "Service Map", "desc_ar": "تصوّر بصري للعلاقات بين الخدمات مع latency/errors.", "desc_en": "Visual representation of service relationships with latency/errors."},
+    {"concept": "Sampling rules", "desc_ar": "تحدد معدّل جمع traces لتقليل التكلفة (default: 1 req/s + 5%).", "desc_en": "Control trace sampling rate to save cost (default: 1 req/s + 5%)."},
+    {"concept": "Annotations vs Metadata", "desc_ar": "Annotations = key/value مفهرسة للبحث؛ Metadata = بيانات إضافية غير مفهرسة.", "desc_en": "Annotations = indexed key/value for filtering; Metadata = non-indexed extra data."},
+    {"concept": "X-Ray Daemon", "desc_ar": "يستقبل UDP:2000 من SDK ويرسل segments إلى X-Ray API.", "desc_en": "Listens on UDP:2000 from SDK and forwards segments to X-Ray API."},
+    {"concept": "SDKs / Active Tracing", "desc_ar": "Lambda Active Tracing يرسل segments تلقائياً؛ SDK متاح لعدة لغات.", "desc_en": "Lambda Active Tracing auto-sends segments; SDKs available in multiple languages."}
+  ],
+  "limits": [
+    {"limit": "Trace retention", "limit_en": "Trace retention", "value": "30 days"},
+    {"limit": "Segment size (compressed)", "limit_en": "Segment size (compressed)", "value": "64 KB"},
+    {"limit": "Subsegments per segment", "limit_en": "Subsegments per segment", "value": "20,000"},
+    {"limit": "Annotations per segment", "limit_en": "Annotations per segment", "value": "50"},
+    {"limit": "Default sampling", "limit_en": "Default sampling", "value": "1 req/s + 5% extra"},
+    {"limit": "Daemon port", "limit_en": "Daemon port", "value": "UDP 2000"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "استرجاع trace بالمُعرّف.", "desc_en": "Fetch traces by ID.", "cmd": "aws xray batch-get-traces --trace-ids 1-5f84c7a1-e7d1b9a2"},
+    {"desc_ar": "الحصول على خريطة الخدمة.", "desc_en": "Get service graph.", "cmd": "aws xray get-service-graph --start-time $(date -v-1H +%s) --end-time $(date +%s)"},
+    {"desc_ar": "إدخال قاعدة أخذ عينات.", "desc_en": "Create sampling rule.", "cmd": "aws xray create-sampling-rule --sampling-rule file://rule.json"},
+    {"desc_ar": "تشغيل الـ daemon محلياً.", "desc_en": "Run local daemon.", "cmd": "./xray -o -n us-east-1"},
+    {"desc_ar": "تفعيل active tracing على Lambda.", "desc_en": "Enable Lambda active tracing.", "cmd": "aws lambda update-function-configuration --function-name f --tracing-config Mode=Active"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تشخيص latency بين microservices", "scenario_en": "Diagnose latency between microservices", "choice": "X-Ray Service Map"},
+    {"scenario_ar": "تتبع طلب عبر API Gateway → Lambda → DynamoDB", "scenario_en": "Trace request across API Gateway → Lambda → DynamoDB", "choice": "Active Tracing on each hop"},
+    {"scenario_ar": "إضافة timing مخصص داخل كود", "scenario_en": "Add custom timing within code", "choice": "Custom subsegments via SDK"},
+    {"scenario_ar": "مراقبة ECS/EC2 بواسطة sidecar daemon", "scenario_en": "ECS/EC2 monitoring via sidecar daemon", "choice": "X-Ray Daemon container"}
+  ],
+  "exam_tips": [
+    {"ar": "Lambda يحتاج tracing-config Mode=Active + IAM permissions (AWSXRayDaemonWriteAccess).", "en": "Lambda needs tracing-config Mode=Active + IAM (AWSXRayDaemonWriteAccess)."},
+    {"ar": "EC2/ECS يتطلب تشغيل X-Ray daemon ليستقبل على UDP:2000 ويرسل إلى AWS.", "en": "EC2/ECS require running the X-Ray daemon on UDP:2000 forwarding to AWS."},
+    {"ar": "Annotations قابلة للفلترة في استعلامات X-Ray؛ Metadata للإطلاع فقط.", "en": "Annotations are filterable in X-Ray queries; Metadata is view-only."},
+    {"ar": "API Gateway يدعم X-Ray عبر تفعيل tracing على stage.", "en": "API Gateway supports X-Ray via stage-level tracing toggle."},
+    {"ar": "traces تُحفظ 30 يوم ولا يمكن تمديدها؛ للتحليل الطويل صدّرها أو استخدم CloudWatch.", "en": "Traces retained 30 days and cannot be extended; export or combine with CloudWatch for longer analytics."}
+  ]
+}

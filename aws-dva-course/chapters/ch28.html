@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 28 — AWS X-Ray & CloudTrail — Distributed Tracing & Audit | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-amber-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الرابع — 18%</span>
+          <span class="lang-en">Domain 4 — 18%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٨ من ٣٠</span>
+        <span class="lang-en">Chapter 28 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.506-531</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS X-Ray و CloudTrail — التتبّع الموزّع والتدقيق</span>
+        <span class="lang-en">AWS X-Ray & CloudTrail — Distributed Tracing & Audit</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">X-Ray يجيب عن "أين يتأخّر طلبي؟" بخريطة خدمات بصريّة. CloudTrail يجيب عن "من فعل ماذا ومتى؟" في حسابك. معاً يكملان CloudWatch لإغلاق دائرة المراقبة.</span>
+        <span class="lang-en">X-Ray answers "where is my request slow?" with a visual service map. CloudTrail answers "who did what and when?" in your account. Together they complement CloudWatch to close the observability loop.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">X-Ray</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CloudTrail</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Tracing</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Audit</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Service Map</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Sampling</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">X-Ray Segments, Subsegments, Traces</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في تشخيص اختناقات microservices.</span>
+      <span class="lang-en">Domain 4 — diagnosing microservice bottlenecks.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">X-Ray Sampling Rules (reservoir + rate)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في ضبط تكلفة التتبّع.</span>
+      <span class="lang-en">Domain 4 — controlling tracing cost.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudTrail Management / Data / Insights events</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أسئلة التدقيق والامتثال.</span>
+      <span class="lang-en">Domain 4 — audit and compliance questions.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudTrail + EventBridge integration</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أتمتة الردّ على أحداث API.</span>
+      <span class="lang-en">Domain 4 — automated reaction to API events.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو AWS X-Ray ولماذا؟</span>
+      <span class="lang-en">What is AWS X-Ray & why?</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">في العالم الموزّع (Lambda + API Gateway + DynamoDB + SNS) يصبح تصحيح الأعطال كابوساً: ملفّات سجلّ متناثرة وصيغ مختلفة. <strong>X-Ray</strong> يجمع كلّ الطلب في <em>trace</em> واحد بصريّ يبيّن أين يُستهلك الوقت وأين تحدث الأخطاء. فكّر فيه كـ Zipkin/Jaeger على AWS.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">In a distributed world (Lambda + API Gateway + DynamoDB + SNS), debugging becomes a nightmare of scattered logs and inconsistent formats. <strong>X-Ray</strong> unifies every request into a single visual <em>trace</em> showing where time is spent and where errors occur. Think Zipkin/Jaeger on AWS.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">تشخيص الأداء</span><span class="lang-en">Performance diagnosis</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يكشف الاختناقات و latency بين الخدمات.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Reveals bottlenecks and inter-service latency.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="network" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">خريطة خدمات</span><span class="lang-en">Service Map</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">رسم تلقائيّ للاعتمادات بين الخدمات — حتى غير المطوّرين يفهمونه.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Auto-drawn dependency graph — even non-devs can follow.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">أخطاء وخنق</span><span class="lang-en">Errors & throttling</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يُظهر Exceptions وحالات <span dir="ltr" class="font-mono">429 Throttling</span> أين بالضبط.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Pinpoints exceptions and <span dir="ltr" class="font-mono">429 Throttling</span>.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">SLA</span><span class="lang-en">SLA</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">هل نلتزم بزمن الاستجابة المتعاقد عليه؟ X-Ray يرصد ذلك.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Are we meeting response-time SLA? X-Ray tracks it.</p>
+  </div>
+</div>
+<p class="text-surface-700 leading-relaxed lang-ar">يتكامل X-Ray مع: Lambda، API Gateway، Elastic Beanstalk، ECS/EKS، ELB، EC2 (وحتى خوادم On-Prem). متوافق مع Java و Python و Go و Node.js و .NET.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Integrations: Lambda, API Gateway, Elastic Beanstalk, ECS/EKS, ELB, EC2 (even on-prem). Works with Java, Python, Go, Node.js, .NET.</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">المفاهيم الأساسيّة: Segments و Subsegments و Traces</span>
+      <span class="lang-en">Core concepts: Segments, Subsegments, Traces</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المفهوم</span><span class="lang-en">Concept</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المعنى</span><span class="lang-en">Meaning</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Segment</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">العمل الذي تقوم به خدمة واحدة (مثلاً: Lambda function). كلّ خدمة ترسل segment خاصّاً بها.</span><span class="lang-en">The work one service does (e.g., a Lambda function). Each service emits its own segment.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Subsegment</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تفصيل داخل segment لاستدعاء downstream (DynamoDB، HTTP client، SQL).</span><span class="lang-en">Detail inside a segment for a downstream call (DynamoDB, HTTP client, SQL).</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Trace</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مجموع segments لطلب واحد عبر كلّ الخدمات من البداية إلى النهاية.</span><span class="lang-en">The collection of all segments for one request across all services, end to end.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Annotations</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">key/value <u>مفهرسة</u> للبحث والتصفية (مثل <span dir="ltr" class="font-mono">userId</span>).</span><span class="lang-en">Key/value pairs <u>indexed</u> for searching and filtering (e.g., <span dir="ltr" class="font-mono">userId</span>).</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Metadata</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">key/value <u>غير مفهرسة</u>، للمعلومات الإضافيّة فقط.</span><span class="lang-en">Key/value <u>not indexed</u>, for extra context only.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> قاعدة ذهبيّة للامتحان: <strong>Annotations للبحث، Metadata للقراءة فقط</strong>. <span dir="ltr" class="font-mono">userId</span> أو <span dir="ltr" class="font-mono">orderId</span> ضعهما كـ annotation؛ payload الكامل ضعه metadata.</span>
+      <span class="lang-en"> Golden rule: <strong>Annotations = searchable, Metadata = context-only</strong>. Put <span dir="ltr" class="font-mono">userId</span>/<span dir="ltr" class="font-mono">orderId</span> as annotations; full payload as metadata.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Spring Boot + X-Ray SDK v2 — add annotations & subsegments
+import com.amazonaws.xray.AWSXRay;
+
+@RestController
+public class OrderController {
+
+    @GetMapping("/orders/{id}")
+    public Order getOrder(@PathVariable String id) {
+        // Make this trace searchable by order id
+        AWSXRay.getCurrentSegment().putAnnotation("orderId", id);
+        AWSXRay.getCurrentSegment().putMetadata("request-ip", requestIp());
+
+        // Custom subsegment for business logic
+        return AWSXRay.createSubsegment("loadOrder", subsegment -> {
+            return orderRepo.findById(id);
+        });
+    }
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">التفعيل: Daemon و SDK و IAM</span>
+      <span class="lang-en">Enabling X-Ray: Daemon, SDK, IAM</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لتمكين X-Ray تحتاج خطوتين: (١) استيراد X-Ray SDK في الكود لإنشاء segments تلقائياً، و (٢) تشغيل <strong>X-Ray Daemon</strong> — وسيط UDP على المنفذ <span dir="ltr" class="font-mono">2000</span> يجمع segments ويرسلها إلى خدمة X-Ray كلّ ثانية. Lambda و Beanstalk يشغّلان الـ daemon نيابةً عنك.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Enable X-Ray in 2 steps: (1) import the X-Ray SDK so segments are created automatically, and (2) run the <strong>X-Ray Daemon</strong> — a UDP listener on port <span dir="ltr" class="font-mono">2000</span> that batches segments to the X-Ray service every second. Lambda & Beanstalk run the daemon for you.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="server" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">ECS: Daemon Container</span><span class="lang-en">ECS: Daemon Container</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">حاوية واحدة للـ daemon على كلّ EC2 في الـ cluster (نمط DaemonSet). رخيص، لكن مشترَك بين المهامّ.</p>
+      <p class="text-sm text-surface-700 lang-en">One daemon container per EC2 in the cluster (DaemonSet pattern). Cheap, but shared across tasks.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="container" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">ECS / Fargate: Sidecar</span><span class="lang-en">ECS / Fargate: Sidecar</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">حاوية daemon مرفقة مع كلّ مهمّة — العزل أفضل، وهو الخيار الوحيد في Fargate.</p>
+      <p class="text-sm text-surface-700 lang-en">Daemon container attached per task — better isolation, only option on Fargate.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># Elastic Beanstalk enables X-Ray via .ebextensions/xray-daemon.config
+option_settings:
+  aws:elasticbeanstalk:xray:
+    XRayEnabled: true
+
+# The instance profile must allow writes to X-Ray (see IAM below).</code></pre>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Minimum IAM policy for the X-Ray Daemon / application
+{
+  "Effect": "Allow",
+  "Action": [
+    "xray:PutTraceSegments",
+    "xray:PutTelemetryRecords",
+    "xray:GetSamplingRules",
+    "xray:GetSamplingTargets",
+    "xray:GetSamplingStatisticSummaries"
+  ],
+  "Resource": "*"
+}
+// Or the managed policy: arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> أكثر سببين لتعطّل X-Ray في الامتحان: (١) الـ IAM Role لا يمتلك <span dir="ltr" class="font-mono">xray:PutTraceSegments</span>. (٢) على Lambda: <strong>Active Tracing</strong> غير مُفعّل في إعدادات الدالّة.</span>
+      <span class="lang-en"> Top 2 X-Ray failures on exam: (1) IAM Role missing <span dir="ltr" class="font-mono">xray:PutTraceSegments</span>. (2) On Lambda: <strong>Active Tracing</strong> not enabled in function config.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">قواعد أخذ العيّنات (Sampling Rules)</span>
+      <span class="lang-en">Sampling Rules</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">تتبّع كلّ طلب يُكلّف كثيراً. Sampling Rules تتحكّم بكم من الطلبات تُسجَّل. الافتراضي: أوّل طلب في كلّ ثانية (<strong>Reservoir</strong>) ثمّ ٥٪ من الباقي (<strong>Rate</strong>). يمكن تعديل القواعد من الـ Console دون تعديل الكود.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Tracing every request is expensive. Sampling Rules control how many requests are recorded. Default: the first request each second (<strong>Reservoir</strong>) then 5% of additional requests (<strong>Rate</strong>). Rules are editable from the Console — no code change needed.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المفهوم</span><span class="lang-en">Term</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الشرح</span><span class="lang-en">Explanation</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Reservoir</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الحدّ الأدنى المضمون في الثانية (ضمان وجود trace واحد على الأقلّ).</span><span class="lang-en">Guaranteed minimum per second (ensures at least one trace/sec).</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Rate</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">النسبة المأخوذة من الطلبات الإضافيّة فوق Reservoir.</span><span class="lang-en">Sampled percentage of additional requests above reservoir.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قاعدة Priority</span><span class="lang-en">Priority rule</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">رقم أصغر = أولويّة أعلى. تُطبَّق القاعدة الأعلى أولاً.</span><span class="lang-en">Smaller = higher priority. First matching rule wins.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Debugging rule: trace every PUT /history/* call
+{
+  "RuleName": "DEBUG-history-updates",
+  "Priority": 1,
+  "Reservoir": 1,
+  "Rate": 1.0,
+  "ServiceName": "scorekeep",
+  "HTTPMethod": "PUT",
+  "URLPath": "/history/*",
+  "ResourceARN": "*"
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للمطوّر السينيور: عند التحقيق في مشكلة إنتاج، أنشئ <strong>قاعدة مؤقّتة Priority=1, Rate=1.0</strong> مقصورة على المسار المشكوك فيه، واحذفها فور انتهاء التحقيق لتقليل التكلفة.</span>
+      <span class="lang-en"> Senior dev: when investigating a prod issue, create a <strong>temporary Priority=1, Rate=1.0 rule</strong> scoped to the suspect path; delete after investigation to contain cost.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">AWS CloudTrail — تدقيق كلّ API Call</span>
+      <span class="lang-en">AWS CloudTrail — audit every API call</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>CloudTrail</strong> مُفعّل افتراضياً في كلّ حساب AWS، ويسجّل كل API call يُجرى عبر Console أو CLI أو SDK أو خدمات AWS نفسها. الوظيفة: الحوكمة، الامتثال، والتدقيق. إذا حُذف مورد — <em>CloudTrail هو الوجهة الأولى للبحث</em>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CloudTrail</strong> is on by default in every AWS account, recording every API call made via Console, CLI, SDK, or AWS services themselves. Purpose: governance, compliance, audit. If a resource disappears — <em>CloudTrail is where you look first</em>.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Management Events (افتراضي)</span><span class="lang-en">Management Events (default)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">عمليّات الإدارة: IAM AttachRolePolicy، EC2 CreateSubnet، CloudTrail CreateTrail. قابل للتقسيم إلى Read vs Write.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Management ops: IAM AttachRolePolicy, EC2 CreateSubnet, CreateTrail. Splittable into Read vs Write.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="database" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Data Events (غير مسجّلة افتراضياً)</span><span class="lang-en">Data Events (NOT default)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">عمليّات على مستوى الكائنات: S3 GetObject/PutObject، Lambda Invoke. حجم ضخم ومكلفة — فعّل فقط عند الحاجة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Object-level ops: S3 GetObject/PutObject, Lambda Invoke. High volume and expensive — enable only when needed.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudTrail Insights Events</span><span class="lang-en">CloudTrail Insights Events</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ML تتعلّم النشاط الطبيعيّ وتنبّه عند انحرافات: فورة IAM، تجاوز حدود الخدمة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ML learns normal activity and alerts on anomalies: IAM bursts, service-limit spikes.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="archive" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">الاحتفاظ</span><span class="lang-en">Retention</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">٩٠ يوماً في CloudTrail نفسها. لبقاء أطول: سلّم إلى S3 (خام) + Athena للاستعلام.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">90 days in CloudTrail itself. For longer retention: deliver to S3 (raw) + Athena for querying.</p>
+  </div>
+</div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Multi-Region Trail</span><span class="lang-en">Multi-Region Trail</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">الافتراضي الجديد: يغطّي كلّ المناطق في حساب واحد. موصى به دائماً.</p>
+      <p class="text-sm text-surface-700 lang-en">The new default: covers every region in one account. Always recommended.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="building" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Organization Trail</span><span class="lang-en">Organization Trail</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">في AWS Organizations: trail واحد مركزيّ يجمع أحداث كلّ الحسابات الفرعيّة — لا يمكن لحساب فرعي إيقافه.</p>
+      <p class="text-sm text-surface-700 lang-en">In AWS Organizations: one central trail aggregates events from all member accounts — a member cannot disable it.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Log file integrity validation</strong>: عند التسليم إلى S3، CloudTrail ينشئ ملفّ digest (SHA-256) كلّ ساعة. لاكتشاف تلاعب، تحقّق من سلسلة الـ digest عبر <span dir="ltr" class="font-mono">aws cloudtrail validate-logs</span>.</span>
+      <span class="lang-en"> <strong>Log file integrity validation</strong>: on S3 delivery CloudTrail creates an hourly SHA-256 digest file. To detect tampering verify the digest chain via <span dir="ltr" class="font-mono">aws cloudtrail validate-logs</span>.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">التكامل: CloudTrail + CloudWatch + EventBridge</span>
+      <span class="lang-en">Integration: CloudTrail + CloudWatch + EventBridge</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">CloudTrail وحده لا يرسل تنبيهات فوريّة. لتحقيق ذلك اربطه بـ <strong>CloudWatch Logs</strong> + Metric Filter + Alarm (مثلاً عند استدعاء <span dir="ltr" class="font-mono">DeleteTable</span> في DynamoDB). أو اربطه بـ <strong>EventBridge</strong> مباشرة لردّ فعل أوتوماتيكيّ.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">CloudTrail alone doesn't push real-time alerts. Wire it to <strong>CloudWatch Logs</strong> + Metric Filter + Alarm (e.g., trigger on <span dir="ltr" class="font-mono">DeleteTable</span> in DynamoDB). Or plug directly into <strong>EventBridge</strong> for automated response.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// EventBridge rule: alert when anyone edits Security Group inbound rules
+{
+  "source": ["aws.ec2"],
+  "detail-type": ["AWS API Call via CloudTrail"],
+  "detail": {
+    "eventSource": ["ec2.amazonaws.com"],
+    "eventName": ["AuthorizeSecurityGroupIngress",
+                  "RevokeSecurityGroupIngress"]
+  }
+}
+// Target: SNS topic → security oncall channel</code></pre>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">أيّ خدمة لماذا؟</span><span class="lang-en">Which service when?</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحالة</span><span class="lang-en">Scenario</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">من حذف Security Group؟</span><span class="lang-en">Who deleted a Security Group?</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudTrail</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لماذا الطلب بطيء على نظام microservices؟</span><span class="lang-en">Why is a request slow across microservices?</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">X-Ray</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كم هي نسبة استخدام CPU؟</span><span class="lang-en">What's the CPU utilization?</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudWatch Metrics</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كم ظهور كلمة ERROR في الساعة؟</span><span class="lang-en">How many ERRORs last hour?</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudWatch Logs Insights</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أرشفة API calls لسنة لتدقيق امتثال.</span><span class="lang-en">Archive API calls for a year for compliance.</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudTrail → S3 + Athena</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> تمكين X-Ray على تطبيق Spring Boot يعمل على Elastic Beanstalk، وإعداد CloudTrail trail متعدّد المناطق يبثّ إلى CloudWatch Logs لتنبيه على حذف قواعد البيانات.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Enable X-Ray on a Spring Boot app running on Elastic Beanstalk, and set up a multi-region CloudTrail trail streaming to CloudWatch Logs to alert on table deletions.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل X-Ray في Elastic Beanstalk</span>
+      <span class="lang-en">Enable X-Ray in Beanstalk</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أضف ملفّ إعداد في مجلد <span dir="ltr" class="font-mono">.ebextensions/</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Add a config file under <span dir="ltr" class="font-mono">.ebextensions/</span>.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># .ebextensions/xray-daemon.config
+option_settings:
+  aws:elasticbeanstalk:xray:
+    XRayEnabled: true</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">امنح Instance Profile صلاحية الكتابة لـ X-Ray</span>
+      <span class="lang-en">Give instance profile X-Ray write perms</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws iam attach-role-policy \
+  --role-name aws-elasticbeanstalk-ec2-role \
+  --policy-arn arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أدخل تعليمات X-Ray في الكود</span>
+      <span class="lang-en">Instrument the code</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">// Spring Boot: register the AWS X-Ray servlet filter
+@Bean
+public FilterRegistrationBean&lt;AWSXRayServletFilter> tracingFilter() {
+    FilterRegistrationBean&lt;AWSXRayServletFilter> bean = new FilterRegistrationBean&lt;>();
+    bean.setFilter(new AWSXRayServletFilter("acme-api"));
+    return bean;
+}</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ CloudTrail متعدّد المناطق يسلّم إلى S3 و CloudWatch Logs</span>
+      <span class="lang-en">Create a multi-region trail delivering to S3 + CloudWatch Logs</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudtrail create-trail --name acme-audit \
+  --s3-bucket-name acme-audit-bucket \
+  --is-multi-region-trail \
+  --enable-log-file-validation
+
+aws cloudtrail update-trail --name acme-audit \
+  --cloud-watch-logs-log-group-arn arn:aws:logs:us-east-1:111:log-group:acme-audit:* \
+  --cloud-watch-logs-role-arn arn:aws:iam::111:role/CloudTrailToCloudWatch
+
+aws cloudtrail start-logging --name acme-audit</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف Metric Filter ينذر عند DeleteTable</span>
+      <span class="lang-en">Add a Metric Filter alerting on DeleteTable</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws logs put-metric-filter --log-group-name acme-audit \
+  --filter-name dynamo-delete-table \
+  --filter-pattern '{ $.eventSource = "dynamodb.amazonaws.com" && $.eventName = "DeleteTable" }' \
+  --metric-transformations \
+    metricName=DynamoTableDeletions,metricNamespace=Acme/Audit,metricValue=1</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Data Events في CloudTrail (مثل S3 GetObject) قد تولّد ملايين الأسطر في اليوم الواحد — لا تفعّلها عبر الـ bucket كاملاً إلا عند الضرورة. ألغِ الـ trail بعد الاختبار لتفادي تكلفة تخزين S3.</span>
+    <span class="lang-en"> CloudTrail Data Events (like S3 GetObject) can generate millions of lines a day — don't enable them bucket-wide unless needed. Disable the trail after testing to avoid S3 storage cost.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="network" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">X-Ray = تتبّع الطلب</span>
+        <span class="lang-en">X-Ray = request tracing</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Segments + Subsegments + Traces. Annotations مفهرسة، Metadata لا.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Segments + Subsegments + Traces. Annotations indexed, Metadata not.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="filter" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Sampling يتحكّم بالتكلفة</span>
+        <span class="lang-en">Sampling controls cost</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Reservoir = حدّ أدنى في الثانية. Rate = نسبة من الباقي.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Reservoir = per-second minimum. Rate = percentage of the rest.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-search" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">CloudTrail = من فعل ماذا</span>
+        <span class="lang-en">CloudTrail = who did what</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Management افتراضيّ، Data اختياريّ، Insights ML. احتفاظ ٩٠ يوماً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Management default, Data opt-in, Insights ML. 90-day retention.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="archive" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">S3 + Athena للامتثال الطويل</span>
+        <span class="lang-en">S3 + Athena for long compliance</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">سلّم إلى S3، فعّل Lifecycle، استعلم بـ SQL عبر Athena.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Deliver to S3, Lifecycle to Glacier, query with SQL via Athena.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">ثلاثيّة المراقبة: <strong>CloudWatch</strong> يقول "ماذا يحدث"، <strong>X-Ray</strong> يقول "أين يحدث"، <strong>CloudTrail</strong> يقول "من فعل ذلك". لو سؤال الامتحان فيه كلمة "audit" أو "who" — اذهب فوراً إلى CloudTrail.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Observability trio: <strong>CloudWatch</strong> says "what is happening", <strong>X-Ray</strong> says "where it happens", <strong>CloudTrail</strong> says "who did it". Any exam question mentioning "audit" or "who" → jump to CloudTrail.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch27.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(28, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch29.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مهندس يريد البحث في traces X-Ray عن كلّ الطلبات الخاصّة بمستخدم معيّن. أين يجب وضع <span dir="ltr" class="font-mono">userId</span>؟</span><span class="lang-en">An engineer wants to search X-Ray traces for all requests of a given user. Where should <span dir="ltr" class="font-mono">userId</span> go?</span>",
+        options: [
+          "<span class="lang-ar">في <span dir="ltr" class="font-mono">metadata</span> (مفهرسة).</span><span class="lang-en">In <span dir="ltr" class="font-mono">metadata</span> (indexed).</span>",
+          "<span class="lang-ar">في <span dir="ltr" class="font-mono">annotations</span> (مفهرسة وقابلة للبحث).</span><span class="lang-en">In <span dir="ltr" class="font-mono">annotations</span> (indexed and searchable).</span>",
+          "<span class="lang-ar">في <span dir="ltr" class="font-mono">subsegment name</span>.</span><span class="lang-en">In the <span dir="ltr" class="font-mono">subsegment name</span>.</span>",
+          "<span class="lang-ar">في رسالة السجلّ في CloudWatch.</span><span class="lang-en">In a CloudWatch log message.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Annotations = مفهرسة وقابلة للبحث</strong>. Metadata غير مفهرسة؛ تُعرض لكن لا يمكن الفلترة عليها. هذا تمييز مهمّ جداً للامتحان.</span><span class="lang-en"><strong>Annotations = indexed and searchable</strong>. Metadata is not indexed; it's displayed but can't filter. Critical exam distinction.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Metadata غير مفهرسة.</span><span class=\"lang-en\">Metadata isn't indexed.</span>", "", "<span class=\"lang-ar\">Subsegment name ليس لتحديد مستخدم.</span><span class=\"lang-en\">Subsegment name isn't for user identity.</span>", "<span class=\"lang-ar\">CloudWatch منفصلة عن فهرس X-Ray.</span><span class=\"lang-en\">CloudWatch is separate from X-Ray's index.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">X-Ray لا يعمل على Lambda مع أنّ الكود يحمل SDK. الخطوة الأكثر ترجيحاً؟</span><span class="lang-en">X-Ray isn't working on Lambda despite the SDK being imported. Most likely fix?</span>",
+        options: [
+          "<span class="lang-ar">زيادة حجم الذاكرة.</span><span class="lang-en">Increase memory.</span>",
+          "<span class="lang-ar">تفعيل <strong>Active Tracing</strong> في إعدادات الدالّة + منحها صلاحية <span dir="ltr" class="font-mono">AWSXRayWriteOnlyAccess</span>.</span><span class="lang-en">Enable <strong>Active Tracing</strong> in the function config + attach <span dir="ltr" class="font-mono">AWSXRayWriteOnlyAccess</span>.</span>",
+          "<span class="lang-ar">إعادة نشر الكود.</span><span class="lang-en">Redeploy the code.</span>",
+          "<span class="lang-ar">تشغيل X-Ray Daemon داخل Lambda.</span><span class="lang-en">Run the X-Ray Daemon inside Lambda.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">على Lambda، X-Ray يشتغل فقط عند تمكين Active Tracing، مع execution role يسمح بالكتابة لـ X-Ray. الـ daemon مدارة من AWS تلقائياً.</span><span class="lang-en">On Lambda, X-Ray runs only when Active Tracing is enabled and the execution role allows writes. The daemon is managed by AWS automatically.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالذاكرة.</span><span class=\"lang-en\">Unrelated to memory.</span>", "", "<span class=\"lang-ar\">إعادة النشر دون تفعيل الإعداد لا تحلّ شيئاً.</span><span class=\"lang-en\">Redeploy without enabling won't help.</span>", "<span class=\"lang-ar\">Lambda لا تشغّل daemon في الكود.</span><span class=\"lang-en\">Lambda doesn't run an in-code daemon.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تتبّع كلّ الطلبات على مسار <span dir="ltr" class="font-mono">/payments/*</span> في الإنتاج. ما الحلّ؟</span><span class="lang-en">A company wants to trace every request on <span dir="ltr" class="font-mono">/payments/*</span> in production. Solution?</span>",
+        options: [
+          "<span class="lang-ar">رفع الـ Sampling Rate العامّة إلى ١٠٠٪.</span><span class="lang-en">Raise global Sampling Rate to 100%.</span>",
+          "<span class="lang-ar">إنشاء Sampling Rule بأولويّة عالية، Reservoir=1, Rate=1.0، مقصورة على <span dir="ltr" class="font-mono">URLPath=/payments/*</span>.</span><span class="lang-en">Create a high-priority Sampling Rule with Reservoir=1, Rate=1.0, scoped to <span dir="ltr" class="font-mono">URLPath=/payments/*</span>.</span>",
+          "<span class="lang-ar">تعطيل X-Ray خارج مسار الدفع.</span><span class="lang-en">Disable X-Ray for non-payment paths.</span>",
+          "<span class="lang-ar">إضافة annotation لكلّ طلب.</span><span class="lang-en">Add an annotation to every request.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Custom Sampling Rule بأولويّة أعلى تغطّي المسار المطلوب فقط. رفع الـ rate العامّ يرفع التكلفة بلا داعٍ. annotations لا علاقة لها بمعدّل أخذ العيّنات.</span><span class="lang-en">A custom high-priority Sampling Rule scoped to the path. Raising global rate balloons cost needlessly. Annotations don't affect sampling.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكلفة مرتفعة.</span><span class=\"lang-en\">High cost.</span>", "", "<span class=\"lang-ar\">لا يمكن تعطيل مسارات محدّدة بهذه الطريقة.</span><span class=\"lang-en\">Can't selectively disable paths that way.</span>", "<span class=\"lang-ar\">Annotations لا تتحكّم بالـ sampling.</span><span class=\"lang-en\">Annotations don't control sampling.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">مدير أمن يسأل: "من حذف جدول DynamoDB المسمّى <span dir="ltr" class="font-mono">orders</span>؟". أين نبحث؟</span><span class="lang-en">Security manager asks: "Who deleted the DynamoDB table <span dir="ltr" class="font-mono">orders</span>?". Where to look?</span>",
+        options: [
+          "<span class="lang-ar">CloudWatch Metrics</span><span class="lang-en">CloudWatch Metrics</span>",
+          "<span class="lang-ar">X-Ray Service Map</span><span class="lang-en">X-Ray Service Map</span>",
+          "<span class="lang-ar">CloudTrail Event History</span><span class="lang-en">CloudTrail Event History</span>",
+          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">CloudTrail يسجّل كلّ API call مع الهويّة والوقت. <span dir="ltr" class="font-mono">DeleteTable</span> هو Management Event، مسجّل افتراضياً. X-Ray للأداء، Config لتاريخ التكوين وليس الفاعل.</span><span class="lang-en">CloudTrail records every API call with identity and time. <span dir="ltr" class="font-mono">DeleteTable</span> is a default Management Event. X-Ray is performance; Config tracks config history, not who.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">فريق امتثال يحتاج الاحتفاظ بسجلّات API لـ٧ سنوات. أيّ الحلول الأمثل؟</span><span class="lang-en">Compliance team needs to retain API logs for 7 years. Best solution?</span>",
+        options: [
+          "<span class="lang-ar">الاكتفاء بـ CloudTrail (٩٠ يوم كافٍ).</span><span class="lang-en">Rely on CloudTrail alone (90 days is enough).</span>",
+          "<span class="lang-ar">تسليم CloudTrail إلى S3 + تفعيل Lifecycle إلى Glacier + استعلام بـ Athena.</span><span class="lang-en">Deliver CloudTrail to S3 + Lifecycle to Glacier + query via Athena.</span>",
+          "<span class="lang-ar">CloudWatch Logs بفترة احتفاظ سنة واحدة.</span><span class="lang-en">CloudWatch Logs with 1-year retention.</span>",
+          "<span class="lang-ar">نسخ السجلّات يدوياً شهرياً.</span><span class="lang-en">Manual monthly copy.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CloudTrail يحتفظ فقط ٩٠ يوماً. لتخزين طويل: S3 (مع Object Lock للامتثال) + Lifecycle إلى Glacier Deep Archive + Athena للاستعلام بـ SQL. النمط المعياريّ في الامتحان.</span><span class="lang-en">CloudTrail itself keeps only 90 days. Long-term: S3 (with Object Lock for compliance) + Lifecycle to Glacier Deep Archive + Athena for SQL queries. The textbook exam pattern.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">٩٠ يوم غير كافية.</span><span class=\"lang-en\">90 days isn't enough.</span>", "", "<span class=\"lang-ar\">سنة لا تكفي، والسجلّات غير مصمّمة لذلك.</span><span class=\"lang-en\">1 year isn't 7, and Logs aren't built for this.</span>", "<span class=\"lang-ar\">عمليّة يدويّة هشّة.</span><span class=\"lang-en\">Fragile manual process.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي أمثلة على <strong>Data Events</strong> في CloudTrail (غير مسجّلة افتراضياً)؟</span><span class="lang-en">Which are examples of CloudTrail <strong>Data Events</strong> (not logged by default)?</span>",
+        options: [
+          "<span class="lang-ar">S3 GetObject</span><span class="lang-en">S3 GetObject</span>",
+          "<span class="lang-ar">IAM CreateUser</span><span class="lang-en">IAM CreateUser</span>",
+          "<span class="lang-ar">Lambda Invoke</span><span class="lang-en">Lambda Invoke</span>",
+          "<span class="lang-ar">EC2 RunInstances</span><span class="lang-en">EC2 RunInstances</span>"
+        ],
+        correct: [0,2],
+        explanation: "<span class="lang-ar">Data Events = عمليّات على مستوى الكائنات: S3 object-level (GetObject/PutObject/DeleteObject) و Lambda Invoke. IAM CreateUser و EC2 RunInstances من Management Events (مسجّلة افتراضياً).</span><span class="lang-en">Data Events = object-level: S3 object-level (GetObject/PutObject/DeleteObject) and Lambda Invoke. IAM CreateUser and EC2 RunInstances are Management Events (default-logged).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تنبيهاً فوريّاً عندما يسجّل Root User دخوله إلى AWS. أبسط حلّ؟</span><span class="lang-en">A company wants instant alerts when the Root user signs in. Simplest solution?</span>",
+        options: [
+          "<span class="lang-ar">مراجعة CloudTrail يدوياً كلّ يوم.</span><span class="lang-en">Manually review CloudTrail daily.</span>",
+          "<span class="lang-ar">EventBridge Rule يطابق <span dir="ltr" class="font-mono">AWS Console Sign In</span> بـ <span dir="ltr" class="font-mono">userIdentity.type=Root</span> → SNS.</span><span class="lang-en">EventBridge Rule matching <span dir="ltr" class="font-mono">AWS Console Sign In</span> with <span dir="ltr" class="font-mono">userIdentity.type=Root</span> → SNS.</span>",
+          "<span class="lang-ar">Metric Filter على سجلّات CloudWatch Agent.</span><span class="lang-en">Metric Filter on CloudWatch Agent logs.</span>",
+          "<span class="lang-ar">X-Ray sampling rule.</span><span class="lang-en">An X-Ray sampling rule.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">EventBridge يدعم مصدر <span dir="ltr" class="font-mono">aws.signin</span> وشرط JSON مطابق. تنبيه فوريّ بدون قراءة سجلّات. Metric Filter ممكن لكن أكثر تعقيداً. X-Ray لا علاقة له.</span><span class="lang-en">EventBridge supports the <span dir="ltr" class="font-mono">aws.signin</span> source with a JSON match. Instant alert without reading logs. Metric Filter is possible but more complex. X-Ray is irrelevant.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">X-Ray Service Map يُظهر دوّارات حمراء على DynamoDB. ماذا يعني اللون الأحمر؟</span><span class="lang-en">X-Ray Service Map shows red rings on DynamoDB. What does red indicate?</span>",
+        options: [
+          "<span class="lang-ar">استخدام عالي للـ CPU.</span><span class="lang-en">High CPU usage.</span>",
+          "<span class="lang-ar">نسبة عالية من الأخطاء (errors/faults).</span><span class="lang-en">High error/fault percentage.</span>",
+          "<span class="lang-ar">تكلفة عالية.</span><span class="lang-en">High cost.</span>",
+          "<span class="lang-ar">زمن استجابة عالٍ فقط.</span><span class="lang-en">High latency only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Service Map يرمّز الحلقات: أخضر (سليم)، أصفر (throttling أو 4xx)، أحمر (أخطاء 5xx/faults). الأحمر يعني نسبة فشل مرتفعة — نقطة بدء للتحقيق.</span><span class="lang-en">Service Map color codes: green (healthy), yellow (throttling / 4xx), red (5xx faults). Red = high error rate — starting point to drill in.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يستخدم ECS Fargate. كيف يشغّل X-Ray Daemon؟</span><span class="lang-en">A developer uses ECS Fargate. How to run the X-Ray Daemon?</span>",
+        options: [
+          "<span class="lang-ar">كـ DaemonSet على كلّ عقدة (غير متاح في Fargate).</span><span class="lang-en">As a DaemonSet per node (unavailable in Fargate).</span>",
+          "<span class="lang-ar">كـ Sidecar Container في نفس Task Definition.</span><span class="lang-en">As a Sidecar container in the same Task Definition.</span>",
+          "<span class="lang-ar">لا حاجة — Fargate يشغّله تلقائياً.</span><span class="lang-en">Not needed — Fargate runs it automatically.</span>",
+          "<span class="lang-ar">تثبيته على EC2 مستضيف.</span><span class="lang-en">Install on the host EC2.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">في Fargate لا وصول لعقد EC2، فالخيار الوحيد هو Sidecar داخل نفس Task Definition (يتواصل عبر UDP 2000). Lambda وحدها التي تشغّله تلقائياً.</span><span class="lang-en">Fargate has no EC2 host access, so the only option is a Sidecar inside the same Task Definition (talks over UDP 2000). Only Lambda runs it automatically.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">CloudTrail Insights Events — ما الذي يميّزها عن باقي الأحداث؟</span><span class="lang-en">CloudTrail Insights Events — what makes them different?</span>",
+        options: [
+          "<span class="lang-ar">تسجّل عمليّات Data Events فقط.</span><span class="lang-en">They log only Data Events.</span>",
+          "<span class="lang-ar">تستخدم تعلّم آليّ لاكتشاف أنماط غير عاديّة في Write Management Events.</span><span class="lang-en">They use ML to detect anomalous patterns in write Management Events.</span>",
+          "<span class="lang-ar">مجّانيّة بالكامل.</span><span class="lang-en">They're entirely free.</span>",
+          "<span class="lang-ar">تُخزَّن في CloudWatch Logs فقط.</span><span class="lang-en">Stored only in CloudWatch Logs.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Insights Events تبني baseline للنشاط الطبيعيّ ثمّ تنبّه على الانحرافات (فورة IAM، تجاوز حدود)، وتُرسَل للـ S3 و EventBridge. مكلّفة لذلك غير مفعّلة افتراضياً.</span><span class="lang-en">Insights Events baseline normal activity then flag anomalies (IAM bursts, service-limit spikes), and can be sent to S3 and EventBridge. Paid — not enabled by default.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">في AWS Organization، مدير حساب رئيسيّ يريد ضمان أنّ كلّ الحسابات الفرعيّة يسجّل نشاطها API. الحلّ الأمثل؟</span><span class="lang-en">In an AWS Organization, the management account wants to ensure every member account logs API activity. Best solution?</span>",
+        options: [
+          "<span class="lang-ar">طلب من كلّ فريق إنشاء trail يدوياً.</span><span class="lang-en">Ask each team to create a trail manually.</span>",
+          "<span class="lang-ar">إنشاء <strong>Organization Trail</strong> واحد مركزيّ — لا يمكن لحساب فرعي تعطيله.</span><span class="lang-en">Create one central <strong>Organization Trail</strong> — members cannot disable it.</span>",
+          "<span class="lang-ar">استخدام AWS Config بدلاً من CloudTrail.</span><span class="lang-en">Use AWS Config instead.</span>",
+          "<span class="lang-ar">مشاركة S3 bucket لكلّ الحسابات.</span><span class="lang-en">Share an S3 bucket across accounts.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Organization Trail يُنشَأ من الحساب الرئيسي ويطبَّق تلقائياً على كلّ الحسابات مع منع التعطيل من الحسابات الفرعيّة. أفضل الممارسات للأمن.</span><span class="lang-en">An Organization Trail is created from the management account and auto-applies to all members with no member-side opt-out. Security best practice.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">ما الخدمة التي تجيب عن: "خدمة A بطيئة. هل المشكلة في A أم في DynamoDB الذي تتصل به؟"</span><span class="lang-en">Which service answers: "Service A is slow. Is the issue A itself or the DynamoDB it calls?"</span>",
+        options: [
+          "<span class="lang-ar">CloudTrail</span><span class="lang-en">CloudTrail</span>",
+          "<span class="lang-ar">CloudWatch Alarms</span><span class="lang-en">CloudWatch Alarms</span>",
+          "<span class="lang-ar">AWS X-Ray</span><span class="lang-en">AWS X-Ray</span>",
+          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">X-Ray يعرض الـ segment الخاصّ بالخدمة A مع subsegments لكلّ downstream call (بما فيها DynamoDB)، مع زمن كلّ منها. فوراً ترى أين يُضاع الوقت. CloudTrail للتدقيق، Config للتكوين.</span><span class="lang-en">X-Ray shows Service A's segment with subsegments for each downstream call (including DynamoDB) with per-call timing. You immediately see where time goes. CloudTrail is audit; Config is configuration state.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(28, QUESTIONS);
+      if (isChapterComplete(28)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

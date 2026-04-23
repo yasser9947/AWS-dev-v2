@@ -1,0 +1,52 @@
+{
+  "slug": "efs",
+  "name": "Amazon EFS",
+  "icon": "folder",
+  "color": "slate",
+  "tagline_ar": "نظام ملفّات NFS مُدار يتمدّد تلقائيًا ويدعم وصول متزامن من آلاف المثيلات عبر AZs.",
+  "tagline_en": "Managed NFS filesystem that auto-scales and supports concurrent access from thousands of instances across AZs.",
+  "key_concepts": [
+    {"concept": "NFSv4 Protocol", "desc_ar": "يُستخدم من Linux عبر NFSv4.1؛ لا يدعم Windows (لذلك استخدم FSx بدلاً منه).", "desc_en": "Uses NFSv4.1 from Linux; no Windows support (use FSx instead)."},
+    {"concept": "Performance Modes", "desc_ar": "General Purpose (افتراضي) وMax I/O لعدد عمليات كبير مع زمن استجابة أعلى قليلاً.", "desc_en": "General Purpose (default) and Max I/O for very high op counts at slightly higher latency."},
+    {"concept": "Throughput Modes", "desc_ar": "Bursting (افتراضي)، Provisioned، Elastic التي تتمدّد حسب الطلب.", "desc_en": "Bursting (default), Provisioned, and Elastic that auto-scales with demand."},
+    {"concept": "Storage Classes", "desc_ar": "EFS Standard وEFS Infrequent Access (IA) وArchive بإدارة عبر Lifecycle.", "desc_en": "EFS Standard, Infrequent Access (IA), and Archive managed via Lifecycle."},
+    {"concept": "Access Points", "desc_ar": "نقاط دخول تُطبّق مستخدم POSIX ومجلّد جذر لكل تطبيق.", "desc_en": "Entry points enforcing a POSIX user and root directory per application."},
+    {"concept": "Security", "desc_ar": "تشفير عبر KMS في الراحة وTLS في النقل، ومجموعات أمان على mount targets.", "desc_en": "KMS encryption at rest, TLS in transit, security groups on mount targets."},
+    {"concept": "Mount Targets", "desc_ar": "نقطة ربط في كل AZ داخل الـ VPC ليصل إليها EC2 محلياً.", "desc_en": "One mount target per AZ in the VPC so EC2 can mount locally."},
+    {"concept": "Replication", "desc_ar": "نسخ المحتوى إلى منطقة أخرى لأغراض DR مع RPO ≤ دقيقة.", "desc_en": "Replicate to another region for DR with RPO ≤ 1 minute."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم نظام الملفّات", "limit_en": "Max filesystem size", "value": "Petabyte-scale (auto)", "note_ar": "يتوسّع تلقائيًا بدون تخصيص مسبق.", "note_en": "Grows automatically, no pre-provisioning."},
+    {"limit": "عدد العملاء المتزامنين", "limit_en": "Concurrent clients", "value": "Tens of thousands", "note_ar": "عملاء NFS من EC2/Lambda/ECS/EKS.", "note_en": "NFS clients from EC2/Lambda/ECS/EKS."},
+    {"limit": "Elastic Throughput ذروة", "limit_en": "Elastic Throughput peak", "value": "20 GiB/s read", "note_ar": "وذروة 5 GiB/s للكتابة.", "note_en": "Up to 5 GiB/s write peak."},
+    {"limit": "Bursting baseline", "limit_en": "Bursting baseline", "value": "50 MiB/s per TiB", "note_ar": "مع إمكانية الانفجار حتى 100 MiB/s/TiB.", "note_en": "Burst up to 100 MiB/s per TiB."},
+    {"limit": "أقصى حجم ملف", "limit_en": "Max file size", "value": "47.9 TiB", "note_ar": "حدّ NFS داخل EFS.", "note_en": "NFS hard limit within EFS."},
+    {"limit": "Mount targets لكل FS", "limit_en": "Mount targets per FS", "value": "1 per AZ", "note_ar": "للوصول منخفض الكمون من تلك AZ.", "note_en": "For low-latency access from that AZ."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء نظام ملفّات EFS.", "desc_en": "Create an EFS filesystem.", "cmd": "aws efs create-file-system --creation-token app-data --performance-mode generalPurpose --encrypted"},
+    {"desc_ar": "إنشاء mount target في AZ معيّنة.", "desc_en": "Create a mount target in an AZ.", "cmd": "aws efs create-mount-target --file-system-id fs-0abcd --subnet-id subnet-0abcd --security-groups sg-0abcd"},
+    {"desc_ar": "تثبيت EFS على EC2 عبر amazon-efs-utils.", "desc_en": "Mount EFS on EC2 via amazon-efs-utils.", "cmd": "sudo mount -t efs -o tls fs-0abcd:/ /mnt/efs"},
+    {"desc_ar": "ضبط Lifecycle لنقل الملفّات إلى IA بعد 30 يومًا.", "desc_en": "Set Lifecycle to move files to IA after 30 days.", "cmd": "aws efs put-lifecycle-configuration --file-system-id fs-0abcd --lifecycle-policies TransitionToIA=AFTER_30_DAYS"},
+    {"desc_ar": "إنشاء Access Point لتطبيق محدّد.", "desc_en": "Create an Access Point for a specific app.", "cmd": "aws efs create-access-point --file-system-id fs-0abcd --posix-user Uid=1000,Gid=1000 --root-directory Path=/app"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "خوادم ويب متعدّدة تحتاج مشاركة حالة جلسة أو محتوى.", "scenario_en": "Many web servers sharing session or content.", "choice": "EFS Standard"},
+    {"scenario_ar": "أحمال تحليل أرشيفية بوصول نادر.", "scenario_en": "Archival analytics with rare access.", "choice": "EFS IA / Archive"},
+    {"scenario_ar": "تطبيقات HPC أو Bio-Informatics.", "scenario_en": "HPC or genomics pipelines.", "choice": "EFS Max I/O"},
+    {"scenario_ar": "مشاركة ملفّات بين Lambda و ECS.", "scenario_en": "Share files between Lambda and ECS.", "choice": "EFS + Lambda mount"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Protocol", "feature_ar": "البروتوكول", "this": "NFSv4.1", "alt": "Block (iSCSI-like)", "alt_name": "EBS"},
+    {"feature": "Multi-AZ", "feature_ar": "تعدّد AZ", "this": "Yes (Regional)", "alt": "Single AZ only", "alt_name": "EBS"},
+    {"feature": "Concurrent clients", "feature_ar": "عملاء متزامنون", "this": "Thousands", "alt": "1 (or 16 Multi-Attach)", "alt_name": "EBS"},
+    {"feature": "Persistence", "feature_ar": "الاستمرارية", "this": "Persists (managed)", "alt": "Lost on stop/terminate", "alt_name": "Instance Store"},
+    {"feature": "Windows support", "feature_ar": "دعم Windows", "this": "No (use FSx)", "alt": "Yes", "alt_name": "EBS / FSx"}
+  ],
+  "exam_tips": [
+    {"ar": "EFS هو NFS للينكس فقط؛ لـ Windows استخدم FSx for Windows File Server.", "en": "EFS is NFS Linux-only; for Windows use FSx for Windows File Server."},
+    {"ar": "EFS إقليمي ومتاح عبر AZs، بعكس EBS المقيّد بـ AZ واحدة.", "en": "EFS is Regional and multi-AZ, unlike EBS which is AZ-bound."},
+    {"ar": "Access Points تُلزم POSIX UID/GID وجذر محدّد لكل تطبيق.", "en": "Access Points enforce POSIX UID/GID and a chroot-like root per application."},
+    {"ar": "Lifecycle Policies تنقل الملفّات إلى IA/Archive تلقائيًا لتقليل التكلفة.", "en": "Lifecycle policies move files to IA/Archive automatically to cut cost."}
+  ]
+}

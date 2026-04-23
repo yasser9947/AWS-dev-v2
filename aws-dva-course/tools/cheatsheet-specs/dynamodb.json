@@ -1,0 +1,58 @@
+{
+  "slug": "dynamodb",
+  "name": "Amazon DynamoDB",
+  "icon": "layers",
+  "color": "blue",
+  "tagline_ar": "قاعدة بيانات NoSQL مُدارة بالكامل، زمن استجابة أقل من 10 مللي ثانية، وتوسّع أفقي بلا حدود.",
+  "tagline_en": "Fully managed NoSQL database with single-digit millisecond latency and unbounded horizontal scale.",
+  "key_concepts": [
+    {"concept": "Tables & Items", "desc_ar": "جدول يحوي عناصر (Items) ولكلّ عنصر سمات (Attributes)؛ المخطّط مرن باستثناء مفتاح الأساسي.", "desc_en": "Tables hold items with attributes; schema is flexible except for the primary key."},
+    {"concept": "Primary Key", "desc_ar": "Partition Key فقط، أو Composite Key (Partition + Sort) لتجميع العناصر.", "desc_en": "Partition Key only, or Composite (Partition + Sort) to group items."},
+    {"concept": "GSI vs LSI", "desc_ar": "GSI: مفتاح مختلف تمامًا ويُدار منفصلًا. LSI: نفس الـ Partition بمفتاح فرز بديل ويُنشأ وقت إنشاء الجدول فقط.", "desc_en": "GSI: different keys, independent capacity. LSI: same partition, alt sort key; only at table creation."},
+    {"concept": "Capacity Modes", "desc_ar": "On-Demand (تلقائي) أو Provisioned مع Auto Scaling؛ Provisioned أرخص للأعباء المستقرّة.", "desc_en": "On-Demand (automatic) or Provisioned with Auto Scaling; Provisioned cheaper for steady loads."},
+    {"concept": "Read Consistency", "desc_ar": "القراءة الافتراضية Eventually Consistent (نصف RCU)، ويمكن طلب Strongly Consistent (RCU كامل).", "desc_en": "Default reads are eventually consistent (½ RCU); you can request strongly consistent (full RCU)."},
+    {"concept": "Transactions", "desc_ar": "حتى 100 عنصر أو 4 MB لكل معاملة عبر TransactWriteItems/TransactGetItems (ضعف استهلاك WCU/RCU).", "desc_en": "Up to 100 items or 4 MB per TransactWriteItems/TransactGetItems (2× WCU/RCU)."},
+    {"concept": "Streams & DAX", "desc_ar": "Streams لتغذية Lambda ورصد التغيّرات، وDAX cache داخل VPC لخفض زمن القراءة إلى ميكروثانية.", "desc_en": "Streams trigger Lambda for change data capture; DAX VPC cache for microsecond reads."},
+    {"concept": "TTL", "desc_ar": "حذف تلقائي للعناصر منتهية الصلاحية بدون استهلاك WCU.", "desc_en": "Auto-delete expired items without consuming WCUs."},
+    {"concept": "Global Tables", "desc_ar": "نسخ متعدّد المناطق بالكتابة من أي منطقة مع دقّة Eventually Consistent.", "desc_en": "Multi-region multi-active replication, eventual consistency."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم عنصر", "limit_en": "Max item size", "value": "400 KB", "note_ar": "يشمل أسماء السمات والقيم.", "note_en": "Includes attribute names and values."},
+    {"limit": "أقصى حجم سمة", "limit_en": "Max attribute name+value", "value": "400 KB total per item", "note_ar": "لا توجد قيود على أسماء فردية.", "note_en": "No per-attribute size cap beyond item."},
+    {"limit": "عدد GSIs لكل جدول", "limit_en": "GSIs per table", "value": "20 (default)", "note_ar": "يمكن رفعه، ولكلّ GSI سعة مستقلة.", "note_en": "Can be raised; each GSI has its own capacity."},
+    {"limit": "عدد LSIs لكل جدول", "limit_en": "LSIs per table", "value": "5 (at creation only)", "note_ar": "لا يمكن إضافتها لاحقًا.", "note_en": "Cannot be added after table creation."},
+    {"limit": "حجم القسم (Partition)", "limit_en": "Partition size limit", "value": "10 GB (with LSI)", "note_ar": "بدون LSI لا حدّ على partition.", "note_en": "No partition size limit without LSIs."},
+    {"limit": "BatchGetItem / BatchWriteItem", "limit_en": "Batch item limits", "value": "100 / 25 items", "note_ar": "BatchGet ≤ 16 MB، BatchWrite ≤ 16 MB.", "note_en": "BatchGet ≤ 16 MB, BatchWrite ≤ 16 MB."},
+    {"limit": "أقصى حجم Transaction", "limit_en": "Max transaction", "value": "100 items / 4 MB", "note_ar": "ضعف استهلاك RCU/WCU.", "note_en": "Consumes 2× RCU/WCU."},
+    {"limit": "Query / Scan page", "limit_en": "Query/Scan page size", "value": "1 MB", "note_ar": "استخدم LastEvaluatedKey للصفحات التالية.", "note_en": "Use LastEvaluatedKey to paginate."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء جدول On-Demand.", "desc_en": "Create an on-demand table.", "cmd": "aws dynamodb create-table --table-name Orders --attribute-definitions AttributeName=OrderId,AttributeType=S --key-schema AttributeName=OrderId,KeyType=HASH --billing-mode PAY_PER_REQUEST"},
+    {"desc_ar": "كتابة عنصر.", "desc_en": "Put an item.", "cmd": "aws dynamodb put-item --table-name Orders --item '{\"OrderId\":{\"S\":\"O1\"},\"Total\":{\"N\":\"99\"}}'"},
+    {"desc_ar": "تنفيذ Query على Composite Key.", "desc_en": "Query a composite-key table.", "cmd": "aws dynamodb query --table-name Orders --key-condition-expression \"CustomerId = :c\" --expression-attribute-values '{\":c\":{\"S\":\"CUST-1\"}}'"},
+    {"desc_ar": "تفعيل Streams نوع NEW_AND_OLD_IMAGES.", "desc_en": "Enable streams with NEW_AND_OLD_IMAGES.", "cmd": "aws dynamodb update-table --table-name Orders --stream-specification StreamEnabled=true,StreamViewType=NEW_AND_OLD_IMAGES"},
+    {"desc_ar": "تفعيل TTL.", "desc_en": "Enable TTL.", "cmd": "aws dynamodb update-time-to-live --table-name Orders --time-to-live-specification Enabled=true,AttributeName=expireAt"},
+    {"desc_ar": "إضافة جدول عالمي في منطقة ثانية.", "desc_en": "Add a Global Table region.", "cmd": "aws dynamodb update-table --table-name Orders --replica-updates 'Create={RegionName=eu-west-1}'"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "أحمال نقطية بسرعة ثابتة ضمن مللي ثانية.", "scenario_en": "Key-value point workloads with steady low latency.", "choice": "DynamoDB"},
+    {"scenario_ar": "بيانات IoT/أحداث بحجم ضخم.", "scenario_en": "IoT/event data at scale.", "choice": "DynamoDB + Streams"},
+    {"scenario_ar": "مخزن جلسات (session store).", "scenario_en": "Session store.", "choice": "DynamoDB + TTL"},
+    {"scenario_ar": "قراءة بمللي/ميكروثانية مع قوائم متصدّرين (leaderboards).", "scenario_en": "Microsecond reads & leaderboards.", "choice": "DynamoDB + DAX"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Data model", "feature_ar": "النموذج", "this": "NoSQL key-value/document", "alt": "Relational (SQL)", "alt_name": "RDS"},
+    {"feature": "Schema", "feature_ar": "البنية", "this": "Flexible (key only)", "alt": "Fixed schema", "alt_name": "RDS"},
+    {"feature": "Scale", "feature_ar": "التوسّع", "this": "Horizontal auto", "alt": "Vertical + replicas", "alt_name": "RDS"},
+    {"feature": "Joins", "feature_ar": "JOIN", "this": "Denormalize only", "alt": "Native JOINs", "alt_name": "RDS"},
+    {"feature": "Transactions", "feature_ar": "المعاملات", "this": "Up to 100 items", "alt": "Full ACID, any size", "alt_name": "RDS"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Per request / capacity", "alt": "Instance-hours", "alt_name": "RDS"}
+  ],
+  "exam_tips": [
+    {"ar": "كل عنصر ≤ 400 KB؛ خزّن الكبيرة في S3 واحفظ المفتاح في DynamoDB.", "en": "Item ≤ 400 KB; store large objects in S3 and keep the pointer in DynamoDB."},
+    {"ar": "LSI يُنشأ وقت إنشاء الجدول فقط؛ GSI يمكن إضافتها لاحقًا.", "en": "LSIs can only be created at table creation; GSIs can be added later."},
+    {"ar": "Strongly Consistent Read يستهلك RCU كاملة؛ الافتراضي Eventually نصفها.", "en": "Strongly consistent reads cost full RCU; default eventual consistency costs half."},
+    {"ar": "Transactions تستهلك ضعف WCU/RCU للقراءة/الكتابة.", "en": "Transactions consume 2× the WCU/RCU of regular reads/writes."},
+    {"ar": "استخدم Streams + Lambda لتنفيذ CDC (مثل تحديث OpenSearch أو إرسال Email).", "en": "Use Streams + Lambda for CDC (e.g., update OpenSearch, send email)."}
+  ]
+}

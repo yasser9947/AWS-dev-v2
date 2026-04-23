@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS CodeDeploy — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-green-600 via-green-700 to-green-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="rocket" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-green-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">AWS CodeDeploy</h1>
+        </div>
+      </div>
+      <p class="text-lg text-green-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">خدمة نشر تُنسّق تحديث الكود على EC2/On-Prem/Lambda/ECS باستراتيجيات Canary/Linear/AllAtOnce مع hooks عبر appspec.yml.</span>
+        <span class="lang-en">Deployment service orchestrating updates to EC2/On-Prem/Lambda/ECS with Canary/Linear/AllAtOnce strategies and appspec.yml hooks.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-green-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">Application</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">وحدة منطقية تحوي deployment groups؛ نوعها EC2/OnPrem, Lambda, أو ECS.</span>
+      <span class="lang-en">Logical unit containing deployment groups; compute platform EC2/OnPrem, Lambda, or ECS.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">Deployment Group</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">مجموعة أهداف النشر (EC2 tags/ASG/Lambda function/ECS service).</span>
+      <span class="lang-en">Set of targets (EC2 tags/ASG/Lambda function/ECS service).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">appspec.yml (EC2)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يحدّد files/permissions وhooks: ApplicationStop, BeforeInstall, AfterInstall, ApplicationStart, ValidateService.</span>
+      <span class="lang-en">Defines files/permissions and hooks: ApplicationStop, BeforeInstall, AfterInstall, ApplicationStart, ValidateService.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">appspec.yml (Lambda)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يحدّد function versions وhooks: BeforeAllowTraffic, AfterAllowTraffic.</span>
+      <span class="lang-en">Defines function versions and hooks: BeforeAllowTraffic, AfterAllowTraffic.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">appspec.yml (ECS)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">يحدّد TaskDefinition/ContainerName وhooks: BeforeInstall, AfterInstall, AfterAllowTestTraffic, BeforeAllowTraffic, AfterAllowTraffic.</span>
+      <span class="lang-en">Defines TaskDefinition/ContainerName with hooks: BeforeInstall, AfterInstall, AfterAllowTestTraffic, BeforeAllowTraffic, AfterAllowTraffic.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">Deployment Config (EC2)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">AllAtOnce / HalfAtATime / OneAtATime أو مخصص (min healthy hosts).</span>
+      <span class="lang-en">AllAtOnce / HalfAtATime / OneAtATime or custom (min healthy hosts).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">Deployment Config (Lambda/ECS)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Canary / Linear / AllAtOnce مع أمثلة Canary10Percent5Minutes و Linear10PercentEvery1Minute.</span>
+      <span class="lang-en">Canary / Linear / AllAtOnce with presets like Canary10Percent5Minutes, Linear10PercentEvery1Minute.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">Blue/Green</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">طريقة نشر تبني بيئة جديدة وتحوّل الحركة إليها (ممكن لـ EC2/Lambda/ECS).</span>
+      <span class="lang-en">Deployment type provisioning new environment and shifting traffic (EC2/Lambda/ECS).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-green-700" dir="ltr">CodeDeploy Agent</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">خدمة تعمل على EC2/On-Prem لتلقّي تعليمات النشر.</span>
+      <span class="lang-en">Daemon running on EC2/On-Prem to receive deployment instructions.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-green-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Concurrent deployments (account)</span>
+      <span class="lang-en">Concurrent deployments per account</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Deployment groups per app</span>
+      <span class="lang-en">Deployment groups per app</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Instances per deployment (EC2)</span>
+      <span class="lang-en">Instances per deployment</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Deployment timeout (default)</span>
+      <span class="lang-en">Default deploy timeout</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">1 h per event</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">appspec.yml size</span>
+      <span class="lang-en">appspec.yml size</span>
+      
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">32 KB</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-green-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء تطبيق Lambda.</span>
+    <span class="lang-en">Create Lambda application.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws deploy create-application --application-name my-app --compute-platform Lambda</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء deployment group.</span>
+    <span class="lang-en">Create deployment group.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws deploy create-deployment-group --application-name my-app --deployment-group-name prod --service-role-arn arn:... --deployment-config-name CodeDeployDefault.LambdaCanary10Percent5Minutes</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">بدء نشر.</span>
+    <span class="lang-en">Create deployment.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws deploy create-deployment --application-name my-app --deployment-group-name prod --revision '{"revisionType":"S3","s3Location":{...}}'</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إيقاف نشر ومعالجة rollback.</span>
+    <span class="lang-en">Stop deployment and rollback.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws deploy stop-deployment --deployment-id d-123 --auto-rollback-enabled</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">حالة النشر.</span>
+    <span class="lang-en">Get deployment status.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws deploy get-deployment --deployment-id d-123</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-green-600"></i>
+        <span class="lang-ar">متى تستخدم AWS CodeDeploy؟</span>
+        <span class="lang-en">When to use AWS CodeDeploy</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">نشر ملاحي آمن لـ Lambda بعد Canary</span>
+      <span class="lang-en">Safe Lambda traffic shift via Canary</span>
+    </p>
+    <p class="text-xs text-green-700 font-mono">Lambda Canary10Percent5Minutes</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">نشر بلا خدمة موقوفة على ECS خلف ALB</span>
+      <span class="lang-en">Zero-downtime ECS deploy behind ALB</span>
+    </p>
+    <p class="text-xs text-green-700 font-mono">Blue/Green ECS</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">حفظ النسخة العاملة في حال الفشل</span>
+      <span class="lang-en">Auto revert on failure</span>
+    </p>
+    <p class="text-xs text-green-700 font-mono">Auto rollback on alarm/failure</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">نشر تدريجي نصف الخوادم كل مرة</span>
+      <span class="lang-en">Gradual rollout half of fleet at a time</span>
+    </p>
+    <p class="text-xs text-green-700 font-mono">EC2 HalfAtATime</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+<section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+    <h2 class="font-bold text-surface-800 flex items-center gap-2">
+      <i data-lucide="git-compare" class="w-4 h-4"></i>
+      <span class="lang-ar">مقارنة مع البدائل</span>
+      <span class="lang-en">Vs Alternatives</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+        <tr>
+          <th class="text-start px-4 py-2">
+            <span class="lang-ar">الخاصّية</span>
+            <span class="lang-en">Feature</span>
+          </th>
+          <th class="text-start px-4 py-2">AWS CodeDeploy</th>
+          <th class="text-start px-4 py-2">—</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">إعدادات Lambda</span>
+      <span class="lang-en">Lambda configs</span>
+    </td>
+    <td class="px-4 py-2 text-green-700 font-semibold">Canary / Linear / AllAtOnce</td>
+    <td class="px-4 py-2 text-surface-600">—</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">إعدادات EC2</span>
+      <span class="lang-en">EC2 configs</span>
+    </td>
+    <td class="px-4 py-2 text-green-700 font-semibold">AllAtOnce / HalfAtATime / OneAtATime</td>
+    <td class="px-4 py-2 text-surface-600">—</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">مثال Canary</span>
+      <span class="lang-en">Canary example</span>
+    </td>
+    <td class="px-4 py-2 text-green-700 font-semibold">Canary10Percent5Minutes</td>
+    <td class="px-4 py-2 text-surface-600">Canary10Percent30Minutes</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">مثال Linear</span>
+      <span class="lang-en">Linear example</span>
+    </td>
+    <td class="px-4 py-2 text-green-700 font-semibold">Linear10PercentEvery1Minute</td>
+    <td class="px-4 py-2 text-surface-600">Linear10PercentEvery10Minutes</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">Blue/Green</span>
+      <span class="lang-en">Blue/Green</span>
+    </td>
+    <td class="px-4 py-2 text-green-700 font-semibold">EC2 / Lambda / ECS</td>
+    <td class="px-4 py-2 text-surface-600">In-place only</td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Lambda deployments تستخدم Canary/Linear/AllAtOnce؛ EC2 تستخدم AllAtOnce/HalfAtATime/OneAtATime.</span>
+    <span class="lang-en">Lambda uses Canary/Linear/AllAtOnce; EC2 uses AllAtOnce/HalfAtATime/OneAtATime.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Canary10Percent5Minutes يعني 10% أولاً، ثم 90% بعد 5 دقائق.</span>
+    <span class="lang-en">Canary10Percent5Minutes: 10% first, then 90% after 5 minutes.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">appspec hooks لـ EC2: ApplicationStop/BeforeInstall/AfterInstall/ApplicationStart/ValidateService (ترتيب مهم).</span>
+    <span class="lang-en">EC2 hooks: ApplicationStop/BeforeInstall/AfterInstall/ApplicationStart/ValidateService (order matters).</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">ECS Blue/Green يتطلب ALB/NLB مع target groups اثنين (blue/green).</span>
+    <span class="lang-en">ECS Blue/Green requires ALB/NLB with two target groups (blue/green).</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Auto rollback يبدأ عند deployment failure أو تفعيل CloudWatch alarm محدد.</span>
+    <span class="lang-en">Auto rollback triggers on deployment failure or specified CloudWatch alarm.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

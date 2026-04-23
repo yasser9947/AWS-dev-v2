@@ -1,0 +1,332 @@
+{
+  "n": 16,
+  "domain": "development",
+  "title_ar": "Amazon Cognito — User Pools و Identity Pools",
+  "title_en": "Amazon Cognito — User Pools & Identity Pools",
+  "pages": "768-791",
+  "subtitle_ar": "هوية المستخدمين في السحابة: تسجيل الدخول، JWT tokens، federated identity مع Google/Facebook، ومنح وصول AWS مؤقت للتطبيقات المتحرّكة والويب. الفرق بين User Pool و Identity Pool حاسم للامتحان.",
+  "subtitle_en": "Cloud user identity: sign-in, JWT tokens, federated identity with Google/Facebook, and temporary AWS access for mobile/web apps. The User Pool vs Identity Pool distinction is critical.",
+  "tags": ["Cognito", "User Pool", "Identity Pool", "JWT", "OAuth", "Federation"],
+  "objectives": [
+    {"concept": "User Pools vs Identity Pools", "tested_ar": "النطاق الثاني في الفرق الجوهري بينهما — الأكثر خلطاً.", "tested_en": "Domain 2 — the critical distinction, most confused."},
+    {"concept": "Federated Identity (Google/Facebook/SAML)", "tested_ar": "النطاق الثاني في تكامل المصادقة الخارجية.", "tested_en": "Domain 2 — external auth integration."},
+    {"concept": "JWT Tokens (ID/Access/Refresh)", "tested_ar": "النطاق الثاني في هيكل الـ tokens.", "tested_en": "Domain 2 — token structure."},
+    {"concept": "Cognito + API Gateway Authorizer", "tested_ar": "النطاق الأول في حماية APIs.", "tested_en": "Domain 1 — securing APIs."}
+  ],
+  "sections": [
+    {
+      "title_ar": "Cognito: نظرتان متكاملتان",
+      "title_en": "Cognito: two complementary services",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Amazon Cognito</strong> تجمع خدمتين منفصلتين لإدارة هوية المستخدمين في السحابة. الفرق بينهما أهمّ سؤال في هذا الفصل، ويرتبك فيه كثيرون:",
+         "en": "<strong>Amazon Cognito</strong> bundles two distinct services for cloud identity. Their difference is this chapter's most important exam question, and the one most learners confuse:"},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "users", "title_ar": "Cognito User Pool", "title_en": "Cognito User Pool",
+                  "body_ar": "<strong>إدارة مستخدمين</strong> (sign-up, sign-in, reset password، MFA). يُصدر <strong>JWT tokens</strong> (ID, Access, Refresh). يُستخدم في API Gateway authorizer و ALB authentication. يربط بـ Facebook/Google/SAML لتسجيل الدخول.",
+                  "body_en": "<strong>User directory</strong> (sign-up, sign-in, reset, MFA). Issues <strong>JWT tokens</strong> (ID, Access, Refresh). Used in API Gateway authorizer & ALB auth. Federates with Facebook/Google/SAML for sign-in."},
+         "right": {"tone": "emerald", "icon": "key-round", "title_ar": "Cognito Identity Pool", "title_en": "Cognito Identity Pool",
+                   "body_ar": "<strong>يمنح وصولاً لـ AWS</strong>: يأخذ token (من User Pool أو Google/Facebook أو Anonymous) ويُبادله بـ <strong>temporary AWS credentials</strong> عبر STS. يسمح للتطبيق المتحرّك بالوصول مباشرة لـ S3/DynamoDB.",
+                   "body_en": "<strong>Grants AWS access</strong>: takes a token (from User Pool / Google / Facebook / Anonymous) and exchanges for <strong>temporary AWS credentials</strong> via STS. Lets mobile apps hit S3/DynamoDB directly."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "طريقة مبسّطة للتذكّر: <strong>User Pool = WHO (من أنت؟)</strong>، <strong>Identity Pool = WHAT (ماذا تستطيع أن تفعل في AWS؟)</strong>. قد تستخدم أحدهما فقط أو الاثنين معاً. الخلط بينهما الفخّ الأكبر في الامتحان.",
+         "en": "Easy mnemonic: <strong>User Pool = WHO (who are you?)</strong>, <strong>Identity Pool = WHAT (what can you do in AWS?)</strong>. Use one, the other, or both. Confusing them is the biggest exam trap."}
+      ]
+    },
+    {
+      "title_ar": "Cognito User Pool — إدارة المستخدمين",
+      "title_en": "Cognito User Pool — user management",
+      "blocks": [
+        {"type": "p",
+         "ar": "User Pool هو <strong>user directory</strong> serverless (قاعدة بيانات مستخدمين مُدارة). يوفّر كل ما يحتاجه التطبيق لإدارة حسابات المستخدمين.",
+         "en": "User Pool is a serverless <strong>user directory</strong> (managed user database). Delivers everything an app needs for account management."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "user-plus", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "التسجيل وتسجيل الدخول", "title_en": "Sign up & Sign in", "body_ar": "بريد/هاتف/username. تحقّق من البريد/هاتف عبر OTP. سياسات كلمة مرور (طول، رموز، أرقام). Forgot password flow.", "body_en": "Email/phone/username. Email/SMS verification (OTP). Password policies (length, symbols, numbers). Forgot password flow."},
+          {"icon": "shield", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "MFA", "title_en": "MFA", "body_ar": "TOTP (Google Authenticator) أو SMS. Adaptive authentication (تحليل محاولات مشبوهة).", "body_en": "TOTP (Google Authenticator) or SMS. Adaptive authentication (risk-based)."},
+          {"icon": "log-in", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Federated Identity", "title_en": "Federated Identity", "body_ar": "اربط User Pool بـ Google, Facebook, Apple, SAML, OpenID Connect (Okta). المستخدم يسجّل بحسابه الخارجي فتنشئ Cognito حساب داخلي.", "body_en": "Link User Pool to Google, Facebook, Apple, SAML, OIDC (Okta). User signs in with external account; Cognito mirrors a local account."},
+          {"icon": "sparkles", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Lambda Triggers", "title_en": "Lambda Triggers", "body_ar": "Lambda هوكات على أحداث المستخدم: PreSignUp, PostConfirmation, PreAuthentication, PostAuthentication، DefineAuthChallenge (للـ custom auth).", "body_en": "Lambda hooks on user events: PreSignUp, PostConfirmation, PreAuthentication, PostAuthentication, DefineAuthChallenge (custom auth)."}
+        ]},
+        {"type": "p",
+         "ar": "بعد تسجيل دخول ناجح، User Pool يُصدر ثلاثة <strong>JWT tokens</strong>:",
+         "en": "After a successful sign-in, User Pool issues three <strong>JWT tokens</strong>:"},
+        {"type": "table",
+         "headers": {"ar": ["Token", "يحتوي", "الاستخدام"], "en": ["Token", "Contains", "Use"]},
+         "rows": [
+           [{"mono": true, "value": "ID Token"}, {"ar": "هوية المستخدم: email, name, sub, custom attributes", "en": "User identity: email, name, sub, custom attributes"}, {"ar": "للتطبيق لمعرفة من المستخدم", "en": "App learns who the user is"}],
+           [{"mono": true, "value": "Access Token"}, {"ar": "scopes وpermissions", "en": "Scopes & permissions"}, {"ar": "للوصول لـ APIs (API Gateway)", "en": "Access APIs (API Gateway)"}],
+           [{"mono": true, "value": "Refresh Token"}, {"ar": "يجدّد Access/ID tokens بدون إعادة تسجيل دخول", "en": "Refreshes ID/Access tokens without re-login"}, {"ar": "تطبيقات طويلة الجلسة (mobile)", "en": "Long-lived sessions (mobile)"}]
+         ]
+        },
+        {"type": "code", "lang": "json",
+         "code": "// JWT ID Token payload (base64url-decoded)\n{\n  \"sub\": \"a1b2c3d4-...\",            // unique user ID\n  \"email\": \"user@acme.com\",\n  \"email_verified\": true,\n  \"cognito:username\": \"yasser\",\n  \"cognito:groups\": [\"admin\"],\n  \"iss\": \"https://cognito-idp.us-east-1.amazonaws.com/us-east-1_ABC\",\n  \"aud\": \"<app_client_id>\",\n  \"token_use\": \"id\",\n  \"exp\": 1735689600,\n  \"iat\": 1735686000\n}"}
+      ]
+    },
+    {
+      "title_ar": "Cognito + API Gateway — نمط حماية APIs",
+      "title_en": "Cognito + API Gateway — API protection pattern",
+      "blocks": [
+        {"type": "p",
+         "ar": "التكامل الأكثر شيوعاً: <strong>API Gateway Cognito User Pool Authorizer</strong>. العميل يسجّل الدخول في User Pool ويأخذ ID token (أو Access token). يرسله في <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header مع كل طلب. API Gateway يتحقّق من التوقيع والانتهاء تلقائياً — بدون كود إضافي.",
+         "en": "Most common integration: <strong>API Gateway Cognito User Pool Authorizer</strong>. Client signs in at User Pool, receives an ID (or Access) token, and sends it in the <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header on each request. API Gateway auto-validates signature & expiry — no custom code."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — sign in to Cognito User Pool, get tokens\nimport software.amazon.awssdk.services.cognitoidentityprovider.*;\nimport software.amazon.awssdk.services.cognitoidentityprovider.model.*;\n\nCognitoIdentityProviderClient cognito = CognitoIdentityProviderClient.create();\n\nAdminInitiateAuthResponse auth = cognito.adminInitiateAuth(b -> b\n    .userPoolId(\"us-east-1_ABC\")\n    .clientId(\"abc123\")\n    .authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)\n    .authParameters(Map.of(\n        \"USERNAME\", \"yasser@acme.com\",\n        \"PASSWORD\", \"************\")));\n\nAuthenticationResultType tokens = auth.authenticationResult();\nString idToken      = tokens.idToken();       // for identity\nString accessToken  = tokens.accessToken();   // for API calls\nString refreshToken = tokens.refreshToken();  // for renewal\n\n// Call protected API with the token\nHttpRequest req = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://abc.execute-api.us-east-1.amazonaws.com/prod/orders\"))\n    .header(\"Authorization\", idToken)\n    .GET().build();"},
+        {"type": "callout", "tone": "warn",
+         "ar": "في API Gateway، بعد تفعيل Cognito Authorizer، اختر <strong>Token Source</strong> (عادة <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header) و <strong>OAuth Scopes</strong> (اختياري — لتقييد الـ scopes التي يسمح لها بالوصول). يمكن استخراج claims من الـ token وتمريرها لـ Lambda عبر <span dir=\"ltr\" class=\"font-mono\">$context.authorizer.claims</span>.",
+         "en": "In API Gateway, after enabling the Cognito Authorizer, pick <strong>Token Source</strong> (usually <span dir=\"ltr\" class=\"font-mono\">Authorization</span> header) and <strong>OAuth Scopes</strong> (optional — to restrict allowed scopes). You can extract claims and pass them to Lambda via <span dir=\"ltr\" class=\"font-mono\">$context.authorizer.claims</span>."},
+        {"type": "p",
+         "ar": "<strong>OAuth 2.0 Flows</strong> المدعومة: <strong>Authorization Code</strong> (الأكثر أماناً — SPA/server apps)، <strong>Client Credentials</strong> (machine-to-machine، بدون مستخدم)، <strong>Implicit</strong> (مُستنكَر لمصلحة Authorization Code with PKCE). المسار الافتراضي للـ mobile و SPA اليوم: Authorization Code + PKCE.",
+         "en": "Supported <strong>OAuth 2.0 flows</strong>: <strong>Authorization Code</strong> (safest — SPA/server apps), <strong>Client Credentials</strong> (machine-to-machine, no user), <strong>Implicit</strong> (deprecated in favor of Authorization Code with PKCE). Default for mobile/SPA today: Authorization Code + PKCE."}
+      ]
+    },
+    {
+      "title_ar": "Cognito Identity Pool — تمرير وصول AWS",
+      "title_en": "Cognito Identity Pool — granting AWS access",
+      "blocks": [
+        {"type": "p",
+         "ar": "Identity Pool (يُسمّى أيضاً <strong>Federated Identities</strong>) يحلّ مشكلة: \"كيف أعطي تطبيق iOS وصولاً مباشراً لـ S3 bucket دون تضمين access keys؟\". الإجابة: التطبيق يسجّل الدخول (في أيّ مكان — Cognito User Pool أو Google أو Facebook) ويستبدل الـ token بـ <strong>temporary AWS credentials</strong> عبر STS.",
+         "en": "Identity Pool (also called <strong>Federated Identities</strong>) solves: \"How do I give an iOS app direct S3 access without embedding access keys?\". Answer: the app signs in (anywhere — Cognito User Pool, Google, Facebook) and swaps the token for <strong>temporary AWS credentials</strong> via STS."},
+        {"type": "p",
+         "ar": "Identity Pool يحدّد <strong>IAM Roles</strong> (authenticated / unauthenticated). بناءً على provider الدخول، تنال الـ session credentials ومعها صلاحيات IAM Role المرفق. يدعم <strong>Fine-Grained Access</strong> عبر policy variables مثل <span dir=\"ltr\" class=\"font-mono\">${cognito-identity.amazonaws.com:sub}</span> — كل مستخدم يصل لمجلده فقط في S3.",
+         "en": "Identity Pool defines <strong>IAM Roles</strong> (authenticated / unauthenticated). Based on sign-in provider, you get session credentials with the attached Role's permissions. Supports <strong>fine-grained access</strong> via policy variables like <span dir=\"ltr\" class=\"font-mono\">${cognito-identity.amazonaws.com:sub}</span> — each user accesses only their folder in S3."},
+        {"type": "code", "lang": "json",
+         "code": "// Identity Pool Role Policy — user accesses ONLY their own S3 folder\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Action\": [\"s3:GetObject\",\"s3:PutObject\"],\n    \"Resource\": \"arn:aws:s3:::acme-uploads/${cognito-identity.amazonaws.com:sub}/*\"\n  }]\n}"},
+        {"type": "callout", "tone": "senior",
+         "ar": "نمط السينيور: في تطبيقات mobile/SPA تحتاج رفع ملفات إلى S3 مباشرةً (لتقليل تكلفة Lambda/API Gateway)، استخدم <strong>User Pool + Identity Pool</strong>: المستخدم يسجّل الدخول في User Pool، يستلم tokens، يُمرّرها لـ Identity Pool ليحصل على AWS credentials تسمح بـ <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span> على مجلّده الخاص فقط. هذا النمط المعتمد للأمان.",
+         "en": "Senior pattern: for mobile/SPA uploading files directly to S3 (skip Lambda/API Gateway cost), use <strong>User Pool + Identity Pool</strong>: user signs in at User Pool, gets tokens, swaps them at Identity Pool for AWS credentials allowing <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span> only on their own prefix. Canonical secure pattern."}
+      ]
+    },
+    {
+      "title_ar": "المقارنة النهائية واتّخاذ القرار",
+      "title_en": "Final comparison & decision guide",
+      "blocks": [
+        {"type": "table",
+         "headers": {"ar": ["الاحتياج", "الخدمة"], "en": ["Requirement", "Service"]},
+         "rows": [
+           [{"ar": "قاعدة مستخدمين (sign-up/in)", "en": "User directory (sign-up/in)"}, {"ar": "User Pool", "en": "User Pool"}],
+           [{"ar": "تسجيل دخول بـ Google/Facebook فقط", "en": "Sign in with Google/Facebook only"}, {"ar": "User Pool (مع federation) أو Identity Pool مباشرة", "en": "User Pool (federated) or Identity Pool direct"}],
+           [{"ar": "حماية API Gateway بـ JWT", "en": "Protect API Gateway with JWT"}, {"ar": "User Pool + Cognito Authorizer", "en": "User Pool + Cognito Authorizer"}],
+           [{"ar": "تطبيق mobile يرفع لـ S3 مباشرة", "en": "Mobile app uploads to S3 directly"}, {"ar": "User Pool + Identity Pool", "en": "User Pool + Identity Pool"}],
+           [{"ar": "MFA وpassword policies", "en": "MFA + password policies"}, {"ar": "User Pool", "en": "User Pool"}],
+           [{"ar": "منح وصول AWS قصير الأمد", "en": "Short-lived AWS access"}, {"ar": "Identity Pool", "en": "Identity Pool"}],
+           [{"ar": "guest access بدون تسجيل", "en": "Unauthenticated guest access"}, {"ar": "Identity Pool (unauth role)", "en": "Identity Pool (unauth role)"}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "قاعدة عامّة: لو السؤال عن <strong>\"sign up / sign in / JWT / API Gateway\"</strong> → User Pool. لو السؤال عن <strong>\"AWS credentials / S3 / DynamoDB من mobile مباشرة\"</strong> → Identity Pool. لو الاثنان معاً → \"User Pool + Identity Pool\".",
+         "en": "Rule of thumb: question says <strong>\"sign up/in / JWT / API Gateway\"</strong> → User Pool. Question says <strong>\"AWS credentials / S3/DynamoDB from mobile directly\"</strong> → Identity Pool. Both? → \"User Pool + Identity Pool\"."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "ربط User Pool بـ API Gateway كـ authorizer، ثم إضافة Identity Pool للوصول لـ S3.",
+    "goal_en": "Wire a User Pool to API Gateway as an authorizer, then add an Identity Pool for S3 access.",
+    "steps": [
+      {"title_ar": "أنشئ User Pool", "title_en": "Create a User Pool",
+       "body_ar": "اختر <strong>Email</strong> كـ sign-in. فعّل MFA (optional TOTP). سياسة كلمة مرور ٨ رموز.",
+       "body_en": "Pick <strong>Email</strong> sign-in. Enable optional TOTP MFA. 8-char password policy."},
+      {"title_ar": "أنشئ App Client", "title_en": "Create an App Client",
+       "body_ar": "بدون Client Secret لـ SPA/mobile. فعّل auth flows <span dir=\"ltr\" class=\"font-mono\">ALLOW_USER_SRP_AUTH</span> و <span dir=\"ltr\" class=\"font-mono\">ALLOW_REFRESH_TOKEN_AUTH</span>.",
+       "body_en": "No Client Secret for SPA/mobile. Enable <span dir=\"ltr\" class=\"font-mono\">ALLOW_USER_SRP_AUTH</span> + <span dir=\"ltr\" class=\"font-mono\">ALLOW_REFRESH_TOKEN_AUTH</span>."},
+      {"title_ar": "أضف Cognito Authorizer في API Gateway", "title_en": "Add a Cognito Authorizer in API Gateway",
+       "body_ar": "Authorizers → Create → Cognito. اختر User Pool. Token Source = <span dir=\"ltr\" class=\"font-mono\">Authorization</span>.",
+       "body_en": "Authorizers → Create → Cognito. Pick User Pool. Token Source = <span dir=\"ltr\" class=\"font-mono\">Authorization</span>."},
+      {"title_ar": "سجّل مستخدم واختبر API", "title_en": "Sign up a user and test the API",
+       "body_ar": "",
+       "body_en": "",
+       "code": "# Sign in and get ID Token\naws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH \\\n  --client-id abc123 \\\n  --auth-parameters USERNAME=me@acme.com,PASSWORD=************ \\\n  --query 'AuthenticationResult.IdToken' --output text\n\n# Call protected endpoint\ncurl -H \"Authorization: $TOKEN\" https://abc.execute-api.us-east-1.amazonaws.com/prod/orders"},
+      {"title_ar": "أنشئ Identity Pool واربطه بالـ User Pool", "title_en": "Create an Identity Pool and link to User Pool",
+       "body_ar": "Authentication provider = Cognito User Pool. IAM Role مع <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span> على <span dir=\"ltr\" class=\"font-mono\">acme-uploads/${cognito-identity.amazonaws.com:sub}/*</span>.",
+       "body_en": "Authentication provider = Cognito User Pool. IAM Role granting <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span> on <span dir=\"ltr\" class=\"font-mono\">acme-uploads/${cognito-identity.amazonaws.com:sub}/*</span>."},
+      {"title_ar": "من التطبيق: احصل على AWS credentials", "title_en": "From the app: get AWS credentials",
+       "body_ar": "استخدم <span dir=\"ltr\" class=\"font-mono\">GetId</span> ثم <span dir=\"ltr\" class=\"font-mono\">GetCredentialsForIdentity</span> في Cognito Identity.",
+       "body_en": "Call <span dir=\"ltr\" class=\"font-mono\">GetId</span> then <span dir=\"ltr\" class=\"font-mono\">GetCredentialsForIdentity</span> on Cognito Identity."}
+    ],
+    "warning_ar": "لا تُمرّر Client Secret في تطبيقات public (mobile/SPA) — استخدم PKCE بدلاً. احتفظ بالـ Refresh Tokens في secure storage فقط.",
+    "warning_en": "Never send Client Secret from public apps (mobile/SPA) — use PKCE instead. Store Refresh Tokens in secure storage only."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "ما الفرق الجوهري بين Cognito User Pool و Cognito Identity Pool؟",
+      "question_en": "Core difference between Cognito User Pool and Identity Pool?",
+      "options_ar": ["User Pool للـ mobile، Identity Pool للـ web.", "User Pool = user directory يُصدر JWT؛ Identity Pool = يمنح AWS credentials مؤقتة.", "User Pool أرخص.", "لا فرق جوهري."],
+      "options_en": ["User Pool for mobile, Identity Pool for web.", "User Pool = user directory issuing JWTs; Identity Pool = issues temporary AWS credentials.", "User Pool is cheaper.", "No real difference."],
+      "correct": 1,
+      "explanation_ar": "<strong>User Pool</strong> هو user directory: sign-up/in، password policies، MFA، يُصدر JWT tokens. <strong>Identity Pool</strong> يأخذ token ويُبادله بـ AWS temporary credentials عبر STS للوصول المباشر لـ S3/DynamoDB. هذا الفرق الأكثر اختباراً — WHO (User Pool) vs WHAT (Identity Pool).",
+      "explanation_en": "<strong>User Pool</strong> = user directory: sign-up/in, password policies, MFA, issues JWT tokens. <strong>Identity Pool</strong> takes a token and exchanges for AWS temp credentials via STS for direct S3/DynamoDB access. Most-tested distinction — WHO (User Pool) vs WHAT (Identity Pool).",
+      "wrong_ar": ["التفريق ليس عن المنصّة.", "", "التسعير ليس المعيار.", "الفرق حرج."],
+      "wrong_en": ["Not a platform distinction.", "", "Pricing isn't the criterion.", "Difference is critical."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "تطبيق SPA يحتاج حماية REST API في API Gateway بحيث يدخل المستخدمون بـ email/password. ما الحلّ الأمثل؟",
+      "question_en": "A SPA needs to protect a REST API with email/password sign-in. Best solution?",
+      "options_ar": ["Cognito Identity Pool + unauth role.", "Cognito User Pool + API Gateway Cognito Authorizer.", "Lambda Authorizer يستعلم من DynamoDB.", "IAM Users لكل عميل."],
+      "options_en": ["Cognito Identity Pool + unauth role.", "Cognito User Pool + API Gateway Cognito Authorizer.", "Lambda Authorizer querying DynamoDB.", "IAM Users per customer."],
+      "correct": 1,
+      "explanation_ar": "النمط المعياري: <strong>User Pool</strong> لإدارة المستخدمين + <strong>API Gateway Cognito Authorizer</strong> للتحقّق من JWT تلقائياً. Identity Pool للـ AWS credentials لا للـ JWT APIs. Lambda authorizer أعقد دون داعٍ. IAM Users لا يتدرّج لـ end users.",
+      "explanation_en": "Canonical: <strong>User Pool</strong> for user management + <strong>API Gateway Cognito Authorizer</strong> auto-validates JWT. Identity Pool is for AWS credentials, not JWT APIs. Lambda authorizer is needless complexity. IAM Users don't scale to end users.",
+      "wrong_ar": ["Identity Pool لا يعمل authentication.", "", "معقّد بدون فائدة.", "لا يتدرّج."],
+      "wrong_en": ["Identity Pool doesn't auth users.", "", "Needless complexity.", "Doesn't scale."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "تطبيق iOS يريد رفع ملفات مباشرة إلى S3 (لتوفير Lambda cost)، حيث لكل مستخدم مجلّد خاصّ لا يصل إليه غيره. ما النمط الأمثل؟",
+      "question_en": "An iOS app uploads files directly to S3 (saves Lambda cost); each user has a private folder. Best pattern?",
+      "options_ar": ["تضمين AWS Access Keys في التطبيق.", "User Pool + Identity Pool مع IAM policy تستخدم <span class=\"font-mono\">${cognito-identity.amazonaws.com:sub}</span>.", "Presigned URL من Lambda لكل upload.", "S3 public bucket."],
+      "options_en": ["Embed AWS Access Keys in the app.", "User Pool + Identity Pool with IAM policy using <span class=\"font-mono\">${cognito-identity.amazonaws.com:sub}</span>.", "Presigned URL from Lambda per upload.", "Public S3 bucket."],
+      "correct": 1,
+      "explanation_ar": "النمط المعياري الآمن: (١) User Pool للتسجيل. (٢) Identity Pool يبادل JWT بـ AWS temp credentials. (٣) IAM Role في Identity Pool يسمح <span class=\"font-mono\">s3:PutObject</span> على <span class=\"font-mono\">bucket/${cognito-identity.amazonaws.com:sub}/*</span> فقط. تضمين keys خطر أمني جسيم. Presigned URL حلّ لكن يتطلّب Lambda لكل upload (مكلف).",
+      "explanation_en": "Secure canonical: (1) User Pool for sign-in, (2) Identity Pool exchanges JWT for AWS temp creds, (3) IAM Role in Identity Pool grants <span class=\"font-mono\">s3:PutObject</span> on <span class=\"font-mono\">bucket/${cognito-identity.amazonaws.com:sub}/*</span> only. Embedded keys = major security risk. Presigned URLs work but need a Lambda per upload (costly).",
+      "wrong_ar": ["خطر أمنيّ كبير.", "", "يزيد cost/latency مع كل upload.", "لا توفّر عزل بين المستخدمين."],
+      "wrong_en": ["Huge security risk.", "", "Adds cost/latency per upload.", "No user isolation."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ من الـ JWT tokens التالية يُصدرها User Pool عند تسجيل الدخول؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which JWT tokens does User Pool issue on sign-in? Select all that apply.",
+      "options_ar": ["ID Token", "Access Token", "Refresh Token", "STS Session Token", "SAML Assertion"],
+      "options_en": ["ID Token", "Access Token", "Refresh Token", "STS Session Token", "SAML Assertion"],
+      "correct": [0, 1, 2],
+      "explanation_ar": "User Pool يُصدر ثلاثة: <strong>ID Token</strong> (معلومات المستخدم)، <strong>Access Token</strong> (للـ APIs)، <strong>Refresh Token</strong> (لتجديد الاثنين). STS Session Token من Identity Pool لا من User Pool. SAML Assertion ليست JWT.",
+      "explanation_en": "User Pool issues three: <strong>ID Token</strong> (user info), <strong>Access Token</strong> (for APIs), <strong>Refresh Token</strong> (to refresh the other two). STS Session Token comes from Identity Pool, not User Pool. SAML Assertion isn't a JWT.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "شركة تريد السماح للمستخدمين بتسجيل الدخول بحسابات Google وFacebook بدون إنشاء حسابات جديدة. ما الحلّ؟",
+      "question_en": "Allow users to sign in with Google/Facebook without creating new accounts. Solution?",
+      "options_ar": ["IAM Federation.", "User Pool مع Federated Identity Providers (Google, Facebook).", "OAuth من الصفر.", "Active Directory."],
+      "options_en": ["IAM Federation.", "User Pool with Federated Identity Providers (Google, Facebook).", "Roll your own OAuth.", "Active Directory."],
+      "correct": 1,
+      "explanation_ar": "<strong>User Pool</strong> يدعم Federated Identity: اربط Google, Facebook, Apple, SAML, OpenID Connect. المستخدم يسجّل عبر حسابه الخارجي، وتُنشئ Cognito حساباً داخلياً مرتبطاً (mirror). يوفّر JWT tokens موحّدة لكل الـ providers.",
+      "explanation_en": "<strong>User Pool</strong> supports Federated Identity: link Google, Facebook, Apple, SAML, OIDC. User signs in with external account; Cognito mirrors a linked internal account. Provides unified JWT tokens across providers.",
+      "wrong_ar": ["IAM للخدمات لا للمستخدمين النهائيين.", "", "إعادة اختراع العجلة.", "للـ on-prem users."],
+      "wrong_en": ["IAM is for services, not end users.", "", "Reinvents the wheel.", "For on-prem users."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "في API Gateway، بعد تمرير JWT من Cognito، كيف تستخدم claims (مثل <span class=\"font-mono\">email</span> أو <span class=\"font-mono\">cognito:groups</span>) داخل Lambda؟",
+      "question_en": "In API Gateway, after passing a Cognito JWT, how to use claims (e.g. <span class=\"font-mono\">email</span>, <span class=\"font-mono\">cognito:groups</span>) inside Lambda?",
+      "options_ar": ["فك تشفير الـ JWT يدوياً في Lambda.", "الوصول عبر <span class=\"font-mono\">event.requestContext.authorizer.claims</span> (Lambda Proxy) أو mapping template <span class=\"font-mono\">$context.authorizer.claims</span>.", "استدعاء User Pool API مرّة أخرى.", "Storage مشترك في DynamoDB."],
+      "options_en": ["Decode JWT manually in Lambda.", "Access via <span class=\"font-mono\">event.requestContext.authorizer.claims</span> (Lambda Proxy) or mapping template <span class=\"font-mono\">$context.authorizer.claims</span>.", "Call User Pool API again.", "Shared storage in DynamoDB."],
+      "correct": 1,
+      "explanation_ar": "API Gateway يستخرج claims تلقائياً ويُمرّرها في <span class=\"font-mono\">requestContext.authorizer.claims</span>. فك الـ JWT يدوياً مضيعة. استدعاء User Pool API فيه latency إضافي.",
+      "explanation_en": "API Gateway auto-extracts claims into <span class=\"font-mono\">requestContext.authorizer.claims</span>. Manual decoding is waste. Re-calling User Pool adds latency.",
+      "wrong_ar": ["مضيعة للوقت والمورد.", "", "Latency إضافي.", "غير ذي صلة."],
+      "wrong_en": ["Waste of time.", "", "Extra latency.", "Unrelated."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "أيّ OAuth 2.0 flow يُوصَى به لـ SPA اليوم؟",
+      "question_en": "Which OAuth 2.0 flow is recommended for SPAs today?",
+      "options_ar": ["Implicit flow.", "Authorization Code + PKCE.", "Resource Owner Password Credentials.", "Client Credentials."],
+      "options_en": ["Implicit flow.", "Authorization Code + PKCE.", "Resource Owner Password Credentials.", "Client Credentials."],
+      "correct": 1,
+      "explanation_ar": "<strong>Authorization Code + PKCE</strong> هو التوصية الحديثة لـ SPA/mobile (تطبيقات public client): آمن حتى بدون client secret. Implicit flow مُستنكَر (يعرّض tokens للـ URL fragment). ROPC نادر الاستخدام ومُحبَّط. Client Credentials للـ machine-to-machine لا للمستخدمين.",
+      "explanation_en": "<strong>Authorization Code + PKCE</strong> is the modern recommendation for SPA/mobile (public clients): secure even without a client secret. Implicit is deprecated (exposes tokens in URL fragment). ROPC is rare and discouraged. Client Credentials is for M2M, not users.",
+      "wrong_ar": ["مُستنكَر — يُعرّض الـ tokens.", "", "غير موصى به.", "ليس للمستخدمين."],
+      "wrong_en": ["Deprecated — exposes tokens.", "", "Not recommended.", "Not for users."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "Cognito User Pool Lambda Triggers — أيّ الأحداث التالية يمكن ربطها بـ Lambda؟",
+      "question_en": "Cognito User Pool Lambda Triggers — which events can you hook?",
+      "options_ar": ["فقط PostConfirmation.", "PreSignUp, PostConfirmation, PreAuthentication, PostAuthentication, DefineAuthChallenge، وأكثر.", "فقط CustomMessage.", "لا يدعم Lambda Triggers."],
+      "options_en": ["Only PostConfirmation.", "PreSignUp, PostConfirmation, PreAuthentication, PostAuthentication, DefineAuthChallenge, and more.", "Only CustomMessage.", "No Lambda Triggers."],
+      "correct": 1,
+      "explanation_ar": "Cognito User Pool يدعم trigger Lambda على أكثر من ١٠ أحداث: PreSignUp (تحقّق من البريد الإلكتروني)، PostConfirmation (إرسال إيميل ترحيب)، PreAuthentication (منع دخول مستخدم)، PostAuthentication (تسجيل audit)، DefineAuthChallenge/CreateAuthChallenge/VerifyAuthChallengeResponse (custom auth flow)، MigrateUser (من نظام قديم)، CustomMessage (تخصيص emails/SMS).",
+      "explanation_en": "Cognito User Pool supports 10+ Lambda triggers: PreSignUp (verify email), PostConfirmation (welcome email), PreAuthentication (block user), PostAuthentication (audit log), DefineAuthChallenge/CreateAuthChallenge/VerifyAuthChallengeResponse (custom auth flow), MigrateUser (from legacy), CustomMessage (customize emails/SMS).",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "تطبيق يحتاج السماح لـ \"زوّار\" (بدون تسجيل) بالوصول لـ S3 bucket للقراءة فقط، ومنح المستخدمين المسجّلين صلاحيات أوسع. ما الحلّ؟",
+      "question_en": "App needs guests (unregistered) read-only S3 access, and richer permissions for signed-in users. Solution?",
+      "options_ar": ["S3 public bucket.", "Cognito Identity Pool مع Authenticated Role + Unauthenticated Role منفصلين.", "Lambda Authorizer.", "IAM Users."],
+      "options_en": ["Public S3 bucket.", "Cognito Identity Pool with separate Authenticated + Unauthenticated Roles.", "Lambda Authorizer.", "IAM Users."],
+      "correct": 1,
+      "explanation_ar": "<strong>Identity Pool</strong> يدعم <strong>Unauthenticated access</strong>: أنت تُعرّف Role منفصل للزوّار (قراءة محدودة)، وRole آخر للمسجّلين (صلاحيات أوسع). التطبيق يطلب credentials بدون token لزائر. S3 public bucket يفتح للكل بدون فحص. Lambda Authorizer لـ API Gateway. IAM Users لا يتدرّج.",
+      "explanation_en": "<strong>Identity Pool</strong> supports <strong>unauthenticated access</strong>: define a separate Role for guests (limited read) and another for signed-in users (richer). App requests credentials with no token for guests. Public S3 bucket is open to all. Lambda Authorizer is for API Gateway. IAM Users don't scale.",
+      "wrong_ar": ["يفتح للكل بلا عزل.", "", "لـ API Gateway.", "لا يتدرّج."],
+      "wrong_en": ["Open to all, no isolation.", "", "For API Gateway.", "Doesn't scale."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "ما دور <strong>Refresh Token</strong> في Cognito؟",
+      "question_en": "What's the <strong>Refresh Token</strong>'s role in Cognito?",
+      "options_ar": ["للـ API Gateway authentication مباشرة.", "لتجديد ID/Access tokens بدون إعادة طلب كلمة المرور من المستخدم.", "للتوقيع على طلبات AWS.", "للـ MFA."],
+      "options_en": ["Authenticates to API Gateway directly.", "Renews ID/Access tokens without re-prompting password.", "Signs AWS API calls.", "For MFA."],
+      "correct": 1,
+      "explanation_ar": "<strong>Refresh Token</strong> مُخصّص لتجديد ID/Access tokens (التي تنتهي عادة بعد ٦٠ دقيقة) دون إعادة تسجيل دخول. عمر الـ Refresh Token قابل للتكوين (افتراضي ٣٠ يوم). Access Token هو الذي يُرسَل لـ API Gateway، لا Refresh Token.",
+      "explanation_en": "<strong>Refresh Token</strong> is meant to renew ID/Access tokens (which typically expire in 60 min) without re-login. Refresh lifetime is configurable (default 30 days). API Gateway gets the Access Token, not the Refresh Token.",
+      "wrong_ar": ["ليس لـ API calls.", "", "ليس credential AWS.", "غير ذي صلة."],
+      "wrong_en": ["Not for API calls.", "", "Not an AWS credential.", "Unrelated."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "مؤسّسة تستخدم Okta كـ Identity Provider مركزي (SAML). كيف تُدمجه مع تطبيق serverless؟",
+      "question_en": "Enterprise uses Okta as central Identity Provider (SAML). How to integrate with a serverless app?",
+      "options_ar": ["مستحيل.", "User Pool يدعم SAML/OpenID Connect providers كـ federation — اربط Okta مع User Pool.", "فقط IAM Identity Center.", "عبر CloudTrail."],
+      "options_en": ["Impossible.", "User Pool supports SAML/OIDC providers as federation — link Okta with User Pool.", "Only IAM Identity Center.", "Via CloudTrail."],
+      "correct": 1,
+      "explanation_ar": "<strong>User Pool</strong> يتيح ربط <strong>SAML 2.0</strong> و <strong>OpenID Connect</strong> providers (مثل Okta). المستخدم يسجّل عبر Okta، ويستلم من Cognito JWT tokens كأيّ مستخدم داخلي. IAM Identity Center بديل لكن Cognito هو الأنسب لـ serverless user-facing apps.",
+      "explanation_en": "<strong>User Pool</strong> supports <strong>SAML 2.0</strong> and <strong>OpenID Connect</strong> providers (like Okta). User signs in via Okta, Cognito issues JWT tokens just like internal users. IAM Identity Center is an alt but Cognito is the fit for serverless user-facing apps.",
+      "wrong_ar": ["مدعوم بالكامل.", "", "بديل للـ internal workforce.", "للتدقيق لا للمصادقة."],
+      "wrong_en": ["Fully supported.", "", "Alt for internal workforce.", "For audit, not auth."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "في الامتحان يُقدَّم سيناريو: \"التطبيق يحتاج user directory مع sign-in وJWT tokens لحماية REST API\". أيّ الخيارات تختار؟",
+      "question_en": "Exam scenario: \"App needs a user directory with sign-in and JWT tokens to protect a REST API\". Which to choose?",
+      "options_ar": ["Cognito Identity Pool فقط.", "Cognito User Pool.", "AWS IAM.", "Active Directory."],
+      "options_en": ["Cognito Identity Pool only.", "Cognito User Pool.", "AWS IAM.", "Active Directory."],
+      "correct": 1,
+      "explanation_ar": "الكلمات المفتاحية <strong>\"user directory\"</strong> و <strong>\"sign-in\"</strong> و <strong>\"JWT\"</strong> كلها تشير إلى <strong>User Pool</strong>. Identity Pool لا يُصدر JWT ولا يدير مستخدمين. IAM لخدمات AWS. AD للـ on-prem.",
+      "explanation_en": "Keywords <strong>\"user directory\"</strong>, <strong>\"sign-in\"</strong>, <strong>\"JWT\"</strong> all point to <strong>User Pool</strong>. Identity Pool doesn't issue JWT or manage users. IAM is for AWS services. AD is on-prem.",
+      "wrong_ar": ["لا يُدير مستخدمين.", "", "لخدمات AWS.", "للـ on-prem."],
+      "wrong_en": ["Doesn't manage users.", "", "For AWS services.", "On-prem."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "users", "title_ar": "User Pool = WHO", "title_en": "User Pool = WHO",
+     "body_ar": "user directory، sign-up/in، JWT tokens، federation مع Google/Facebook/SAML.",
+     "body_en": "User directory, sign-up/in, JWT tokens, Google/Facebook/SAML federation."},
+    {"icon": "key-round", "title_ar": "Identity Pool = WHAT", "title_en": "Identity Pool = WHAT",
+     "body_ar": "يبادل token بـ temporary AWS credentials عبر STS للوصول المباشر لـ S3/DynamoDB.",
+     "body_en": "Swaps token for temp AWS credentials via STS for direct S3/DynamoDB access."},
+    {"icon": "shield", "title_ar": "٣ JWT tokens", "title_en": "3 JWT tokens",
+     "body_ar": "ID (هوية)، Access (APIs)، Refresh (للتجديد).",
+     "body_en": "ID (identity), Access (APIs), Refresh (renewal)."},
+    {"icon": "lock", "title_ar": "API Gateway Cognito Authorizer", "title_en": "API Gateway Cognito Authorizer",
+     "body_ar": "يتحقّق من JWT تلقائياً. claims متاحة في <span class=\"font-mono\">$context.authorizer.claims</span>.",
+     "body_en": "Auto-validates JWT. Claims available in <span class=\"font-mono\">$context.authorizer.claims</span>."}
+  ],
+  "mnemonic_ar": "الخلط الكلاسيكي: <strong>User Pool = Username/password → JWT</strong>. <strong>Identity Pool = IAM identity → AWS credentials</strong>. اسأل نفسك: هل السؤال عن <u>من</u> المستخدم (User Pool) أم عن <u>ماذا</u> يستطيع فعله في AWS (Identity Pool)؟",
+  "mnemonic_en": "Classic confusion: <strong>User Pool = Username/password → JWT</strong>. <strong>Identity Pool = IAM identity → AWS credentials</strong>. Ask: is the question about <u>who</u> the user is (User Pool) or <u>what</u> they can do in AWS (Identity Pool)?",
+  "prev": 15,
+  "next": 17
+}

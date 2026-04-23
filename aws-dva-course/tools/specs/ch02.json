@@ -1,0 +1,346 @@
+{
+  "n": 2,
+  "domain": "foundations",
+  "title_ar": "أساسيات Amazon EC2",
+  "title_en": "Amazon EC2 Basics",
+  "pages": "39-71",
+  "subtitle_ar": "الحوسبة المرنة في السحابة: أنواع الخوادم، وأنظمة الأسعار، ومجموعات الأمان، وأزواج المفاتيح. هذه هي اللبنة الأساس التي تُبنى عليها أغلب خدمات AWS.",
+  "subtitle_en": "Elastic compute in the cloud: instance types, purchasing options, Security Groups, and key pairs. EC2 is the foundational building block for most AWS services.",
+  "tags": ["EC2", "Instance Types", "Security Groups", "AMI", "Pricing"],
+  "objectives": [
+    {"concept": "EC2 Instance Types", "tested_ar": "النطاقان الأول والثالث في سياق اختيار الخادم المناسب للحمل.", "tested_en": "Domains 1 & 3 — choosing the right instance for a workload."},
+    {"concept": "Security Groups", "tested_ar": "النطاق الثاني في أسئلة عزل الشبكة والتحكّم بالمنافذ.", "tested_en": "Domain 2 — network isolation and port control questions."},
+    {"concept": "User Data", "tested_ar": "النطاق الثالث في أتمتة إعداد الخوادم عند الإطلاق.", "tested_en": "Domain 3 — automating instance setup at boot."},
+    {"concept": "Purchasing Options", "tested_ar": "النطاق الرابع في أسئلة تحسين التكلفة.", "tested_en": "Domain 4 — cost optimization questions."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هي EC2 ولماذا تستخدمها",
+      "title_en": "What is EC2 and why",
+      "blocks": [
+        {"type": "p",
+         "ar": "اسم <span dir=\"ltr\" class=\"font-mono text-brand-700\">EC2</span> اختصار لـ Elastic Compute Cloud، وهي خدمة تأجير الخوادم الافتراضية من AWS. تعدّ الأكثر استخداماً من بين خدمات AWS، وتمنحك تحكّماً كاملاً في نظام التشغيل ومكتبات التشغيل والتطبيقات.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">EC2</span> stands for Elastic Compute Cloud — AWS's virtual server rental service. It's the most-used AWS service, giving you full control over the OS, runtime, and applications."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "server", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "استئجار خوادم افتراضية", "title_en": "Rent virtual machines", "body_ar": "تختار نوع الخادم (CPU و RAM) ونظام التشغيل وتدفع بالساعة أو بالثانية.", "body_en": "Pick instance type (CPU/RAM), OS, pay per hour or per second."},
+          {"icon": "hard-drive", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "تخزين على أقراص افتراضية", "title_en": "Storage on virtual disks", "body_ar": "EBS للتخزين المستمرّ، Instance Store للأداء العالي، EFS للمشاركة بين الخوادم.", "body_en": "EBS for persistent, Instance Store for high perf, EFS for shared."},
+          {"icon": "scale", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "توزيع الحِمل", "title_en": "Load balancing", "body_ar": "Elastic Load Balancer يوزّع الطلبات على عدّة خوادم.", "body_en": "Elastic Load Balancer distributes traffic across instances."},
+          {"icon": "trending-up", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "توسعة تلقائية", "title_en": "Auto scaling", "body_ar": "Auto Scaling Group يزيد/يقلّل عدد الخوادم حسب الحِمل.", "body_en": "Auto Scaling Group grows/shrinks instance count with demand."}
+        ]}
+      ]
+    },
+    {
+      "title_ar": "تسمية أنواع الخوادم وقراءتها",
+      "title_en": "Reading instance type names",
+      "blocks": [
+        {"type": "p",
+         "ar": "أسماء الخوادم في EC2 تتبع نمطاً موحّداً مثل <span dir=\"ltr\" class=\"font-mono text-brand-700\">m5.2xlarge</span>. فهمك لهذا النمط ضروريّ لاختيار الخادم المناسب وللإجابة على أسئلة الامتحان.",
+         "en": "EC2 instance names follow a standard pattern like <span dir=\"ltr\" class=\"font-mono text-brand-700\">m5.2xlarge</span>. Understanding it is essential for choosing the right instance and for exam questions."},
+        {"type": "table",
+         "headers": {"ar": ["الجزء", "المعنى", "مثال"], "en": ["Part", "Meaning", "Example"]},
+         "rows": [
+           [{"ar": "الحرف الأول", "en": "First letter"}, {"ar": "فئة الاستخدام (الحساب، الذاكرة، التخزين، ...)", "en": "Family (compute, memory, storage, ...)"}, {"mono": true, "value": "m = general, c = compute, r = memory"}],
+           [{"ar": "الرقم", "en": "Number"}, {"ar": "الجيل", "en": "Generation"}, {"mono": true, "value": "5, 6, 7"}],
+           [{"ar": "الحجم", "en": "Size"}, {"ar": "كمّية الموارد", "en": "Resource size"}, {"mono": true, "value": "nano, small, ..., 2xlarge, 24xlarge"}]
+         ]
+        },
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "cpu", "title_ar": "فئات شائعة", "title_en": "Common families",
+                  "body_ar": "m = عامّة الغرض (متوازن). c = حوسبة مكثّفة (CPU). r = ذاكرة كبيرة (RAM). i = تخزين محلّي سريع. t = بدأ باستخدامات خفيفة (burstable).",
+                  "body_en": "m = general purpose (balanced). c = compute-optimized. r = memory-optimized. i = storage-optimized. t = burstable."},
+         "right": {"tone": "emerald", "icon": "timer", "title_ar": "وحدات الدفع", "title_en": "Billing units",
+                   "body_ar": "معظم الخوادم تُحسَب بالثانية (بحد أدنى 60 ثانية). ويندوز يُحسَب بالساعة. الدفع يبدأ من لحظة الإطلاق وينتهي عند الإيقاف.",
+                   "body_en": "Most Linux instances billed per second (min 60s). Windows billed per hour. Billing starts at launch, stops at shutdown."}
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "الـ <span dir=\"ltr\" class=\"font-mono\">t</span> instances عندها مفهوم <strong>CPU Credits</strong>. لو استهلكت كل رصيدك، أداء الخادم يتراجع. <strong>T unlimited</strong> يسمح بتجاوز الرصيد مقابل تكلفة إضافية.",
+         "en": "<span dir=\"ltr\" class=\"font-mono\">t</span> instances use <strong>CPU Credits</strong>. If you run out, performance throttles. <strong>T unlimited</strong> allows bursting beyond credits for extra cost."}
+      ]
+    },
+    {
+      "title_ar": "خيارات الشراء (Pricing)",
+      "title_en": "Purchasing options",
+      "blocks": [
+        {"type": "p",
+         "ar": "AWS تقدّم خمس طرق لشراء خوادم EC2، وكل طريقة لها حالة استخدام مختلفة. هذه أكثر المواضيع التي يسأل عنها الامتحان في سياق تحسين التكلفة.",
+         "en": "AWS offers five ways to purchase EC2, each with a different use case. This is one of the most exam-tested topics around cost optimization."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "zap", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "On-Demand", "title_en": "On-Demand", "body_ar": "ادفع بالساعة/الثانية بدون التزام. الأغلى لكنّه الأكثر مرونة. مناسب للأحمال غير المتوقّعة والتجارب القصيرة.", "body_en": "Pay per hour/second, no commitment. Most expensive but most flexible. Good for short unpredictable workloads."},
+          {"icon": "calendar", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Reserved Instances", "title_en": "Reserved Instances", "body_ar": "التزام سنة أو ثلاث سنوات بخصم حتى ٧٢٪. مناسب لأحمال ثابتة طويلة المدى (قواعد البيانات مثلاً).", "body_en": "1 or 3-year commitment, up to 72% discount. Good for steady long-running workloads (databases, etc.)."},
+          {"icon": "trending-up", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Savings Plans", "title_en": "Savings Plans", "body_ar": "التزام بـ $/ساعة بدلاً من خادم محدّد. أكثر مرونة من RI. يشمل EC2 و Lambda و Fargate.", "body_en": "Commit to $/hour rather than specific instance. More flexible than RI. Covers EC2, Lambda, Fargate."},
+          {"icon": "gauge", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Spot Instances", "title_en": "Spot Instances", "body_ar": "خصم حتى ٩٠٪ مقابل إمكانية إنهاء الخادم بإشعار دقيقتين. مناسب لأعمال Batch و Big Data.", "body_en": "Up to 90% discount, can be terminated with 2-minute notice. Good for batch, Big Data jobs."},
+          {"icon": "server", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "Dedicated Hosts", "title_en": "Dedicated Hosts", "body_ar": "خادم فيزيائيّ كامل مخصّص لك. للامتثال التنظيمي أو تراخيص BYOL.", "body_en": "Physical server dedicated to you. For compliance or BYOL licensing."},
+          {"icon": "box", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "Dedicated Instances", "title_en": "Dedicated Instances", "body_ar": "خوادم على جهاز فيزيائي لا يشاركه غيرك، لكن AWS تديره. بديل أرخص من Dedicated Hosts.", "body_en": "Instances on hardware no other customer shares, but AWS manages. Cheaper than Dedicated Hosts."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "للاختيار في الامتحان: Spot للـ batch، Reserved للأحمال الثابتة، Savings Plans للمرونة، Dedicated للامتثال. On-Demand هو الافتراضي لكن الأغلى.",
+         "en": "Exam picks: Spot for batch, Reserved for steady workloads, Savings Plans for flexibility, Dedicated for compliance. On-Demand is default but priciest."}
+      ]
+    },
+    {
+      "title_ar": "مجموعات الأمان (Security Groups)",
+      "title_en": "Security Groups",
+      "blocks": [
+        {"type": "p",
+         "ar": "مجموعات الأمان هي جدار ناريّ افتراضيّ على مستوى الخادم. تحدّد أيّ المنافذ مفتوحة، ومن أيّ مصدر. تُطبَّق على مستوى <strong>ENI (Elastic Network Interface)</strong> لا على الخادم مباشرةً، ممّا يعني أنّ الخادم الواحد يمكن أن يرتبط بعدّة مجموعات.",
+         "en": "Security Groups are virtual firewalls at the instance level. They define which ports are open and from which source. They apply to <strong>ENIs (Elastic Network Interfaces)</strong>, not directly to instances, so one instance can attach multiple SGs."},
+        {"type": "table",
+         "headers": {"ar": ["الخاصّية", "السلوك"], "en": ["Property", "Behavior"]},
+         "rows": [
+           [{"ar": "القواعد", "en": "Rules"}, {"ar": "Allow فقط. لا يوجد Deny. كل المنافذ مغلقة افتراضياً.", "en": "Allow-only. No Deny rules. Everything closed by default."}],
+           [{"ar": "الحالة", "en": "State"}, {"ar": "Stateful — الطلب الخارج يرجع تلقائياً (outbound reply allowed).", "en": "Stateful — outbound replies auto-allowed."}],
+           [{"ar": "المصدر", "en": "Source"}, {"ar": "IP أو CIDR أو مجموعة أمان أخرى.", "en": "IP, CIDR, or another Security Group."}],
+           [{"ar": "النطاق", "en": "Scope"}, {"ar": "مرتبطة بـ VPC واحد. لا يمكن مشاركتها بين VPCs.", "en": "Bound to one VPC. Not shareable across VPCs."}]
+         ]
+        },
+        {"type": "code", "lang": "bash",
+         "code": "# Create a Security Group allowing SSH + HTTP\naws ec2 create-security-group \\\n  --group-name web-sg \\\n  --description 'Web server SG' \\\n  --vpc-id vpc-0a1b2c3d\n\n# Allow SSH from your IP only\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-0123abcd \\\n  --protocol tcp --port 22 --cidr 203.0.113.5/32\n\n# Allow HTTP from anywhere\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-0123abcd \\\n  --protocol tcp --port 80 --cidr 0.0.0.0/0"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>Connection refused</strong> يعني أنّ التطبيق لا يستمع على المنفذ (مشكلة في الخادم). <strong>Connection timeout</strong> يعني أنّ الطلب لم يصل أصلاً (مشكلة في Security Group أو Network ACL). هذا الفرق يُسأل كثيراً في الامتحان.",
+         "en": "<strong>Connection refused</strong> = application not listening on port (server problem). <strong>Connection timeout</strong> = request never arrived (Security Group or NACL problem). This distinction is asked frequently."}
+      ]
+    },
+    {
+      "title_ar": "أزواج المفاتيح (Key Pairs) و User Data",
+      "title_en": "Key Pairs & User Data",
+      "blocks": [
+        {"type": "p",
+         "ar": "للاتّصال بخوادم Linux عبر SSH تحتاج إلى <strong>زوج مفاتيح (Key Pair)</strong>: مفتاح عامّ تحتفظ به AWS ومفتاح خاصّ تنزّله مرّة واحدة. ولا يمكن استرجاع المفتاح الخاصّ إذا ضاع — ستحتاج لإنشاء زوج جديد.",
+         "en": "To SSH into Linux instances you need a <strong>Key Pair</strong>: public key kept by AWS, private key downloaded once. If the private key is lost, you cannot recover it — you must generate a new pair."},
+        {"type": "code", "lang": "bash",
+         "code": "# Connect via SSH (after setting permissions on the .pem file)\nchmod 400 ~/.ssh/acme-prod.pem\nssh -i ~/.ssh/acme-prod.pem ec2-user@ec2-54-123-45-67.compute-1.amazonaws.com\n\n# 'ec2-user' is the default user for Amazon Linux\n# 'ubuntu' for Ubuntu, 'admin' for Debian, 'centos' for CentOS"},
+        {"type": "p",
+         "ar": "<strong>User Data</strong> هو سكربت bash يعمل <u>مرّة واحدة</u> عند أوّل إطلاق للخادم. يُستخدم لتثبيت البرامج وتحديث النظام وتشغيل الخدمات تلقائياً. يعمل بصلاحيات root. حجمه لا يتجاوز ١٦ كيلوبايت.",
+         "en": "<strong>User Data</strong> is a bash script that runs <u>once</u> on first instance boot. Used to install software, patch the system, start services automatically. Runs as root. Max 16KB."},
+        {"type": "code", "lang": "bash",
+         "code": "#!/bin/bash\n# Example user data for a web server\nyum update -y\nyum install -y httpd\nsystemctl start httpd\nsystemctl enable httpd\necho '<h1>Hello from Acme Corp</h1>' > /var/www/html/index.html"},
+        {"type": "callout", "tone": "warn",
+         "ar": "User Data مشفّر بـ base64 عند الإرسال، لكنّه يُحفَظ على الخادم بصيغة غير مشفّرة في <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt</span>. <strong>لا تضع أسراراً في User Data</strong>؛ استخدم Secrets Manager أو SSM Parameter Store.",
+         "en": "User Data is base64-encoded in transit but stored unencrypted at <span dir=\"ltr\" class=\"font-mono\">/var/lib/cloud/instance/user-data.txt</span>. <strong>Never put secrets in User Data</strong> — use Secrets Manager or SSM Parameter Store."}
+      ]
+    },
+    {
+      "title_ar": "حالات الخادم وإدارته من SDK",
+      "title_en": "Instance states & SDK management",
+      "blocks": [
+        {"type": "p",
+         "ar": "للخادم في EC2 ستّ حالات رئيسية. فهمها مهمّ لأنّ الامتحان يسأل عن الفرق في السلوك والتسعير بين الحالات.",
+         "en": "EC2 instances have 6 main states. Understanding them matters because the exam asks about behavior and billing differences."},
+        {"type": "table",
+         "headers": {"ar": ["الحالة", "السلوك", "الفوترة"], "en": ["State", "Behavior", "Billing"]},
+         "rows": [
+           [{"mono": true, "value": "pending"}, {"ar": "يبدأ الإطلاق", "en": "Booting"}, {"ar": "لا تُحتسَب", "en": "Not billed"}],
+           [{"mono": true, "value": "running"}, {"ar": "يعمل طبيعياً", "en": "Operating normally"}, {"ar": "تُحتسَب كامل", "en": "Full billing"}],
+           [{"mono": true, "value": "stopping"}, {"ar": "يتم إيقافه", "en": "Shutting down"}, {"ar": "تُحتسَب", "en": "Billed"}],
+           [{"mono": true, "value": "stopped"}, {"ar": "موقوف — البيانات في EBS محفوظة، IP العام يتغيّر عند إعادة التشغيل", "en": "Stopped — EBS data persists, public IP changes on restart"}, {"ar": "EBS فقط", "en": "EBS only"}],
+           [{"mono": true, "value": "shutting-down"}, {"ar": "يتم حذفه", "en": "Being terminated"}, {"ar": "لا تُحتسَب", "en": "Not billed"}],
+           [{"mono": true, "value": "terminated"}, {"ar": "محذوف نهائياً. EBS يُحذَف افتراضياً", "en": "Permanently deleted. EBS deleted by default"}, {"ar": "لا تُحتسَب", "en": "Not billed"}]
+         ]
+        },
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — launch a new EC2 instance\nimport software.amazon.awssdk.services.ec2.Ec2Client;\nimport software.amazon.awssdk.services.ec2.model.*;\n\nEc2Client ec2 = Ec2Client.create();\n\nRunInstancesResponse response = ec2.runInstances(RunInstancesRequest.builder()\n    .imageId(\"ami-0abc1234\")              // Amazon Linux AMI\n    .instanceType(InstanceType.T3_MICRO)\n    .minCount(1).maxCount(1)\n    .keyName(\"acme-prod\")\n    .securityGroupIds(\"sg-0123abcd\")\n    .userData(java.util.Base64.getEncoder()\n        .encodeToString(\"#!/bin/bash\\nyum install -y httpd\".getBytes()))\n    .build());\n\nString instanceId = response.instances().get(0).instanceId();\nSystem.out.println(\"Launched: \" + instanceId);"},
+        {"type": "callout", "tone": "senior",
+         "ar": "الـ <span dir=\"ltr\" class=\"font-mono\">Ec2Client</span> في Java SDK v2 يدير <strong>retries</strong> و <strong>signing</strong> تلقائياً. عند تشغيله داخل خادم EC2 آخر، يأخذ الصلاحيات تلقائياً من الـ IAM Role المرتبط بالخادم (Instance Profile). لا تضع مفاتيح في الكود أبداً.",
+         "en": "Java SDK v2 <span dir=\"ltr\" class=\"font-mono\">Ec2Client</span> handles retries and signing automatically. When running inside another EC2 instance, it picks up credentials from the attached IAM Role (Instance Profile). Never hardcode keys."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إطلاق خادم EC2 صغير، والاتّصال به عبر SSH، ثم إيقافه وحذفه.",
+    "goal_en": "Launch a small EC2 instance, SSH in, then stop and terminate it.",
+    "steps": [
+      {"title_ar": "اختر AMI ونوع الخادم", "title_en": "Pick an AMI and instance type",
+       "body_ar": "من الـ Console: Amazon Linux 2023، نوع <span dir=\"ltr\" class=\"font-mono\">t3.micro</span> (يدخل ضمن Free Tier).",
+       "body_en": "In Console: Amazon Linux 2023, <span dir=\"ltr\" class=\"font-mono\">t3.micro</span> (Free Tier eligible)."},
+      {"title_ar": "أنشئ زوج مفاتيح جديد وحمّله", "title_en": "Create a new key pair and download it",
+       "body_ar": "احفظ الـ <span dir=\"ltr\" class=\"font-mono\">.pem</span> في مكان آمن. لا يمكن تحميله مرّة أخرى.",
+       "body_en": "Save the <span dir=\"ltr\" class=\"font-mono\">.pem</span> somewhere safe — you cannot re-download it."},
+      {"title_ar": "اسمح بـ SSH من IP الخاصّ بك", "title_en": "Allow SSH from your IP only",
+       "body_ar": "في Security Group: أضف قاعدة <span dir=\"ltr\" class=\"font-mono\">port 22</span> من <span dir=\"ltr\" class=\"font-mono\">My IP</span> (أضيق نطاق ممكن).",
+       "body_en": "In Security Group: add rule <span dir=\"ltr\" class=\"font-mono\">port 22</span> from <span dir=\"ltr\" class=\"font-mono\">My IP</span> (narrowest possible range)."},
+      {"title_ar": "اتّصل واختبر", "title_en": "Connect and test",
+       "body_ar": "",
+       "body_en": "",
+       "code": "chmod 400 ~/Downloads/my-key.pem\nssh -i ~/Downloads/my-key.pem ec2-user@<PUBLIC_IP>\n\n# Inside the instance:\nuname -a\ncurl http://169.254.169.254/latest/meta-data/instance-id"},
+      {"title_ar": "أوقف الخادم ثم احذفه", "title_en": "Stop then terminate",
+       "body_ar": "لا تترك خادماً شغّالاً بدون حاجة. حتى <span dir=\"ltr\" class=\"font-mono\">t3.micro</span> بعد تجاوز Free Tier يكلّف حوالي ٨ دولارات شهرياً.",
+       "body_en": "Don't leave instances running unused. Even <span dir=\"ltr\" class=\"font-mono\">t3.micro</span> after Free Tier is ~$8/month."}
+    ],
+    "warning_ar": "احذف الـ Security Group والـ Key Pair إن لم تعد بحاجة إليهما. الـ Volumes المرتبطة بـ terminated instance تُحذَف افتراضياً إلّا إذا غيّرت <span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span>.",
+    "warning_en": "Delete the Security Group and Key Pair if unused. EBS volumes attached to a terminated instance are deleted by default unless <span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span> was unchecked."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "شركة Acme تشغّل قاعدة بيانات تعمل ٢٤/٧ على خادم EC2 لمدّة سنة كاملة على الأقلّ. أيّ خيار الدفع الأمثل لتقليل التكلفة؟",
+      "question_en": "Acme runs a 24/7 database on EC2 for at least one year. Best pricing option to minimize cost?",
+      "options_ar": ["On-Demand", "Spot Instances", "Reserved Instance (1-year standard)", "Dedicated Host"],
+      "options_en": ["On-Demand", "Spot Instances", "Reserved Instance (1-year standard)", "Dedicated Host"],
+      "correct": 2,
+      "explanation_ar": "الحِمل ثابت وطويل الأمد — Reserved Instance لمدّة سنة يعطي خصماً يصل إلى ٧٥٪ مقابل الالتزام. Spot غير مناسب لقاعدة بيانات لأنّها قد تُنهى بإشعار دقيقتين.",
+      "explanation_en": "Steady 24/7 workload — 1-year RI gives up to 75% discount for the commitment. Spot isn't suitable for a database since it can be terminated with 2-minute notice.",
+      "wrong_ar": ["الأغلى، غير مناسب للأحمال الطويلة.", "يمكن أن يُنهى في أيّ وقت — خطر على قاعدة البيانات.", "", "يُستخدم للامتثال أو BYOL، مكلف للأحمال الاعتيادية."],
+      "wrong_en": ["Most expensive, not ideal for long-running.", "Can be terminated anytime — risky for a DB.", "", "For compliance or BYOL, expensive for normal workloads."],
+      "reference_ar": "القسم ٣ — خيارات الشراء",
+      "reference_en": "Section 3 — Purchasing options"
+    },
+    {
+      "id": "q2", "type": "multi",
+      "question_ar": "أيّ العبارات التالية صحيحة عن Security Groups؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which statements are true about Security Groups? Select all that apply.",
+      "options_ar": ["تحتوي على قواعد Allow فقط — لا توجد قواعد Deny.", "Stateful — الردود الخارجة مسموحة تلقائياً.", "يمكن أن تسمح بمصدرها مجموعة أمان أخرى.", "يمكن مشاركة مجموعة الأمان بين VPCs مختلفة."],
+      "options_en": ["They only have Allow rules — no Deny.", "Stateful — outbound replies are auto-allowed.", "They can reference another Security Group as a source.", "Can be shared across different VPCs."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "مجموعات الأمان Stateful و Allow-only، ويمكنها الإشارة إلى مجموعات أخرى كمصدر. لكنّها مرتبطة بـ VPC واحد ولا تُشارَك عبر VPCs. Network ACLs هي Stateless وتسمح بـ Deny.",
+      "explanation_en": "SGs are stateful and allow-only, can reference other SGs. But tied to one VPC. NACLs are stateless and support Deny.",
+      "reference_ar": "القسم ٤ — مجموعات الأمان",
+      "reference_en": "Section 4 — Security Groups"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "مطوّر حاول الاتّصال بـ SSH إلى خادم EC2 فحصل على خطأ <span dir=\"ltr\" class=\"font-mono\">Connection timeout</span>. ما السبب الأرجح؟",
+      "question_en": "A developer tries to SSH into an EC2 instance and gets <span dir=\"ltr\" class=\"font-mono\">Connection timeout</span>. Most likely cause?",
+      "options_ar": ["خدمة SSH متوقّفة داخل الخادم.", "Security Group لا يسمح بالمنفذ ٢٢ من عنوان IP الخاصّ به.", "المفتاح الخاصّ خاطئ.", "اسم المستخدم خاطئ."],
+      "options_en": ["SSH service is stopped on the instance.", "Security Group doesn't allow port 22 from his IP.", "Wrong private key.", "Wrong username."],
+      "correct": 1,
+      "explanation_ar": "<strong>Timeout</strong> يعني أنّ الطلب لم يصل أصلاً — المسبّب الأكثر شيوعاً مجموعة أمان أو NACL تمنع المنفذ. <strong>Connection refused</strong> يعني وصل الطلب لكن لا خدمة تستمع (خطأ SSH داخل الخادم). المفتاح أو المستخدم الخاطئ يعطيان <strong>Permission denied</strong>.",
+      "explanation_en": "<strong>Timeout</strong> = request never arrived — most common cause is SG/NACL blocking the port. <strong>Connection refused</strong> = arrived but no listener (SSH service issue). Wrong key/username gives <strong>Permission denied</strong>.",
+      "wrong_ar": ["يعطي Connection refused لا timeout.", "", "يعطي Permission denied.", "يعطي Permission denied."],
+      "wrong_en": ["Would give Connection refused, not timeout.", "", "Gives Permission denied.", "Gives Permission denied."],
+      "reference_ar": "القسم ٤ — الفخّ الشائع",
+      "reference_en": "Section 4 — Common pitfall"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "متى يعمل User Data في EC2؟",
+      "question_en": "When does User Data run on EC2?",
+      "options_ar": ["عند كلّ إعادة تشغيل للخادم.", "مرّة واحدة فقط عند أوّل إطلاق للخادم.", "يوميّاً بشكل مجدول.", "عند تحديث AMI."],
+      "options_en": ["On every reboot.", "Once only — at the first boot.", "Daily, scheduled.", "When AMI is updated."],
+      "correct": 1,
+      "explanation_ar": "User Data يُنفَّذ مرّة واحدة فقط عند أوّل إطلاق للخادم. لتشغيل شيء عند كل إقلاع، استخدم <span dir=\"ltr\" class=\"font-mono\">cloud-init</span> بإعدادات مختلفة أو اجعل الخدمة تبدأ تلقائياً عبر systemd.",
+      "explanation_en": "User Data runs only once at first boot. For on-every-boot work, use cloud-init with different config or systemd auto-start.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "أحد المطوّرين يريد تشغيل مهامّ معالجة دفعات ضخمة (batch) تعمل لساعات قليلة، ولا مشكلة لو توقّفت وبدأت من جديد. أيّ الخيارات الأفضل؟",
+      "question_en": "A developer runs batch processing jobs that take a few hours and can handle interruptions. Best option?",
+      "options_ar": ["On-Demand", "Spot Instances", "Reserved Instances", "Dedicated Hosts"],
+      "options_en": ["On-Demand", "Spot Instances", "Reserved Instances", "Dedicated Hosts"],
+      "correct": 1,
+      "explanation_ar": "Spot هو الأمثل للأحمال التي تتحمّل الانقطاع: خصم حتى ٩٠٪ مقابل احتمال إنهاء الخادم بإشعار دقيقتين. مناسب بشكل خاصّ لمعالجة Big Data وفك ترميز الفيديو و ML training.",
+      "explanation_en": "Spot is ideal for interruption-tolerant workloads: up to 90% discount with a 2-min termination notice. Perfect for Big Data, video encoding, ML training.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "خادم EC2 في حالة <span dir=\"ltr\" class=\"font-mono\">stopped</span>. أيّ العبارات صحيحة؟",
+      "question_en": "An EC2 instance is in <span dir=\"ltr\" class=\"font-mono\">stopped</span> state. Which is true?",
+      "options_ar": ["تُحتسَب ساعات التشغيل بشكل كامل.", "لا تُحتسَب رسوم EC2 لكن تُحتسَب رسوم EBS المرتبط، و IP العام يتغيّر عند إعادة التشغيل.", "البيانات في EBS تُحذَف.", "عنوان IP الخاصّ (Private IP) يتغيّر."],
+      "options_en": ["Full instance-hour billing applies.", "No EC2 billing but EBS still billed, and public IP changes on restart.", "EBS data is deleted.", "Private IP changes."],
+      "correct": 1,
+      "explanation_ar": "في حالة stopped: رسوم EC2 توقف، لكن رسوم EBS تستمرّ (التخزين قائم). IP العام الافتراضي يتغيّر (استخدم Elastic IP إن كنت تحتاج ثباته). IP الخاصّ يبقى كما هو. البيانات في EBS محفوظة.",
+      "explanation_en": "When stopped: no EC2 charges but EBS still billed. Public IP changes on restart (use Elastic IP if stability needed). Private IP stays. EBS data persists.",
+      "wrong_ar": ["لا، فقط EBS.", "", "البيانات في EBS محفوظة، فقط Instance Store يُحذَف.", "الـ Private IP يبقى كما هو."],
+      "wrong_en": ["Only EBS is billed.", "", "EBS data persists; only Instance Store is wiped.", "Private IP stays the same."],
+      "reference_ar": "القسم ٦ — حالات الخادم",
+      "reference_en": "Section 6 — Instance states"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "مطوّر فقد ملف الـ <span dir=\"ltr\" class=\"font-mono\">.pem</span> لخادم EC2. ما الحلّ؟",
+      "question_en": "A developer lost the <span dir=\"ltr\" class=\"font-mono\">.pem</span> file for an EC2 instance. What's the fix?",
+      "options_ar": ["التواصل مع دعم AWS لاسترجاعه.", "لا يمكن استرجاعه — أنشئ زوج مفاتيح جديد وأرفقه بالخادم بإعادة إنشائه من AMI، أو بتعديل authorized_keys عبر EC2 Instance Connect.", "حذف الخادم وإعادة إنشائه بنفس المفتاح.", "فكّ تشفير المفتاح من AWS Console."],
+      "options_en": ["Contact AWS Support.", "Cannot be recovered — create new key pair and attach via AMI recreate, or edit authorized_keys via EC2 Instance Connect.", "Delete and recreate with same key.", "Decrypt key from Console."],
+      "correct": 1,
+      "explanation_ar": "AWS لا تحتفظ بالمفتاح الخاصّ. الحلول العمليّة: استخدام EC2 Instance Connect (المتاح في معظم AMIs الحديثة) لحقن مفتاح جديد، أو إنشاء AMI من الخادم ثم تشغيله بمفتاح جديد، أو عبر AWS Systems Manager Session Manager.",
+      "explanation_en": "AWS doesn't keep the private key. Practical fixes: EC2 Instance Connect to inject a new key, or create an AMI and relaunch with a new key, or use SSM Session Manager.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "أيّ فئة من خوادم EC2 مناسبة لتطبيق Spring Boot بحاجة إلى ذاكرة كبيرة (ذاكرة تخزين مؤقّت داخلية ضخمة)؟",
+      "question_en": "Which EC2 family fits a Spring Boot app needing large memory (big in-memory cache)?",
+      "options_ar": ["<span class=\"font-mono\">c6g</span> (Compute optimized)", "<span class=\"font-mono\">r6i</span> (Memory optimized)", "<span class=\"font-mono\">i4i</span> (Storage optimized)", "<span class=\"font-mono\">t4g</span> (Burstable)"],
+      "options_en": ["<span class=\"font-mono\">c6g</span> (Compute optimized)", "<span class=\"font-mono\">r6i</span> (Memory optimized)", "<span class=\"font-mono\">i4i</span> (Storage optimized)", "<span class=\"font-mono\">t4g</span> (Burstable)"],
+      "correct": 1,
+      "explanation_ar": "فئة <span dir=\"ltr\" class=\"font-mono\">r</span> مخصّصة للذاكرة (RAM) ومناسبة لأحمال تعتمد على التخزين المؤقّت في الذاكرة مثل Redis أو Spring Boot مع EHCache ضخمة. فئة <span dir=\"ltr\" class=\"font-mono\">c</span> للحوسبة المكثّفة، <span dir=\"ltr\" class=\"font-mono\">i</span> للتخزين المحلّي، <span dir=\"ltr\" class=\"font-mono\">t</span> للأحمال الخفيفة.",
+      "explanation_en": "The <span dir=\"ltr\" class=\"font-mono\">r</span> family is memory-optimized — ideal for memory-heavy workloads like Redis or Spring Boot with large EHCache. <span dir=\"ltr\" class=\"font-mono\">c</span> = compute, <span dir=\"ltr\" class=\"font-mono\">i</span> = local storage, <span dir=\"ltr\" class=\"font-mono\">t</span> = light/burstable.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "أين يُوصى بتخزين كلمات المرور التي يحتاجها تطبيق يعمل على EC2؟",
+      "question_en": "Where should you store passwords needed by an app running on EC2?",
+      "options_ar": ["داخل User Data.", "كمتغيّرات بيئة في الصورة (AMI).", "في AWS Secrets Manager أو SSM Parameter Store، والوصول عبر IAM Role.", "في ملف داخل EBS غير مشفّر."],
+      "options_en": ["Inside User Data.", "As env vars in the AMI.", "In AWS Secrets Manager or SSM Parameter Store, accessed via IAM Role.", "In an unencrypted file on EBS."],
+      "correct": 2,
+      "explanation_ar": "الممارسة المثلى: تخزين الأسرار في Secrets Manager (مع تدوير تلقائي) أو SSM Parameter Store (أرخص، يدعم SecureString)، ومنح الخادم IAM Role يسمح له بالقراءة. أبداً لا تضع كلمات المرور في User Data (متاحة بدون تشفير على الخادم).",
+      "explanation_en": "Best practice: Secrets Manager (with auto-rotation) or SSM Parameter Store (cheaper, supports SecureString), access via IAM Role. Never User Data (stored plaintext on instance).",
+      "wrong_ar": ["User Data محفوظ بدون تشفير على الخادم.", "يظهر في أيّ فحص AMI.", "", "ممارسة خطرة — أيّ وصول للقرص يكشف الأسرار."],
+      "wrong_en": ["User Data is stored plaintext on the instance.", "Visible in any AMI inspection.", "", "Any disk access exposes secrets."],
+      "reference_ar": "القسم ٥ — تنبيه الأسرار",
+      "reference_en": "Section 5 — Secrets warning"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "تطبيق جافا يعمل على خادم EC2 ويحتاج إلى الوصول إلى S3 bucket. ما الطريقة الصحيحة لإعطائه الصلاحيات؟",
+      "question_en": "A Java app on EC2 needs to access an S3 bucket. Correct way to grant permissions?",
+      "options_ar": ["تخزين مفاتيح AWS (Access Key + Secret) في ملفّ داخل الخادم.", "إنشاء IAM User وحقن مفاتيحه في متغيّرات بيئة.", "إرفاق IAM Role بالخادم (Instance Profile) وتفويضه صلاحية S3.", "إعطاء الخادم عنوان IP ثابت ومنحه استثناء في Bucket Policy."],
+      "options_en": ["Store AWS Access Keys in a file on the instance.", "Create an IAM User and put its keys in env vars.", "Attach an IAM Role (Instance Profile) to the instance with S3 permissions.", "Give the instance a static IP and whitelist it in the Bucket Policy."],
+      "correct": 2,
+      "explanation_ar": "الطريقة المثلى دائماً: <strong>IAM Role</strong> مرفق بالخادم. الـ SDK يأخذ الصلاحيات تلقائياً من Instance Metadata Service (IMDS)، وتُدوَّر المفاتيح تلقائياً، ولا تحتاج تخزين أيّ سرّ. أيّ طريقة تتضمّن مفاتيح مكتوبة في الخادم ممارسة سيّئة.",
+      "explanation_en": "Always: <strong>IAM Role</strong> attached to the instance. The SDK picks up credentials from IMDS, keys rotate automatically, and no secret is stored. Any method involving hardcoded keys is bad practice.",
+      "wrong_ar": ["خطر أمنيّ كبير — أيّ من يقرأ القرص يحصل على المفاتيح.", "أفضل من السابق لكن لا يزال يتطلّب إدارة مفاتيح يدوياً.", "", "لا تتحكّم الـ IP بالصلاحيات في AWS، والصلاحيات مسؤولية IAM."],
+      "wrong_en": ["Huge security risk — anyone reading the disk gets the keys.", "Better but still needs manual key management.", "", "IP doesn't grant permissions in AWS — IAM does."],
+      "reference_ar": "القسم ٦ — نصيحة السينيور",
+      "reference_en": "Section 6 — Senior dev tip"
+    },
+    {
+      "id": "q11", "type": "multi",
+      "question_ar": "أيّ من العناصر التالية يُحفَظ عند <strong>إيقاف</strong> الخادم (stop) ويُفقَد عند <strong>حذفه</strong> (terminate)؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which of the following are <strong>preserved</strong> when you stop an instance but <strong>lost</strong> when you terminate it? Select all that apply.",
+      "options_ar": ["EBS Volumes (افتراضياً).", "Instance Store volumes.", "Elastic IP المرفق (إن لم يُفصل يدوياً).", "Private IP الأساسي.", "بيانات الذاكرة (RAM)."],
+      "options_en": ["EBS Volumes (by default).", "Instance Store volumes.", "Attached Elastic IP (if not disassociated).", "Primary private IP.", "RAM contents."],
+      "correct": [0, 2, 3],
+      "explanation_ar": "EBS محفوظ عند stop، ويُحذَف عند terminate (افتراضياً يمكن تغييره). Elastic IP يبقى مربوطاً ما دام لم يُفصل. Private IP يبقى كما هو في كلتا الحالتين. Instance Store يُحذَف عند stop! والـ RAM يُمسح عند stop.",
+      "explanation_en": "EBS persists on stop, deleted on terminate (default, can change). Elastic IP remains attached unless disassociated. Private IP persists in both. Instance Store is wiped on stop! RAM is wiped on stop.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يريد نسخة مطابقة من خادم EC2 تحتوي على نفس التطبيق والإعدادات لاستخدامها في Auto Scaling Group. ما الحلّ الأمثل؟",
+      "question_en": "A developer wants an exact copy of an EC2 instance (with app and config) for use in an Auto Scaling Group. Best approach?",
+      "options_ar": ["نسخ ملفّات النظام يدوياً إلى خادم جديد.", "إنشاء AMI من الخادم الحالي ثمّ استخدامه كمصدر للـ Launch Template.", "استخدام Snapshot للـ EBS فقط.", "إعادة كتابة User Data من الصفر."],
+      "options_en": ["Manually copy files to a new instance.", "Create an AMI from the current instance and use it as Launch Template source.", "Use only an EBS Snapshot.", "Rewrite User Data from scratch."],
+      "correct": 1,
+      "explanation_ar": "<strong>AMI (Amazon Machine Image)</strong> هو الحلّ المعياريّ. يلتقط صورة كاملة للنظام (OS، مكتبات، تطبيقات، إعدادات، بيانات EBS) ويمكن استخدامها لإطلاق خوادم جديدة متطابقة بسرعة. Snapshot هو نسخة من EBS فقط (لا يشمل الإعدادات).",
+      "explanation_en": "<strong>AMI (Amazon Machine Image)</strong> is the standard. Captures a full system image (OS, libraries, apps, config, EBS data) to launch identical instances quickly. A Snapshot is just EBS (no config).",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    }
+  ],
+  "summary": [
+    {"icon": "server", "title_ar": "EC2 هي بنية تحتية كخدمة", "title_en": "EC2 = IaaS",
+     "body_ar": "تتحكّم بـ OS والمكتبات والأمان. AWS تدير الأجهزة.",
+     "body_en": "You control OS, libraries, security. AWS manages hardware."},
+    {"icon": "dollar-sign", "title_ar": "٥ خيارات للشراء", "title_en": "5 pricing options",
+     "body_ar": "On-Demand / Reserved / Savings Plans / Spot / Dedicated.",
+     "body_en": "On-Demand / Reserved / Savings Plans / Spot / Dedicated."},
+    {"icon": "shield", "title_ar": "Security Groups Stateful", "title_en": "Security Groups stateful",
+     "body_ar": "Allow-only. الردود الخارجة مسموحة تلقائياً.",
+     "body_en": "Allow-only. Return traffic auto-allowed."},
+    {"icon": "key", "title_ar": "استخدم IAM Roles لا مفاتيح", "title_en": "Use IAM Roles, not keys",
+     "body_ar": "أرفق Role بالخادم؛ الـ SDK يأخذ الصلاحيات تلقائياً.",
+     "body_en": "Attach a role; SDK picks up credentials automatically."}
+  ],
+  "mnemonic_ar": "للتمييز بين timeout و refused: <strong>Timeout</strong> = ما وصل أصلاً (Security Group). <strong>Refused</strong> = وصل لكن ما في خدمة (التطبيق متوقّف). فكّر فيها كـ \"الباب مقفول\" vs \"الباب مفتوح لكن ما في أحد\".",
+  "mnemonic_en": "To distinguish timeout vs refused: <strong>Timeout</strong> = never arrived (Security Group). <strong>Refused</strong> = arrived but no listener (app down). Think \"locked door\" vs \"open door, no one home\".",
+  "prev": 1,
+  "next": 3
+}

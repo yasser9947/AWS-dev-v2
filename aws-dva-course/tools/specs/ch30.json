@@ -1,0 +1,290 @@
+{
+  "n": 30,
+  "domain": "troubleshoot",
+  "title_ar": "مراجعة الامتحان ونصائح يوم الاختبار",
+  "title_en": "Exam Review & Final Tips",
+  "pages": "899-918",
+  "subtitle_ar": "الفصل الأخير: مراجعة متقاطعة لكلّ النطاقات الأربعة، أنماط الأسئلة الأكثر شيوعاً (\"أيّ خدمة\"، \"ما الخطأ\"، \"الأقلّ كلفة\"، \"الأقلّ جهداً تشغيلياً\")، خطّة يوم الامتحان، ومسار الشهادات اللاحقة.",
+  "subtitle_en": "The final chapter: cross-domain review, the most common question patterns (\"which service\", \"what's wrong\", \"most cost-effective\", \"least operational overhead\"), exam-day game plan, and the next-cert roadmap.",
+  "tags": ["Exam Review", "DVA-C02", "Cross-Domain", "Exam Strategy"],
+  "objectives": [
+    {"concept": "Cross-domain service selection", "tested_ar": "كلّ النطاقات — التمييز بين الخدمات المتشابهة.", "tested_en": "All domains — distinguishing similar services."},
+    {"concept": "Cost optimization decisions", "tested_ar": "النطاق الرابع في اختيار الحلّ الأقلّ كلفةً.", "tested_en": "Domain 4 — picking the cheapest valid option."},
+    {"concept": "Troubleshooting patterns", "tested_ar": "النطاق الرابع في تشخيص الأعطال.", "tested_en": "Domain 4 — diagnosing failures."},
+    {"concept": "Exam-day strategy", "tested_ar": "استراتيجيّة يوم الاختبار: flag, eliminate, manage time.", "tested_en": "Exam-day tactics: flag, eliminate, time management."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ملخّص النطاقات الأربعة",
+      "title_en": "Four-domain recap",
+      "blocks": [
+        {"type": "p",
+         "ar": "امتحان DVA-C02 يقسّم ٦٥ سؤالاً على أربعة نطاقات. استخدم هذه الخريطة لتحديد حيث تحتاج مراجعة إضافيّة قبل الامتحان.",
+         "en": "The DVA-C02 exam spreads 65 questions across four domains. Use this map to identify where you need extra review before exam day."},
+        {"type": "table",
+         "headers": {"ar": ["النطاق", "الوزن", "المواضيع الرئيسيّة"], "en": ["Domain", "Weight", "Key topics"]},
+         "rows": [
+           [{"ar": "١ — التطوير (Development)", "en": "1 — Development"}, {"mono": true, "value": "32%"}, {"ar": "Lambda، API Gateway، SAM، SQS، SNS، Step Functions، Cognito، DynamoDB.", "en": "Lambda, API Gateway, SAM, SQS, SNS, Step Functions, Cognito, DynamoDB."}],
+           [{"ar": "٢ — الأمان (Security)", "en": "2 — Security"}, {"mono": true, "value": "26%"}, {"ar": "IAM، Secrets Manager، SSM Parameter Store، KMS، STS، Cognito.", "en": "IAM, Secrets Manager, SSM Parameter Store, KMS, STS, Cognito."}],
+           [{"ar": "٣ — النشر (Deployment)", "en": "3 — Deployment"}, {"mono": true, "value": "24%"}, {"ar": "Beanstalk، CodeCommit، CodeBuild، CodeDeploy، CodePipeline، CloudFormation، ECR، ECS/EKS.", "en": "Beanstalk, CodeCommit, CodeBuild, CodeDeploy, CodePipeline, CloudFormation, ECR, ECS/EKS."}],
+           [{"ar": "٤ — استكشاف الأخطاء والتحسين", "en": "4 — Troubleshooting & Optimization"}, {"mono": true, "value": "18%"}, {"ar": "CloudWatch، X-Ray، CloudTrail، CloudFront، AppConfig، Athena.", "en": "CloudWatch, X-Ray, CloudTrail, CloudFront, AppConfig, Athena."}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "٧٢٠ من ١٠٠٠ هو الحدّ الأدنى للنجاح (حوالي ٧٢٪). الأسئلة مرجّحة: بعضها أثقل من بعض. تركيزك على Domain 1 (٣٢٪) أكبر تأثيراً من Domain 4 (١٨٪).",
+         "en": "720/1000 is the passing score (~72%). Questions are weighted — some count more. Effort on Domain 1 (32%) pays off more than on Domain 4 (18%)."}
+      ]
+    },
+    {
+      "title_ar": "أنماط الأسئلة والكلمات المفتاحية",
+      "title_en": "Question patterns & keywords",
+      "blocks": [
+        {"type": "p",
+         "ar": "تعرّف على الكلمات التي تحدّد الإجابة الصحيحة. AWS يضع هذه القيود عمداً لتمييز من يعرف الفروق الدقيقة.",
+         "en": "Learn the keywords that pin down the correct answer. AWS intentionally adds these constraints to separate those who grasp the nuances."},
+        {"type": "table",
+         "headers": {"ar": ["الكلمة في السؤال", "ماذا تعني؟"], "en": ["Keyword in question", "What it means"]},
+         "rows": [
+           [{"mono": true, "value": "most cost-effective"}, {"ar": "فضّل Spot / Serverless / Tiered Storage / عمر احتفاظ أقصر.", "en": "Prefer Spot / Serverless / Tiered Storage / shorter retention."}],
+           [{"mono": true, "value": "least operational overhead"}, {"ar": "فضّل الخدمات المُدارة (Managed) و Serverless على الأدوات المستضافة.", "en": "Prefer managed and serverless services over self-hosted."}],
+           [{"mono": true, "value": "real-time"}, {"ar": "Kinesis Data Streams / Lambda / Subscription Filter. ليس S3 Export.", "en": "Kinesis Data Streams / Lambda / Subscription Filter. NOT S3 Export."}],
+           [{"mono": true, "value": "near-real-time"}, {"ar": "Kinesis Data Firehose.", "en": "Kinesis Data Firehose."}],
+           [{"mono": true, "value": "audit / who did it"}, {"ar": "CloudTrail.", "en": "CloudTrail."}],
+           [{"mono": true, "value": "compliance / retention"}, {"ar": "S3 + Glacier + Object Lock + Athena.", "en": "S3 + Glacier + Object Lock + Athena."}],
+           [{"mono": true, "value": "bottleneck / slow microservice"}, {"ar": "X-Ray Service Map.", "en": "X-Ray Service Map."}],
+           [{"mono": true, "value": "encrypt at rest"}, {"ar": "KMS (مع customer-managed key للتحكّم الكامل).", "en": "KMS (with a customer-managed key for full control)."}],
+           [{"mono": true, "value": "secrets rotation"}, {"ar": "Secrets Manager (rotation مدمج)، وليس Parameter Store.", "en": "Secrets Manager (built-in rotation), NOT Parameter Store."}],
+           [{"mono": true, "value": "decouple"}, {"ar": "SQS / SNS / EventBridge.", "en": "SQS / SNS / EventBridge."}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "فخّ شائع: لو السؤال يقول \"least operational overhead\" وقدّم خياراً على EC2 وآخر Serverless، الإجابة دائماً <strong>Serverless</strong> حتى لو كان أغلى. اقرأ القيد بدقّة.",
+         "en": "Common trap: if the question says \"least operational overhead\" with an EC2 option and a Serverless option, the answer is always <strong>Serverless</strong> — even if pricier. Read the constraint carefully."}
+      ]
+    },
+    {
+      "title_ar": "جداول مقارنة سريعة",
+      "title_en": "Quick comparison tables",
+      "blocks": [
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "lock", "title_ar": "Secrets Manager vs Parameter Store", "title_en": "Secrets Manager vs Parameter Store",
+                  "body_ar": "Secrets Manager: تدوير تلقائيّ، أغلى (~$0.40/secret/شهر). Parameter Store: أرخص، SecureString مشفّر بـ KMS، بدون تدوير مدمج. امتحان: \"تدوير تلقائيّ\" = Secrets Manager.",
+                  "body_en": "Secrets Manager: auto-rotation, pricier (~$0.40/secret/mo). Parameter Store: cheaper, SecureString encrypted via KMS, no built-in rotation. Exam: \"auto-rotation\" = Secrets Manager."},
+         "right": {"tone": "emerald", "icon": "scale", "title_ar": "Kinesis vs SQS vs SNS", "title_en": "Kinesis vs SQS vs SNS",
+                   "body_ar": "Kinesis: بثّ مرتّب، عدّة قرّاء، احتفاظ حتى عام. SQS: طوابير نقطة لنقطة، رسالة واحدة لمعالج واحد. SNS: pub/sub، نسخ لكلّ مشترك.",
+                   "body_en": "Kinesis: ordered stream, multiple readers, up to 1-year retention. SQS: point-to-point queue, one message one consumer. SNS: pub/sub, copies to every subscriber."}
+        },
+        {"type": "compare",
+         "left": {"tone": "purple", "icon": "git-branch", "title_ar": "Blue/Green vs Canary", "title_en": "Blue/Green vs Canary",
+                  "body_ar": "Blue/Green: بيئتان كاملتان، تبديل مفاجئ بـ DNS أو ALB (CodeDeploy AllAtOnce). Canary: نسبة مئويّة صغيرة تزداد تدريجياً (Linear/Canary في CodeDeploy). Canary يقلّل المخاطر أكثر.",
+                  "body_en": "Blue/Green: two full envs, instant switch via DNS or ALB (CodeDeploy AllAtOnce). Canary: small % ramps up gradually (Linear/Canary in CodeDeploy). Canary reduces risk further."},
+         "right": {"tone": "amber", "icon": "database", "title_ar": "DynamoDB vs RDS vs Aurora", "title_en": "DynamoDB vs RDS vs Aurora",
+                   "body_ar": "DynamoDB: NoSQL, key-value, serverless, ms-latency عالميّاً. RDS: SQL تقليديّ، ترقيم يدويّ للسعة. Aurora: SQL متوافق MySQL/Postgres، ٥× أسرع، Serverless v2، تكامل أعمق مع AWS.",
+                   "body_en": "DynamoDB: NoSQL, key-value, serverless, ms-latency globally. RDS: classic SQL, manual capacity. Aurora: MySQL/Postgres-compat, 5× faster, Serverless v2, deeper AWS integration."}
+        },
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "package", "title_ar": "Lambda vs Fargate vs EC2", "title_en": "Lambda vs Fargate vs EC2",
+                  "body_ar": "Lambda: ١٥ دقيقة حدّ، ٩ أنواع runtime، أحداث فوريّة. Fargate: حاويات بدون خوادم. EC2: تحكّم كامل وتكلفة متغيّرة. للأحمال قصيرة وغير المتوقّعة → Lambda.",
+                  "body_en": "Lambda: 15-min max, 9 runtimes, event-driven. Fargate: serverless containers. EC2: full control. Short unpredictable workloads → Lambda."},
+         "right": {"tone": "emerald", "icon": "layers", "title_ar": "ElastiCache vs DAX", "title_en": "ElastiCache vs DAX",
+                   "body_ar": "ElastiCache: Redis/Memcached عامّ للتطبيق. DAX: كاش متخصّص لـ DynamoDB فقط، mikrosecond لـ read. امتحان: \"كاش لـ DynamoDB\" = DAX.",
+                   "body_en": "ElastiCache: general Redis/Memcached for apps. DAX: DynamoDB-only cache, microsecond reads. Exam: \"cache for DynamoDB\" = DAX."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "خرائط ذهنيّة سريعة: <strong>بثّ سجلّ فوريّ</strong> = Subscription Filter + Kinesis/Lambda. <strong>بثّ سجلّ إلى S3</strong> = Kinesis Firehose. <strong>تخزين طويل مع SQL</strong> = S3 + Athena. <strong>مقياس RAM على EC2</strong> = Unified Agent. <strong>منع نسخ متعدّدة من حدث في Lambda</strong> = SQS FIFO أو idempotency في الكود.",
+         "en": "Mental shortcuts: <strong>real-time log stream</strong> = Subscription Filter + Kinesis/Lambda. <strong>log to S3</strong> = Kinesis Firehose. <strong>long-term + SQL</strong> = S3 + Athena. <strong>EC2 RAM metric</strong> = Unified Agent. <strong>avoid duplicate Lambda invocations</strong> = SQS FIFO or in-code idempotency."}
+      ]
+    },
+    {
+      "title_ar": "الأعطال الشائعة وتشخيصها",
+      "title_en": "Common failures & diagnosis",
+      "blocks": [
+        {"type": "table",
+         "headers": {"ar": ["الأعراض", "السبب الأرجح"], "en": ["Symptom", "Most likely cause"]},
+         "rows": [
+           [{"ar": "<span dir=\"ltr\" class=\"font-mono\">Connection timeout</span> على EC2.", "en": "<span dir=\"ltr\" class=\"font-mono\">Connection timeout</span> on EC2."}, {"ar": "Security Group أو NACL يمنع المنفذ.", "en": "Security Group or NACL blocking the port."}],
+           [{"ar": "<span dir=\"ltr\" class=\"font-mono\">Connection refused</span>.", "en": "<span dir=\"ltr\" class=\"font-mono\">Connection refused</span>."}, {"ar": "الخدمة داخل الخادم متوقّفة.", "en": "App service stopped inside the instance."}],
+           [{"ar": "Lambda: <span dir=\"ltr\" class=\"font-mono\">AccessDenied</span>.", "en": "Lambda: <span dir=\"ltr\" class=\"font-mono\">AccessDenied</span>."}, {"ar": "Execution Role ينقصه الإذن المطلوب.", "en": "Execution Role missing required permission."}],
+           [{"ar": "Lambda cold start بطيء.", "en": "Lambda slow cold start."}, {"ar": "استخدم Provisioned Concurrency أو قلّل حجم الـ deployment package.", "en": "Use Provisioned Concurrency or shrink deployment package."}],
+           [{"ar": "DynamoDB <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span>.", "en": "DynamoDB <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span>."}, {"ar": "Hot partition — وزّع partition key، أو انتقل إلى On-Demand.", "en": "Hot partition — distribute partition key or switch to On-Demand."}],
+           [{"ar": "API Gateway <span dir=\"ltr\" class=\"font-mono\">429 Too Many Requests</span>.", "en": "API Gateway <span dir=\"ltr\" class=\"font-mono\">429 Too Many Requests</span>."}, {"ar": "Throttling — عدّل Usage Plan أو رفع حدود الحساب.", "en": "Throttling — adjust Usage Plan or raise account limits."}],
+           [{"ar": "S3 <span dir=\"ltr\" class=\"font-mono\">403 Access Denied</span> لمستخدم IAM.", "en": "S3 <span dir=\"ltr\" class=\"font-mono\">403 Access Denied</span> for IAM user."}, {"ar": "تداخل بين IAM Policy و Bucket Policy و Block Public Access.", "en": "Interaction of IAM Policy, Bucket Policy, and Block Public Access."}],
+           [{"ar": "CloudFront يعرض محتوى قديماً.", "en": "CloudFront serves stale content."}, {"ar": "انتظر TTL أو أنشئ Invalidation (انتبه للتكلفة).", "en": "Wait TTL or create Invalidation (mind the cost)."}],
+           [{"ar": "CodePipeline stage Failed.", "en": "CodePipeline stage Failed."}, {"ar": "افحص سجلّ المرحلة، CloudWatch Logs، IAM على CodeBuild/CodeDeploy.", "en": "Check stage log, CloudWatch Logs, CodeBuild/CodeDeploy IAM."}],
+           [{"ar": "CloudFormation stack <span dir=\"ltr\" class=\"font-mono\">ROLLBACK_COMPLETE</span>.", "en": "CloudFormation stack <span dir=\"ltr\" class=\"font-mono\">ROLLBACK_COMPLETE</span>."}, {"ar": "لا يمكن تعديله — احذفه وأنشئ جديداً؛ راجع Events للسبب.", "en": "Cannot update — delete & recreate; check Events for the cause."}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "عندما يذكر السؤال خطأً بعينه، لا تعتمد على حدسك: ابحث عن الكلمة الحرفيّة في الإجابات. مثلاً <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span> يشير مباشرة إلى DynamoDB hot partition.",
+         "en": "When the question cites a specific error, don't guess: scan answers for the literal term. E.g., <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span> points directly to DynamoDB hot partition."}
+      ]
+    },
+    {
+      "title_ar": "استراتيجيّة يوم الامتحان",
+      "title_en": "Exam-day strategy",
+      "blocks": [
+        {"type": "p",
+         "ar": "الامتحان: ٦٥ سؤالاً في ١٣٠ دقيقة (≈ دقيقتان للسؤال). ١٥ سؤال غير مرجّح (تجريبيّ). تحتاج ٧٢٠/١٠٠٠ للنجاح. يمكن re-take بعد ١٤ يوماً من الفشل. الرسوم ١٥٠ دولار.",
+         "en": "Exam: 65 questions in 130 minutes (≈ 2 min/question). 15 are unscored (pilot). Need 720/1000 to pass. Re-take after 14 days if failed. Fee $150."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "flag", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Flag & Skip", "title_en": "Flag & Skip", "body_ar": "كلّ سؤال لا تجيب عنه بثقة خلال دقيقتين → flag وانتقل. ارجع إليها آخراً.", "body_en": "Any question you can't confidently answer in 2 min → flag and move on. Revisit last."},
+          {"icon": "x-circle", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "إلغاء الخيارات", "title_en": "Eliminate", "body_ar": "استبعد خيارات خاطئة بوضوح أولاً. عادة خياران من الأربعة يبعدان عن صلب السؤال.", "body_en": "Rule out clearly wrong options first. Typically 2/4 options are off-topic."},
+          {"icon": "brain", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "لا تُفرط في التفكير", "title_en": "Don't overthink", "body_ar": "لو الحلّ ممكن لكن معقّد جداً، غالباً خاطئ. AWS يفضّل الحلّ الأنيق.", "body_en": "If a solution is feasible but very complex, likely wrong. AWS favors elegant answers."},
+          {"icon": "clock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "راقب الوقت", "title_en": "Watch the clock", "body_ar": "بعد ٦٥ دقيقة يجب أن تكون في السؤال ~٣٣. لو أبطأ، سرّع بالـ flag & skip.", "body_en": "By 65 min you should be ~question 33. If slower, accelerate via flag & skip."}
+        ]},
+        {"type": "p",
+         "ar": "خطّة موصى بها للوقت:",
+         "en": "Recommended time plan:"},
+        {"type": "table",
+         "headers": {"ar": ["المرحلة", "الوقت", "الهدف"], "en": ["Phase", "Time", "Goal"]},
+         "rows": [
+           [{"ar": "الجولة الأولى", "en": "Round 1"}, {"mono": true, "value": "~90 min"}, {"ar": "أجب عن كلّ ما هو واضح. flag الصعاب دون إضاعة وقت.", "en": "Answer the obvious ones. Flag tough ones, don't waste time."}],
+           [{"ar": "الجولة الثانية", "en": "Round 2"}, {"mono": true, "value": "~30 min"}, {"ar": "عد إلى الأسئلة المُعلّمة — الآن ذهنك أصفى بعد رؤية كلّ الامتحان.", "en": "Revisit flagged — your mind is clearer after seeing the whole exam."}],
+           [{"ar": "مراجعة نهائية", "en": "Final review"}, {"mono": true, "value": "~10 min"}, {"ar": "افحص الأسئلة متعدّدة الإجابة (multi) — السبب الأكثر شيوعاً لفقد نقاط.", "en": "Double-check multi-answer questions — top source of lost points."}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "يوم الامتحان: نم جيداً الليلة السابقة، اشرب ماءً كافياً، وصل قبل ٣٠ دقيقة. إن كان online: تحقّق من الكاميرا والمنضدة خالية. لا تسمح AWS بأيّ ورقة أو قلم — كلّ ما تحتاجه يُؤخَذ ذهنياً.",
+         "en": "Exam day: sleep well the night before, hydrate, arrive 30 min early. If online: check camera and a clear desk. AWS allows no paper or pen — everything must be mental."}
+      ]
+    },
+    {
+      "title_ar": "بعد النجاح — الشهادات التالية",
+      "title_en": "After passing — next certifications",
+      "blocks": [
+        {"type": "p",
+         "ar": "DVA-C02 هو شهادة Associate المستوى. المسارات بعدها تعتمد على توجّهك المهنيّ:",
+         "en": "DVA-C02 is an Associate-level cert. Your next step depends on career direction:"},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "rocket", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "DevOps Engineer — Professional", "title_en": "DevOps Engineer — Professional", "body_ar": "المسار الطبيعيّ للمطوّر — CI/CD، مراقبة، أتمتة متقدّمة. يحتاج سنتين خبرة AWS.", "body_en": "The natural path for devs — CI/CD, monitoring, advanced automation. Needs 2 yrs AWS experience."},
+          {"icon": "layout", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Solutions Architect — Professional", "title_en": "Solutions Architect — Professional", "body_ar": "للتصميم المعماريّ المتقدّم. أصعب الشهادات. تمنحك عمقاً في كلّ الخدمات.", "body_en": "Advanced architectural design. Toughest cert. Deep coverage of all services."},
+          {"icon": "shield", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "Security — Specialty", "title_en": "Security — Specialty", "body_ar": "IAM، KMS، GuardDuty، Macie، Detective. مطلوب بشدّة في البنوك والحكومة.", "body_en": "IAM, KMS, GuardDuty, Macie, Detective. In high demand at banks and gov."},
+          {"icon": "brain", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "ML Engineer — Associate", "title_en": "ML Engineer — Associate", "body_ar": "SageMaker، Bedrock، data pipelines. يناسب من يعمل على LLMs.", "body_en": "SageMaker, Bedrock, data pipelines. Fits those working with LLMs."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "للمطوّر السينيور بخلفيّة Java/Spring: المسار الأقوى لسوق العمل اليوم هو <strong>DVA + DevOps Pro + Security Specialty</strong>. ثلاثية تجعل سيرتك نادرة وتفتح أبواب الـ Cloud Engineer الشامل.",
+         "en": "Senior dev with Java/Spring background: the strongest combination for today's market is <strong>DVA + DevOps Pro + Security Specialty</strong>. A trio that makes your resume rare and opens doors to full-spectrum Cloud Engineer roles."}
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق يعمل على Lambda يستقبل ذروة غير متوقّعة أحياناً فيصبح الـ cold start ملحوظاً. الحلّ الأقلّ كلفة الذي يعالج الذروة؟",
+      "question_en": "A Lambda app gets unpredictable spikes, making cold starts noticeable. Most cost-effective fix for spikes?",
+      "options_ar": ["Provisioned Concurrency على كامل السعة المتوقّعة.", "Reserved Concurrency فقط.", "SnapStart (لوقت تشغيل Java) أو Provisioned Concurrency مع Auto Scaling.", "الترحيل إلى EC2."],
+      "options_en": ["Provisioned Concurrency at peak capacity.", "Reserved Concurrency only.", "SnapStart (Java runtime) or Provisioned Concurrency with Auto Scaling.", "Migrate to EC2."],
+      "correct": 2,
+      "explanation_ar": "SnapStart (لـ Java 11+ و Python) يقلّل cold start بـ ١٠× مجّاناً. أو Provisioned Concurrency مع Application Auto Scaling للذروات. Reserved Concurrency يحدّ الاستدعاءات ولا يمنع cold start.",
+      "explanation_en": "SnapStart (Java 11+ and Python) cuts cold start 10× at no cost. Or Provisioned Concurrency with Application Auto Scaling for spikes. Reserved Concurrency caps invokes, doesn't prevent cold start.",
+      "wrong_ar": ["مكلف جدّاً للذروات النادرة.", "يحدّ الاستدعاءات ولا يعالج cold start.", "", "يزيد التكلفة والعبء التشغيليّ."],
+      "wrong_en": ["Too costly for rare spikes.", "Caps invocations, doesn't fix cold start.", "", "Increases cost and ops overhead."],
+      "reference_ar": "القسم ٣ — جداول المقارنة",
+      "reference_en": "Section 3 — comparison tables"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "فريق يحتاج تخزين أسرار DB مع <strong>تدوير تلقائيّ كلّ ٣٠ يوماً</strong>. الخدمة؟",
+      "question_en": "Team needs DB secret storage with <strong>automatic rotation every 30 days</strong>. Service?",
+      "options_ar": ["AWS Secrets Manager", "SSM Parameter Store (Standard)", "KMS", "SSM Parameter Store (SecureString)"],
+      "options_en": ["AWS Secrets Manager", "SSM Parameter Store (Standard)", "KMS", "SSM Parameter Store (SecureString)"],
+      "correct": 0,
+      "explanation_ar": "كلمة \"rotation تلقائيّ\" = Secrets Manager حصراً. Parameter Store لا يدعم تدوير مدمج (يتطلّب EventBridge + Lambda يدوياً). KMS لإدارة مفاتيح التشفير لا الأسرار.",
+      "explanation_en": "Keyword \"auto rotation\" = Secrets Manager only. Parameter Store has no built-in rotation (needs EventBridge + Lambda manually). KMS manages encryption keys, not secrets.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "شركة تحتاج نشر تحديث Lambda تدريجياً مع انتقال ١٠٪ من الحركة للإصدار الجديد لمدّة ١٠ دقائق قبل تحويل الباقي. أيّ أسلوب CodeDeploy؟",
+      "question_en": "Company wants to deploy a Lambda update gradually: 10% of traffic to new version for 10 minutes, then shift the rest. Which CodeDeploy config?",
+      "options_ar": ["AllAtOnce", "Canary10Percent10Minutes", "Linear10PercentEvery1Minute", "Blue/Green AllAtOnce"],
+      "options_en": ["AllAtOnce", "Canary10Percent10Minutes", "Linear10PercentEvery1Minute", "Blue/Green AllAtOnce"],
+      "correct": 1,
+      "explanation_ar": "Canary = نسبة ابتدائيّة ثابتة لمدّة محدّدة ثمّ قفزة. Linear = زيادة نسبيّة ثابتة على مراحل. AllAtOnce = كلّ شيء دفعة واحدة (بدون تدريج).",
+      "explanation_en": "Canary = fixed initial % for a set period, then a leap. Linear = constant incremental ramp. AllAtOnce = everything at once (no gradual).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "تطبيق Spring Boot على ECS Fargate يستهلك DynamoDB بشكل مكثّف. لاحظ الفريق زمن استجابة بطيء. ما أسرع خطوة تحسين؟",
+      "question_en": "A Spring Boot app on ECS Fargate heavily uses DynamoDB. Team sees slow response. Fastest performance improvement?",
+      "options_ar": ["رفع ذاكرة Fargate.", "تفعيل <strong>DAX</strong> (DynamoDB Accelerator).", "تحويل DynamoDB إلى RDS.", "استخدام ElastiCache Redis."],
+      "options_en": ["Increase Fargate memory.", "Enable <strong>DAX</strong> (DynamoDB Accelerator).", "Migrate DynamoDB to RDS.", "Use ElastiCache Redis."],
+      "correct": 1,
+      "explanation_ar": "DAX كاش مصمّم خصّيصاً لـ DynamoDB ويقدّم قراءات بميكروثواني. ElastiCache Redis ممكن لكنّه عامّ ويحتاج كود كاش يدويّاً. تحويل للـ RDS يغيّر نموذج البيانات بالكامل.",
+      "explanation_en": "DAX is a DynamoDB-specific cache with microsecond reads. ElastiCache Redis is possible but generic and needs manual cache code. RDS migration rewrites the data model entirely.",
+      "wrong_ar": ["لا علاقة بزمن DynamoDB.", "", "تكلفة ترحيل ضخمة.", "ممكن لكنّه ليس الأمثل لـ DynamoDB."],
+      "wrong_en": ["Unrelated to DynamoDB latency.", "", "Massive migration cost.", "Possible but suboptimal for DynamoDB."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "مدير فريق يريد معرفة <strong>من</strong> حذف ملفّ كبير من S3 bucket (غير مسجَّل في Data Events). ماذا يفعل؟",
+      "question_en": "A team lead wants to know <strong>who</strong> deleted a large S3 object (Data Events not enabled). Next step?",
+      "options_ar": ["مراجعة CloudWatch Logs.", "تفعيل Data Events في CloudTrail للمستقبل، ومراجعة S3 Server Access Logs إن كانت مفعّلة للحدث السابق.", "استخدام X-Ray.", "فحص EventBridge Archive."],
+      "options_en": ["Check CloudWatch Logs.", "Enable CloudTrail Data Events going forward, and check S3 Server Access Logs for the past event if they were enabled.", "Use X-Ray.", "Check EventBridge Archive."],
+      "correct": 1,
+      "explanation_ar": "بدون Data Events في CloudTrail، لا سجلّ في CloudTrail لعمليّات Object. S3 Server Access Logs (أو S3 Event Notifications) قد تكون المصدر الوحيد للأحداث الماضية. للمستقبل، فعّل Data Events.",
+      "explanation_en": "Without CloudTrail Data Events, there's no CloudTrail record of object operations. S3 Server Access Logs (or S3 Event Notifications) may be the only source for past events. For the future, enable Data Events.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q6", "type": "multi",
+      "question_ar": "أيّ من التالي استراتيجيّات مفيدة يوم الامتحان؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are useful exam-day strategies? Select all that apply.",
+      "options_ar": ["وسم الأسئلة الصعبة (Flag) والعودة إليها لاحقاً.", "قراءة كلمات القيد مثل \"most cost-effective\" بدقّة.", "اختيار أكثر الخيارات تعقيداً دائماً.", "استبعاد الخيارات الخاطئة وضوحاً قبل التفكير العميق."],
+      "options_en": ["Flag difficult questions and revisit later.", "Carefully read constraint words like \"most cost-effective\".", "Always pick the most complex-looking option.", "Eliminate obviously wrong options before deep thinking."],
+      "correct": [0, 1, 3],
+      "explanation_ar": "الخيار ٣ خطأ: AWS يفضّل الحلول الأنيقة البسيطة. لو الحلّ ممكن لكن معقّد جدّاً، غالباً هو الفخّ.",
+      "explanation_en": "Option 3 is wrong: AWS favors simple, elegant solutions. If an answer is feasible but overcomplex, it's usually the trap.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "تطبيق يحتاج نشر غير متزامن لرسالة إلى ٤ مستهلكين مختلفين، كلّ واحد يعالج بطريقته الخاصّة. النمط؟",
+      "question_en": "App needs async publishing of a message to 4 different consumers, each processing independently. Pattern?",
+      "options_ar": ["SQS واحد لكلّ المستهلكين.", "SNS topic يُشترك به SQS queue لكلّ مستهلك (Fan-Out).", "EventBridge scheduler.", "Kinesis Data Streams فقط."],
+      "options_en": ["One SQS for all consumers.", "SNS topic with one SQS queue per consumer (Fan-Out).", "EventBridge scheduler.", "Kinesis Data Streams only."],
+      "correct": 1,
+      "explanation_ar": "نمط Fan-Out المعياريّ: SNS يوزّع نسخة لكلّ SQS، كلّ مستهلك يعالج طابوره باستقلال. SQS واحد = رسالة واحدة فقط لمستهلك واحد. EventBridge خيار بديل لكن SQS+SNS أبسط ومطلوب بالاسم في الامتحان.",
+      "explanation_en": "Canonical Fan-Out pattern: SNS delivers a copy to each SQS; each consumer processes independently. One SQS = one message to one consumer only. EventBridge is an alternative but SQS+SNS is the exam-named pattern.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "بعد اجتياز DVA-C02، أيّ شهادة ستمنح مطوّر Spring Boot أسرع عائد على سوق العمل؟",
+      "question_en": "After passing DVA-C02, which certification gives a Spring Boot dev the fastest market ROI?",
+      "options_ar": ["AI Practitioner (Foundational)", "DevOps Engineer — Professional", "Cloud Practitioner (Foundational)", "Data Engineer — Associate"],
+      "options_en": ["AI Practitioner (Foundational)", "DevOps Engineer — Professional", "Cloud Practitioner (Foundational)", "Data Engineer — Associate"],
+      "correct": 1,
+      "explanation_ar": "DevOps Pro هو الامتداد الطبيعيّ للمطوّر: يعمّق CI/CD، مراقبة، أتمتة متقدّمة — مهارات يطلبها السوق بسعر أعلى. الشهادات التأسيسية (Foundational) أقلّ عائداً لمن عنده Associate.",
+      "explanation_en": "DevOps Pro is the natural dev extension: deeper CI/CD, monitoring, advanced automation — high-paying market skills. Foundational certs yield less ROI once you hold an Associate.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    }
+  ],
+  "summary": [
+    {"icon": "target", "title_ar": "٧٢٠/١٠٠٠ للنجاح", "title_en": "Pass at 720/1000",
+     "body_ar": "٦٥ سؤالاً في ١٣٠ دقيقة. دقيقتان للسؤال في المتوسّط.",
+     "body_en": "65 questions in 130 min. ~2 min per question."},
+    {"icon": "key", "title_ar": "الكلمة تحدّد الإجابة", "title_en": "Keywords drive the answer",
+     "body_ar": "\"real-time\" = Kinesis/Lambda. \"rotation\" = Secrets Manager. \"who did\" = CloudTrail.",
+     "body_en": "\"real-time\" = Kinesis/Lambda. \"rotation\" = Secrets Manager. \"who did\" = CloudTrail."},
+    {"icon": "flag", "title_ar": "Flag و Skip", "title_en": "Flag & Skip",
+     "body_ar": "لا تعلق على سؤال أكثر من دقيقتين. ارجع إليه في الجولة الثانية.",
+     "body_en": "Don't dwell >2 min on one question. Revisit in round 2."},
+    {"icon": "award", "title_ar": "الخطوة التالية", "title_en": "What's next",
+     "body_ar": "DevOps Pro للمطوّر، SA Pro للمعماريّ، Security Specialty للأمنيّ.",
+     "body_en": "DevOps Pro for dev, SA Pro for architect, Security Specialty for sec."}
+  ],
+  "mnemonic_ar": "قبل الضغط على \"Submit\" في أيّ سؤال، اطرح على نفسك ٣ أسئلة: (١) هل فهمت <strong>القيد</strong> (cost / ops / time / security)؟ (٢) هل استبعدت الخيارات الخاطئة بوضوح؟ (٣) هل الحلّ <strong>بسيط أم معقّد بلا داعٍ</strong>؟ إذا كان معقّداً جداً، غالباً فخّ. مع السلامة في امتحانك!",
+  "mnemonic_en": "Before hitting \"Submit\" on any question, ask yourself 3 things: (1) Did I grasp the <strong>constraint</strong> (cost / ops / time / security)? (2) Did I rule out the obviously wrong options? (3) Is this solution <strong>simple or needlessly complex</strong>? If it's overly complex, it's usually a trap. Good luck on your exam!",
+  "prev": 29,
+  "next": null
+}

@@ -1,0 +1,419 @@
+{
+  "n": 13,
+  "domain": "development",
+  "title_ar": "Amazon API Gateway",
+  "title_en": "Amazon API Gateway",
+  "pages": "662-705",
+  "subtitle_ar": "البوّابة الذكيّة بين العميل و Lambda/HTTP/AWS services: REST و HTTP و WebSocket، المصادقة، التخزين المؤقّت، الاختناق، CORS، و canary deployments. الموضوع الأكثر أهمّية لمطوّري serverless.",
+  "subtitle_en": "The smart gateway between clients and Lambda/HTTP/AWS services: REST, HTTP, and WebSocket APIs; authentication; caching; throttling; CORS; canary deployments. The topic every serverless dev must master.",
+  "tags": ["API Gateway", "REST", "HTTP", "WebSocket", "Lambda", "Authorizers", "CORS", "Caching"],
+  "objectives": [
+    {"concept": "Integration Types (Lambda Proxy, HTTP, AWS, MOCK)", "tested_ar": "النطاق الأول في اختيار نوع التكامل الصحيح لكل سيناريو.", "tested_en": "Domain 1 — picking the right integration for each scenario."},
+    {"concept": "REST vs HTTP vs WebSocket APIs", "tested_ar": "النطاق الأول والثالث في الفرق والميزات المتاحة لكل نوع.", "tested_en": "Domains 1 & 3 — differences and feature availability per type."},
+    {"concept": "Authorizers (Cognito/Lambda/IAM)", "tested_ar": "النطاق الثاني في مصادقة المستخدمين.", "tested_en": "Domain 2 — user authentication and authorization."},
+    {"concept": "CORS", "tested_ar": "النطاق الأول — موضوع متكرّر جداً في الامتحان.", "tested_en": "Domain 1 — very frequent exam topic."},
+    {"concept": "Stages, Canary & Usage Plans", "tested_ar": "النطاق الثالث في النشر ومتحكمّات الاستهلاك.", "tested_en": "Domain 3 — deployment and usage control."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هي API Gateway ومتى تستخدمها",
+      "title_en": "What is API Gateway and when to use it",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">API Gateway</span> خدمة مُدارة بالكامل تُتيح لك إنشاء ونشر وإدارة APIs بدون بنية تحتية. تعالج المصادقة، الاختناق، التخزين المؤقّت، المراقبة، ونسخ الـ APIs — وهي الشريك الدائم لـ Lambda في المعمار serverless. للعميل هي نقطة دخول واحدة تخفي تعقيدات الـ backend.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">API Gateway</span> is a fully managed service for creating, publishing, and managing APIs with zero infrastructure. It handles authentication, throttling, caching, monitoring, and API versioning — the forever-partner of Lambda in serverless. To clients, it's a single entry point that hides backend complexity."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "code-2", "icon_bg": "bg-rose-100", "icon_color": "text-rose-700", "title_ar": "REST API", "title_en": "REST API", "body_ar": "الأغنى بالميزات. يدعم mapping templates, request validation, usage plans, API keys, WAF, private endpoint.", "body_en": "Feature-rich. Supports mapping templates, request validation, usage plans, API keys, WAF, private endpoints."},
+          {"icon": "zap", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "HTTP API", "title_en": "HTTP API", "body_ar": "٧٠٪ أرخص، زمن استجابة أقل. يدعم JWT/OIDC مباشرة و CORS مدمج. لا يدعم usage plans أو mapping templates.", "body_en": "70% cheaper, lower latency. Native JWT/OIDC, built-in CORS. No usage plans or mapping templates."},
+          {"icon": "radio", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "WebSocket API", "title_en": "WebSocket API", "body_ar": "اتّصال ثنائي الاتّجاه مستمرّ. للتطبيقات الفورية: chat, multi-player games, trading.", "body_en": "Persistent two-way connection. For real-time: chat, multiplayer games, trading."}
+        ]},
+        {"type": "table",
+         "headers": {"ar": ["الميزة", "REST API", "HTTP API"], "en": ["Feature", "REST API", "HTTP API"]},
+         "rows": [
+           [{"ar": "JWT/OIDC native", "en": "JWT/OIDC native"}, {"ar": "لا", "en": "No"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "Lambda/IAM authorizers", "en": "Lambda/IAM authorizers"}, {"ar": "نعم", "en": "Yes"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "Resource policies", "en": "Resource policies"}, {"ar": "نعم", "en": "Yes"}, {"ar": "لا", "en": "No"}],
+           [{"ar": "Usage plans / API keys", "en": "Usage plans / API keys"}, {"ar": "نعم", "en": "Yes"}, {"ar": "لا", "en": "No"}],
+           [{"ar": "Mapping templates (VTL)", "en": "Mapping templates (VTL)"}, {"ar": "نعم", "en": "Yes"}, {"ar": "لا", "en": "No"}],
+           [{"ar": "Caching", "en": "Caching"}, {"ar": "نعم", "en": "Yes"}, {"ar": "لا", "en": "No"}],
+           [{"ar": "التكلفة", "en": "Cost"}, {"ar": "أغلى", "en": "Pricier"}, {"ar": "~٧٠٪ أرخص", "en": "~70% cheaper"}]
+         ]
+        }
+      ]
+    },
+    {
+      "title_ar": "Endpoint Types وأنواع التكامل",
+      "title_en": "Endpoint Types & Integration Types",
+      "blocks": [
+        {"type": "p",
+         "ar": "عند إنشاء API عندك ثلاثة أنواع Endpoints: <strong>Edge-Optimized</strong> (الافتراضي — يمرّ عبر CloudFront لأداء عالمي)، <strong>Regional</strong> (لعملاء داخل نفس الـ region)، <strong>Private</strong> (فقط من داخل VPC عبر Interface VPC Endpoint).",
+         "en": "When creating an API you pick from three Endpoint Types: <strong>Edge-Optimized</strong> (default — routes via CloudFront for global performance), <strong>Regional</strong> (for in-region clients), <strong>Private</strong> (only reachable from a VPC via Interface VPC Endpoint)."},
+        {"type": "p",
+         "ar": "<strong>أنواع التكامل (Integration Types)</strong> من أهمّ مواضيع الامتحان. كل method في الـ API لها integration type يحدّد كيف تتعامل مع الـ backend:",
+         "en": "<strong>Integration Types</strong> are critical exam material. Every method on the API has an integration type controlling backend interaction:"},
+        {"type": "table",
+         "headers": {"ar": ["النوع", "الوصف", "الاستخدام"], "en": ["Type", "Description", "Use case"]},
+         "rows": [
+           [{"mono": true, "value": "MOCK"}, {"ar": "يرجع استجابة بدون إرسال الطلب للـ backend", "en": "Returns response without hitting backend"}, {"ar": "اختبار، CORS preflight", "en": "Testing, CORS preflight"}],
+           [{"mono": true, "value": "HTTP"}, {"ar": "يستدعي HTTP endpoint في الـ backend. يتطلّب mapping templates.", "en": "Calls HTTP backend. Needs mapping templates."}, {"ar": "توجيه لنظام قديم أو ALB", "en": "Forwarding to legacy or ALB"}],
+           [{"mono": true, "value": "HTTP_PROXY"}, {"ar": "يوجّه كامل الطلب/الاستجابة HTTP كما هو. بدون mapping.", "en": "Forwards full HTTP request/response as-is. No mapping."}, {"ar": "proxy بسيط", "en": "Simple proxy"}],
+           [{"mono": true, "value": "AWS"}, {"ar": "يستدعي AWS API (SQS, DynamoDB, Step Functions...). يتطلّب mapping templates.", "en": "Calls AWS API (SQS, DynamoDB, Step Functions...). Needs mapping templates."}, {"ar": "نشر Step Function عبر API", "en": "Start Step Function from API"}],
+           [{"mono": true, "value": "AWS_PROXY"}, {"ar": "<strong>Lambda Proxy</strong> — يُمرَّر الطلب كامل لـ Lambda، و Lambda مسؤولة عن الشكل.", "en": "<strong>Lambda Proxy</strong> — full request passed to Lambda; Lambda owns shape."}, {"ar": "الأكثر شيوعاً مع Lambda", "en": "Most common with Lambda"}]
+         ]
+        },
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "arrow-right-circle", "title_ar": "AWS_PROXY (Lambda Proxy)", "title_en": "AWS_PROXY (Lambda Proxy)",
+                  "body_ar": "بدون mapping templates. الـ headers وquery strings و path params تصل لـ Lambda في event object جاهز. Lambda ترجع <span dir=\"ltr\" class=\"font-mono\">{statusCode, headers, body}</span>. الـ body يجب أن يكون string (JSON.stringify).",
+                  "body_en": "No mapping templates. Headers, query strings, path params arrive as a ready event. Lambda returns <span dir=\"ltr\" class=\"font-mono\">{statusCode, headers, body}</span>. Body must be a string (JSON.stringify)."},
+         "right": {"tone": "amber", "icon": "settings", "title_ar": "AWS (Custom)", "title_en": "AWS (Custom)",
+                   "body_ar": "mapping templates بلغة VTL تُحوّل طلب العميل لصيغة Lambda/AWS. تحكّم أكبر، كود Lambda أنظف، لكن صيانة أكثر.",
+                   "body_en": "VTL mapping templates transform client payload to Lambda/AWS format. More control, cleaner Lambda code, more maintenance."}
+        },
+        {"type": "code", "lang": "java",
+         "code": "// Java Lambda handler — AWS_PROXY (Lambda Proxy) integration\npublic class OrderHandler\n    implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {\n\n  @Override\n  public APIGatewayProxyResponseEvent handleRequest(\n      APIGatewayProxyRequestEvent event, Context ctx) {\n\n    String orderId = event.getPathParameters().get(\"id\");\n    Map<String,String> qs = event.getQueryStringParameters();\n    String body = event.getBody();        // client JSON as string\n\n    // ... business logic ...\n\n    return new APIGatewayProxyResponseEvent()\n        .withStatusCode(200)\n        .withHeaders(Map.of(\n            \"Content-Type\", \"application/json\",\n            \"Access-Control-Allow-Origin\", \"*\"))\n        .withBody(\"{\\\"orderId\\\":\\\"\" + orderId + \"\\\",\\\"status\\\":\\\"SHIPPED\\\"}\");\n  }\n}"}
+      ]
+    },
+    {
+      "title_ar": "Deployment Stages و Canary و Stage Variables",
+      "title_en": "Deployment Stages, Canary & Stage Variables",
+      "blocks": [
+        {"type": "p",
+         "ar": "تغيير في API Gateway لا يصبح فعّالاً إلّا بعد <strong>Deployment</strong>. يُنشر لـ <strong>Stage</strong> (dev, test, prod, v1, v2...). كل stage له إعداداته الخاصّة (throttling, caching, logging). وتُحفظ تاريخ النشر لاحتمال rollback.",
+         "en": "A change in API Gateway isn't live until you create a <strong>Deployment</strong>. It's published to a <strong>Stage</strong> (dev, test, prod, v1, v2...). Each stage has its own config (throttling, caching, logging). Deployment history is retained so you can roll back."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "git-branch", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "Stage Variables", "title_en": "Stage Variables", "body_ar": "متغيّرات بيئة للـ stage. تُستخدم في: Lambda ARN (أو alias مثل <span class=\"font-mono\">${stageVariables.lambdaAlias}</span>)، HTTP endpoint، mapping templates. تمكّنك من تبديل الـ backend بدون تعديل الـ API.", "body_en": "Stage-scoped env vars. Used in: Lambda ARN (or alias like <span class=\"font-mono\">${stageVariables.lambdaAlias}</span>), HTTP endpoint, mapping templates. Let you swap backends without editing the API."},
+          {"icon": "bird", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Canary Deployment", "title_en": "Canary Deployment", "body_ar": "يرسل ٪ محدّد من حركة المرور للإصدار الجديد (canary). مقاييس منفصلة. طريقة blue/green مع Lambda + API Gateway.", "body_en": "Routes a % of traffic to the new version (canary). Separate metrics. The blue/green approach with Lambda + API Gateway."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "نمط سينيور: استخدم <strong>stage variable لاسم Lambda alias</strong> (مثلاً <span dir=\"ltr\" class=\"font-mono\">prod</span>, <span dir=\"ltr\" class=\"font-mono\">canary</span>)، واستفد من <strong>Lambda Weighted Aliases</strong> (٩٥٪/٥٪) لتقسيم الحركة بدون لمس API Gateway. هذا المعمار المفضّل للنشر التدريجي في serverless.",
+         "en": "Senior pattern: put a <strong>stage variable for the Lambda alias</strong> (e.g. <span dir=\"ltr\" class=\"font-mono\">prod</span>, <span dir=\"ltr\" class=\"font-mono\">canary</span>) and use <strong>Lambda Weighted Aliases</strong> (95%/5%) to split traffic without touching API Gateway. That's the canonical progressive-deployment pattern in serverless."},
+        {"type": "code", "lang": "bash",
+         "code": "# Deploy API changes to the prod stage\naws apigateway create-deployment \\\n  --rest-api-id abc123 \\\n  --stage-name prod \\\n  --description 'release 2024-11 - add /orders'\n\n# Configure canary on prod stage: 10% to canary\naws apigateway update-stage \\\n  --rest-api-id abc123 --stage-name prod \\\n  --patch-operations \\\n    'op=replace,path=/canarySettings/percentTraffic,value=10' \\\n    'op=replace,path=/canarySettings/useStageCache,value=false'"}
+      ]
+    },
+    {
+      "title_ar": "الأمان: Authorizers و IAM و Cognito و CORS",
+      "title_en": "Security: Authorizers, IAM, Cognito & CORS",
+      "blocks": [
+        {"type": "p",
+         "ar": "لـ API Gateway ثلاثة مسارات للمصادقة/التفويض، ولكلٍّ استخدامه. هذا من أكثر مواضيع الامتحان سؤالاً:",
+         "en": "API Gateway has three auth paths, each with its niche. It's one of the most-asked exam topics:"},
+        {"type": "table",
+         "headers": {"ar": ["الطريقة", "Authentication", "Authorization", "الحالة المثلى"], "en": ["Method", "Authentication", "Authorization", "Best for"]},
+         "rows": [
+           [{"ar": "IAM", "en": "IAM"}, {"ar": "IAM credentials (Sig v4)", "en": "IAM credentials (Sig v4)"}, {"ar": "IAM Policy", "en": "IAM Policy"}, {"ar": "API داخلية — EC2/Lambda/IAM users", "en": "Internal APIs — EC2/Lambda/IAM users"}],
+           [{"ar": "Cognito User Pool", "en": "Cognito User Pool"}, {"ar": "Cognito (JWT token)", "en": "Cognito (JWT token)"}, {"ar": "API Gateway Methods", "en": "API Gateway Methods"}, {"ar": "مستخدمون خارجيون (mobile/web)", "en": "External users (mobile/web)"}],
+           [{"ar": "Lambda Authorizer", "en": "Lambda Authorizer"}, {"ar": "خارجي (token, headers...)", "en": "External (token, headers...)"}, {"ar": "Lambda تُرجع IAM policy", "en": "Lambda returns IAM policy"}, {"ar": "tokens طرف ثالث (JWT، Okta...)", "en": "Third-party tokens (JWT, Okta...)"}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>Lambda Authorizer</strong>: Lambda تستقبل الـ token وتُرجع IAM policy. نتيجتها تُخزَّن مؤقتاً (cache) لـ ٣٠٠ ثانية افتراضياً — لذا يُفضَّل للـ tokens ذات عمر طويل. نوعان: <strong>Token-based</strong> (JWT في Authorization header) و <strong>Request parameter-based</strong> (headers/query strings).",
+         "en": "<strong>Lambda Authorizer</strong>: Lambda receives the token and returns an IAM policy. Result is cached for 300 seconds by default — best for long-lived tokens. Two kinds: <strong>Token-based</strong> (JWT in Authorization header) and <strong>Request parameter-based</strong> (headers/query strings)."},
+        {"type": "p",
+         "ar": "<strong>CORS (Cross-Origin Resource Sharing)</strong> — من أكثر المشاكل شيوعاً عند ربط frontend (مثل S3 static site) مع API Gateway على domain مختلف. المتصفّح يُرسل <strong>preflight OPTIONS request</strong> قبل الطلب الحقيقي ويتوقّع الـ headers التالية في الاستجابة: <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers</span>.",
+         "en": "<strong>CORS (Cross-Origin Resource Sharing)</strong> — the most common pain when connecting a frontend (e.g. S3 static site) to API Gateway on a different domain. The browser sends a <strong>preflight OPTIONS request</strong> before the real one and expects these headers back: <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers</span>."},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "فخّ CORS الامتحاني: إن رأيت في السؤال <strong>\"CORS error from browser\"</strong> أو <strong>\"API works from Postman but not browser\"</strong>، الحلّ دائماً: <strong>فعّل CORS في API Gateway</strong> (ينشئ method OPTIONS تلقائياً مع الـ headers). الـ Lambda مع Proxy Integration يجب أن ترجع <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin</span> بنفسها.",
+         "en": "CORS exam trap: if the question says <strong>\"CORS error from browser\"</strong> or <strong>\"works in Postman but not browser\"</strong>, the answer is always: <strong>enable CORS in API Gateway</strong> (creates OPTIONS method with proper headers). With Lambda Proxy Integration, your Lambda must also return <span dir=\"ltr\" class=\"font-mono\">Access-Control-Allow-Origin</span> itself."},
+        {"type": "code", "lang": "json",
+         "code": "// Lambda Authorizer response: must return principal + IAM policy\n{\n  \"principalId\": \"user-123\",\n  \"policyDocument\": {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [{\n      \"Action\": \"execute-api:Invoke\",\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:execute-api:us-east-1:*:abc123/prod/GET/orders/*\"\n    }]\n  },\n  \"context\": {\n    \"tenantId\": \"acme\",\n    \"role\": \"admin\"\n  }\n}"}
+      ]
+    },
+    {
+      "title_ar": "Throttling و Caching و Usage Plans و Monitoring",
+      "title_en": "Throttling, Caching, Usage Plans & Monitoring",
+      "blocks": [
+        {"type": "p",
+         "ar": "API Gateway يحدّ الطلبات على ثلاثة مستويات. الـ <strong>Account Limit</strong> الافتراضي ١٠٬٠٠٠ طلب/ثانية عبر كل الـ APIs (قابل للرفع). يمكن ضبط <strong>Stage Limits</strong> و <strong>Method Limits</strong> للحماية من API واحد يستهلك كل الـ quota. الـ <strong>Usage Plans</strong> تُقيّد العملاء فردياً بـ API Keys.",
+         "en": "API Gateway throttles at three levels. Default <strong>Account Limit</strong> is 10,000 RPS across all APIs (soft, raisable). Set <strong>Stage Limits</strong> and <strong>Method Limits</strong> to stop one API hogging quota. <strong>Usage Plans</strong> throttle individual customers by API Key."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "gauge", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Throttling — 429", "title_en": "Throttling — 429", "body_ar": "تجاوز الحدّ يُرجع <strong>429 Too Many Requests</strong> (قابل للإعادة). إعدّ الاستراتيجية: exponential backoff في العميل.", "body_en": "Exceeding the limit returns <strong>429 Too Many Requests</strong> (retriable). Strategy: exponential backoff on client."},
+          {"icon": "database", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Caching per stage", "title_en": "Caching per stage", "body_ar": "TTL افتراضي ٣٠٠ ثانية (أقصى ٣٦٠٠). الحجم ٠.٥ – ٢٣٧ GB. يقلّل الطلبات للـ backend. الـ cache <u>per stage</u> ويمكن تجاوزه per method.", "body_en": "Default TTL 300s (max 3600). Size 0.5 – 237 GB. Reduces backend calls. Cache is <u>per stage</u>, overridable per method."},
+          {"icon": "key-round", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Usage Plans & API Keys", "title_en": "Usage Plans & API Keys", "body_ar": "API Keys تُرسَل في header <span class=\"font-mono\">x-api-key</span>. Usage Plan يربط الـ key بـ throttling وquota لكل عميل. متاح في REST API فقط.", "body_en": "API Keys go in <span class=\"font-mono\">x-api-key</span> header. Usage Plan links keys to throttling/quota per customer. REST API only."},
+          {"icon": "bar-chart-3", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "CloudWatch & X-Ray", "title_en": "CloudWatch & X-Ray", "body_ar": "مقاييس: <span class=\"font-mono\">CacheHit/MissCount, Count, Latency, IntegrationLatency, 4XXError, 5XXError</span>. X-Ray للـ tracing عبر Lambda.", "body_en": "Metrics: <span class=\"font-mono\">CacheHit/MissCount, Count, Latency, IntegrationLatency, 4XXError, 5XXError</span>. X-Ray traces to Lambda."}
+        ]},
+        {"type": "callout", "tone": "warn",
+         "ar": "ترتيب إنشاء Usage Plan الصحيح: (١) أنشئ API وفعّل API Key على الـ methods. (٢) انشر API على stage. (٣) أنشئ/استورد API Keys. (٤) أنشئ Usage Plan بحدود throttle وquota. (٥) اربط الـ Stage والـ Keys بالـ Usage Plan. العملاء يرسلون الـ key في <span dir=\"ltr\" class=\"font-mono\">x-api-key</span> header.",
+         "en": "Correct Usage Plan order: (1) create API, enable API Key on methods. (2) deploy to a stage. (3) generate/import API Keys. (4) create Usage Plan with throttle/quota. (5) associate Stage and Keys with the Usage Plan. Clients send the key in the <span dir=\"ltr\" class=\"font-mono\">x-api-key</span> header."}
+      ]
+    },
+    {
+      "title_ar": "الأخطاء، OpenAPI، و WebSocket APIs",
+      "title_en": "Errors, OpenAPI & WebSocket APIs",
+      "blocks": [
+        {"type": "table",
+         "headers": {"ar": ["الخطأ", "المعنى", "السبب الشائع"], "en": ["Error", "Meaning", "Common cause"]},
+         "rows": [
+           [{"mono": true, "value": "400"}, {"ar": "Bad Request", "en": "Bad Request"}, {"ar": "فشل validation أو JSON خاطئ", "en": "Validation failure or bad JSON"}],
+           [{"mono": true, "value": "403"}, {"ar": "Access Denied / WAF", "en": "Access Denied / WAF"}, {"ar": "authorizer رفض أو WAF حجب", "en": "Authorizer denied or WAF blocked"}],
+           [{"mono": true, "value": "429"}, {"ar": "Throttle", "en": "Throttle"}, {"ar": "تجاوز الـ RPS", "en": "Exceeded RPS limit"}],
+           [{"mono": true, "value": "502"}, {"ar": "Bad Gateway", "en": "Bad Gateway"}, {"ar": "Lambda ترجع شكل غير متوافق", "en": "Lambda returned incompatible shape"}],
+           [{"mono": true, "value": "503"}, {"ar": "Service Unavailable", "en": "Service Unavailable"}, {"ar": "backend مؤقتاً غير متاح", "en": "Backend temporarily down"}],
+           [{"mono": true, "value": "504"}, {"ar": "Timeout — حدّ API Gateway ٢٩ ثانية", "en": "Timeout — API Gateway 29-sec max"}, {"ar": "Lambda أو backend طويل", "en": "Lambda or backend too slow"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>حدّ API Gateway ٢٩ ثانية</strong> للـ integration timeout. لو احتجت لعملية أطول: اجعل API يُرجع ٢٠٢ Accepted ويستدعي Lambda غير متزامنة أو Step Function ويعيد للعميل polling URL أو webhook.",
+         "en": "<strong>API Gateway's 29-second integration timeout</strong> is hard. For longer ops: return 202 Accepted, invoke async Lambda or Step Function, give client a polling URL or webhook."},
+        {"type": "p",
+         "ar": "<strong>OpenAPI (Swagger) 3.0</strong> تستطيع استيراده مباشرة في API Gateway لإنشاء كامل الـ API من ملف واحد (YAML/JSON). تدعم امتدادات AWS الخاصّة (<span dir=\"ltr\" class=\"font-mono\">x-amazon-apigateway-*</span>) لتكوين التكامل والـ validators. يمكن تصدير الـ API كـ OpenAPI spec أيضاً. <strong>Request Validation</strong> يُفعَّل عبر هذه المواصفة ويرفض الطلبات غير المطابقة قبل ضرب الـ backend.",
+         "en": "<strong>OpenAPI (Swagger) 3.0</strong> can be imported directly into API Gateway to create the whole API from one YAML/JSON file. AWS extensions (<span dir=\"ltr\" class=\"font-mono\">x-amazon-apigateway-*</span>) cover integrations and validators. You can also export the API as OpenAPI. <strong>Request Validation</strong> is wired via the spec and rejects malformed requests before they hit backend."},
+        {"type": "p",
+         "ar": "<strong>WebSocket API</strong>: اتّصال مستمرّ ثنائي الاتجاه. العميل يتّصل على <span dir=\"ltr\" class=\"font-mono\">wss://{id}.execute-api.{region}.amazonaws.com/{stage}</span> فيُستدعى Lambda <span dir=\"ltr\" class=\"font-mono\">$connect</span> مع <span dir=\"ltr\" class=\"font-mono\">connectionId</span>. تخزّن الـ connectionId (عادة في DynamoDB) ثم تدفع الرسائل للعملاء عبر الـ ManagementApi. الـ routes: <span dir=\"ltr\" class=\"font-mono\">$connect, $disconnect, $default</span>، ومسارات مخصّصة.",
+         "en": "<strong>WebSocket API</strong>: persistent bidirectional connection. Client connects to <span dir=\"ltr\" class=\"font-mono\">wss://{id}.execute-api.{region}.amazonaws.com/{stage}</span>, triggering Lambda <span dir=\"ltr\" class=\"font-mono\">$connect</span> with a <span dir=\"ltr\" class=\"font-mono\">connectionId</span>. Store connectionIds (usually in DynamoDB) and push to clients via the ManagementApi. Routes: <span dir=\"ltr\" class=\"font-mono\">$connect, $disconnect, $default</span>, plus custom routes."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء REST API كامل مع Cognito authorizer و CORS وكاش ونشره بـ canary.",
+    "goal_en": "Build a full REST API with Cognito authorizer, CORS, caching, and canary deployment.",
+    "steps": [
+      {"title_ar": "أنشئ REST API وأضف Lambda Integration", "title_en": "Create REST API and add Lambda Integration",
+       "body_ar": "اختر <span dir=\"ltr\" class=\"font-mono\">AWS_PROXY (Lambda Proxy)</span>. حدّد دالة Lambda موجودة.",
+       "body_en": "Pick <span dir=\"ltr\" class=\"font-mono\">AWS_PROXY (Lambda Proxy)</span>. Select an existing Lambda."},
+      {"title_ar": "فعّل CORS على الـ resource", "title_en": "Enable CORS on the resource",
+       "body_ar": "من Actions → Enable CORS. سيُنشئ OPTIONS method تلقائياً.",
+       "body_en": "Actions → Enable CORS. It auto-creates the OPTIONS method."},
+      {"title_ar": "اربط Cognito User Pool authorizer", "title_en": "Attach a Cognito User Pool authorizer",
+       "body_ar": "Authorizers → Create → Cognito. حدّد الـ User Pool والـ Token Source (<span dir=\"ltr\" class=\"font-mono\">Authorization</span> header).",
+       "body_en": "Authorizers → Create → Cognito. Pick the User Pool and Token Source (<span dir=\"ltr\" class=\"font-mono\">Authorization</span> header)."},
+      {"title_ar": "انشر على stage prod وفعّل caching", "title_en": "Deploy to prod stage and enable caching",
+       "body_ar": "Stage settings → Enable cache، TTL ٣٠٠ ثانية، حجم ٠.٥ GB.",
+       "body_en": "Stage settings → Enable cache, TTL 300s, size 0.5 GB."},
+      {"title_ar": "أنشئ canary بـ ١٠٪", "title_en": "Create a 10% canary",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws apigateway update-stage --rest-api-id abc --stage-name prod \\\n  --patch-operations op=replace,path=/canarySettings/percentTraffic,value=10"},
+      {"title_ar": "اختبر من curl", "title_en": "Test with curl",
+       "body_ar": "استخدم Authorization header بـ JWT من Cognito.",
+       "body_en": "Use Authorization header with Cognito JWT.",
+       "code": "TOKEN=$(aws cognito-idp initiate-auth ...)\ncurl -H \"Authorization: $TOKEN\" https://abc.execute-api.us-east-1.amazonaws.com/prod/orders/42"}
+    ],
+    "warning_ar": "Cache له تكلفة ثابتة ولو كانت حركة المرور قليلة — أوقفه في بيئات dev/test. وحدّات Canary تُحسَب مع الـ stage الأصلي.",
+    "warning_en": "Cache has flat cost even at low traffic — disable in dev/test. Canary metrics count with the base stage."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "مطوّر يبني API على Lambda ويريد أن يمرّر كل الـ request (headers, query strings, body, path params) للـ Lambda كما هو بدون تحويل. أيّ integration type يختار؟",
+      "question_en": "A developer builds a Lambda-backed API and wants to pass the entire request (headers, query strings, body, path params) to Lambda as-is. Which integration type?",
+      "options_ar": ["AWS (Custom)", "AWS_PROXY (Lambda Proxy)", "HTTP", "MOCK"],
+      "options_en": ["AWS (Custom)", "AWS_PROXY (Lambda Proxy)", "HTTP", "MOCK"],
+      "correct": 1,
+      "explanation_ar": "<strong>AWS_PROXY (Lambda Proxy)</strong> يُمرّر كل الطلب إلى Lambda كـ event object جاهز بدون mapping templates. هو الأكثر شيوعاً مع Lambda. AWS (Custom) يتطلّب كتابة mapping template. HTTP لـ backend HTTP. MOCK لا يستدعي backend أصلاً.",
+      "explanation_en": "<strong>AWS_PROXY (Lambda Proxy)</strong> passes the whole request to Lambda as a ready event, no mapping templates. Most common with Lambda. AWS (Custom) needs VTL mapping. HTTP is for HTTP backends. MOCK doesn't hit any backend.",
+      "wrong_ar": ["يتطلّب mapping templates.", "", "لـ HTTP backend مباشر.", "يرجع استجابة بدون backend."],
+      "wrong_en": ["Needs mapping templates.", "", "For HTTP backends.", "Returns response without backend."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "تطبيق single-page (SPA) مستضاف على S3 يحاول استدعاء API Gateway ويحصل على <strong>CORS error</strong> في المتصفّح، لكن الطلب يعمل من Postman. ما الحلّ؟",
+      "question_en": "A SPA hosted on S3 calls API Gateway and gets a <strong>CORS error</strong> in the browser, though Postman works fine. Fix?",
+      "options_ar": ["تغيير Endpoint type إلى Edge-Optimized.", "تفعيل CORS في API Gateway ليُنشئ OPTIONS method مع الـ Access-Control-* headers.", "رفع throttling limit.", "إلغاء Authorization."],
+      "options_en": ["Change Endpoint type to Edge-Optimized.", "Enable CORS in API Gateway to create an OPTIONS method with the Access-Control-* headers.", "Raise throttling limit.", "Remove Authorization."],
+      "correct": 1,
+      "explanation_ar": "CORS إعداد متصفّح: قبل الطلب الحقيقي يُرسل المتصفّح <strong>preflight OPTIONS</strong> يتوقّع headers <span class=\"font-mono\">Access-Control-Allow-Origin/Methods/Headers</span>. تفعيل CORS في API Gateway يُنشئ OPTIONS method صحيح. Postman لا يطبّق CORS لأنّه ليس متصفّحاً.",
+      "explanation_en": "CORS is a browser rule: before the real request the browser sends a <strong>preflight OPTIONS</strong> expecting <span class=\"font-mono\">Access-Control-Allow-Origin/Methods/Headers</span> headers. Enabling CORS in API Gateway creates the proper OPTIONS method. Postman ignores CORS because it's not a browser.",
+      "wrong_ar": ["لا علاقة بـ endpoint type.", "", "الخطأ CORS وليس 429.", "ليست مشكلة authorization."],
+      "wrong_en": ["Unrelated to endpoint type.", "", "It's CORS, not 429.", "Not an auth issue."],
+      "reference_ar": "القسم ٤ — CORS",
+      "reference_en": "Section 4 — CORS"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "شركة تريد أن تبيع API للعملاء الخارجيين مع تقييد كل عميل بعدد محدّد من الطلبات شهرياً. ما الأدوات المناسبة؟",
+      "question_en": "A company sells an API to external customers and wants to cap each customer at a monthly request quota. Which tools?",
+      "options_ar": ["Cognito User Pool + Lambda Authorizer", "API Keys + Usage Plans (REST API)", "IAM Roles للعملاء", "WAF rate limiting"],
+      "options_en": ["Cognito User Pool + Lambda Authorizer", "API Keys + Usage Plans (REST API)", "IAM Roles per customer", "WAF rate limiting"],
+      "correct": 1,
+      "explanation_ar": "<strong>API Keys + Usage Plans</strong> (متاحة في REST API فقط) مُصمَّمة لهذا الغرض: يُعطى كل عميل API Key، و Usage Plan يربط الـ key بـ throttle (RPS) وquota شهرية. WAF يحمي من الهجمات لكن لا يدير الفوترة. Cognito للـ authentication لا لـ billing. IAM غير عملي لآلاف العملاء.",
+      "explanation_en": "<strong>API Keys + Usage Plans</strong> (REST API only) are made for this: give each customer an API Key; the Usage Plan links the key to RPS throttle and monthly quota. WAF blocks attacks but doesn't do billing. Cognito is for auth, not metering. IAM doesn't scale to thousands of customers.",
+      "wrong_ar": ["للـ authentication، لا للـ billing/quotas.", "", "غير عملي لعملاء خارجيين بآلاف.", "حماية من الهجمات لا quota per-customer."],
+      "wrong_en": ["For auth, not billing/quotas.", "", "Doesn't scale to external customers.", "Attack protection, not per-customer quota."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ الميزات التالية <strong>متاحة في REST API</strong> لكن <strong>غير متاحة في HTTP API</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which features are <strong>available in REST API</strong> but <strong>NOT in HTTP API</strong>? Select all that apply.",
+      "options_ar": ["API Keys & Usage Plans", "Mapping Templates (VTL)", "Resource Policies", "JWT/OIDC native authorizer", "Caching per stage", "Lambda authorizer"],
+      "options_en": ["API Keys & Usage Plans", "Mapping Templates (VTL)", "Resource Policies", "JWT/OIDC native authorizer", "Caching per stage", "Lambda authorizer"],
+      "correct": [0, 1, 2, 4],
+      "explanation_ar": "REST API غني بالميزات: Usage Plans، mapping templates، Resource Policies، Caching — كلها <u>غير متوفّرة</u> في HTTP API. HTTP API بالمقابل يدعم <strong>JWT/OIDC</strong> مباشرة، وأرخص، وأسرع. Lambda authorizer متاح في الاثنين.",
+      "explanation_en": "REST API has: Usage Plans, mapping templates, Resource Policies, Caching — all <u>missing</u> in HTTP API. HTTP API natively supports <strong>JWT/OIDC</strong>, is cheaper, and faster. Lambda authorizer works in both.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "مطوّر نشر نسخة جديدة من Lambda عبر API Gateway ويريد إرسال ٥٪ فقط من الحركة للنسخة الجديدة. ما الخيار الأمثل؟",
+      "question_en": "A dev deployed a new Lambda version via API Gateway and wants to send only 5% of traffic to the new version. Best option?",
+      "options_ar": ["نشر الـ API على stage مختلف وتقسيم DNS.", "Canary Deployment في الـ stage نفسه بـ 5%.", "Auto Scaling Group مختلف.", "CloudFront cache policy."],
+      "options_en": ["Deploy API to a different stage and split DNS.", "Canary Deployment on the same stage at 5%.", "Different Auto Scaling Group.", "CloudFront cache policy."],
+      "correct": 1,
+      "explanation_ar": "<strong>Canary Deployment</strong> مبنيّة في API Gateway لهذا الغرض: نفس الـ stage، نسبة مخصّصة للإصدار الجديد، مقاييس منفصلة. هذا هو blue/green deployment في serverless. تقسيم DNS ممكن لكنه أعقد. ASG لا علاقة له بـ Lambda.",
+      "explanation_en": "<strong>Canary Deployment</strong> is built into API Gateway exactly for this: same stage, percentage to new version, separate metrics. It's the serverless blue/green. DNS splitting works but is more complex. ASG is irrelevant to Lambda.",
+      "wrong_ar": ["أعقد من اللازم.", "", "Lambda لا تُنشَر في ASG.", "CloudFront لا يعالج تقسيم النسخ."],
+      "wrong_en": ["Overcomplicated.", "", "Lambda isn't in ASG.", "CloudFront doesn't split versions."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "API Gateway يُرجع <strong>502 Bad Gateway</strong> بشكل متقطع. ما السبب الأرجح؟",
+      "question_en": "API Gateway returns <strong>502 Bad Gateway</strong> intermittently. Most likely cause?",
+      "options_ar": ["تجاوز throttling.", "Lambda ترجع شكل استجابة غير متوافق مع Lambda Proxy.", "Authorizer رفض الطلب.", "CORS غير مُفعَّل."],
+      "options_en": ["Throttle exceeded.", "Lambda returns an incompatible shape for Lambda Proxy.", "Authorizer denied.", "CORS disabled."],
+      "correct": 1,
+      "explanation_ar": "<strong>502</strong> في API Gateway مع Lambda Proxy يعني غالباً أن Lambda أرجعت <u>شكلاً</u> لا يفهمه API Gateway (مثلاً أرجعت object بدون <span class=\"font-mono\">statusCode/body</span> كـ string). Throttling يُرجع 429. Authorizer يُرجع 403. CORS يُرجع خطأ في المتصفّح لا 502.",
+      "explanation_en": "<strong>502</strong> in API Gateway with Lambda Proxy usually means Lambda returned a <u>shape</u> API Gateway can't parse (e.g. an object missing <span class=\"font-mono\">statusCode</span> or non-string <span class=\"font-mono\">body</span>). Throttling → 429. Authorizer deny → 403. CORS → browser error, not 502.",
+      "wrong_ar": ["يُرجع 429.", "", "يُرجع 403.", "ليس 502."],
+      "wrong_en": ["Returns 429.", "", "Returns 403.", "Not 502."],
+      "reference_ar": "القسم ٦ — Errors",
+      "reference_en": "Section 6 — Errors"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "مطوّر يحتاج أن ينشر نفس الـ API على ثلاث بيئات (dev/test/prod) مع Lambda aliases مختلفة لكل بيئة. كيف ينفّذ ذلك بدون تكرار الـ API؟",
+      "question_en": "A developer deploys the same API across three envs (dev/test/prod) with different Lambda aliases per env. How to do this without duplicating the API?",
+      "options_ar": ["ثلاث APIs منفصلة.", "Stage Variables تحمل اسم alias، وتُستخدم في Lambda ARN.", "ثلاث حسابات AWS.", "تغيير منطقي في Lambda نفسها."],
+      "options_en": ["Three separate APIs.", "Stage Variables holding the alias name, used in Lambda ARN.", "Three AWS accounts.", "Logic change inside Lambda."],
+      "correct": 1,
+      "explanation_ar": "<strong>Stage Variables</strong> مُصمَّمة لهذا الغرض: كل stage يعرّف <span class=\"font-mono\">lambdaAlias=prod</span>/<span class=\"font-mono\">test</span>/<span class=\"font-mono\">dev</span>، وفي الـ integration تستخدم <span class=\"font-mono\">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. API واحد يخدم كل البيئات. ثلاث APIs تضاعف العمل والتكلفة.",
+      "explanation_en": "<strong>Stage Variables</strong> are made for this: each stage defines <span class=\"font-mono\">lambdaAlias=prod</span>/<span class=\"font-mono\">test</span>/<span class=\"font-mono\">dev</span>, and the integration uses <span class=\"font-mono\">arn:...:function:myFn:${stageVariables.lambdaAlias}</span>. One API serves all envs. Three APIs doubles work and cost.",
+      "wrong_ar": ["تكرار غير ضروري.", "", "حلّ مبالغ به.", "Lambda لا يجب أن تعرف البيئة."],
+      "wrong_en": ["Unnecessary duplication.", "", "Overkill.", "Lambda shouldn't know its env."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "ما الـ maximum integration timeout في API Gateway؟",
+      "question_en": "What's the maximum integration timeout in API Gateway?",
+      "options_ar": ["١٥ ثانية", "٢٩ ثانية", "٥٩ ثانية", "٥ دقائق"],
+      "options_en": ["15 seconds", "29 seconds", "59 seconds", "5 minutes"],
+      "correct": 1,
+      "explanation_ar": "<strong>٢٩ ثانية</strong> هو الحدّ الأقصى. لو احتجت أطول: استخدم نمط async — API Gateway يُرجع 202 Accepted، يستدعي Lambda غير متزامنة أو Step Function، ويعيد للعميل polling URL أو webhook. الـ Lambda نفسها حدّها ١٥ دقيقة، لكن API Gateway يقفل عند ٢٩ ثانية.",
+      "explanation_en": "<strong>29 seconds</strong> is the hard max. For longer: use async pattern — API Gateway returns 202 Accepted, invokes async Lambda or Step Function, returns a polling URL or webhook. Lambda itself allows 15 min, but API Gateway cuts at 29 s.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "تطبيق مالي على API Gateway يحتاج تمرير JWT من Okta للمصادقة (ليس Cognito). أيّ authorizer يستخدم؟",
+      "question_en": "A fintech API needs to accept JWTs from Okta (not Cognito). Which authorizer?",
+      "options_ar": ["IAM Authorizer", "Cognito User Pool Authorizer", "Lambda Authorizer (Token-based)", "Resource Policy"],
+      "options_en": ["IAM Authorizer", "Cognito User Pool Authorizer", "Lambda Authorizer (Token-based)", "Resource Policy"],
+      "correct": 2,
+      "explanation_ar": "<strong>Lambda Authorizer</strong> (token-based) هو الخيار المرن لـ tokens طرف ثالث (Okta, Auth0, Keycloak...). Lambda تتحقّق من JWT وتُرجع IAM policy. Cognito authorizer يقبل Cognito tokens فقط. IAM للـ AWS credentials. Resource Policy لا تعمل authentication. ملاحظة: HTTP API يدعم JWT/OIDC مباشرة (قد يكون بديلاً).",
+      "explanation_en": "<strong>Lambda Authorizer</strong> (token-based) is the flexible choice for third-party tokens (Okta, Auth0, Keycloak...). Lambda validates the JWT and returns an IAM policy. Cognito authorizer accepts only Cognito tokens. IAM is for AWS credentials. Resource Policy doesn't auth. Note: HTTP API supports JWT/OIDC natively (possible alternative).",
+      "wrong_ar": ["لـ AWS credentials فقط.", "Cognito فقط.", "", "لا يعمل authentication."],
+      "wrong_en": ["AWS credentials only.", "Cognito only.", "", "Doesn't do authentication."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "API Gateway REST API عنده Caching مُفعَّل. عميل يريد تجاوز الـ cache مؤقّتاً لحالة اختبار واحدة. ما الحلّ؟",
+      "question_en": "REST API has caching enabled. A client needs to temporarily bypass cache for one test. How?",
+      "options_ar": ["إيقاف الـ cache في كل الـ stage.", "إرسال header <span class=\"font-mono\">Cache-Control: max-age=0</span> (مع IAM authorization للـ InvalidateCache).", "إعادة نشر الـ API.", "إنشاء stage جديد."],
+      "options_en": ["Disable cache for the whole stage.", "Send header <span class=\"font-mono\">Cache-Control: max-age=0</span> (with IAM authorization for InvalidateCache).", "Redeploy the API.", "Create a new stage."],
+      "correct": 1,
+      "explanation_ar": "يمكن للعميل تمرير <span class=\"font-mono\">Cache-Control: max-age=0</span> header لطلب تجاوز الـ cache، بشرط أن يكون لديه <span class=\"font-mono\">execute-api:InvalidateCache</span> IAM permission (وإلّا، بدون تقييد، أيّ عميل يستطيع إبطال الـ cache وهذا خطر). إيقاف الـ cache عام يضرّ بالأداء.",
+      "explanation_en": "Client sends <span class=\"font-mono\">Cache-Control: max-age=0</span> header to bypass, provided they have <span class=\"font-mono\">execute-api:InvalidateCache</span> IAM permission (otherwise any client could invalidate — dangerous). Disabling cache broadly hurts performance.",
+      "wrong_ar": ["مفرط — يضرّ كل العملاء.", "", "لا حاجة.", "مبالغ فيه."],
+      "wrong_en": ["Overkill — hurts all clients.", "", "Unnecessary.", "Overkill."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "شركة تبني chat application فوري تحتاج اتّصال ثنائي مستمرّ بين الخادم والعملاء. ما نوع API المناسب؟",
+      "question_en": "A real-time chat app needs persistent two-way connections between server and clients. Which API type?",
+      "options_ar": ["REST API", "HTTP API", "WebSocket API", "GraphQL API"],
+      "options_en": ["REST API", "HTTP API", "WebSocket API", "GraphQL API"],
+      "correct": 2,
+      "explanation_ar": "<strong>WebSocket API</strong> هو الوحيد الذي يدعم الاتّصال ثنائي الاتّجاه المستمرّ (stateful). REST و HTTP طلب-استجابة فقط. الأنماط النموذجية: <span class=\"font-mono\">$connect</span>, <span class=\"font-mono\">$disconnect</span>, <span class=\"font-mono\">$default</span> routes، وتخزين connectionIds في DynamoDB لبثّ الرسائل.",
+      "explanation_en": "<strong>WebSocket API</strong> is the only one supporting persistent bidirectional (stateful) connections. REST and HTTP are request/response. Typical: <span class=\"font-mono\">$connect</span>, <span class=\"font-mono\">$disconnect</span>, <span class=\"font-mono\">$default</span> routes; store connectionIds in DynamoDB to push messages.",
+      "wrong_ar": ["طلب-استجابة فقط.", "طلب-استجابة فقط.", "", "AppSync لـ GraphQL لكن السؤال عن API Gateway."],
+      "wrong_en": ["Request/response only.", "Request/response only.", "", "AppSync is for GraphQL, but question is about API Gateway."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يريد أن يمنع كل الطلبات غير المطابقة لـ schema معيّن من الوصول للـ backend (لتقليل التكلفة والـ Lambda invocations). ما الحلّ في API Gateway؟",
+      "question_en": "A dev wants to block all non-matching-schema requests from reaching the backend (saving cost and Lambda invocations). API Gateway solution?",
+      "options_ar": ["Lambda Authorizer يتحقّق من الـ schema.", "Request Validation مبنيّ على JSON Schema في method request.", "WAF مع custom rule.", "CORS preflight."],
+      "options_en": ["Lambda Authorizer validating schema.", "Built-in Request Validation with JSON Schema on the method.", "WAF with a custom rule.", "CORS preflight."],
+      "correct": 1,
+      "explanation_ar": "<strong>Request Validation</strong> مبني في REST API: اعرّف JSON Schema Model ثم فعّله على الـ method (<span class=\"font-mono\">validateRequestBody, validateRequestParameters</span>). أيّ طلب غير مطابق يُرفض فوراً بـ 400 <u>قبل</u> الوصول للـ backend. Lambda authorizer يكلّف Lambda invocations إضافية. WAF لا يُلمّ بـ JSON schemas.",
+      "explanation_en": "<strong>Request Validation</strong> is built into REST API: define a JSON Schema Model and enable it on the method (<span class=\"font-mono\">validateRequestBody, validateRequestParameters</span>). Non-matching requests get 400 <u>before</u> hitting backend. Lambda authorizer adds extra Lambda calls. WAF doesn't understand JSON schemas.",
+      "wrong_ar": ["يكلف Lambda invocations إضافية.", "", "لا يتعامل مع JSON schemas.", "CORS لا يُتحقّق من الـ body."],
+      "wrong_en": ["Extra Lambda invocations.", "", "Doesn't handle JSON schemas.", "CORS doesn't validate body."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "أيّ الـ CloudWatch metric أكثر فائدة لمعرفة <u>كم يستغرق الـ backend</u> (Lambda مثلاً) في الردّ على API Gateway؟",
+      "question_en": "Which CloudWatch metric tells you how long the <u>backend</u> (e.g. Lambda) takes to respond to API Gateway?",
+      "options_ar": ["<span class=\"font-mono\">Latency</span>", "<span class=\"font-mono\">IntegrationLatency</span>", "<span class=\"font-mono\">Count</span>", "<span class=\"font-mono\">CacheHitCount</span>"],
+      "options_en": ["<span class=\"font-mono\">Latency</span>", "<span class=\"font-mono\">IntegrationLatency</span>", "<span class=\"font-mono\">Count</span>", "<span class=\"font-mono\">CacheHitCount</span>"],
+      "correct": 1,
+      "explanation_ar": "<strong>IntegrationLatency</strong> = الوقت بين إرسال API Gateway الطلب للـ backend واستلام الرد. <strong>Latency</strong> = الوقت الكلّي (من استلام طلب العميل حتى إرجاع الاستجابة) — يشمل overhead الـ API Gateway + IntegrationLatency. الفرق بينهما يكشف overhead API Gateway. Count = عدد الطلبات.",
+      "explanation_en": "<strong>IntegrationLatency</strong> = time from API Gateway sending request to backend until response received. <strong>Latency</strong> = total time (client request → client response) — includes API Gateway overhead + IntegrationLatency. Their difference reveals API Gateway overhead. Count = request count.",
+      "wrong_ar": ["يشمل overhead API Gateway.", "", "عدد الطلبات فقط.", "كفاءة الـ cache."],
+      "wrong_en": ["Includes API Gateway overhead.", "", "Only request count.", "Cache efficiency."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "مؤسّسة تريد السماح للحساب B بالوصول لـ API Gateway في الحساب A (cross-account). ما الحلّ الأمثل في REST API؟",
+      "question_en": "Enterprise wants Account B to call an API Gateway in Account A (cross-account). Best REST API approach?",
+      "options_ar": ["Cognito User Pool يشمل الحسابين.", "Resource Policy على API + IAM Role في Account B.", "فتح API للعامّة.", "WAF rule."],
+      "options_en": ["Cognito User Pool covering both accounts.", "Resource Policy on the API + IAM Role in Account B.", "Make API public.", "WAF rule."],
+      "correct": 1,
+      "explanation_ar": "<strong>Resource Policy</strong> على الـ API تحدّد من يستطيع استدعاءه (principals خارجيون)، وتُدمج مع IAM Role في الحساب B يحمل صلاحية <span class=\"font-mono\">execute-api:Invoke</span>. هذا النمط المعياري لـ cross-account. Resource Policy ميزة حصرية لـ REST API (ليست في HTTP API).",
+      "explanation_en": "<strong>Resource Policy</strong> on the API defines who can invoke it (external principals), combined with an IAM Role in Account B holding <span class=\"font-mono\">execute-api:Invoke</span>. Canonical cross-account pattern. Resource Policy is REST-only (not HTTP API).",
+      "wrong_ar": ["Cognito للمستخدمين لا لحسابات AWS.", "", "خطر أمني.", "لا يُدير الصلاحيات."],
+      "wrong_en": ["Cognito is for users, not AWS accounts.", "", "Security risk.", "Doesn't manage permissions."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "مطوّر يريد تعريف REST API بالكامل كـ infrastructure-as-code قابل للنقل بين البيئات. ما الأداة المناسبة من API Gateway نفسها؟",
+      "question_en": "A developer wants to define a whole REST API as infrastructure-as-code, portable between envs. Which built-in API Gateway tool?",
+      "options_ar": ["YAML عشوائي.", "OpenAPI 3.0 (Swagger) import/export مع extensions <span class=\"font-mono\">x-amazon-apigateway-*</span>.", "CloudFormation فقط.", "Lambda layers."],
+      "options_en": ["Arbitrary YAML.", "OpenAPI 3.0 (Swagger) import/export with <span class=\"font-mono\">x-amazon-apigateway-*</span> extensions.", "CloudFormation only.", "Lambda layers."],
+      "correct": 1,
+      "explanation_ar": "<strong>OpenAPI 3.0</strong> هو المعيار الصناعي، و API Gateway يدعم الاستيراد/التصدير مباشرة مع <span class=\"font-mono\">x-amazon-apigateway-integration</span> و <span class=\"font-mono\">x-amazon-apigateway-request-validator</span> لإعدادات AWS. يوفّر ملف واحد للـ API كاملاً ينقَل بين البيئات. CloudFormation أوسع (يشمل API Gateway) لكن OpenAPI أكثر تخصّصاً للـ API.",
+      "explanation_en": "<strong>OpenAPI 3.0</strong> is the industry standard, and API Gateway imports/exports natively with <span class=\"font-mono\">x-amazon-apigateway-integration</span> and <span class=\"font-mono\">x-amazon-apigateway-request-validator</span> extensions for AWS-specific config. One file defines the whole API, portable across envs. CloudFormation is broader (includes API Gateway), but OpenAPI is more API-specific.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    }
+  ],
+  "summary": [
+    {"icon": "code-2", "title_ar": "٣ أنواع API", "title_en": "3 API types",
+     "body_ar": "REST غني بالميزات، HTTP أرخص و JWT، WebSocket للـ realtime.",
+     "body_en": "REST feature-rich, HTTP cheaper + JWT, WebSocket for realtime."},
+    {"icon": "arrow-right-circle", "title_ar": "Lambda Proxy هو الأساس", "title_en": "Lambda Proxy = default",
+     "body_ar": "AWS_PROXY يمرّر كل الطلب لـ Lambda بدون mapping.",
+     "body_en": "AWS_PROXY passes full request to Lambda, no mapping."},
+    {"icon": "shield", "title_ar": "٣ طرق مصادقة", "title_en": "3 auth paths",
+     "body_ar": "IAM للداخلي، Cognito للخارجي، Lambda Authorizer للـ tokens طرف ثالث.",
+     "body_en": "IAM internal, Cognito external, Lambda Authorizer for 3rd-party tokens."},
+    {"icon": "globe", "title_ar": "CORS سؤال الامتحان", "title_en": "CORS — exam favorite",
+     "body_ar": "خطأ في المتصفح فقط = فعّل CORS في API Gateway.",
+     "body_en": "Browser-only error = enable CORS in API Gateway."}
+  ],
+  "mnemonic_ar": "أخطاء API Gateway: <strong>4</strong>xx = <strong>F</strong>our-letter word (Client's <u>F</u>ault). <strong>5</strong>02 = Lambda <strong>S</strong>ent <strong>S</strong>omething <strong>S</strong>trange. <strong>5</strong>04 = <strong>S</strong>lept (29-sec timeout). <strong>4</strong>29 = <strong>T</strong>oo <strong>M</strong>any.",
+  "mnemonic_en": "API Gateway errors: <strong>4</strong>xx = client's fault. <strong>5</strong>02 = Lambda <strong>S</strong>ent <strong>S</strong>omething <strong>S</strong>trange. <strong>5</strong>04 = <strong>S</strong>lept (29-sec timeout). <strong>4</strong>29 = <strong>T</strong>oo <strong>M</strong>any requests.",
+  "prev": 12,
+  "next": 14
+}

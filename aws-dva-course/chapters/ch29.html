@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 29 — Amazon CloudFront & exam-relevant extras | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-amber-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الرابع — 18%</span>
+          <span class="lang-en">Domain 4 — 18%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٩ من ٣٠</span>
+        <span class="lang-en">Chapter 29 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.286-316, 882-898</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Amazon CloudFront وخدمات مساعدة للامتحان</span>
+        <span class="lang-en">Amazon CloudFront & exam-relevant extras</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">CloudFront هو CDN العالميّ في AWS: يسرّع الموقع، يحمي من DDoS، ويقدّم محتوى خاصّ عبر Signed URLs/Cookies. بعدها نختم بمسح سريع لخدمات تظهر في الامتحان: AppConfig، Amplify، SES، Athena، Macie، ACM.</span>
+        <span class="lang-en">CloudFront is AWS's global CDN: accelerates sites, absorbs DDoS, and serves private content via Signed URLs/Cookies. We close with a whirlwind tour of exam-relevant extras: AppConfig, Amplify, SES, Athena, Macie, ACM.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CloudFront</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CDN</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Signed URLs</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">OAC</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Lambda@Edge</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">AppConfig</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Amplify</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">SES</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudFront Distributions, Origins, Behaviors</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في تسريع القراءة وتقليل الكلفة.</span>
+      <span class="lang-en">Domain 4 — read acceleration & cost reduction.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Signed URLs vs Signed Cookies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني والرابع في توزيع محتوى مدفوع/خاصّ.</span>
+      <span class="lang-en">Domains 2 & 4 — paid/private content distribution.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">OAC (Origin Access Control) for S3</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في تأمين S3 خلف CloudFront.</span>
+      <span class="lang-en">Domain 2 — securing S3 behind CloudFront.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AppConfig / Amplify / SES / Athena</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">أسئلة "أيّ خدمة تناسب؟" في الامتحان.</span>
+      <span class="lang-en">"Which service fits?" exam questions.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو CloudFront؟</span>
+      <span class="lang-en">What is CloudFront?</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Amazon CloudFront</strong> شبكة توصيل محتوى عالميّة (CDN) بمئات من نقاط الحضور (Edge Locations). تخزّن المحتوى مؤقّتاً قرب المستخدمين لتسريع القراءة، وتحمي من DDoS (بالتكامل مع Shield و WAF). تعتمد عليها خدمات AWS نفسها في نقل البيانات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Amazon CloudFront</strong> is AWS's global CDN with hundreds of Edge Locations. It caches content close to users to accelerate reads, and absorbs DDoS (integrates with Shield and WAF). AWS services themselves rely on it for data transfer.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CloudFront</span><span class="lang-en">CloudFront</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Edge عالميّ. يخزّن مؤقّتاً لـ TTL (يوم مثلاً). مثاليّ لمحتوى <strong>ساكن</strong> يجب أن يكون متاحاً في كلّ مكان.</p>
+      <p class="text-sm text-surface-700 lang-en">Global edge network. Caches per TTL (maybe a day). Ideal for <strong>static</strong> content that must be available everywhere.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">S3 Cross-Region Replication</span><span class="lang-en">S3 Cross-Region Replication</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">إعداد لكلّ منطقة مستهدفة. تحديث <strong>قريب من الفوريّ</strong>. مناسب لمحتوى <strong>ديناميكيّ</strong> في عدد محدود من المناطق.</p>
+      <p class="text-sm text-surface-700 lang-en">Configured per destination region. Updates <strong>near real-time</strong>. Suits <strong>dynamic</strong> content in a few regions.</p>
+    </div>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">نوع الـ Origin</span><span class="lang-en">Origin type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">متى؟</span><span class="lang-en">When?</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">S3 bucket</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">توزيع ملفّات ساكنة ورفعها عبر CloudFront. يُؤَمَّن بـ <strong>OAC</strong>.</span><span class="lang-en">Distribute static files / upload through CloudFront. Secured with <strong>OAC</strong>.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">VPC Origin</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تطبيقات داخل subnets خاصّة (Private ALB / NLB / EC2) بدون كشفها للإنترنت.</span><span class="lang-en">Apps in private subnets (Private ALB/NLB/EC2) without Internet exposure.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Custom Origin (HTTP)</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أيّ خادم HTTP عام — ALB عام، S3 Website، أو خادم خارج AWS.</span><span class="lang-en">Any public HTTP backend — public ALB, S3 static-website, or non-AWS server.</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Cache Keys و Policies و Behaviors</span>
+      <span class="lang-en">Cache Keys, Policies & Behaviors</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">المفتاح الذي يحدّد "هل هذا الطلب موجود في الكاش؟" هو <strong>Cache Key</strong>. افتراضياً يتألّف من <span dir="ltr" class="font-mono">hostname + URL path</span>. يمكن عبر <strong>Cache Policy</strong> إضافة HTTP headers أو cookies أو query strings إلى المفتاح (للتنويع حسب مستخدم/لغة/جهاز).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">The <strong>Cache Key</strong> determines "is this request cached?". By default it's <span dir="ltr" class="font-mono">hostname + URL path</span>. Using a <strong>Cache Policy</strong> you can include HTTP headers, cookies, or query strings in the key (to vary per user/language/device).</p>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> مفهوم مهمّ: <strong>Cache Policy vs Origin Request Policy</strong>. الأولى تحدّد ما يدخل في Cache Key (يتحكّم بالتنويع). الثانية تحدّد ما يُمرَّر إلى Origin <em>دون</em> دخوله في المفتاح (مفيد لمعلومات تُوثِّق لكن لا تفرّق الكاش).</span>
+      <span class="lang-en"> Key distinction: <strong>Cache Policy vs Origin Request Policy</strong>. First = what enters the Cache Key (controls cache variance). Second = what is forwarded to origin <em>without</em> entering the key (useful for auth info that shouldn't fragment cache).</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Cache Behaviors</strong> توجّه كلّ path pattern إلى origin وسلوك مختلف. مثلاً <span dir="ltr" class="font-mono">/api/*</span> → ALB (بدون كاش)، <span dir="ltr" class="font-mono">/images/*</span> → S3 (بكاش طويل)، <span dir="ltr" class="font-mono">/*</span> → الافتراضيّ. الـ <span dir="ltr" class="font-mono">/*</span> دائماً آخر ما يُقيَّم.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Cache Behaviors</strong> route path patterns to different origins and rules. E.g., <span dir="ltr" class="font-mono">/api/*</span> → ALB (no cache), <span dir="ltr" class="font-mono">/images/*</span> → S3 (long cache), <span dir="ltr" class="font-mono">/*</span> → default. The <span dir="ltr" class="font-mono">/*</span> default is always last to evaluate.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Invalidate a path after a deployment (forces cache refresh)
+aws cloudfront create-invalidation \
+  --distribution-id E123ABC \
+  --paths '/index.html' '/images/*'
+
+# Invalidations cost: first 1000 paths/month free, then $0.005 each
+# Design to minimize invalidations (use versioned URLs instead)</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">تأمين المحتوى الخاصّ: OAC و Signed URLs/Cookies</span>
+      <span class="lang-en">Securing private content: OAC, Signed URLs/Cookies</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لربط S3 بـ CloudFront بشكل آمن، استخدم <strong>OAC (Origin Access Control)</strong> — البديل الحديث لـ OAI الذي صار deprecated. OAC يحقن signing توقيع SigV4 ويتكامل مع Bucket Policy لتخصيص S3 فقط لـ CloudFront. هو الإجابة الصحيحة في الامتحان اليوم.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">To securely link S3 to CloudFront, use <strong>OAC (Origin Access Control)</strong> — the modern replacement for the now-deprecated OAI. OAC injects SigV4 signing and integrates with the Bucket Policy so S3 only accepts CloudFront. This is the current-exam right answer.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="link" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Signed URL</span><span class="lang-en">Signed URL</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">رابط واحد لكلّ ملف. مناسب للتنزيل الفرديّ مثل مقاطع فيديو مدفوعة.</p>
+      <p class="text-sm text-surface-700 lang-en">One URL per file. Good for single-item downloads like premium videos.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="cookie" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Signed Cookies</span><span class="lang-en">Signed Cookies</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">كوكي واحد يفتح عدّة ملفّات (مجلّد أو نمط). مناسب لبوّابة موقع تتطلّب اشتراكاً.</p>
+      <p class="text-sm text-surface-700 lang-en">One cookie unlocks many files (folder / pattern). Ideal for a subscription-gated site.</p>
+    </div>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">CloudFront Signed URL</span><span class="lang-en">CloudFront Signed URL</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">S3 Pre-Signed URL</span><span class="lang-en">S3 Pre-Signed URL</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يعمل بغضّ النظر عن الـ origin (S3, EC2, ALB...).</span><span class="lang-en">Works regardless of origin (S3, EC2, ALB...).</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يعمل مباشرة مع S3 فقط.</span><span class="lang-en">Works directly with S3 only.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يفلتر بـ IP أو Path أو التاريخ أو Expiration.</span><span class="lang-en">Filter by IP, path, date, expiration.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عمر قصير، مرتبط بـ IAM key للموقّع.</span><span class="lang-en">Short-lived, tied to signing IAM principal's key.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يستفيد من الكاش.</span><span class="lang-en">Uses CloudFront caching.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا يستفيد من الكاش.</span><span class="lang-en">No caching benefit.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يدار بـ <strong>Trusted Key Group</strong> (الموصى به) أو Root.</span><span class="lang-en">Managed via <strong>Trusted Key Group</strong> (recommended) or Root.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">أيّ IAM User/Role بصلاحيّة كافية.</span><span class="lang-en">Any IAM user/role with enough permission.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> لمدّة الصلاحية: محتوى مشترك (فيلم، أغنية) → دقائق قليلة. محتوى خاصّ بمستخدم واحد (فواتيره، ملفّاته) → يمكن جعل الصلاحية أطول بأمان.</span>
+      <span class="lang-en"> Expiration guidance: shared content (movie, song) → a few minutes. User-private content (their invoices/files) → can safely last longer.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Lambda@Edge و ميّزات أخرى</span>
+      <span class="lang-en">Lambda@Edge & other features</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Lambda@Edge</strong> يشغّل دوالّ Node.js/Python عند ٤ نقاط في دورة الطلب: Viewer Request (قبل فحص الكاش)، Origin Request (قبل الذهاب للـ origin)، Origin Response (بعد عودة الـ origin)، Viewer Response (قبل الإرجاع للمستخدم). يُستخدم لتعديل headers، A/B testing، auth، تحويل URL.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Lambda@Edge</strong> runs Node.js/Python functions at 4 hooks in the request cycle: Viewer Request (before cache check), Origin Request (before origin), Origin Response (after origin), Viewer Response (before sending to viewer). Used for header manipulation, A/B testing, auth, URL rewriting.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="map-pin" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Geographic Restriction</span><span class="lang-en">Geographic Restriction</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Allowlist/Blocklist للدول للامتثال لحقوق النشر. Geo-IP من مزوّد خارجيّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Country allowlist/blocklist for copyright compliance. 3rd-party Geo-IP.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Price Classes</span><span class="lang-en">Price Classes</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">All (كلّ المناطق، أغلى)، ٢٠٠ (بدون الأغلى)، ١٠٠ (الأرخص فقط: أمريكا/أوروبا).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All (everywhere, priciest), 200 (exclude costliest), 100 (cheapest only: US/EU).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="copy" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Origin Groups</span><span class="lang-en">Origin Groups</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أصل أساسي + احتياطي. فشل الأوّل → الثاني. high availability.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Primary + secondary origin. Fail first → second. High availability.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Field-Level Encryption</span><span class="lang-en">Field-Level Encryption</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تشفير حقول محدّدة في POST (حتى ١٠) بمفتاح عامّ على الـ edge. طبقة أمان إضافيّة فوق HTTPS.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Encrypt specific POST fields (up to 10) with a public key at the edge. Extra layer above HTTPS.</p>
+  </div>
+</div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>CloudFront Real-time Logs</strong> تبثّ الطلبات إلى Kinesis Data Streams للتحليل الفوريّ بـ Lambda أو Firehose. مختلفة عن Standard Logs في S3 التي تصل بتأخير.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CloudFront Real-time Logs</strong> push requests to Kinesis Data Streams for instant analysis via Lambda or Firehose. Different from Standard Logs in S3 which are delayed.</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">خدمات أخرى تظهر في الامتحان</span>
+      <span class="lang-en">Other exam-relevant services</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="settings" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">AWS AppConfig</span><span class="lang-en">AWS AppConfig</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">إدارة feature flags وتكوينات ديناميكيّة بدون إعادة نشر. يتحقّق من الـ JSON Schema أو بـ Lambda، مع نشر تدريجيّ و rollback تلقائيّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Manage feature flags & dynamic config without redeploys. Validates via JSON Schema or Lambda, with gradual rollout + auto-rollback.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="cloud-upload" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">AWS Amplify</span><span class="lang-en">AWS Amplify</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">استضافة مواقع ساكنة (SPA/SSR) + CI/CD مدمج. مناسب لتطبيقات React/Angular/Vue — الخيار المعياريّ لـ front-end serverless.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Static site hosting (SPA/SSR) + built-in CI/CD. Fits React/Angular/Vue — the default for serverless front-ends.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="mail" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Amazon SES</span><span class="lang-en">Amazon SES</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">إرسال/استقبال بريد إلكترونيّ بحجم كبير. يدعم DKIM و SPF، ويقدّم إحصاءات تسليم وارتداد. للمعاملات و التسويق.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Send/receive email at scale. Supports DKIM & SPF, delivery/bounce stats. For transactional and marketing.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="search" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Amazon Athena</span><span class="lang-en">Amazon Athena</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">SQL Serverless على ملفّات S3. $5/TB مسح. استخدم Parquet/ORC و Partitioning لتقليل الكلفة. الخيار الأمثل لتحليل CloudTrail و VPC Flow Logs.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Serverless SQL over S3 files. $5/TB scanned. Use Parquet/ORC + partitioning to cut cost. Go-to for analyzing CloudTrail and VPC Flow Logs.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="shield-alert" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Amazon Macie</span><span class="lang-en">Amazon Macie</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ML لاكتشاف PII (بطاقات ائتمان، بيانات طبّية) في S3 والتنبيه عبر EventBridge.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ML to find PII (credit cards, medical data) in S3 and alert via EventBridge.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="award" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">AWS Certificate Manager (ACM)</span><span class="lang-en">AWS Certificate Manager (ACM)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">شهادات SSL/TLS مجّانيّة وتجديد تلقائيّ. للـ ALB، CloudFront، API Gateway. Private CA لشهادات داخليّة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Free, auto-renewing SSL/TLS certs. For ALB, CloudFront, API Gateway. Private CA for internal certs.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> Amazon OpenSearch (خلف Amazon ElasticSearch سابقاً): بحث نصّيّ في أيّ حقل — استخدمه مع DynamoDB Streams + Lambda لفهرسة العناصر. يتكامل مع CloudWatch Logs عبر Subscription Filter لتحليل السجلّات بصريّاً.</span>
+      <span class="lang-en"> Amazon OpenSearch (successor to Elasticsearch): full-text search on any field — use with DynamoDB Streams + Lambda to index items. Integrates with CloudWatch Logs via Subscription Filter for visual log analysis.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> Amazon MSK (Managed Streaming for Kafka) مقابل Kinesis Data Streams: Kafka Topics/Partitions بدل Shards، رسالة حتى ١٠MB (مقابل ١MB في Kinesis)، لا يدعم Shard splitting — فقط إضافة partitions. اختر MSK عند وجود ecosystem Kafka جاهز.</span>
+      <span class="lang-en"> Amazon MSK (Managed Streaming for Kafka) vs Kinesis: Kafka Topics/Partitions instead of Shards, up to 10MB messages (vs 1MB Kinesis), no shard splitting — only partition add. Pick MSK when you already have a Kafka ecosystem.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ربط CloudFront بـ Java/Spring Boot</span>
+      <span class="lang-en">Wiring CloudFront to a Spring Boot API</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">نمط معياريّ: CloudFront أمام ALB عام يوجّه إلى Auto Scaling Group من خوادم Spring Boot. <span dir="ltr" class="font-mono">/static/*</span> يذهب إلى S3، و <span dir="ltr" class="font-mono">/api/*</span> إلى ALB. هذا يسرّع الموقع ويحمي API من DDoS.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Canonical pattern: CloudFront in front of a public ALB routing to an Auto Scaling Group of Spring Boot instances. <span dir="ltr" class="font-mono">/static/*</span> → S3, <span dir="ltr" class="font-mono">/api/*</span> → ALB. Speeds up the site and protects API from DDoS.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Spring Boot: trust CloudFront's X-Forwarded headers
+@Configuration
+public class ForwardedHeaderConfig {
+
+    @Bean
+    public FilterRegistrationBean&lt;ForwardedHeaderFilter> forwardedHeaderFilter() {
+        FilterRegistrationBean&lt;ForwardedHeaderFilter> bean =
+            new FilterRegistrationBean&lt;>(new ForwardedHeaderFilter());
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
+}
+
+// application.yml
+// server.forward-headers-strategy: framework</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> عند استخدام Public ALB أصلاً: اقيّد Security Group بحيث يقبل فقط IPs الخاصّة بـ CloudFront Edge (AWS تنشر هذه القائمة في managed prefix list <span dir="ltr" class="font-mono">com.amazonaws.global.cloudfront.origin-facing</span>) لمنع التجاوز المباشر للـ CloudFront.</span>
+      <span class="lang-en"> When using a public ALB as origin: restrict the SG to CloudFront's edge IPs (AWS provides a managed prefix list <span dir="ltr" class="font-mono">com.amazonaws.global.cloudfront.origin-facing</span>) to prevent bypassing CloudFront directly.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء CloudFront distribution أمام S3 bucket باستخدام OAC، وتوزيع ملفّ خاصّ عبر Signed URL بمفتاح عمومي/خاصّ.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a CloudFront distribution in front of an S3 bucket using OAC, and serve a private file through a Signed URL with a public/private key pair.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ زوج مفاتيح لـ Signed URL</span>
+      <span class="lang-en">Generate a key pair for Signed URLs</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">openssl genrsa -out private_key.pem 2048
+openssl rsa -pubout -in private_key.pem -out public_key.pem</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ارفع المفتاح العامّ كـ CloudFront Public Key</span>
+      <span class="lang-en">Upload the public key as a CloudFront Public Key</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من الـ Console: CloudFront → Key Management → Public Keys → Create. ثمّ Key Group يحتوي هذا المفتاح.</p><p class="text-surface-600 leading-relaxed lang-en">Console: CloudFront → Key Management → Public Keys → Create. Then a Key Group referencing it.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Distribution مع Origin = S3 و OAC</span>
+      <span class="lang-en">Create a distribution with Origin = S3 + OAC</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">اختر "Yes, update the bucket policy" ليُضاف الشرط تلقائياً.</p><p class="text-surface-600 leading-relaxed lang-en">Pick "Yes, update the bucket policy" so the condition is auto-added.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Generated bucket policy (reviewed snippet)
+{
+  "Effect": "Allow",
+  "Principal": { "Service": "cloudfront.amazonaws.com" },
+  "Action": "s3:GetObject",
+  "Resource": "arn:aws:s3:::acme-media/*",
+  "Condition": {
+    "StringEquals": {
+      "AWS:SourceArn": "arn:aws:cloudfront::111:distribution/E123ABC"
+    }
+  }
+}</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اربط الـ Key Group بالـ Cache Behavior المحميّ</span>
+      <span class="lang-en">Attach the Key Group to the protected Cache Behavior</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">في إعدادات الـ Behavior: "Restrict Viewer Access = Yes"، Trusted Key Group المُنشأ.</p><p class="text-surface-600 leading-relaxed lang-en">Behavior settings: "Restrict Viewer Access = Yes", Trusted Key Group just created.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ولّد Signed URL من Java</span>
+      <span class="lang-en">Generate a Signed URL from Java</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">// AWS SDK v2 — CloudFrontUtilities
+var utils = CloudFrontUtilities.create();
+var url = utils.getSignedUrlWithCannedPolicy(r -> r
+    .resourceUrl("https://d123.cloudfront.net/movies/premium.mp4")
+    .keyPairId("K2EXAMPLE")
+    .privateKey(Paths.get("private_key.pem"))
+    .expirationDate(Instant.now().plus(Duration.ofMinutes(10))));
+System.out.println(url.url());</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Invalidations: أوّل ١٠٠٠ مسار شهرياً مجّاناً، ثمّ ٠٫٠٠٥ دولار لكلّ مسار. فضّل URLs إصداريّة (مثلاً <span dir="ltr" class="font-mono">app.v7.js</span>) بدلاً من invalidations متكرّرة.</span>
+    <span class="lang-en"> Invalidations: first 1000 paths/month free, then $0.005 each. Prefer versioned URLs (e.g., <span dir="ltr" class="font-mono">app.v7.js</span>) over repeated invalidations.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٠ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (10 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">CloudFront = CDN عالميّ</span>
+        <span class="lang-en">CloudFront = global CDN</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Origins (S3/ALB/Custom) + Behaviors + Cache Key. Invalidations مكلفة — استخدم versioned URLs.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Origins (S3/ALB/Custom) + Behaviors + Cache Key. Invalidations cost — prefer versioned URLs.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">OAC بديل OAI</span>
+        <span class="lang-en">OAC replaces OAI</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">الطريقة المعياريّة لحماية S3 خلف CloudFront اليوم.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Modern standard to protect S3 behind CloudFront.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="link" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Signed URL vs Signed Cookie</span>
+        <span class="lang-en">Signed URL vs Signed Cookie</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">URL لملفّ واحد. Cookie لعدّة ملفّات (اشتراك).</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">URL = one file. Cookie = many files (subscription).</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="boxes" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">"أيّ خدمة؟"</span>
+        <span class="lang-en">"Which service?"</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">AppConfig = feature flags. Amplify = SPA hosting. SES = email. Athena = S3 SQL. Macie = PII.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">AppConfig = flags. Amplify = SPA hosting. SES = email. Athena = S3 SQL. Macie = PII.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">طبقات CloudFront من الخارج للداخل: <strong>V</strong>iewer Request → <strong>C</strong>ache lookup → <strong>O</strong>rigin Request → Origin → Origin Response → Cache store → Viewer Response. Lambda@Edge يستهدف أربعاً من هذه الست: <strong>VR, OR, OResp, VResp</strong>.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">CloudFront layers outside-in: <strong>V</strong>iewer Request → <strong>C</strong>ache lookup → <strong>O</strong>rigin Request → Origin → Origin Response → Cache store → Viewer Response. Lambda@Edge hooks 4 of these 6: <strong>VR, OR, OResp, VResp</strong>.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch28.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(29, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch30.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">فريق يستضيف ملفّات على S3 ويريد تسريع قراءتها عالمياً مع منع الوصول المباشر إلى الـ bucket. الحلّ؟</span><span class="lang-en">Team hosts files on S3 and wants to accelerate global reads while preventing direct bucket access. Solution?</span>",
+        options: [
+          "<span class="lang-ar">جعل الـ bucket عام.</span><span class="lang-en">Make the bucket public.</span>",
+          "<span class="lang-ar">CloudFront + <strong>Origin Access Control (OAC)</strong> مع تعديل Bucket Policy.</span><span class="lang-en">CloudFront + <strong>Origin Access Control (OAC)</strong> with updated Bucket Policy.</span>",
+          "<span class="lang-ar">S3 Transfer Acceleration فقط.</span><span class="lang-en">S3 Transfer Acceleration alone.</span>",
+          "<span class="lang-ar">استخدام IAM Role على المستخدمين.</span><span class="lang-en">IAM Role for users.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">OAC هو البديل الحديث لـ OAI. يمنح CloudFront وحده حقّ قراءة S3 عبر Bucket Policy مع <span dir="ltr" class="font-mono">aws:SourceArn</span>. Transfer Acceleration لرفع الملفّات، لا للقراءة المُسرَّعة.</span><span class="lang-en">OAC is the modern OAI replacement. Restricts S3 read to CloudFront via Bucket Policy with <span dir="ltr" class="font-mono">aws:SourceArn</span>. Transfer Acceleration is for uploads, not read acceleration.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يلغي الأمان.</span><span class=\"lang-en\">Destroys security.</span>", "", "<span class=\"lang-ar\">يسرّع الرفع لا القراءة الموزّعة.</span><span class=\"lang-en\">Accelerates uploads, not distributed reads.</span>", "<span class=\"lang-ar\">لا يحلّ إخفاء S3.</span><span class=\"lang-en\">Doesn't hide S3.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">خدمة فيديو مدفوعة تسمح لكلّ مشترك بمشاهدة مئات الملفّات أثناء اشتراكه الشهريّ. أيّ آليّة؟</span><span class="lang-en">A paid video service lets each subscriber watch hundreds of files during their monthly subscription. Which mechanism?</span>",
+        options: [
+          "<span class="lang-ar">Signed URL لكلّ ملفّ.</span><span class="lang-en">A Signed URL per file.</span>",
+          "<span class="lang-ar">Signed Cookies بعمر شهر.</span><span class="lang-en">Signed Cookies valid for a month.</span>",
+          "<span class="lang-ar">Public distribution.</span><span class="lang-en">Public distribution.</span>",
+          "<span class="lang-ar">S3 Pre-Signed URL.</span><span class="lang-en">S3 Pre-Signed URL.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Signed Cookies = كوكي واحد يفتح نمط أو مجلّد كامل — مثاليّ للاشتراكات. Signed URL لكلّ ملفّ مجهد. Pre-Signed URL يعمل مع S3 مباشرة فقط ولا يستفيد من كاش CloudFront.</span><span class="lang-en">Signed Cookies = one cookie unlocks a pattern/folder — ideal for subscriptions. Per-file Signed URLs are tedious. S3 Pre-Signed URL bypasses CloudFront caching.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير عمليّ لمئات الملفّات.</span><span class=\"lang-en\">Impractical for hundreds of files.</span>", "", "<span class=\"lang-ar\">يلغي الحماية.</span><span class=\"lang-en\">No protection.</span>", "<span class=\"lang-ar\">لا يستفيد من CloudFront.</span><span class=\"lang-en\">Bypasses CloudFront.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تعديل الـ HTTP Headers قبل وصول الطلب إلى الـ origin دون تعديل التطبيق. ما الخيار؟</span><span class="lang-en">A dev wants to rewrite HTTP headers before the request reaches the origin without changing the app. What to use?</span>",
+        options: [
+          "<span class="lang-ar">Lambda@Edge على حدث <strong>Origin Request</strong>.</span><span class="lang-en">Lambda@Edge on the <strong>Origin Request</strong> trigger.</span>",
+          "<span class="lang-ar">CloudTrail Lambda Function.</span><span class="lang-en">A CloudTrail Lambda.</span>",
+          "<span class="lang-ar">API Gateway Mapping Template.</span><span class="lang-en">API Gateway mapping template.</span>",
+          "<span class="lang-ar">CloudFront Real-time Logs.</span><span class="lang-en">CloudFront Real-time Logs.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">Lambda@Edge Origin Request يُشغَّل بعد فحص الكاش وقبل الذهاب للـ origin — مثالي لإضافة/تعديل headers، auth، URL rewriting. CloudTrail للتدقيق، mapping templates لـ API Gateway فقط.</span><span class="lang-en">Lambda@Edge Origin Request fires after cache check and before origin — perfect for header rewrites, auth, URL rewriting. CloudTrail is audit; mapping templates belong to API Gateway only.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تقليل تكلفة CloudFront دون التضحية بأداء أمريكا وأوروبا. ما الحلّ؟</span><span class="lang-en">A company wants to cut CloudFront cost without hurting US/EU performance. Option?</span>",
+        options: [
+          "<span class="lang-ar">استخدام Price Class 100 (أمريكا + أوروبا فقط).</span><span class="lang-en">Use Price Class 100 (US + EU only).</span>",
+          "<span class="lang-ar">إلغاء HTTPS.</span><span class="lang-en">Disable HTTPS.</span>",
+          "<span class="lang-ar">تمكين Field-Level Encryption.</span><span class="lang-en">Enable Field-Level Encryption.</span>",
+          "<span class="lang-ar">حذف Cache Policies.</span><span class="lang-en">Delete Cache Policies.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">Price Class 100 يحصر Edge Locations بأمريكا وأوروبا — أقلّ تكلفة مع أداء ممتاز فيهما. الخيارات الأخرى إمّا تضعف الأمان أو لا تخفض التكلفة.</span><span class="lang-en">Price Class 100 limits edges to US and EU — cheaper with great performance there. Other options either weaken security or don't reduce cost.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.</span><span class=\"lang-en\">Security risk.</span>", "", "<span class=\"lang-ar\">تزيد التكلفة.</span><span class=\"lang-en\">Increases cost.</span>", "<span class=\"lang-ar\">يكسر الكاش.</span><span class=\"lang-en\">Breaks caching.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق بحاجة لتبديل قيمة feature flag بدون إعادة نشر. أيّ خدمة؟</span><span class="lang-en">App needs to flip a feature flag without redeploy. Which service?</span>",
+        options: [
+          "<span class="lang-ar">AWS AppConfig</span><span class="lang-en">AWS AppConfig</span>",
+          "<span class="lang-ar">AWS Systems Manager Run Command</span><span class="lang-en">AWS Systems Manager Run Command</span>",
+          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>",
+          "<span class="lang-ar">CloudFormation StackSets</span><span class="lang-en">CloudFormation StackSets</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">AppConfig صُمِّم خصّيصاً لـ feature flags ونشر تكوين ديناميكيّ مع rollback تلقائيّ. AWS Config لمراقبة الامتثال. Run Command لتنفيذ أوامر على الخوادم.</span><span class="lang-en">AppConfig is purpose-built for feature flags & dynamic config with auto-rollback. AWS Config is compliance; Run Command executes commands on instances.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">فريق front-end يبني تطبيق React ويريد استضافته مع CI/CD تلقائيّ من GitHub. الخدمة المثالية؟</span><span class="lang-en">Front-end team builds a React app and wants hosting + auto CI/CD from GitHub. Ideal service?</span>",
+        options: [
+          "<span class="lang-ar">S3 Static Website فقط.</span><span class="lang-en">S3 Static Website alone.</span>",
+          "<span class="lang-ar">AWS Amplify.</span><span class="lang-en">AWS Amplify.</span>",
+          "<span class="lang-ar">Elastic Beanstalk.</span><span class="lang-en">Elastic Beanstalk.</span>",
+          "<span class="lang-ar">Lambda@Edge.</span><span class="lang-en">Lambda@Edge.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Amplify يقدّم استضافة + CI/CD من Git + تكامل مع Cognito/AppSync/GraphQL للـ back-end serverless. S3 يقدّم الاستضافة فقط دون CI/CD. Beanstalk لتطبيقات الخادم لا SPAs.</span><span class="lang-en">Amplify bundles hosting + Git CI/CD + Cognito/AppSync/GraphQL serverless back-end. S3 only hosts (no CI/CD). Beanstalk is for server apps, not SPAs.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد إرسال مليون رسالة بريد بحجم كبير مع إدارة smart للارتداد. الخدمة؟</span><span class="lang-en">Company needs to send a million bulk emails with bounce management. Service?</span>",
+        options: [
+          "<span class="lang-ar">Amazon SNS</span><span class="lang-en">Amazon SNS</span>",
+          "<span class="lang-ar">Amazon SES</span><span class="lang-en">Amazon SES</span>",
+          "<span class="lang-ar">Amazon SQS</span><span class="lang-en">Amazon SQS</span>",
+          "<span class="lang-ar">AWS Pinpoint SMS فقط</span><span class="lang-en">AWS Pinpoint SMS only</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">SES خاصّة بالبريد الإلكترونيّ: تدعم DKIM و SPF وإحصاءات الارتداد والتسليم. SNS للـ push/SMS لكنّها ليست الأنسب للـ bulk email. SQS للرسائل بين التطبيقات.</span><span class="lang-en">SES is email-specific: DKIM, SPF, bounce/delivery stats. SNS handles push/SMS but isn't ideal for bulk email. SQS is app-to-app messaging.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">تحليل سجلّات CloudTrail (ملفّات JSON في S3) باستعلامات SQL. الأداة الأمثل؟</span><span class="lang-en">Analyzing CloudTrail logs (JSON files in S3) with SQL queries. Best tool?</span>",
+        options: [
+          "<span class="lang-ar">Redshift فقط.</span><span class="lang-en">Redshift only.</span>",
+          "<span class="lang-ar">Amazon Athena.</span><span class="lang-en">Amazon Athena.</span>",
+          "<span class="lang-ar">RDS MySQL.</span><span class="lang-en">RDS MySQL.</span>",
+          "<span class="lang-ar">ElastiCache Redis.</span><span class="lang-en">ElastiCache Redis.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Athena = SQL serverless على S3 مباشرة. مثاليّ لتحليل CloudTrail و VPC Flow Logs و ALB Logs. Redshift للبيانات الكبيرة المستمرّة (data warehouse). RDS ليست لـ object-store.</span><span class="lang-en">Athena = serverless SQL directly over S3. Perfect for CloudTrail, VPC Flow Logs, ALB Logs. Redshift is for persistent big-data warehouses. RDS isn't for object storage.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q9",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي صحيح حول Cache Behaviors في CloudFront؟</span><span class="lang-en">Which are true about CloudFront Cache Behaviors?</span>",
+        options: [
+          "<span class="lang-ar">يمكن توجيه <span dir="ltr" class="font-mono">/api/*</span> إلى ALB و <span dir="ltr" class="font-mono">/images/*</span> إلى S3 في نفس الـ distribution.</span><span class="lang-en">Route <span dir="ltr" class="font-mono">/api/*</span> to ALB and <span dir="ltr" class="font-mono">/images/*</span> to S3 in the same distribution.</span>",
+          "<span class="lang-ar">المسار الافتراضيّ <span dir="ltr" class="font-mono">/*</span> يُقيَّم أوّلاً.</span><span class="lang-en">The default <span dir="ltr" class="font-mono">/*</span> behavior is evaluated first.</span>",
+          "<span class="lang-ar">كلّ Behavior له Cache Policy خاصّ به.</span><span class="lang-en">Each Behavior has its own Cache Policy.</span>",
+          "<span class="lang-ar">يمكن ربط دوال Lambda@Edge لكلّ Behavior.</span><span class="lang-en">Lambda@Edge functions can attach per-Behavior.</span>"
+        ],
+        correct: [0,2,3],
+        explanation: "<span class="lang-ar">Behaviors تدعم الـ multi-origin routing، كلّ Behavior يحمل Cache Policy، و Lambda@Edge تُربَط بـ Behavior محدّد. المسار <span dir="ltr" class="font-mono">/*</span> دائماً آخر ما يُقيَّم (catch-all).</span><span class="lang-en">Behaviors support multi-origin routing, each has its own Cache Policy, and Lambda@Edge attaches per-Behavior. The <span dir="ltr" class="font-mono">/*</span> default is always evaluated LAST (catch-all).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">فريق أمن يريد اكتشاف معلومات حسّاسة (بطاقات ائتمان) مخزّنة في S3 buckets. الخدمة؟</span><span class="lang-en">Security team wants to find sensitive data (credit cards) in S3 buckets. Which service?</span>",
+        options: [
+          "<span class="lang-ar">Amazon Macie</span><span class="lang-en">Amazon Macie</span>",
+          "<span class="lang-ar">AWS Config</span><span class="lang-en">AWS Config</span>",
+          "<span class="lang-ar">Amazon GuardDuty</span><span class="lang-en">Amazon GuardDuty</span>",
+          "<span class="lang-ar">CloudTrail</span><span class="lang-en">CloudTrail</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">Macie يستخدم ML لاكتشاف PII في S3 (بطاقات، أرقام ضمان، بيانات طبّية) وينبّه عبر EventBridge. GuardDuty لاكتشاف التهديدات (network/IAM). Config للامتثال التكوينيّ.</span><span class="lang-en">Macie uses ML to find PII in S3 (cards, SSNs, medical data) and alerts via EventBridge. GuardDuty is threat detection (network/IAM). Config is config-compliance.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(29, QUESTIONS);
+      if (isChapterComplete(29)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

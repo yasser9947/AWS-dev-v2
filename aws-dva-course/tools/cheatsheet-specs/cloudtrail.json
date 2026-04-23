@@ -1,0 +1,53 @@
+{
+  "slug": "cloudtrail",
+  "name": "AWS CloudTrail",
+  "icon": "file-search",
+  "color": "amber",
+  "tagline_ar": "سجل مراجعة (Audit) لاستدعاءات AWS API: Management/Data/Insights events، يسلّم إلى S3 وCloudWatch Logs.",
+  "tagline_en": "AWS API audit log: Management/Data/Insights events delivered to S3 and CloudWatch Logs for compliance and forensics.",
+  "key_concepts": [
+    {"concept": "Management Events", "desc_ar": "عمليات التحكم (CreateBucket, RunInstances)؛ مفعّلة افتراضياً 90 يوم عبر Event history.", "desc_en": "Control-plane ops (CreateBucket, RunInstances); on by default for 90 days via Event history."},
+    {"concept": "Data Events", "desc_ar": "قراءة/كتابة على مستوى البيانات (S3 object-level, Lambda Invoke)؛ غير مفعّلة افتراضياً.", "desc_en": "Data-plane read/write (S3 object-level, Lambda Invoke); off by default."},
+    {"concept": "Insights Events", "desc_ar": "يكشف شذوذ في معدّل API calls (ترخيص إضافي).", "desc_en": "Detects anomalies in API call rates (additional charge)."},
+    {"concept": "Trail", "desc_ar": "يُسلّم الأحداث إلى S3 (دائم) و/أو CloudWatch Logs؛ يشمل region واحد أو Multi-Region.", "desc_en": "Delivers events to S3 (persistent) and/or CloudWatch Logs; single-region or multi-region."},
+    {"concept": "Organization Trail", "desc_ar": "Trail في حساب الإدارة يجمع أحداث كل الحسابات في منظمة AWS Organizations.", "desc_en": "Management-account trail aggregating events from all accounts in AWS Organizations."},
+    {"concept": "CloudTrail Lake", "desc_ar": "مخزن مُدار للاستعلام عبر SQL مباشرة على الأحداث (احتفاظ حتى 10 سنوات).", "desc_en": "Managed data store to SQL-query events directly (up to 10-year retention)."},
+    {"concept": "Log File Integrity", "desc_ar": "digest files موقّعة بـ SHA-256 + RSA للتحقق من عدم العبث.", "desc_en": "Digest files signed with SHA-256 + RSA to verify tamper-free logs."},
+    {"concept": "Event delivery latency", "desc_ar": "Management events تصل عادة خلال 15 دقيقة.", "desc_en": "Management events typically delivered within 15 minutes."}
+  ],
+  "limits": [
+    {"limit": "Event history retention (free)", "limit_en": "Event history retention", "value": "90 days"},
+    {"limit": "Trails per region", "limit_en": "Trails per region", "value": "5"},
+    {"limit": "Event size", "limit_en": "Event size", "value": "256 KB"},
+    {"limit": "CloudTrail Lake retention", "limit_en": "Lake retention", "value": "Up to 10 years"},
+    {"limit": "Multi-region / Organization", "limit_en": "Multi-region / Org trail", "value": "Supported"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء trail متعدد المناطق.", "desc_en": "Create multi-region trail.", "cmd": "aws cloudtrail create-trail --name my-trail --s3-bucket-name my-ct-bucket --is-multi-region-trail"},
+    {"desc_ar": "بدء تسجيل trail.", "desc_en": "Start trail logging.", "cmd": "aws cloudtrail start-logging --name my-trail"},
+    {"desc_ar": "تفعيل data events على S3.", "desc_en": "Enable S3 data events.", "cmd": "aws cloudtrail put-event-selectors --trail-name my-trail --event-selectors 'ReadWriteType=All,DataResources=[{Type=AWS::S3::Object,Values=[arn:aws:s3:::my-bucket/]}]'"},
+    {"desc_ar": "البحث في event history (90 يوم).", "desc_en": "Lookup events in history.", "cmd": "aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=RunInstances"},
+    {"desc_ar": "تشغيل استعلام Lake.", "desc_en": "Run a Lake query.", "cmd": "aws cloudtrail start-query --query-statement 'SELECT eventName, count(*) FROM abc GROUP BY eventName' --query-alias cnt"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "مراجعة أمنية لمن فعل ماذا ومتى", "scenario_en": "Security audit of who did what and when", "choice": "CloudTrail trail → S3"},
+    {"scenario_ar": "كشف شذوذ في API usage", "scenario_en": "Detect API usage anomalies", "choice": "Insights events"},
+    {"scenario_ar": "الاحتفاظ الطويل للامتثال (5-10 سنوات)", "scenario_en": "Long-term compliance retention (5-10 years)", "choice": "CloudTrail Lake"},
+    {"scenario_ar": "تنبيه فوري عند API محدد (DeleteBucket)", "scenario_en": "Real-time alert on specific API (DeleteBucket)", "choice": "Trail → CloudWatch Logs + Alarm"},
+    {"scenario_ar": "أحداث على مستوى كائنات S3", "scenario_en": "S3 object-level events", "choice": "Data events on trail"}
+  ],
+  "vs_alternatives": [
+    {"feature": "What it records", "feature_ar": "ما يسجل", "this": "API calls (audit)", "alt": "System/app metrics + logs", "alt_name": "CloudWatch"},
+    {"feature": "Default retention", "feature_ar": "الاحتفاظ الافتراضي", "this": "90 days (history)", "alt": "Never expire (logs)", "alt_name": "CloudWatch"},
+    {"feature": "Query", "feature_ar": "الاستعلام", "this": "Lake SQL / lookup-events", "alt": "Logs Insights", "alt_name": "CloudWatch"},
+    {"feature": "Use case", "feature_ar": "حالة الاستخدام", "this": "Security & compliance", "alt": "Operations & troubleshooting", "alt_name": "CloudWatch"},
+    {"feature": "Destination", "feature_ar": "الوجهة", "this": "S3 (+ CW Logs optional)", "alt": "Log groups", "alt_name": "CloudWatch"}
+  ],
+  "exam_tips": [
+    {"ar": "Event history في الكونسول 90 يوم فقط ومجاني؛ للاحتفاظ الأطول أنشئ Trail إلى S3.", "en": "Console Event history is 90 days and free; for longer retention create a Trail to S3."},
+    {"ar": "Data events (S3 object / Lambda Invoke) مدفوعة ومغلقة افتراضياً — فعّلها صراحة.", "en": "Data events (S3 object / Lambda Invoke) are paid and off by default — enable explicitly."},
+    {"ar": "Multi-Region Trail يحتفظ بأحداث جميع regions؛ Organization Trail لكل حسابات AWS Organizations.", "en": "Multi-Region Trail covers all regions; Organization Trail covers all AWS Organizations accounts."},
+    {"ar": "Log File Integrity Validation يكتشف أي تعديل باستخدام digest files (SHA-256 + RSA).", "en": "Log File Integrity Validation detects tampering via digest files (SHA-256 + RSA)."},
+    {"ar": "للتنبيه الفوري: Trail → CloudWatch Logs → Metric Filter → Alarm → SNS.", "en": "For near-real-time alerts: Trail → CloudWatch Logs → Metric Filter → Alarm → SNS."}
+  ]
+}

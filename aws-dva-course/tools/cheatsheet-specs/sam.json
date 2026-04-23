@@ -1,0 +1,54 @@
+{
+  "slug": "sam",
+  "name": "AWS SAM",
+  "icon": "package",
+  "color": "green",
+  "tagline_ar": "إطار عمل لتطبيقات Serverless: قالب مختصر يتوسّع إلى CloudFormation مع أوامر sam للبناء والاختبار المحلي والنشر.",
+  "tagline_en": "Serverless application framework: concise template expanded to CloudFormation with sam commands for build, local test, and deploy.",
+  "key_concepts": [
+    {"concept": "Transform: AWS::Serverless-2016-10-31", "desc_ar": "توجيه يُفعّل الـ macro الذي يحوّل الموارد المختصرة إلى CloudFormation.", "desc_en": "Directive activating the macro that expands shorthand into CloudFormation."},
+    {"concept": "AWS::Serverless::Function", "desc_ar": "مورد مختصر لـ Lambda مع Events وPolicies وLayers.", "desc_en": "Shorthand Lambda resource with Events, Policies, and Layers."},
+    {"concept": "AWS::Serverless::Api", "desc_ar": "مورد مختصر لـ API Gateway REST/HTTP مع stages وauth.", "desc_en": "Shorthand API Gateway REST/HTTP with stages and auth."},
+    {"concept": "Events", "desc_ar": "محفّزات: Api, HttpApi, S3, SQS, SNS, Schedule, DynamoDB, Kinesis.", "desc_en": "Triggers: Api, HttpApi, S3, SQS, SNS, Schedule, DynamoDB, Kinesis."},
+    {"concept": "Policies (SAM policy templates)", "desc_ar": "قوالب جاهزة مثل S3CrudPolicy و DynamoDBCrudPolicy لتبسيط IAM.", "desc_en": "Ready templates like S3CrudPolicy, DynamoDBCrudPolicy simplifying IAM."},
+    {"concept": "sam build", "desc_ar": "يبني كل function في .aws-sam/build مع تبعياتها.", "desc_en": "Builds each function into .aws-sam/build with its dependencies."},
+    {"concept": "sam local", "desc_ar": "اختبار محلي لـ Lambda وAPI عبر Docker.", "desc_en": "Local testing of Lambda and API via Docker."},
+    {"concept": "sam deploy --guided", "desc_ar": "ينشر المجموعة إلى CloudFormation بحوار تفاعلي.", "desc_en": "Deploys stack to CloudFormation with an interactive wizard."},
+    {"concept": "AutoPublishAlias + DeploymentPreference", "desc_ar": "نشر ملاحي لـ Lambda Canary/Linear مع CodeDeploy مدمج.", "desc_en": "Lambda traffic-shifting Canary/Linear via built-in CodeDeploy integration."}
+  ],
+  "limits": [
+    {"limit": "Template size", "limit_en": "Template size (S3)", "value": "1 MB (CFN)"},
+    {"limit": "Inline function code", "limit_en": "InlineCode max", "value": "4 KB"},
+    {"limit": "Functions per template", "limit_en": "Functions per template", "value": "Bound by CFN 500"},
+    {"limit": "SAR app nesting", "limit_en": "SAR nested depth", "value": "200 resources"},
+    {"limit": "DeploymentPreference types", "limit_en": "DeploymentPreference types", "value": "Canary/Linear/AllAtOnce"}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تهيئة مشروع جديد.", "desc_en": "Initialize a new project.", "cmd": "sam init --runtime python3.12 --name my-app"},
+    {"desc_ar": "بناء الدوال وتبعياتها.", "desc_en": "Build functions and dependencies.", "cmd": "sam build --use-container"},
+    {"desc_ar": "اختبار محلي لـ API.", "desc_en": "Run API locally.", "cmd": "sam local start-api"},
+    {"desc_ar": "استدعاء دالة محلياً بحدث.", "desc_en": "Invoke function locally with event.", "cmd": "sam local invoke HelloFunction --event events/event.json"},
+    {"desc_ar": "نشر بحوار تفاعلي.", "desc_en": "Deploy with guided wizard.", "cmd": "sam deploy --guided"},
+    {"desc_ar": "مشاهدة السجلات.", "desc_en": "Tail logs.", "cmd": "sam logs -n HelloFunction --stack-name my-app --tail"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "نشر مجموعة Lambda + API Gateway + DynamoDB بسرعة", "scenario_en": "Rapidly deploy Lambda + API Gateway + DynamoDB bundle", "choice": "sam init + sam deploy"},
+    {"scenario_ar": "نشر ملاحي Canary للـ Lambda", "scenario_en": "Canary traffic-shifting for Lambda", "choice": "AutoPublishAlias + DeploymentPreference"},
+    {"scenario_ar": "اختبار محلي قبل الدفع إلى AWS", "scenario_en": "Local testing before pushing to AWS", "choice": "sam local invoke / start-api"},
+    {"scenario_ar": "مشاركة تطبيقات Serverless جاهزة", "scenario_en": "Share reusable serverless apps", "choice": "Serverless Application Repository"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Language", "feature_ar": "اللغة", "this": "YAML/JSON DSL (macro)", "alt": "General IaC DSL", "alt_name": "CloudFormation"},
+    {"feature": "Verbosity", "feature_ar": "الإطالة", "this": "Concise (shorthand)", "alt": "Verbose (explicit)", "alt_name": "CloudFormation"},
+    {"feature": "Local testing", "feature_ar": "الاختبار المحلي", "this": "sam local via Docker", "alt": "None built-in", "alt_name": "CloudFormation"},
+    {"feature": "Traffic shifting", "feature_ar": "نقل الحركة", "this": "Built-in Canary/Linear", "alt": "Manual CodeDeploy wiring", "alt_name": "CloudFormation"},
+    {"feature": "Scope", "feature_ar": "النطاق", "this": "Serverless-focused", "alt": "All AWS resources", "alt_name": "CloudFormation"}
+  ],
+  "exam_tips": [
+    {"ar": "SAM هو ماكرو CloudFormation — يتطلب CAPABILITY_AUTO_EXPAND عند الـ create/update.", "en": "SAM is a CloudFormation macro — requires CAPABILITY_AUTO_EXPAND on create/update."},
+    {"ar": "DeploymentPreference: Canary10Percent5Minutes / Linear10PercentEvery1Minute / AllAtOnce للـ Lambda.", "en": "DeploymentPreference: Canary10Percent5Minutes / Linear10PercentEvery1Minute / AllAtOnce for Lambda."},
+    {"ar": "sam build يحل التبعيات عبر Docker container يطابق runtime الإنتاج (استخدم --use-container).", "en": "sam build resolves dependencies via Docker container matching runtime (use --use-container)."},
+    {"ar": "Policies في Function تستخدم قوالب جاهزة — تبسّط IAM كثيراً مقارنة بكتابة policies يدوياً.", "en": "Function Policies use ready templates — much simpler than hand-written IAM."},
+    {"ar": "sam deploy يعتمد samconfig.toml لحفظ خيارات النشر بين المرات.", "en": "sam deploy uses samconfig.toml to persist deploy options across runs."}
+  ]
+}

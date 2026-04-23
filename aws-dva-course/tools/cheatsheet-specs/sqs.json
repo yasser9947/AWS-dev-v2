@@ -1,0 +1,56 @@
+{
+  "slug": "sqs",
+  "name": "Amazon SQS",
+  "icon": "mail",
+  "color": "pink",
+  "tagline_ar": "طابور رسائل مُدار بدون خوادم يفصل بين المُرسِل والمُستقبِل ويدعم Standard و FIFO مع Dead-Letter Queues.",
+  "tagline_en": "Managed serverless message queue that decouples producer and consumer; supports Standard and FIFO with DLQs.",
+  "key_concepts": [
+    {"concept": "Standard vs FIFO", "desc_ar": "Standard: at-least-once وترتيب غير مضمون. FIFO: ترتيب مضمون وexactly-once بمعدّل أقلّ.", "desc_en": "Standard: at-least-once, best-effort order. FIFO: exactly-once, strict ordering, lower throughput."},
+    {"concept": "Visibility Timeout", "desc_ar": "مدّة إخفاء الرسالة بعد استلامها (افتراضي 30 ثانية، أقصى 12 ساعة).", "desc_en": "Time a message is hidden after receive (default 30s, max 12h)."},
+    {"concept": "Long Polling", "desc_ar": "ReceiveMessage ينتظر حتى 20 ثانية لتقليل الطلبات الفارغة.", "desc_en": "ReceiveMessage waits up to 20s to reduce empty responses."},
+    {"concept": "Message Retention", "desc_ar": "من 1 دقيقة إلى 14 يومًا (افتراضي 4 أيام).", "desc_en": "From 1 minute to 14 days (default 4 days)."},
+    {"concept": "Dead-Letter Queue", "desc_ar": "طابور يستقبل الرسائل التي فشل معالجتها بعد maxReceiveCount.", "desc_en": "Queue that captures messages exceeding maxReceiveCount."},
+    {"concept": "FIFO Groups", "desc_ar": "MessageGroupId يضمن ترتيب كل مجموعة؛ MessageDeduplicationId لمنع التكرار.", "desc_en": "MessageGroupId preserves order per group; MessageDeduplicationId deduplicates."},
+    {"concept": "Delay Queue", "desc_ar": "DelaySeconds يؤخّر الرسالة حتى 15 دقيقة قبل الظهور.", "desc_en": "DelaySeconds delays a message up to 15 min before becoming visible."},
+    {"concept": "Encryption", "desc_ar": "SQS-managed (SSE-SQS) أو KMS.", "desc_en": "SSE-SQS or KMS-based encryption at rest."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم رسالة", "limit_en": "Max message size", "value": "256 KB", "note_ar": "استخدم Extended Client Library مع S3 للأحجام الأكبر.", "note_en": "Use Extended Client Library with S3 for larger payloads."},
+    {"limit": "Visibility Timeout", "limit_en": "Visibility timeout range", "value": "0 s – 12 h", "note_ar": "افتراضي 30 ثانية.", "note_en": "Default 30 seconds."},
+    {"limit": "Long Polling wait", "limit_en": "Max receive wait", "value": "20 s", "note_ar": "يقلّل الطلبات الفارغة.", "note_en": "Reduces empty receives."},
+    {"limit": "Retention", "limit_en": "Message retention", "value": "1 min – 14 days", "note_ar": "افتراضي 4 أيام.", "note_en": "Default 4 days."},
+    {"limit": "FIFO throughput (high throughput)", "limit_en": "FIFO high-throughput", "value": "3,000 msg/s per group", "note_ar": "الوضع القياسي 300 msg/s.", "note_en": "Default FIFO mode is 300 msg/s."},
+    {"limit": "Standard throughput", "limit_en": "Standard throughput", "value": "Unlimited", "note_ar": "ممارسة نموذجية آلاف الرسائل/ثانية.", "note_en": "Typically scales to thousands of msg/s."},
+    {"limit": "Delay Queue", "limit_en": "Delay seconds", "value": "0 – 15 min", "note_ar": "يمكن ضبطه لكل رسالة أيضًا.", "note_en": "Can also be set per message."},
+    {"limit": "عدد الطوابير لكل حساب", "limit_en": "Queues per account", "value": "1,000,000 (soft)", "note_ar": "حدّ قابل للزيادة.", "note_en": "Soft limit, increasable."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء طابور Standard.", "desc_en": "Create a standard queue.", "cmd": "aws sqs create-queue --queue-name orders --attributes VisibilityTimeout=60,MessageRetentionPeriod=345600"},
+    {"desc_ar": "إنشاء طابور FIFO.", "desc_en": "Create a FIFO queue.", "cmd": "aws sqs create-queue --queue-name orders.fifo --attributes FifoQueue=true,ContentBasedDeduplication=true"},
+    {"desc_ar": "إرسال رسالة إلى Standard.", "desc_en": "Send a message to a Standard queue.", "cmd": "aws sqs send-message --queue-url https://sqs.us-east-1.amazonaws.com/111/orders --message-body '{\"id\":42}'"},
+    {"desc_ar": "إرسال رسالة FIFO مع GroupId.", "desc_en": "Send a FIFO message with GroupId.", "cmd": "aws sqs send-message --queue-url ...orders.fifo --message-body '{\"id\":42}' --message-group-id customerA --message-deduplication-id 42"},
+    {"desc_ar": "استلام رسائل بـ Long Polling.", "desc_en": "Receive with long polling.", "cmd": "aws sqs receive-message --queue-url ... --max-number-of-messages 10 --wait-time-seconds 20"},
+    {"desc_ar": "ضبط DLQ.", "desc_en": "Configure a DLQ redrive policy.", "cmd": "aws sqs set-queue-attributes --queue-url ...orders --attributes RedrivePolicy='{\"deadLetterTargetArn\":\"arn:aws:sqs:us-east-1:111:orders-dlq\",\"maxReceiveCount\":\"5\"}'"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "فصل أجزاء النظام لامتصاص زيادات الحمل.", "scenario_en": "Decouple components to absorb traffic spikes.", "choice": "SQS Standard"},
+    {"scenario_ar": "تنفيذ العمليات المُطلوبة بترتيب واحد تلو الآخر.", "scenario_en": "Process actions strictly in order, once.", "choice": "SQS FIFO"},
+    {"scenario_ar": "تأخير تنفيذ مهمّة لعدّة دقائق.", "scenario_en": "Delay a task for several minutes.", "choice": "SQS Delay Queue"},
+    {"scenario_ar": "رصد الرسائل السامة التي فشلت في المعالجة.", "scenario_en": "Track poison-pill messages that failed processing.", "choice": "SQS DLQ"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Pattern", "feature_ar": "النمط", "this": "Point-to-point queue", "alt": "Pub/Sub fan-out", "alt_name": "SNS"},
+    {"feature": "Consumers", "feature_ar": "المستهلكون", "this": "1 consumer per message", "alt": "Many subscribers per msg", "alt_name": "SNS"},
+    {"feature": "Delivery", "feature_ar": "التوصيل", "this": "Pull by consumer", "alt": "Push to subscribers", "alt_name": "SNS"},
+    {"feature": "Persistence", "feature_ar": "الاستمرارية", "this": "Up to 14 days", "alt": "No storage (push)", "alt_name": "SNS"},
+    {"feature": "Ordering", "feature_ar": "الترتيب", "this": "FIFO option", "alt": "FIFO topic only", "alt_name": "SNS"}
+  ],
+  "exam_tips": [
+    {"ar": "Standard at-least-once قد يُسلّم الرسالة أكثر من مرّة؛ اجعل المعالجة idempotent.", "en": "Standard is at-least-once and may duplicate; make processing idempotent."},
+    {"ar": "Visibility Timeout يجب أن يتجاوز زمن معالجة العامل لتفادي التكرار.", "en": "Visibility timeout must exceed worker processing time to avoid duplicates."},
+    {"ar": "Long Polling (20s) يُوصى به افتراضيًا لتقليل استدعاءات فارغة.", "en": "Long polling (20s) is recommended by default to reduce empty calls."},
+    {"ar": "FIFO تتطلّب MessageGroupId وتوفّر exactly-once ضمن مدة إلغاء التكرار (5 دقائق).", "en": "FIFO requires MessageGroupId and provides exactly-once within a 5-min dedup window."},
+    {"ar": "DLQ لا تُنشأ تلقائيًا؛ عرّف RedrivePolicy مع maxReceiveCount.", "en": "DLQ isn’t automatic — define a RedrivePolicy with maxReceiveCount."}
+  ]
+}

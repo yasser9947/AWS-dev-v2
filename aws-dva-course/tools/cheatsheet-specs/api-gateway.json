@@ -1,0 +1,54 @@
+{
+  "slug": "api-gateway",
+  "name": "Amazon API Gateway",
+  "icon": "workflow",
+  "color": "purple",
+  "tagline_ar": "بوّابة مُدارة لإنشاء واجهات REST و HTTP و WebSocket مع تحكّم بالأمان والحدّ من المعدّل والذاكرة المؤقتة.",
+  "tagline_en": "Managed gateway to build REST, HTTP, and WebSocket APIs with security, throttling, and caching.",
+  "key_concepts": [
+    {"concept": "API Types", "desc_ar": "REST API (كامل المزايا)، HTTP API (أخفّ وأسرع وأرخص)، WebSocket API للاتصالات ثنائية الاتجاه.", "desc_en": "REST API (full-featured), HTTP API (lighter, cheaper), WebSocket API for bi-directional."},
+    {"concept": "Integrations", "desc_ar": "Lambda، HTTP backend، AWS Service، Mock، VPC Link عبر NLB/ALB.", "desc_en": "Lambda, HTTP backend, AWS Service, Mock, VPC Link via NLB/ALB."},
+    {"concept": "Stages & Deployments", "desc_ar": "كل Stage (dev/prod) له مسار مستقل مع إعدادات ذاكرة مؤقتة وتسجيل.", "desc_en": "Each stage (dev/prod) has its own URL, cache, and logging settings."},
+    {"concept": "Authorization", "desc_ar": "IAM، Cognito User Pools، Lambda Authorizer (Token/Request)، JWT في HTTP API.", "desc_en": "IAM, Cognito User Pools, Lambda Authorizer (token/request), JWT on HTTP API."},
+    {"concept": "Throttling & Usage Plans", "desc_ar": "حدّ افتراضي 10,000 طلب/ثانية و 5,000 burst؛ API Keys + Usage Plans لكل عميل.", "desc_en": "Default 10,000 req/s and 5,000 burst; API Keys + Usage Plans per client."},
+    {"concept": "Caching", "desc_ar": "ذاكرة مؤقتة على مستوى المرحلة بحجم 0.5–237 GB وTTL قابل للضبط حتى ساعة.", "desc_en": "Stage-level cache 0.5–237 GB with TTL up to 1 hour."},
+    {"concept": "Endpoint Types", "desc_ar": "Edge-Optimized (CloudFront)، Regional، Private (VPC عبر VPC Endpoint).", "desc_en": "Edge-Optimized (CloudFront), Regional, Private (VPC via VPC Endpoint)."},
+    {"concept": "Request / Response Mapping", "desc_ar": "تحويلات VTL لتحويل JSON/XML وتعديل رؤوس HTTP قبل/بعد الوصول.", "desc_en": "VTL templates to transform JSON/XML and headers pre/post integration."}
+  ],
+  "limits": [
+    {"limit": "أقصى زمن تنفيذ", "limit_en": "Max integration timeout", "value": "29 s", "note_ar": "لكل نداء؛ مفيد مع Lambda 15 دقيقة.", "note_en": "Per invocation; relevant even with 15-min Lambda."},
+    {"limit": "أقصى حجم Payload", "limit_en": "Max payload size", "value": "10 MB", "note_ar": "للطلب والاستجابة.", "note_en": "Applies to request and response."},
+    {"limit": "Throttling افتراضي", "limit_en": "Default account throttle", "value": "10,000 rps + 5,000 burst", "note_ar": "على مستوى الحساب والمنطقة.", "note_en": "Per account per region."},
+    {"limit": "WebSocket اتصالات متزامنة", "limit_en": "WebSocket concurrent connections", "value": "Unlimited (soft)", "note_ar": "حتّى 500k بتشغيل هادئ.", "note_en": "Practical up to 500k."},
+    {"limit": "أقصى Stages لكل API", "limit_en": "Stages per API", "value": "10", "note_ar": "حدّ ناعم يمكن زيادته.", "note_en": "Soft limit."},
+    {"limit": "مدّة ذاكرة مؤقتة", "limit_en": "Cache TTL", "value": "0 – 3600 s", "note_ar": "افتراضي 300 ثانية.", "note_en": "Default 300 seconds."},
+    {"limit": "أقصى Authorizers", "limit_en": "Authorizers per API", "value": "10", "note_ar": "حدّ ناعم.", "note_en": "Soft limit."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء REST API.", "desc_en": "Create a REST API.", "cmd": "aws apigateway create-rest-api --name \"OrdersAPI\" --endpoint-configuration types=REGIONAL"},
+    {"desc_ar": "نشر مرحلة (stage).", "desc_en": "Deploy a stage.", "cmd": "aws apigateway create-deployment --rest-api-id abcd1234 --stage-name prod"},
+    {"desc_ar": "إنشاء HTTP API مرتبط بـ Lambda.", "desc_en": "Create an HTTP API with Lambda integration.", "cmd": "aws apigatewayv2 create-api --name OrdersHTTP --protocol-type HTTP --target arn:aws:lambda:us-east-1:111:function:orders"},
+    {"desc_ar": "ضبط حدّ Throttling على Stage.", "desc_en": "Set throttling on a stage.", "cmd": "aws apigateway update-stage --rest-api-id abcd1234 --stage-name prod --patch-operations op=replace,path=/*/*/throttling/rateLimit,value=1000"},
+    {"desc_ar": "إنشاء Usage Plan مع API Key.", "desc_en": "Create a usage plan with an API key.", "cmd": "aws apigateway create-usage-plan --name basic --throttle rateLimit=100,burstLimit=200 --quota limit=10000,period=MONTH"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "واجهة REST كاملة مع Authorizers و Usage Plans و Caching.", "scenario_en": "Full-featured REST API with authorizers, usage plans, caching.", "choice": "REST API"},
+    {"scenario_ar": "واجهة خفيفة وسريعة لـ Lambda بتكلفة أقل.", "scenario_en": "Lightweight low-cost API for Lambda.", "choice": "HTTP API"},
+    {"scenario_ar": "دردشة مباشرة أو لوحات تحديثات فورية.", "scenario_en": "Live chat or real-time dashboards.", "choice": "WebSocket API"},
+    {"scenario_ar": "API داخلي ضمن VPC فقط.", "scenario_en": "Internal API within a VPC only.", "choice": "Private REST API"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Query flexibility", "feature_ar": "مرونة الاستعلام", "this": "Fixed endpoints", "alt": "Single GraphQL query", "alt_name": "AppSync"},
+    {"feature": "Real-time", "feature_ar": "الزمن الحقيقي", "this": "WebSocket API", "alt": "Native subscriptions", "alt_name": "AppSync"},
+    {"feature": "Protocol", "feature_ar": "البروتوكول", "this": "REST/HTTP/WebSocket", "alt": "GraphQL over HTTPS/WS", "alt_name": "AppSync"},
+    {"feature": "Caching", "feature_ar": "الكاش", "this": "Stage-level up to 237 GB", "alt": "Query-level (server/client)", "alt_name": "AppSync"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Per request + cache size", "alt": "Per query + data source calls", "alt_name": "AppSync"}
+  ],
+  "exam_tips": [
+    {"ar": "حدّ 29 ثانية لكل نداء؛ المهام الطويلة تحتاج Step Functions أو SQS ثم Lambda.", "en": "29-second timeout per invoke; long jobs need Step Functions or SQS + Lambda."},
+    {"ar": "HTTP API أرخص وأسرع ولكن REST API لديه MORE features (Resource Policies, WAF, Cache).", "en": "HTTP API is cheaper/faster; REST API has more features (Resource Policies, WAF, Cache)."},
+    {"ar": "Edge-Optimized يستخدم CloudFront تلقائيًا ولا يدار من حسابك.", "en": "Edge-Optimized uses AWS-managed CloudFront (not visible in your account)."},
+    {"ar": "Usage Plans يعملان مع REST API فقط؛ لمعدّلات HTTP API استخدم Route throttling.", "en": "Usage Plans work with REST API only; use Route throttling for HTTP API."},
+    {"ar": "Lambda Authorizer نوعان: TOKEN (يعتمد على header) و REQUEST (كامل الطلب).", "en": "Lambda Authorizers come in TOKEN (header-based) and REQUEST (full request) flavors."}
+  ]
+}

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Developer Associate (DVA-C02) — الكورس التفاعلي</title>
+  <meta name="description" content="كورس تفاعلي كامل لتحضير شهادة AWS Certified Developer Associate (DVA-C02)">
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .text-balance { text-wrap: balance; }
+    @keyframes gradient-shift {
+      0%,100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .animated-gradient { background-size: 200% 200%; animation: gradient-shift 15s ease infinite; }
+    .progress-track { background: rgba(255,255,255,0.12); border-radius: 9999px; height: 8px; overflow: hidden; }
+    .progress-fill { background: linear-gradient(90deg, #36b3f8 0%, #0c99e9 100%); height: 100%; transition: width 0.5s ease; }
+    .chapter-card { transition: all 0.3s ease; }
+    .chapter-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.15); }
+    .domain-ribbon { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; color: white; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <!-- Top bar -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold shadow-md">
+          <i data-lucide="cloud" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p class="text-xs text-surface-500 leading-none">AWS Certification</p>
+          <p class="font-bold text-surface-800 leading-tight">
+            <span class="lang-ar">كورس DVA-C02</span>
+            <span class="lang-en">DVA-C02 Course</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+        <a href="exam/final-exam.html" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold text-sm transition-all">
+          <i data-lucide="target" class="w-4 h-4"></i>
+          <span class="lang-ar">امتحان شامل</span>
+          <span class="lang-en">Final Exam</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="relative overflow-hidden bg-gradient-to-bl from-brand-900 via-brand-800 to-surface-950 text-white animated-gradient">
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 25% 25%, #36b3f8 0%, transparent 50%), radial-gradient(circle at 75% 75%, #f59e0b 0%, transparent 50%);"></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-brand-100 mb-6">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+        <span class="lang-ar">كورس تفاعلي شامل</span>
+        <span class="lang-en">Comprehensive Interactive Course</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-bold mb-4 text-balance leading-tight">
+        <span class="lang-ar">AWS Certified<br>Developer Associate</span>
+        <span class="lang-en">AWS Certified<br>Developer Associate</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-brand-100 mb-2 font-mono">DVA-C02</p>
+      <p class="text-lg text-brand-200/90 max-w-2xl mb-8 leading-relaxed">
+        <span class="lang-ar">كورس عميق موجّه لاجتياز الامتحان: ثلاثون شابتر، أكثر من أربع مئة وخمسين سؤالاً، وأربعة وثلاثون ملخّصاً سريعاً لكل خدمة.</span>
+        <span class="lang-en">Deep exam-focused course — 30 chapters, 450+ questions, and 34 service cheatsheets.</span>
+      </p>
+
+      <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-5 max-w-2xl">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-semibold text-white">
+            <span class="lang-ar">تقدّمك في الكورس</span>
+            <span class="lang-en">Your progress</span>
+          </p>
+          <p class="text-sm font-bold text-brand-200" id="progress-text">0 / 30</p>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="flex flex-wrap gap-4 mt-4 text-xs text-brand-200">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            <span class="lang-ar">مكتملة:</span>
+            <span class="lang-en">Completed:</span>
+            <span id="stat-completed">0</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span class="lang-ar">متبقية:</span>
+            <span class="lang-en">Remaining:</span>
+            <span id="stat-remaining">30</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="percent" class="w-3.5 h-3.5"></i>
+            <span class="lang-ar">متوسّط الكويزات:</span>
+            <span class="lang-en">Avg quiz:</span>
+            <span id="stat-quiz-avg">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick stats -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 mb-12 relative z-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-surface-200">
+        <div class="flex items-center gap-2 text-surface-500 text-xs mb-2">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+          <span class="lang-ar">مدّة الامتحان</span>
+          <span class="lang-en">Exam duration</span>
+        </div>
+        <p class="text-2xl font-bold text-surface-800">130 <span class="text-sm font-normal text-surface-500">
+          <span class="lang-ar">دقيقة</span>
+          <span class="lang-en">min</span>
+        </span></p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-surface-200">
+        <div class="flex items-center gap-2 text-surface-500 text-xs mb-2">
+          <i data-lucide="file-question" class="w-3.5 h-3.5"></i>
+          <span class="lang-ar">عدد الأسئلة</span>
+          <span class="lang-en">Questions</span>
+        </div>
+        <p class="text-2xl font-bold text-surface-800">65</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-surface-200">
+        <div class="flex items-center gap-2 text-surface-500 text-xs mb-2">
+          <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+          <span class="lang-ar">درجة النجاح</span>
+          <span class="lang-en">Passing score</span>
+        </div>
+        <p class="text-2xl font-bold text-surface-800">720<span class="text-sm font-normal text-surface-500">/1000</span></p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-surface-200">
+        <div class="flex items-center gap-2 text-surface-500 text-xs mb-2">
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>
+          <span class="lang-ar">رسوم الامتحان</span>
+          <span class="lang-en">Exam fee</span>
+        </div>
+        <p class="text-2xl font-bold text-surface-800">$150</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 pb-16 space-y-16">
+    <section>
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="domain-ribbon mb-2 bg-surface-500"><i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span class="lang-ar">تمهيدي</span>
+            <span class="lang-en">Foundations</span>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold text-surface-800">
+            <span class="lang-ar">الأساسيات</span>
+            <span class="lang-en">AWS Foundations</span>
+          </h2>
+          <p class="text-surface-600 mt-1 text-sm leading-relaxed max-w-2xl">
+            <span class="lang-ar">تمهيد لا يُحتسب في أوزان الامتحان، لكنه ضروريّ لفهم بقية المحتوى.</span>
+            <span class="lang-en">Prelude, not weighted in the exam — but required context for the domains that follow.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" data-domain-grid="foundations"></div>
+    </section>
+
+    <section>
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="domain-ribbon mb-2 bg-blue-600"><i data-lucide="code-2" class="w-3.5 h-3.5"></i><span>32%</span></div>
+          <h2 class="text-2xl md:text-3xl font-bold text-surface-800">
+            <span class="lang-ar">النطاق الأول — التطوير بخدمات AWS</span>
+            <span class="lang-en">Domain 1 — Development with AWS Services</span>
+          </h2>
+          <p class="text-surface-600 mt-1 text-sm leading-relaxed max-w-2xl">
+            <span class="lang-ar">الأكبر وزناً في الامتحان: Lambda و DynamoDB و API Gateway و S3 و SQS/SNS و Step Functions.</span>
+            <span class="lang-en">Largest-weight domain: Lambda, DynamoDB, API Gateway, S3, SQS/SNS, Step Functions.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" data-domain-grid="development"></div>
+    </section>
+
+    <section>
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="domain-ribbon mb-2 bg-red-600"><i data-lucide="shield" class="w-3.5 h-3.5"></i><span>26%</span></div>
+          <h2 class="text-2xl md:text-3xl font-bold text-surface-800">
+            <span class="lang-ar">النطاق الثاني — الأمان</span>
+            <span class="lang-en">Domain 2 — Security</span>
+          </h2>
+          <p class="text-surface-600 mt-1 text-sm leading-relaxed max-w-2xl">
+            <span class="lang-ar">IAM المتعمّق، STS، التشفير بـ KMS، إدارة الأسرار، صلاحيات S3.</span>
+            <span class="lang-en">IAM deep dive, STS, KMS encryption, secrets management, S3 permissions.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" data-domain-grid="security"></div>
+    </section>
+
+    <section>
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="domain-ribbon mb-2 bg-emerald-600"><i data-lucide="rocket" class="w-3.5 h-3.5"></i><span>24%</span></div>
+          <h2 class="text-2xl md:text-3xl font-bold text-surface-800">
+            <span class="lang-ar">النطاق الثالث — النشر والأتمتة</span>
+            <span class="lang-en">Domain 3 — Deployment</span>
+          </h2>
+          <p class="text-surface-600 mt-1 text-sm leading-relaxed max-w-2xl">
+            <span class="lang-ar">CloudFormation و SAM و CDK و Elastic Beanstalk و ECS/Fargate و CI/CD.</span>
+            <span class="lang-en">CloudFormation, SAM, CDK, Elastic Beanstalk, ECS/Fargate, CI/CD.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" data-domain-grid="deployment"></div>
+    </section>
+
+    <section>
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="domain-ribbon mb-2 bg-amber-600"><i data-lucide="activity" class="w-3.5 h-3.5"></i><span>18%</span></div>
+          <h2 class="text-2xl md:text-3xl font-bold text-surface-800">
+            <span class="lang-ar">النطاق الرابع — المراقبة والتحسين</span>
+            <span class="lang-en">Domain 4 — Troubleshooting & Optimization</span>
+          </h2>
+          <p class="text-surface-600 mt-1 text-sm leading-relaxed max-w-2xl">
+            <span class="lang-ar">CloudWatch و X-Ray و CloudTrail و تحسين أداء CloudFront.</span>
+            <span class="lang-en">CloudWatch, X-Ray, CloudTrail, CloudFront optimization.</span>
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" data-domain-grid="troubleshoot"></div>
+    </section>
+
+    <!-- Final exam callout -->
+    <section>
+      <a href="exam/final-exam.html" class="block group">
+        <div class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-700 to-brand-500 rounded-3xl p-8 md:p-12 text-white shadow-2xl">
+          <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 75% 25%, #fff 0%, transparent 40%);"></div>
+          <div class="relative flex items-start gap-6 flex-wrap md:flex-nowrap">
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0">
+              <i data-lucide="target" class="w-10 h-10"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-brand-100 text-sm font-semibold mb-2">
+                <span class="lang-ar">الاختبار النهائي</span>
+                <span class="lang-en">Final Exam</span>
+              </p>
+              <h3 class="text-2xl md:text-3xl font-bold mb-3 text-balance">
+                <span class="lang-ar">خمسة وستّون سؤالاً في مئة وثلاثين دقيقة — محاكاة كاملة للامتحان الحقيقي</span>
+                <span class="lang-en">65 questions, 130 minutes — full DVA-C02 simulation</span>
+              </h3>
+              <p class="text-brand-100/90 mb-4 leading-relaxed">
+                <span class="lang-ar">الأسئلة موزّعة حسب أوزان الامتحان الحقيقية. تقرير مفصّل بعد الانتهاء يبيّن نقاط الضعف لكل نطاق.</span>
+                <span class="lang-en">Questions distributed per actual exam weights. Detailed report afterward highlighting weak areas per domain.</span>
+              </p>
+              <div class="inline-flex items-center gap-2 bg-white text-brand-700 px-5 py-2.5 rounded-xl font-bold text-sm group-hover:bg-brand-50 transition-all">
+                <span class="lang-ar">ابدأ الامتحان</span>
+                <span class="lang-en">Start exam</span>
+                <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <!-- Cheatsheets -->
+    <section>
+      <div class="mb-6">
+        <div class="inline-flex items-center gap-2 bg-surface-800 text-white rounded-full px-4 py-1.5 text-xs font-semibold mb-2">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span class="lang-ar">مراجع سريعة</span>
+          <span class="lang-en">Quick references</span>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-surface-800 mb-1">
+          <span class="lang-ar">الملخّصات السريعة</span>
+          <span class="lang-en">Service Cheatsheets</span>
+        </h2>
+        <p class="text-surface-600 text-sm">
+          <span class="lang-ar">ملخّص سريع لكل خدمة: المفاهيم، الحدود، الأوامر الأساسية، ومتى تستخدمها.</span>
+          <span class="lang-en">One-page summary per service: concepts, limits, CLI commands, and when to use.</span>
+        </p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="cheatsheets-grid"></div>
+    </section>
+
+  </main>
+
+  <footer class="bg-surface-950 text-surface-400 py-10 px-4 sm:px-6 text-center text-sm">
+    <div class="max-w-4xl mx-auto space-y-2">
+      <p>
+        <span class="lang-ar">كورس معدّ بواسطة معلّم 🎓 لتحضير شهادة DVA-C02</span>
+        <span class="lang-en">Course built with معلّم 🎓 for DVA-C02 exam prep</span>
+      </p>
+      <p class="text-xs text-surface-500">
+        <span class="lang-ar">المحتوى مبنيّ على محاضرات Stéphane Maarek وتوثيق AWS الرسمي</span>
+        <span class="lang-en">Content based on Stéphane Maarek's course and AWS official docs</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ============ INLINED APP ============ -->
+  <script>
+    const STORAGE_KEYS = {
+      LANG: 'dva_lang',
+      COMPLETED: 'dva_completed_chapters',
+      QUIZ_RESULTS: 'dva_quiz_results',
+    };
+
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang;
+      html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach((el) => {
+        el.textContent = lang === 'ar' ? 'EN' : 'ع';
+      });
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompleted() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; }
+    }
+    function getQuizResult(n) {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}')[n]; } catch { return undefined; }
+    }
+    function getAllQuizResults() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}'); } catch { return {}; }
+    }
+
+    const CHAPTERS = [
+      { n: 1, d: 'foundations', titleAr: 'البدء مع AWS', titleEn: 'Getting Started with AWS', pages: '11–20', quiz: 10 },
+      { n: 2, d: 'foundations', titleAr: 'أساسيات EC2', titleEn: 'Amazon EC2 Basics', pages: '39–71', quiz: 12 },
+      { n: 3, d: 'foundations', titleAr: 'تخزين EC2', titleEn: 'EC2 Instance Storage', pages: '72–94', quiz: 12 },
+      { n: 4, d: 'foundations', titleAr: 'التوافرية والتوسعة', titleEn: 'High Availability & Scalability', pages: '95–137', quiz: 15 },
+      { n: 5, d: 'foundations', titleAr: 'RDS و Aurora و ElastiCache', titleEn: 'RDS, Aurora & ElastiCache', pages: '138–164', quiz: 12 },
+      { n: 6, d: 'foundations', titleAr: 'Route 53', titleEn: 'Amazon Route 53', pages: '165–196', quiz: 12 },
+      { n: 7, d: 'foundations', titleAr: 'أساسيات VPC', titleEn: 'Amazon VPC Basics', pages: '197–213', quiz: 10 },
+      { n: 8, d: 'development', titleAr: 'CLI و SDK و IAM Roles', titleEn: 'AWS CLI, SDK & IAM Roles', pages: '239–252', quiz: 12 },
+      { n: 9, d: 'development', titleAr: 'Amazon S3', titleEn: 'Amazon S3 (Basics + Advanced)', pages: '214–238, 253–265', quiz: 15 },
+      { n: 10, d: 'development', titleAr: 'AWS Lambda — الأساسيات', titleEn: 'AWS Lambda — Core', pages: '532–575', quiz: 15 },
+      { n: 11, d: 'development', titleAr: 'AWS Lambda — المتقدّم', titleEn: 'AWS Lambda — Advanced', pages: '576–607', quiz: 15 },
+      { n: 12, d: 'development', titleAr: 'Amazon DynamoDB', titleEn: 'Amazon DynamoDB', pages: '608–661', quiz: 18 },
+      { n: 13, d: 'development', titleAr: 'Amazon API Gateway', titleEn: 'Amazon API Gateway', pages: '662–705', quiz: 15 },
+      { n: 14, d: 'development', titleAr: 'SQS و SNS و Kinesis و EventBridge', titleEn: 'Integration & Messaging', pages: '432–473', quiz: 15 },
+      { n: 15, d: 'development', titleAr: 'Step Functions و AppSync', titleEn: 'Step Functions & AppSync', pages: '792–814', quiz: 12 },
+      { n: 16, d: 'development', titleAr: 'Amazon Cognito', titleEn: 'Amazon Cognito', pages: '768–791', quiz: 12 },
+      { n: 17, d: 'security', titleAr: 'IAM المتعمّق', titleEn: 'IAM Deep Dive', pages: '21–38', quiz: 15 },
+      { n: 18, d: 'security', titleAr: 'الهوية المتقدّمة (STS)', titleEn: 'Advanced Identity (STS)', pages: '815–836', quiz: 12 },
+      { n: 19, d: 'security', titleAr: 'أمان S3', titleEn: 'S3 Security', pages: '266–285', quiz: 15 },
+      { n: 20, d: 'security', titleAr: 'التشفير وإدارة الأسرار', titleEn: 'Encryption — KMS, Secrets Manager, SSM', pages: '837–881', quiz: 15 },
+      { n: 21, d: 'deployment', titleAr: 'CloudFormation', titleEn: 'CloudFormation', pages: '384–431', quiz: 15 },
+      { n: 22, d: 'deployment', titleAr: 'AWS SAM', titleEn: 'AWS SAM', pages: '743–754', quiz: 10 },
+      { n: 23, d: 'deployment', titleAr: 'AWS CDK', titleEn: 'AWS CDK', pages: '755–767', quiz: 10 },
+      { n: 24, d: 'deployment', titleAr: 'Elastic Beanstalk', titleEn: 'Elastic Beanstalk', pages: '359–383', quiz: 12 },
+      { n: 25, d: 'deployment', titleAr: 'الحاويات (ECS و Fargate)', titleEn: 'Containers on AWS', pages: '317–358', quiz: 15 },
+      { n: 26, d: 'deployment', titleAr: 'AWS CI/CD', titleEn: 'AWS CI/CD', pages: '706–742', quiz: 15 },
+      { n: 27, d: 'troubleshoot', titleAr: 'CloudWatch', titleEn: 'CloudWatch', pages: '474–505', quiz: 12 },
+      { n: 28, d: 'troubleshoot', titleAr: 'X-Ray و CloudTrail', titleEn: 'X-Ray & CloudTrail', pages: '506–531', quiz: 12 },
+      { n: 29, d: 'troubleshoot', titleAr: 'CloudFront وخدمات أخرى', titleEn: 'CloudFront & Other Services', pages: '286–316, 882–898', quiz: 10 },
+      { n: 30, d: 'troubleshoot', titleAr: 'مراجعة الامتحان', titleEn: 'Exam Review & Final Tips', pages: '899–918', quiz: 8 },
+    ];
+
+    const COLORS = {
+      foundations: 'bg-surface-500',
+      development: 'bg-blue-600',
+      security: 'bg-red-600',
+      deployment: 'bg-emerald-600',
+      troubleshoot: 'bg-amber-600',
+    };
+
+    function renderChapterCard(ch) {
+      const completed = getCompleted().includes(ch.n);
+      const quiz = getQuizResult(ch.n);
+      const chId = String(ch.n).padStart(2, '0');
+      const badgeAr = completed ? 'مكتمل' : (quiz ? 'جاري' : 'لم يُبدأ');
+      const badgeEn = completed ? 'Completed' : (quiz ? 'In progress' : 'Not started');
+      const badgeColor = completed
+        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+        : (quiz ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-surface-100 text-surface-500 border-surface-200');
+      return `
+        <a href="chapters/ch${chId}.html" class="chapter-card bg-white rounded-2xl border border-surface-200 p-5 block hover:border-brand-300 hover:ring-2 hover:ring-brand-100">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl ${COLORS[ch.d]} text-white font-bold flex items-center justify-center text-sm shadow-sm">${ch.n}</div>
+              <div class="min-w-0">
+                <p class="text-xs text-surface-500 font-medium">
+                  <span class="lang-ar">الشابتر</span>
+                  <span class="lang-en">Chapter</span>
+                  ${ch.n}
+                </p>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full border ${badgeColor} font-semibold flex-shrink-0">
+              <span class="lang-ar">${badgeAr}</span>
+              <span class="lang-en">${badgeEn}</span>
+            </span>
+          </div>
+          <h3 class="font-bold text-surface-800 text-base mb-2 leading-snug">
+            <span class="lang-ar">${ch.titleAr}</span>
+            <span class="lang-en">${ch.titleEn}</span>
+          </h3>
+          <div class="flex items-center gap-3 text-xs text-surface-500 flex-wrap">
+            <span class="flex items-center gap-1 font-mono"><i data-lucide="file" class="w-3 h-3"></i>${ch.pages}</span>
+            <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-3 h-3"></i>${ch.quiz}
+              <span class="lang-ar">سؤال</span>
+              <span class="lang-en">questions</span>
+            </span>
+            ${quiz ? `<span class="flex items-center gap-1 ${quiz.percent >= 80 ? 'text-emerald-600' : (quiz.percent >= 60 ? 'text-amber-600' : 'text-red-600')}"><i data-lucide="award" class="w-3 h-3"></i>${quiz.percent}%</span>` : ''}
+          </div>
+        </a>
+      `;
+    }
+
+    const CHEATSHEETS = [
+      { slug: 'iam', nameAr: 'IAM', nameEn: 'IAM', icon: 'user-lock', color: 'red' },
+      { slug: 'sts', nameAr: 'STS', nameEn: 'STS', icon: 'key-round', color: 'red' },
+      { slug: 'cognito', nameAr: 'Cognito', nameEn: 'Cognito', icon: 'users', color: 'red' },
+      { slug: 'ec2', nameAr: 'EC2', nameEn: 'EC2', icon: 'server', color: 'orange' },
+      { slug: 'lambda', nameAr: 'Lambda', nameEn: 'Lambda', icon: 'zap', color: 'amber' },
+      { slug: 'ecs', nameAr: 'ECS', nameEn: 'ECS', icon: 'box', color: 'blue' },
+      { slug: 'fargate', nameAr: 'Fargate', nameEn: 'Fargate', icon: 'boxes', color: 'blue' },
+      { slug: 'beanstalk', nameAr: 'Beanstalk', nameEn: 'Beanstalk', icon: 'sprout', color: 'green' },
+      { slug: 's3', nameAr: 'S3', nameEn: 'S3', icon: 'database', color: 'emerald' },
+      { slug: 'ebs', nameAr: 'EBS', nameEn: 'EBS', icon: 'hard-drive', color: 'slate' },
+      { slug: 'efs', nameAr: 'EFS', nameEn: 'EFS', icon: 'folder', color: 'slate' },
+      { slug: 'rds', nameAr: 'RDS', nameEn: 'RDS', icon: 'database', color: 'blue' },
+      { slug: 'dynamodb', nameAr: 'DynamoDB', nameEn: 'DynamoDB', icon: 'layers', color: 'blue' },
+      { slug: 'aurora', nameAr: 'Aurora', nameEn: 'Aurora', icon: 'zap', color: 'indigo' },
+      { slug: 'elasticache', nameAr: 'ElastiCache', nameEn: 'ElastiCache', icon: 'flame', color: 'rose' },
+      { slug: 'api-gateway', nameAr: 'API Gateway', nameEn: 'API Gateway', icon: 'workflow', color: 'purple' },
+      { slug: 'appsync', nameAr: 'AppSync', nameEn: 'AppSync', icon: 'git-branch', color: 'purple' },
+      { slug: 'sqs', nameAr: 'SQS', nameEn: 'SQS', icon: 'mail', color: 'pink' },
+      { slug: 'sns', nameAr: 'SNS', nameEn: 'SNS', icon: 'bell', color: 'pink' },
+      { slug: 'eventbridge', nameAr: 'EventBridge', nameEn: 'EventBridge', icon: 'calendar-clock', color: 'pink' },
+      { slug: 'step-functions', nameAr: 'Step Functions', nameEn: 'Step Functions', icon: 'git-branch', color: 'purple' },
+      { slug: 'kinesis', nameAr: 'Kinesis', nameEn: 'Kinesis', icon: 'activity', color: 'teal' },
+      { slug: 'cloudformation', nameAr: 'CloudFormation', nameEn: 'CloudFormation', icon: 'file-code', color: 'green' },
+      { slug: 'sam', nameAr: 'SAM', nameEn: 'SAM', icon: 'package', color: 'green' },
+      { slug: 'cdk', nameAr: 'CDK', nameEn: 'CDK', icon: 'terminal', color: 'green' },
+      { slug: 'codecommit', nameAr: 'CodeCommit', nameEn: 'CodeCommit', icon: 'git-merge', color: 'green' },
+      { slug: 'codebuild', nameAr: 'CodeBuild', nameEn: 'CodeBuild', icon: 'hammer', color: 'green' },
+      { slug: 'codedeploy', nameAr: 'CodeDeploy', nameEn: 'CodeDeploy', icon: 'rocket', color: 'green' },
+      { slug: 'codepipeline', nameAr: 'CodePipeline', nameEn: 'CodePipeline', icon: 'git-commit-horizontal', color: 'green' },
+      { slug: 'cloudwatch', nameAr: 'CloudWatch', nameEn: 'CloudWatch', icon: 'gauge', color: 'amber' },
+      { slug: 'x-ray', nameAr: 'X-Ray', nameEn: 'X-Ray', icon: 'scan-search', color: 'amber' },
+      { slug: 'cloudtrail', nameAr: 'CloudTrail', nameEn: 'CloudTrail', icon: 'file-search', color: 'amber' },
+      { slug: 'kms', nameAr: 'KMS', nameEn: 'KMS', icon: 'lock-keyhole', color: 'red' },
+      { slug: 'secrets-manager', nameAr: 'Secrets Manager', nameEn: 'Secrets Manager', icon: 'key', color: 'red' },
+      { slug: 'ssm-parameter-store', nameAr: 'SSM Parameter Store', nameEn: 'SSM Parameter Store', icon: 'settings', color: 'red' },
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach((btn) => {
+        btn.addEventListener('click', toggleLang);
+      });
+
+      ['foundations', 'development', 'security', 'deployment', 'troubleshoot'].forEach((d) => {
+        const grid = document.querySelector(`[data-domain-grid="${d}"]`);
+        if (!grid) return;
+        grid.innerHTML = CHAPTERS.filter((c) => c.d === d).map(renderChapterCard).join('');
+      });
+
+      const completed = getCompleted().length;
+      const total = CHAPTERS.length;
+      document.getElementById('progress-text').textContent = `${completed} / ${total}`;
+      document.getElementById('progress-bar').style.width = `${(completed / total) * 100}%`;
+      document.getElementById('stat-completed').textContent = completed;
+      document.getElementById('stat-remaining').textContent = total - completed;
+      const quizResults = Object.values(getAllQuizResults());
+      if (quizResults.length) {
+        const avg = Math.round(quizResults.reduce((s, r) => s + r.percent, 0) / quizResults.length);
+        document.getElementById('stat-quiz-avg').textContent = `${avg}%`;
+      }
+
+      document.getElementById('cheatsheets-grid').innerHTML = CHEATSHEETS.map((c) => `
+        <a href="cheatsheets/${c.slug}.html" class="bg-white hover:bg-surface-50 border border-surface-200 hover:border-brand-300 rounded-xl p-4 transition-all flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-lg bg-${c.color}-100 text-${c.color}-700 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <i data-lucide="${c.icon}" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-semibold text-surface-800 text-sm truncate"><span class="lang-ar">${c.nameAr}</span><span class="lang-en">${c.nameEn}</span></p>
+            <p class="text-xs text-surface-500">
+              <span class="lang-ar">ملخّص سريع</span>
+              <span class="lang-en">Quick ref</span>
+            </p>
+          </div>
+        </a>
+      `).join('');
+
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

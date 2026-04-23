@@ -1,0 +1,54 @@
+{
+  "slug": "rds",
+  "name": "Amazon RDS",
+  "icon": "database",
+  "color": "blue",
+  "tagline_ar": "قواعد بيانات علائقية مُدارة (MySQL, PostgreSQL, MariaDB, Oracle, SQL Server) مع تصحيحات ونسخ احتياطي آلي.",
+  "tagline_en": "Managed relational databases (MySQL, PostgreSQL, MariaDB, Oracle, SQL Server) with automated patching and backups.",
+  "key_concepts": [
+    {"concept": "DB Instances", "desc_ar": "خادم قاعدة بيانات على EC2 مُدار بـ RDS بفئات db.t/db.m/db.r/db.x.", "desc_en": "A managed DB server on EC2 with db.t/db.m/db.r/db.x classes."},
+    {"concept": "Multi-AZ Deployment", "desc_ar": "نسخة احتياطية متزامنة في AZ مختلفة لتحسين HA؛ تحوّل تلقائي عند الفشل.", "desc_en": "Synchronous standby in another AZ for HA; automatic failover."},
+    {"concept": "Read Replicas", "desc_ar": "حتى 15 نسخة قراءة غير متزامنة داخل/عبر المناطق لتوسيع أحمال القراءة.", "desc_en": "Up to 15 async read replicas within/cross-region to scale reads."},
+    {"concept": "Automated Backups & Snapshots", "desc_ar": "نسخ احتياطي آلي يومي مع نافذة احتفاظ حتى 35 يومًا، ولقطات يدوية.", "desc_en": "Daily automated backups up to 35 days retention; plus manual snapshots."},
+    {"concept": "Encryption & IAM Auth", "desc_ar": "تشفير KMS في الراحة (يجب تفعيله عند الإنشاء)، وSSL/TLS في النقل، ومصادقة IAM لـ MySQL/PostgreSQL.", "desc_en": "KMS at rest (must enable at creation), SSL/TLS in transit, IAM auth for MySQL/PostgreSQL."},
+    {"concept": "Parameter & Option Groups", "desc_ar": "تخصيص إعدادات المحرّك وتفعيل خصائص (مثل TDE أو memcached).", "desc_en": "Customize engine parameters and enable features (TDE, memcached)."},
+    {"concept": "RDS Proxy", "desc_ar": "يجمع الاتصالات ويحسّن التعامل مع Lambda ويقلّل تأثير الفشل.", "desc_en": "Connection pooling, better Lambda handling, and reduced failover impact."},
+    {"concept": "Storage Auto-Scaling", "desc_ar": "يتوسّع التخزين تلقائيًا حتى حدّ تحدّده أنت.", "desc_en": "Storage auto-scales up to a max you define."}
+  ],
+  "limits": [
+    {"limit": "أقصى نسخ قراءة", "limit_en": "Max read replicas", "value": "15 per source", "note_ar": "لـ MySQL/PostgreSQL/MariaDB.", "note_en": "For MySQL/PostgreSQL/MariaDB."},
+    {"limit": "فترة الاحتفاظ بالنسخ الاحتياطي", "limit_en": "Backup retention", "value": "0–35 days", "note_ar": "0 = تعطيل النسخ التلقائي.", "note_en": "0 disables automated backups."},
+    {"limit": "أقصى تخزين (gp3)", "limit_en": "Max storage (gp3)", "value": "64 TiB", "note_ar": "MySQL/MariaDB/PostgreSQL على gp3 أو io1.", "note_en": "MySQL/MariaDB/PostgreSQL on gp3 or io1."},
+    {"limit": "وقت فشل Multi-AZ", "limit_en": "Multi-AZ failover time", "value": "60–120 s", "note_ar": "مدّة تحوّل DNS للمستعد الاحتياطي.", "note_en": "DNS switch time to standby."},
+    {"limit": "نوافذ الصيانة", "limit_en": "Maintenance window", "value": "30-min weekly", "note_ar": "لا يمكن تعطيلها لكن يمكن تحديد وقتها.", "note_en": "Can't disable, but you can schedule it."},
+    {"limit": "اتصالات IAM Auth", "limit_en": "IAM-auth connections", "value": "~200 new / sec", "note_ar": "لـ MySQL حدّ ناعم.", "note_en": "Soft limit for MySQL."},
+    {"limit": "حجم صف/عمود", "limit_en": "Row/BLOB size", "value": "Engine-specific", "note_ar": "يحكمه المحرّك (مثلاً MySQL 4 GB blob).", "note_en": "Engine-specific (e.g., MySQL 4 GB blob)."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء قاعدة MySQL Multi-AZ مشفّرة.", "desc_en": "Create an encrypted Multi-AZ MySQL instance.", "cmd": "aws rds create-db-instance --db-instance-identifier prod-db --engine mysql --db-instance-class db.m6g.large --allocated-storage 100 --multi-az --storage-encrypted --master-username admin --master-user-password ****"},
+    {"desc_ar": "إنشاء نسخة قراءة.", "desc_en": "Create a read replica.", "cmd": "aws rds create-db-instance-read-replica --db-instance-identifier prod-db-ro --source-db-instance-identifier prod-db"},
+    {"desc_ar": "أخذ لقطة يدوية.", "desc_en": "Take a manual snapshot.", "cmd": "aws rds create-db-snapshot --db-instance-identifier prod-db --db-snapshot-identifier prod-db-2026-04-23"},
+    {"desc_ar": "الاستعادة إلى وقت محدّد.", "desc_en": "Point-in-time restore.", "cmd": "aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier prod-db --target-db-instance-identifier prod-db-restored --restore-time 2026-04-22T10:00:00Z"},
+    {"desc_ar": "تمكين مصادقة IAM.", "desc_en": "Enable IAM authentication.", "cmd": "aws rds modify-db-instance --db-instance-identifier prod-db --enable-iam-database-authentication --apply-immediately"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تطبيق يستخدم SQL تقليدي مع جداول علائقية.", "scenario_en": "Classic SQL app with relational tables.", "choice": "RDS MySQL / PostgreSQL"},
+    {"scenario_ar": "أحمال تحتاج HA تلقائيًا مع RPO قريب من الصفر.", "scenario_en": "Workloads needing automatic HA, near-zero RPO.", "choice": "RDS Multi-AZ"},
+    {"scenario_ar": "تطبيق سحابي بلا خادم يتصل بقاعدة بيانات.", "scenario_en": "Serverless app connecting to a database.", "choice": "RDS Proxy + Lambda"},
+    {"scenario_ar": "تقليل أثر استعلامات التقارير على الإنتاج.", "scenario_en": "Offload reporting queries from prod.", "choice": "Read Replicas"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Data Model", "feature_ar": "نموذج البيانات", "this": "Relational (SQL)", "alt": "Key-value / document", "alt_name": "DynamoDB"},
+    {"feature": "Schema", "feature_ar": "البنية", "this": "Fixed schema", "alt": "Schema-less", "alt_name": "DynamoDB"},
+    {"feature": "Scale", "feature_ar": "التوسّع", "this": "Vertical + read replicas", "alt": "Horizontal (partitions)", "alt_name": "DynamoDB"},
+    {"feature": "Joins & Transactions", "feature_ar": "JOIN والمعاملات", "this": "Full ACID + JOINs", "alt": "Single-table + limited tx", "alt_name": "DynamoDB"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Instance-hours + storage", "alt": "Per request / capacity", "alt_name": "DynamoDB"}
+  ],
+  "exam_tips": [
+    {"ar": "Multi-AZ للتوفّر العالي (ليس للأداء)، Read Replicas لتوسعة القراءة.", "en": "Multi-AZ is for HA (not performance); Read Replicas scale reads."},
+    {"ar": "لا يمكن تشفير قاعدة بعد إنشائها؛ استعد من لقطة مشفّرة بدلاً من ذلك.", "en": "You cannot encrypt an existing unencrypted DB; restore from an encrypted snapshot."},
+    {"ar": "RDS Proxy يقلّل فشل الاتصالات ويسرّع تحوّل Multi-AZ ويناسب Lambda.", "en": "RDS Proxy reduces connection storms, speeds Multi-AZ failover, and fits Lambda."},
+    {"ar": "PITR يعتمد على transaction logs المستمرّة خلال فترة الاحتفاظ.", "en": "Point-in-time restore relies on continuous transaction logs within retention."},
+    {"ar": "لتحويل نسخة قراءة إلى مستقلة: استخدم promote-read-replica.", "en": "Use promote-read-replica to turn a read replica into a standalone primary."}
+  ]
+}

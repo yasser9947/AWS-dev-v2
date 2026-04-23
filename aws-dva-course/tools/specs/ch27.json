@@ -1,0 +1,355 @@
+{
+  "n": 27,
+  "domain": "troubleshoot",
+  "title_ar": "Amazon CloudWatch — المراقبة والسجلّات والإنذارات",
+  "title_en": "Amazon CloudWatch — Metrics, Logs & Alarms",
+  "pages": "474-505",
+  "subtitle_ar": "عمود المراقبة الأساس في AWS: مقاييس مخصّصة، سجلّات مركزية، فلاتر، إنذارات، و Logs Insights. إذا كنت مطوّر جافا معتاداً على Micrometer و ELK، فهذا نظيرها في السحابة.",
+  "subtitle_en": "AWS's core observability pillar: custom metrics, centralized logs, filters, alarms, and Logs Insights. If you're a Java dev familiar with Micrometer and ELK, this is the AWS equivalent.",
+  "tags": ["CloudWatch", "Metrics", "Logs", "Alarms", "Logs Insights", "EMF"],
+  "objectives": [
+    {"concept": "CloudWatch Metrics & Dimensions", "tested_ar": "النطاق الرابع في أسئلة استخدام مقاييس مخصّصة ونشرها من التطبيق.", "tested_en": "Domain 4 — publishing custom metrics and reading built-in ones."},
+    {"concept": "CloudWatch Logs (Groups/Streams/Filters)", "tested_ar": "النطاق الرابع في أسئلة جمع السجلّات من EC2 و Lambda وتصفيتها.", "tested_en": "Domain 4 — collecting logs from EC2/Lambda and filtering them."},
+    {"concept": "Alarms (OK/ALARM/INSUFFICIENT_DATA)", "tested_ar": "النطاق الرابع في أسئلة الإنذارات المركّبة والإجراءات التلقائية.", "tested_en": "Domain 4 — composite alarms and automatic actions."},
+    {"concept": "Logs Insights & Subscriptions", "tested_ar": "النطاق الرابع في الاستعلام عن السجلّات وبثّها لـ Kinesis/Lambda.", "tested_en": "Domain 4 — querying logs and streaming to Kinesis/Lambda."}
+  ],
+  "sections": [
+    {
+      "title_ar": "المقاييس (Metrics) في CloudWatch",
+      "title_en": "CloudWatch Metrics",
+      "blocks": [
+        {"type": "p",
+         "ar": "CloudWatch يوفّر مقاييس لكلّ خدمة AWS تقريباً. <strong>Metric</strong> هو متغيّر قابل للرصد عبر الزمن (مثل <span dir=\"ltr\" class=\"font-mono text-brand-700\">CPUUtilization</span> أو <span dir=\"ltr\" class=\"font-mono text-brand-700\">NetworkIn</span>). كل مقياس ينتمي إلى <strong>namespace</strong> ويحمل <strong>timestamp</strong> و حتى ٣٠ <strong>dimension</strong> لتقسيمه (مثل <span dir=\"ltr\" class=\"font-mono\">InstanceId</span> أو <span dir=\"ltr\" class=\"font-mono\">Environment</span>).",
+         "en": "CloudWatch provides metrics for every AWS service. A <strong>metric</strong> is a variable tracked over time (e.g., <span dir=\"ltr\" class=\"font-mono text-brand-700\">CPUUtilization</span>, <span dir=\"ltr\" class=\"font-mono text-brand-700\">NetworkIn</span>). Each belongs to a <strong>namespace</strong>, has a <strong>timestamp</strong>, and up to 30 <strong>dimensions</strong> (e.g., <span dir=\"ltr\" class=\"font-mono\">InstanceId</span>, <span dir=\"ltr\" class=\"font-mono\">Environment</span>)."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "gauge", "title_ar": "EC2 Basic vs Detailed", "title_en": "EC2 Basic vs Detailed",
+                  "body_ar": "الافتراضي: نقطة كلّ <strong>٥ دقائق</strong> مجّاناً. Detailed Monitoring: كلّ <strong>١ دقيقة</strong> (بمقابل). ضروري لـ Auto Scaling السريع. ملاحظة: الذاكرة (RAM) لا تُرسَل افتراضياً — تحتاج Custom Metric عبر Unified Agent.",
+                  "body_en": "Default: 1 data point every <strong>5 minutes</strong>, free. Detailed Monitoring: every <strong>1 minute</strong> (paid). Needed for fast Auto Scaling. Note: memory (RAM) is NOT pushed by default — needs a custom metric via Unified Agent."},
+         "right": {"tone": "emerald", "icon": "zap", "title_ar": "Custom Metrics", "title_en": "Custom Metrics",
+                   "body_ar": "أنشئ مقاييسك عبر <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span>. استخدم dimensions لتقسيمها. <strong>Standard</strong>: دقّة ١ دقيقة. <strong>High Resolution</strong>: ١/٥/١٠/٣٠ ثانية (أغلى). يقبل نقاطاً من أسبوعين للماضي وساعتين للمستقبل.",
+                   "body_en": "Create your own via <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span>. Use dimensions to segment. <strong>Standard</strong>: 1-minute resolution. <strong>High Resolution</strong>: 1/5/10/30 sec (higher cost). Accepts points 2 weeks in the past to 2 hours in the future."}
+        },
+        {"type": "code", "lang": "java",
+         "code": "// Publish a custom metric from a Spring Boot app\nimport software.amazon.awssdk.services.cloudwatch.CloudWatchClient;\nimport software.amazon.awssdk.services.cloudwatch.model.*;\n\nCloudWatchClient cw = CloudWatchClient.create();\n\nMetricDatum datum = MetricDatum.builder()\n    .metricName(\"OrdersProcessed\")\n    .unit(StandardUnit.COUNT)\n    .value(42.0)\n    .storageResolution(60)   // 60 = standard, 1 = high-resolution\n    .dimensions(\n        Dimension.builder().name(\"Environment\").value(\"prod\").build(),\n        Dimension.builder().name(\"Service\").value(\"checkout\").build()\n    )\n    .timestamp(java.time.Instant.now())\n    .build();\n\ncw.putMetricData(PutMetricDataRequest.builder()\n    .namespace(\"Acme/Checkout\")\n    .metricData(datum)\n    .build());"},
+        {"type": "callout", "tone": "key",
+         "ar": "للامتحان: كلّ مقياس يحمل <strong>namespace + name + dimensions + timestamp</strong>. نفس الاسم مع dimensions مختلفة يُعتبر مقياساً منفصلاً. CloudWatch Dashboards تجمع المقاييس من عدّة حسابات ومناطق.",
+         "en": "Exam: each metric has <strong>namespace + name + dimensions + timestamp</strong>. Same name with different dimensions = separate metric. Dashboards can aggregate metrics from multiple accounts and regions."}
+      ]
+    },
+    {
+      "title_ar": "السجلّات (Logs): Groups و Streams و Agent",
+      "title_en": "CloudWatch Logs: Groups, Streams & Agent",
+      "blocks": [
+        {"type": "p",
+         "ar": "CloudWatch Logs هو مخزن السجلّات المركزيّ في AWS. <strong>Log Group</strong> اسم اعتباري يمثّل التطبيق. <strong>Log Stream</strong> هو مجرى سجلّ من مصدر واحد (خادم معيّن أو حاوية). يمكن تحديد <strong>سياسة انتهاء الصلاحية</strong> من يوم واحد إلى ١٠ سنوات أو أبداً.",
+         "en": "CloudWatch Logs is AWS's central log store. A <strong>Log Group</strong> is an arbitrary name representing an app. A <strong>Log Stream</strong> is a log from a single source (instance or container). You define <strong>retention policies</strong> from 1 day to 10 years, or never expire."},
+        {"type": "table",
+         "headers": {"ar": ["المصدر", "كيف يُرسَل السجلّ"], "en": ["Source", "How logs arrive"]},
+         "rows": [
+           [{"ar": "EC2 / On-Prem", "en": "EC2 / On-Prem"}, {"ar": "عبر CloudWatch Unified Agent (يحتاج IAM Role).", "en": "Via CloudWatch Unified Agent (needs IAM Role)."}],
+           [{"ar": "Lambda", "en": "Lambda"}, {"ar": "تلقائياً — لكن يحتاج الصلاحية <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream</span>.", "en": "Automatic — but needs <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream</span> permission."}],
+           [{"ar": "ECS / Beanstalk", "en": "ECS / Beanstalk"}, {"ar": "عبر driver مدمج أو configuration.", "en": "Via built-in driver / config."}],
+           [{"ar": "VPC Flow Logs, API Gateway, Route 53", "en": "VPC Flow Logs, API Gateway, Route 53"}, {"ar": "تكامل مباشر في الخدمة نفسها.", "en": "Direct integration inside each service."}],
+           [{"ar": "CloudTrail", "en": "CloudTrail"}, {"ar": "قابل للتوجيه لـ Logs بناءً على فلتر.", "en": "Can be routed to Logs based on a filter."}]
+         ]
+        },
+        {"type": "compare",
+         "left": {"tone": "amber", "icon": "package", "title_ar": "CloudWatch Logs Agent (القديم)", "title_en": "CloudWatch Logs Agent (old)",
+                  "body_ar": "يُرسل السجلّات فقط لـ CloudWatch Logs. لا يجمع مقاييس إضافية. AWS توصي بالترحيل إلى Unified.",
+                  "body_en": "Sends logs only to CloudWatch Logs. Doesn't collect extra metrics. AWS recommends migrating to Unified."},
+         "right": {"tone": "emerald", "icon": "sparkles", "title_ar": "CloudWatch Unified Agent", "title_en": "CloudWatch Unified Agent",
+                   "body_ar": "يجمع السجلّات <strong>و</strong> مقاييس على مستوى النظام: CPU, Disk I/O, RAM, Netstat, Processes, Swap. الإعداد المركزي عبر SSM Parameter Store. هذا هو المطلوب في الامتحان لجمع مقاييس RAM.",
+                   "body_en": "Collects logs <strong>plus</strong> system metrics: CPU, Disk I/O, RAM, Netstat, Processes, Swap. Centralized config via SSM Parameter Store. This is the answer for RAM metrics in exam."}
+        },
+        {"type": "code", "lang": "json",
+         "code": "// Unified Agent config snippet — /opt/aws/amazon-cloudwatch-agent/etc/config.json\n{\n  \"metrics\": {\n    \"namespace\": \"Acme/EC2\",\n    \"append_dimensions\": { \"InstanceId\": \"${aws:InstanceId}\" },\n    \"metrics_collected\": {\n      \"mem\":  { \"measurement\": [\"mem_used_percent\"] },\n      \"disk\": { \"measurement\": [\"used_percent\"], \"resources\": [\"*\"] }\n    }\n  },\n  \"logs\": {\n    \"logs_collected\": {\n      \"files\": { \"collect_list\": [\n        { \"file_path\": \"/var/log/myapp/*.log\",\n          \"log_group_name\": \"acme-api\",\n          \"log_stream_name\": \"{instance_id}\" }\n      ]}\n    }\n  }\n}"},
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>السجلّات مشفّرة افتراضياً</strong>. يمكن استخدام KMS key خاصّ. لا تسجّل معلومات حسّاسة بنصّ صريح — استخدم Filter Pattern لاكتشافها وإنذار الفريق.",
+         "en": "<strong>Logs are encrypted by default</strong>. You can supply your own KMS key. Never log sensitive data in plaintext — use Metric Filters to detect and alert."}
+      ]
+    },
+    {
+      "title_ar": "Metric Filters و Subscriptions",
+      "title_en": "Metric Filters & Subscriptions",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Metric Filter</strong> يحوّل أنماطاً في السجلّات إلى مقياس (مثل عدّ ظهور كلمة <span dir=\"ltr\" class=\"font-mono\">ERROR</span>)، ثمّ يُمكن بناء Alarm عليه. مهمّ: <strong>الفلتر لا يعمل بأثر رجعيّ</strong>؛ يبدأ النشر فقط للأحداث اللاحقة لإنشائه. يدعم حتى ٣ أبعاد.",
+         "en": "A <strong>Metric Filter</strong> turns log patterns into a metric (e.g., count of <span dir=\"ltr\" class=\"font-mono\">ERROR</span> occurrences), which can then trigger an alarm. Critical: <strong>filters do NOT retroactively filter</strong> — they only publish for events after the filter is created. Supports up to 3 dimensions."},
+        {"type": "p",
+         "ar": "<strong>Subscription Filter</strong> يختلف: يبثّ السجلّات في الوقت الفعليّ إلى وجهة: Kinesis Data Streams، Kinesis Data Firehose (near real-time لـ S3)، أو Lambda (real-time). يدعم Cross-Account Subscription لتجميع السجلّات في حساب مركزيّ.",
+         "en": "A <strong>Subscription Filter</strong> is different: it streams logs in real time to a destination: Kinesis Data Streams, Kinesis Data Firehose (near real-time to S3), or Lambda (real-time). Supports Cross-Account Subscription for central log aggregation."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "download", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "S3 Export", "title_en": "S3 Export", "body_ar": "<span dir=\"ltr\" class=\"font-mono\">CreateExportTask</span>. يستغرق حتى ١٢ ساعة. ليس في الوقت الفعليّ.", "body_en": "<span dir=\"ltr\" class=\"font-mono\">CreateExportTask</span>. Up to 12 hours. Not real-time."},
+          {"icon": "zap", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Subscription → Lambda", "title_en": "Subscription → Lambda", "body_ar": "فوريّ (real-time) لمعالجة السجلّ حدثاً بحدث.", "body_en": "Real-time, event-by-event log processing."},
+          {"icon": "share-2", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Subscription → Kinesis Firehose → S3", "title_en": "Subscription → Kinesis Firehose → S3", "body_ar": "قريب من الفوريّ (near-real-time) لأرشفة منخفضة التكلفة.", "body_en": "Near-real-time for low-cost archival."},
+          {"icon": "globe", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Cross-Account Aggregation", "title_en": "Cross-Account Aggregation", "body_ar": "Subscription Destination في الحساب المستقبل + IAM Role يسمح بـ PutRecord.", "body_en": "Subscription Destination in recipient account + IAM Role allowing PutRecord."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "خلط شائع: <strong>Metric Filter ≠ Subscription Filter</strong>. الأوّل يعدّ/يستخرج ليصنع metric للإنذار. الثاني يبثّ السجلّ الخام كاملاً لخدمة أخرى.",
+         "en": "Common confusion: <strong>Metric Filter ≠ Subscription Filter</strong>. First counts/extracts to build a metric for alarms. Second streams the raw log to another service."}
+      ]
+    },
+    {
+      "title_ar": "Logs Insights — لغة استعلام السجلّات",
+      "title_en": "Logs Insights — log query language",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>CloudWatch Logs Insights</strong> محرّك استعلام مخصّص للسجلّات المخزّنة في CloudWatch. يكتشف الحقول تلقائياً من JSON ومن خدمات AWS. ليس محرّك real-time — بل محرّك استعلام. يمكن استعلام عدّة Log Groups عبر حسابات مختلفة وحفظ الاستعلامات في Dashboards.",
+         "en": "<strong>CloudWatch Logs Insights</strong> is a purpose-built query engine for logs stored in CloudWatch. Auto-discovers fields from JSON and AWS services. It's a query engine, not real-time. Can query multiple Log Groups across AWS accounts and save queries to Dashboards."},
+        {"type": "code", "lang": "bash",
+         "code": "# 25 most recent events\nfields @timestamp, @message\n| sort @timestamp desc\n| limit 25\n\n# Count exceptions per 5-minute bucket\nfilter @message like /Exception/\n| stats count(*) as exceptionCount by bin(5m)\n| sort exceptionCount desc\n\n# Spring Boot: find slow requests\nfields @timestamp, @message\n| parse @message /duration=(?<duration>\\d+)ms/\n| filter duration > 1000\n| stats avg(duration), max(duration), count(*) by bin(1m)"},
+        {"type": "callout", "tone": "senior",
+         "ar": "للمطوّر السينيور: Logs Insights شبيه بـ KQL في Azure أو LogQL في Grafana Loki. اعتد على <span dir=\"ltr\" class=\"font-mono\">fields | filter | parse | stats | sort | limit</span>. Dashboards تربطها ببانل Alarm لتنبيه فوريّ على أنماط في السجلّ.",
+         "en": "Senior dev: Insights is like Azure KQL or Grafana Loki's LogQL. Memorize <span dir=\"ltr\" class=\"font-mono\">fields | filter | parse | stats | sort | limit</span>. Dashboards bind it to Alarm panels for instant log-pattern alerting."}
+      ]
+    },
+    {
+      "title_ar": "الإنذارات (Alarms) و EMF",
+      "title_en": "Alarms & Embedded Metric Format (EMF)",
+      "blocks": [
+        {"type": "p",
+         "ar": "الـ Alarm يراقب مقياساً واحداً ويطلق إجراءً عند تجاوز عتبة. الحالات الثلاث: <span dir=\"ltr\" class=\"font-mono text-brand-700\">OK</span>، <span dir=\"ltr\" class=\"font-mono text-red-700\">ALARM</span>، <span dir=\"ltr\" class=\"font-mono text-amber-700\">INSUFFICIENT_DATA</span>. الأخيرة مهمّة في الامتحان: تعني أنّ البيانات غير كافية للحكم.",
+         "en": "An alarm watches one metric and triggers an action when a threshold is breached. Three states: <span dir=\"ltr\" class=\"font-mono text-brand-700\">OK</span>, <span dir=\"ltr\" class=\"font-mono text-red-700\">ALARM</span>, <span dir=\"ltr\" class=\"font-mono text-amber-700\">INSUFFICIENT_DATA</span>. The last one matters on exam: it means not enough data to judge."},
+        {"type": "table",
+         "headers": {"ar": ["نوع", "الخاصّية"], "en": ["Type", "Property"]},
+         "rows": [
+           [{"ar": "Metric Alarm", "en": "Metric Alarm"}, {"ar": "يراقب مقياساً واحداً مع period و threshold.", "en": "Watches one metric with period and threshold."}],
+           [{"ar": "Composite Alarm", "en": "Composite Alarm"}, {"ar": "يجمع عدّة Alarms بمنطق <span dir=\"ltr\" class=\"font-mono\">AND/OR</span> — يقلّل ضجيج الإنذارات (alarm noise).", "en": "Combines multiple alarms with <span dir=\"ltr\" class=\"font-mono\">AND/OR</span> logic — reduces alarm noise."}],
+           [{"ar": "الإجراءات (Targets)", "en": "Targets"}, {"ar": "Stop/Terminate/Reboot/Recover خادم EC2، أو Auto Scaling، أو SNS.", "en": "EC2 Stop/Terminate/Reboot/Recover, Auto Scaling action, or SNS."}],
+           [{"ar": "Period", "en": "Period"}, {"ar": "High-resolution: ١٠ أو ٣٠ ثانية أو مضاعفات ٦٠. Standard: ١ دقيقة وأكثر.", "en": "High-resolution: 10s, 30s, or multiples of 60. Standard: 1 minute and up."}]
+         ]
+        },
+        {"type": "p",
+         "ar": "<strong>EC2 Instance Recovery</strong>: ألارم على <span dir=\"ltr\" class=\"font-mono\">StatusCheckFailed_System</span> يعيد تشغيل الخادم على عتاد جديد مع الاحتفاظ بـ Private/Public/Elastic IP والـ metadata والـ placement group. حلّ سريع لأعطال الخادم الفيزيائي.",
+         "en": "<strong>EC2 Instance Recovery</strong>: alarm on <span dir=\"ltr\" class=\"font-mono\">StatusCheckFailed_System</span> recovers the instance on new hardware, keeping same Private/Public/Elastic IP, metadata, and placement group. Fast fix for physical host failures."},
+        {"type": "code", "lang": "bash",
+         "code": "# Test an alarm without waiting for the threshold\naws cloudwatch set-alarm-state \\\n  --alarm-name 'high-cpu-prod' \\\n  --state-value ALARM \\\n  --state-reason 'testing'"},
+        {"type": "p",
+         "ar": "<strong>Embedded Metric Format (EMF)</strong>: JSON منظّم تُرسله من Lambda أو ECS إلى CloudWatch Logs، فتستخرج CloudWatch منه مقاييس مخصّصة <u>بدون</u> استدعاء <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span>. موفّر للكلفة ويدمج السجلّ والمقياس في رحلة واحدة — مفيد جداً لتطبيقات Spring Boot بدون خادم.",
+         "en": "<strong>Embedded Metric Format (EMF)</strong>: structured JSON you write from Lambda/ECS to CloudWatch Logs; CloudWatch extracts custom metrics from it <u>without</u> calling <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span>. Saves cost and unifies log+metric in one trip — excellent for serverless Spring Boot apps."},
+        {"type": "code", "lang": "json",
+         "code": "// Example EMF log line (Lambda prints this to stdout)\n{\n  \"_aws\": {\n    \"Timestamp\": 1700000000000,\n    \"CloudWatchMetrics\": [{\n      \"Namespace\": \"Acme/Checkout\",\n      \"Dimensions\": [[\"Service\",\"Environment\"]],\n      \"Metrics\": [{ \"Name\":\"OrderLatency\", \"Unit\":\"Milliseconds\" }]\n    }]\n  },\n  \"Service\": \"checkout\",\n  \"Environment\": \"prod\",\n  \"OrderLatency\": 143.7,\n  \"OrderId\": \"o-9821\"\n}"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>ServiceLens</strong> يربط CloudWatch Metrics + Logs + X-Ray Traces في واجهة واحدة لكشف الاختناقات. يظهر في الامتحان كحلّ لـ end-to-end observability.",
+         "en": "<strong>ServiceLens</strong> unifies CloudWatch Metrics + Logs + X-Ray Traces in one view for bottleneck discovery. Appears on exam as the end-to-end observability answer."}
+      ]
+    },
+    {
+      "title_ar": "أدوات إضافيّة: Synthetics و EventBridge",
+      "title_en": "Extras: Synthetics & EventBridge",
+      "blocks": [
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "bot", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "CloudWatch Synthetics Canary", "title_en": "CloudWatch Synthetics Canary", "body_ar": "سكربت Node.js أو Python يحاكي مستخدماً ويرصد المتاحية والـ latency. يدعم Heartbeat، API Canary، Broken Link، Visual Monitoring.", "body_en": "Node.js or Python script emulating a user to check availability and latency. Heartbeat, API Canary, Broken Link Checker, Visual Monitoring blueprints."},
+          {"icon": "calendar-clock", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EventBridge (ex-CloudWatch Events)", "title_en": "EventBridge (ex-CloudWatch Events)", "body_ar": "جدولة Cron، أو قواعد على أحداث (مثلاً تسجيل دخول Root) — تُطلق Lambda، SQS، SNS، Step Functions.", "body_en": "Cron schedules or event patterns (e.g., Root user sign-in) — trigger Lambda, SQS, SNS, Step Functions."},
+          {"icon": "archive", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "EventBridge Archive & Replay", "title_en": "EventBridge Archive & Replay", "body_ar": "أرشفة الأحداث لفترة محدّدة أو للأبد، وإعادة بثّها لاختبار أو تعويض.", "body_en": "Archive events indefinitely or for a period, and replay them for testing or recovery."},
+          {"icon": "file-json", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Schema Registry", "title_en": "Schema Registry", "body_ar": "EventBridge يستنتج schema الحدث ويولّد bindings للكود (Java/Python/Go).", "body_en": "EventBridge infers event schema and generates code bindings (Java/Python/Go)."}
+        ]},
+        {"type": "callout", "tone": "tip",
+         "ar": "كلمة الامتحان: <strong>Cron على AWS</strong> = EventBridge Schedule + Lambda. <strong>تنبيه عند إجراء خطير</strong> (مثل تعديل Security Group) = EventBridge Rule + CloudTrail Source + SNS.",
+         "en": "Exam keywords: <strong>Cron on AWS</strong> = EventBridge Schedule + Lambda. <strong>Alert on risky action</strong> (e.g., SG edit) = EventBridge Rule + CloudTrail source + SNS."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إعداد Metric Filter على سجلّات تطبيق Spring Boot لعدّ أخطاء Exception، وربطها بـ Alarm يرسل إشعار SNS.",
+    "goal_en": "Set up a Metric Filter on a Spring Boot app's logs to count Exceptions, then wire an Alarm to an SNS notification.",
+    "steps": [
+      {"title_ar": "أنشئ Log Group", "title_en": "Create the Log Group",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws logs create-log-group --log-group-name /acme/api\naws logs put-retention-policy --log-group-name /acme/api --retention-in-days 30"},
+      {"title_ar": "أنشئ Metric Filter لاستخراج أخطاء Exception", "title_en": "Create a Metric Filter for Exceptions",
+       "body_ar": "نستخدم نمطاً بسيطاً يبحث عن كلمة <span dir=\"ltr\" class=\"font-mono\">Exception</span> في السجلّ.",
+       "body_en": "Use a simple pattern matching <span dir=\"ltr\" class=\"font-mono\">Exception</span> in the log line.",
+       "code": "aws logs put-metric-filter \\\n  --log-group-name /acme/api \\\n  --filter-name exception-count \\\n  --filter-pattern 'Exception' \\\n  --metric-transformations \\\n    metricName=ExceptionCount,metricNamespace=Acme/API,metricValue=1,defaultValue=0"},
+      {"title_ar": "أنشئ SNS Topic للتنبيه", "title_en": "Create an SNS Topic for the alert",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws sns create-topic --name ops-alerts\naws sns subscribe --topic-arn arn:aws:sns:us-east-1:111122223333:ops-alerts \\\n  --protocol email --notification-endpoint oncall@acme.com"},
+      {"title_ar": "اربط Alarm يطلق SNS", "title_en": "Wire an Alarm to SNS",
+       "body_ar": "عتبة: أكثر من ٥ أخطاء خلال ٥ دقائق.",
+       "body_en": "Threshold: more than 5 exceptions in 5 minutes.",
+       "code": "aws cloudwatch put-metric-alarm \\\n  --alarm-name acme-api-exceptions \\\n  --namespace Acme/API --metric-name ExceptionCount \\\n  --statistic Sum --period 300 --evaluation-periods 1 \\\n  --threshold 5 --comparison-operator GreaterThanThreshold \\\n  --alarm-actions arn:aws:sns:us-east-1:111122223333:ops-alerts \\\n  --treat-missing-data notBreaching"},
+      {"title_ar": "اختبر الإنذار بدون انتظار", "title_en": "Test the alarm without waiting",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws cloudwatch set-alarm-state \\\n  --alarm-name acme-api-exceptions \\\n  --state-value ALARM --state-reason 'testing'"}
+    ],
+    "warning_ar": "احذف الـ Alarm والـ Metric Filter والـ SNS subscription بعد الاختبار — الـ Metric Filter مجانيّ لكن Alarms High-Resolution لها تكلفة.",
+    "warning_en": "Delete the alarm, metric filter, and SNS subscription after testing — Metric Filters are free but high-res alarms aren't."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "فريق تطوير يريد مراقبة استخدام الـ RAM على خوادم EC2. ما الطريقة الصحيحة؟",
+      "question_en": "A dev team wants to monitor RAM usage on EC2 instances. Correct approach?",
+      "options_ar": ["RAM مرسَل افتراضياً كمقياس EC2 قياسيّ.", "تفعيل Detailed Monitoring.", "تثبيت CloudWatch Unified Agent ودفع <span dir=\"ltr\" class=\"font-mono\">mem_used_percent</span> كمقياس مخصّص.", "استخدام CloudTrail لمراقبة الذاكرة."],
+      "options_en": ["RAM is auto-reported as a standard EC2 metric.", "Enable Detailed Monitoring.", "Install the CloudWatch Unified Agent and push <span dir=\"ltr\" class=\"font-mono\">mem_used_percent</span> as a custom metric.", "Use CloudTrail to monitor memory."],
+      "correct": 2,
+      "explanation_ar": "مقاييس EC2 الافتراضية تشمل CPU و Network و Disk — لكن ليس RAM. لجمع RAM يجب تثبيت Unified Agent داخل الخادم وإرساله كمقياس مخصّص. Detailed Monitoring يزيد التردّد فقط ولا يضيف مقاييس جديدة.",
+      "explanation_en": "Default EC2 metrics cover CPU, Network, Disk — NOT RAM. To collect RAM, install the Unified Agent inside the instance and push it as a custom metric. Detailed Monitoring only changes frequency, not which metrics exist.",
+      "wrong_ar": ["RAM لا يُرسَل افتراضياً.", "يغيّر التردّد فقط إلى دقيقة، لا يضيف مقاييس جديدة.", "", "CloudTrail لتدقيق API لا لمراقبة أداء النظام."],
+      "wrong_en": ["RAM isn't pushed by default.", "Only changes frequency, doesn't add new metrics.", "", "CloudTrail audits API calls, not system performance."],
+      "reference_ar": "القسم ٢ — Unified Agent",
+      "reference_en": "Section 2 — Unified Agent"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "يريد فريق الأمن إرسال السجلّات من CloudWatch Logs إلى Lambda لتحليلها في الوقت الفعليّ. ما الأداة؟",
+      "question_en": "Security team wants to stream CloudWatch Logs to Lambda for real-time analysis. Which feature?",
+      "options_ar": ["Metric Filter", "Subscription Filter إلى Lambda", "Logs Insights query", "S3 Export"],
+      "options_en": ["Metric Filter", "Subscription Filter to Lambda", "Logs Insights query", "S3 Export"],
+      "correct": 1,
+      "explanation_ar": "Subscription Filter يبثّ الأحداث للوجهة في الوقت الفعليّ — و Lambda هي الوجهة المناسبة للمعالجة الفوريّة. S3 Export ليس فوريّاً (حتى ١٢ ساعة). Metric Filter يصنع مقاييس لا يبثّ سجلّات.",
+      "explanation_en": "Subscription Filter streams events in real time — Lambda is the right destination for instant processing. S3 Export isn't real-time (up to 12h). Metric Filter creates metrics, doesn't stream logs.",
+      "wrong_ar": ["يصنع مقياساً من السجلّ، لا يبثّ المحتوى.", "", "محرّك استعلام، ليس بثّاً مستمرّاً.", "غير فوريّ (حتى ١٢ ساعة)."],
+      "wrong_en": ["Creates a metric from logs, doesn't stream content.", "", "Query engine, not continuous streaming.", "Not real-time (up to 12h)."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "أنشأ مطوّر Metric Filter على Log Group موجود منذ أسبوع. متى تظهر المقاييس؟",
+      "question_en": "A developer creates a Metric Filter on a Log Group that's been active for a week. When do metrics appear?",
+      "options_ar": ["للسجلّات السابقة والجديدة.", "للأحداث التي تصل <u>بعد</u> إنشاء الفلتر فقط.", "خلال ٢٤ ساعة لكلّ السجلّات.", "يجب إعادة بناء الـ Log Group."],
+      "options_en": ["For past and future logs.", "Only for events arriving <u>after</u> the filter is created.", "Within 24h for all logs.", "Must recreate the Log Group."],
+      "correct": 1,
+      "explanation_ar": "Metric Filters <strong>لا تعمل بأثر رجعيّ</strong>. تبدأ بحساب الأحداث من لحظة إنشاء الفلتر فقط. هذه نقطة يركّز عليها الامتحان.",
+      "explanation_en": "Metric Filters do <strong>not</strong> retroactively process data. They only start counting events arriving after creation. Exam-favourite point.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ من التالي صحيح حول Composite Alarms؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which statements are true about Composite Alarms? Select all that apply.",
+      "options_ar": ["تراقب حالة عدّة Alarms أخرى.", "تدعم شروط AND و OR.", "تقلّل ضجيج الإنذارات.", "تُستخدم للمقاييس High Resolution فقط."],
+      "options_en": ["They monitor the state of multiple other alarms.", "Support AND and OR conditions.", "Help reduce alarm noise.", "Can only be used with high-resolution metrics."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "Composite Alarm يبني على حالات Alarms أخرى بشروط AND/OR، ويمنع إغراق الفريق بعشرات الإنذارات المترابطة. لا علاقة له بدقّة المقياس.",
+      "explanation_en": "Composite Alarm aggregates other alarm states with AND/OR conditions, preventing overwhelming alert storms. Resolution is irrelevant.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "Alarm يبقى في حالة <span dir=\"ltr\" class=\"font-mono\">INSUFFICIENT_DATA</span>. ماذا يعني ذلك؟",
+      "question_en": "An alarm stays in <span dir=\"ltr\" class=\"font-mono\">INSUFFICIENT_DATA</span> state. What does this mean?",
+      "options_ar": ["تجاوز العتبة ويحتاج تدخّل.", "المقياس سليم ولا مشكلة.", "لا توجد بيانات كافية لتقييم حالة الـ Alarm.", "الـ Alarm معطّل يدوياً."],
+      "options_en": ["Threshold breached, needs intervention.", "Metric is healthy.", "Not enough data points to evaluate the alarm.", "Alarm was manually disabled."],
+      "correct": 2,
+      "explanation_ar": "الحالات الثلاث: OK (سليم)، ALARM (عتبة تُجاوزت)، INSUFFICIENT_DATA (لا بيانات كافية — ربّما المقياس توقّف عن النشر).",
+      "explanation_en": "Three states: OK (healthy), ALARM (breached), INSUFFICIENT_DATA (not enough datapoints — maybe the metric stopped being published).",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "مطوّر جافا يريد إرسال مقياس OrderLatency من Lambda بأقلّ تكلفة. ما الحلّ الأمثل؟",
+      "question_en": "A Java dev wants to emit OrderLatency from Lambda at the lowest cost. Best option?",
+      "options_ar": ["استدعاء <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span> عند كلّ طلب.", "طباعة سجلّ Embedded Metric Format (EMF) إلى stdout.", "كتابة المقياس في DynamoDB ثمّ استيراده.", "استخدام CloudTrail لتتبّع Latency."],
+      "options_en": ["Call <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span> per request.", "Log Embedded Metric Format (EMF) JSON to stdout.", "Write the metric to DynamoDB then import it.", "Use CloudTrail to trace latency."],
+      "correct": 1,
+      "explanation_ar": "EMF يرسل سجلّ JSON منظّم يستخرج منه CloudWatch مقاييس مخصّصة دون تكلفة <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span> إضافيّة. ممارسة الأفضل في Lambda ذات الحجم الكبير.",
+      "explanation_en": "EMF logs a structured JSON from which CloudWatch extracts custom metrics with no extra <span dir=\"ltr\" class=\"font-mono\">PutMetricData</span> cost. Best practice for high-volume Lambda.",
+      "wrong_ar": ["تكلفة وزمن استجابة إضافيّ على كلّ طلب.", "", "معقّد وليس لهذا الغرض.", "CloudTrail للتدقيق، ليس للمقاييس."],
+      "wrong_en": ["Extra cost and latency per request.", "", "Overkill and wrong tool.", "CloudTrail is audit, not metrics."],
+      "reference_ar": "القسم ٥ — EMF",
+      "reference_en": "Section 5 — EMF"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "ما المكوّن الذي يجب تثبيته على خادم On-Premises لإرسال سجلّاته إلى CloudWatch Logs؟",
+      "question_en": "What must be installed on an on-premises server to send logs to CloudWatch Logs?",
+      "options_ar": ["X-Ray Daemon", "CloudWatch Logs Agent أو Unified Agent (مع IAM creds).", "AWS CLI فقط.", "CloudTrail trail."],
+      "options_en": ["X-Ray Daemon", "CloudWatch Logs Agent or Unified Agent (with IAM creds).", "Just the AWS CLI.", "A CloudTrail trail."],
+      "correct": 1,
+      "explanation_ar": "Unified Agent يعمل على EC2 وعلى On-Prem وعلى Windows/Linux، ويحتاج اعتمادات AWS (Access Key أو SSM Activation). X-Ray Daemon للتتبّع لا للسجلّات.",
+      "explanation_en": "Unified Agent runs on EC2 and on-prem (Windows/Linux) with AWS creds (access key or SSM activation). X-Ray Daemon is tracing, not logs.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "استعلام Logs Insights التالي ماذا يفعل؟<br><span dir=\"ltr\" class=\"font-mono text-sm\">filter @message like /Exception/ | stats count(*) by bin(5m)</span>",
+      "question_en": "What does this Logs Insights query do?<br><span dir=\"ltr\" class=\"font-mono text-sm\">filter @message like /Exception/ | stats count(*) by bin(5m)</span>",
+      "options_ar": ["يحذف سجلّات الأخطاء.", "يعدّ عدد السجلّات المحتوية على كلمة Exception في كلّ نافذة ٥ دقائق.", "يرسل إنذار SNS لكلّ Exception.", "يصدّر السجلّات إلى S3."],
+      "options_en": ["Deletes error logs.", "Counts log events containing 'Exception' per 5-minute bucket.", "Sends an SNS alert per Exception.", "Exports logs to S3."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">filter</span> يحصر السجلّات، <span dir=\"ltr\" class=\"font-mono\">stats count(*) by bin(5m)</span> يعدّ ويجمّع في نوافذ ٥ دقائق. أساسيّ في تحليل أنماط الأخطاء.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">filter</span> narrows logs, <span dir=\"ltr\" class=\"font-mono\">stats count(*) by bin(5m)</span> counts and buckets into 5-min windows. Core error-trend analysis.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "فريق يريد تشغيل Lambda كلّ ساعة تلقائياً. ما الحلّ؟",
+      "question_en": "Team wants to trigger a Lambda automatically every hour. Solution?",
+      "options_ar": ["Metric Filter على CloudWatch Logs.", "EventBridge Schedule (Cron) يستدعي Lambda.", "SNS topic بتوقيت.", "CloudTrail Trail."],
+      "options_en": ["A Metric Filter on CloudWatch Logs.", "EventBridge Schedule (Cron) invoking Lambda.", "A timed SNS topic.", "A CloudTrail trail."],
+      "correct": 1,
+      "explanation_ar": "EventBridge (CloudWatch Events سابقاً) يدعم جداول Cron تطلق Lambda أو Step Functions أو غيرها. SNS لا يدعم الجدولة الذاتيّة. CloudTrail للتدقيق.",
+      "explanation_en": "EventBridge (formerly CloudWatch Events) supports Cron schedules firing Lambda/Step Functions/etc. SNS has no self-schedule. CloudTrail is audit-only.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "شركة تريد تجميع سجلّات CloudWatch من ٣ حسابات مختلفة في S3 bucket مركزيّ. الطريقة الأمثل؟",
+      "question_en": "A company wants to aggregate CloudWatch Logs from 3 accounts into a central S3 bucket. Best way?",
+      "options_ar": ["S3 Export من كلّ حساب يوميّاً.", "Subscription Filter Cross-Account → Kinesis Data Streams → Firehose → S3.", "نسخ السجلّات يدوياً.", "Lambda دوريّة تقرأ السجلّات."],
+      "options_en": ["Daily S3 Export from each account.", "Cross-Account Subscription Filter → Kinesis Data Streams → Firehose → S3.", "Manual copy of logs.", "A scheduled Lambda that reads logs."],
+      "correct": 1,
+      "explanation_ar": "Cross-Account Subscription Filter هو النمط المعياريّ: كلّ حساب يبثّ سجلّاته عبر Subscription Destination في الحساب المركزيّ (IAM Role + Kinesis). الحلّ الأكثر كفاءة وقرب-فوري.",
+      "explanation_en": "Cross-Account Subscription Filter is the standard pattern: each account streams via a Subscription Destination in the central account (IAM Role + Kinesis). Most efficient, near-real-time.",
+      "wrong_ar": ["غير فوريّ، وتعقيد إداريّ.", "", "لا يتوسّع.", "غير فوريّ وعرضة لفقد بيانات."],
+      "wrong_en": ["Not real-time, ops overhead.", "", "Doesn't scale.", "Not real-time, risks data loss."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "يريد فريق اكتشاف تعطّل صفحة الدفع قبل شكوى المستخدمين. ما الحلّ المناسب في CloudWatch؟",
+      "question_en": "Team wants to detect checkout page outages before users complain. Right CloudWatch feature?",
+      "options_ar": ["CloudWatch Dashboards", "CloudWatch Synthetics Canary", "CloudWatch Logs Insights", "CloudWatch Metric Stream"],
+      "options_en": ["CloudWatch Dashboards", "CloudWatch Synthetics Canary", "CloudWatch Logs Insights", "CloudWatch Metric Stream"],
+      "correct": 1,
+      "explanation_ar": "Synthetics Canary يشغّل سكربت دوريّ يحاكي المستخدم (تسجيل دخول، إضافة للسلّة، دفع) ويُنبّه عند الفشل. هو حلّ AWS المعياريّ للمراقبة الاستباقيّة.",
+      "explanation_en": "Synthetics Canary runs a periodic script simulating a user (login, add-to-cart, checkout) and alerts on failure. AWS's standard synthetic monitoring answer.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "تطبيق Spring Boot يعمل على EC2. السجلّات لا تصل إلى CloudWatch. الخطوة الأولى للتشخيص؟",
+      "question_en": "A Spring Boot app on EC2 — logs aren't reaching CloudWatch. First troubleshooting step?",
+      "options_ar": ["إعادة تشغيل الخادم.", "التحقّق من تثبيت الـ CloudWatch Agent ومن IAM Role مع صلاحيات <span dir=\"ltr\" class=\"font-mono\">logs:PutLogEvents</span>.", "تمكين Detailed Monitoring.", "تحويل السجلّات إلى S3 بدلاً من CloudWatch."],
+      "options_en": ["Reboot the instance.", "Check the CloudWatch Agent is installed AND the IAM Role has <span dir=\"ltr\" class=\"font-mono\">logs:PutLogEvents</span>.", "Enable Detailed Monitoring.", "Route logs to S3 instead."],
+      "correct": 1,
+      "explanation_ar": "السببان الأكثر شيوعاً: الـ Agent غير مثبّت/متوقّف، أو الـ IAM Role ينقصه الإذن <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring للمقاييس لا للسجلّات.",
+      "explanation_en": "Two most common causes: agent not installed/running, or IAM Role missing <span dir=\"ltr\" class=\"font-mono\">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring is metrics, not logs.",
+      "wrong_ar": ["لا يحلّ مشكلة الإعداد.", "", "للمقاييس فقط.", "يُخفي المشكلة ولا يحلّها."],
+      "wrong_en": ["Doesn't fix config issues.", "", "Metrics only.", "Hides rather than fixes."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    }
+  ],
+  "summary": [
+    {"icon": "gauge", "title_ar": "المقاييس = متغيّر + dimensions", "title_en": "Metrics = variable + dimensions",
+     "body_ar": "EC2 افتراضياً كلّ ٥ دقائق. Detailed كلّ دقيقة. RAM مخصّص عبر Unified Agent.",
+     "body_en": "EC2 default every 5 min. Detailed every 1 min. RAM needs Unified Agent custom metric."},
+    {"icon": "search", "title_ar": "Metric Filter ≠ Subscription Filter", "title_en": "Metric Filter ≠ Subscription Filter",
+     "body_ar": "الأوّل يصنع مقياساً للإنذار. الثاني يبثّ السجلّات الخام لـ Lambda/Kinesis.",
+     "body_en": "First builds a metric for alarms. Second streams raw logs to Lambda/Kinesis."},
+    {"icon": "bell", "title_ar": "٣ حالات للإنذار", "title_en": "3 alarm states",
+     "body_ar": "OK, ALARM, INSUFFICIENT_DATA. Composite يدمج عدّة Alarms بـ AND/OR.",
+     "body_en": "OK, ALARM, INSUFFICIENT_DATA. Composite combines via AND/OR."},
+    {"icon": "file-json", "title_ar": "EMF لتوفير الكلفة", "title_en": "EMF for cost savings",
+     "body_ar": "JSON منظّم في السجلّ يستخرج منه CloudWatch مقاييس بدون PutMetricData.",
+     "body_en": "Structured log JSON — CloudWatch extracts metrics without PutMetricData."}
+  ],
+  "mnemonic_ar": "تذكّر ترتيب الطبقات: <strong>M-L-A-E</strong> — <strong>M</strong>etrics (أرقام)، <strong>L</strong>ogs (نصوص)، <strong>A</strong>larms (ردّ فعل)، <strong>E</strong>ventBridge (توجيه وأتمتة). أي سيناريو مراقبة في الامتحان يقع في واحدة من هذه الأربع.",
+  "mnemonic_en": "Remember the layers: <strong>M-L-A-E</strong> — <strong>M</strong>etrics (numbers), <strong>L</strong>ogs (text), <strong>A</strong>larms (reaction), <strong>E</strong>ventBridge (routing & automation). Any exam monitoring scenario maps to one of these four.",
+  "prev": 26,
+  "next": 28
+}

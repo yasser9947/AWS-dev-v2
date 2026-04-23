@@ -1,0 +1,350 @@
+{
+  "n": 28,
+  "domain": "troubleshoot",
+  "title_ar": "AWS X-Ray و CloudTrail — التتبّع الموزّع والتدقيق",
+  "title_en": "AWS X-Ray & CloudTrail — Distributed Tracing & Audit",
+  "pages": "506-531",
+  "subtitle_ar": "X-Ray يجيب عن \"أين يتأخّر طلبي؟\" بخريطة خدمات بصريّة. CloudTrail يجيب عن \"من فعل ماذا ومتى؟\" في حسابك. معاً يكملان CloudWatch لإغلاق دائرة المراقبة.",
+  "subtitle_en": "X-Ray answers \"where is my request slow?\" with a visual service map. CloudTrail answers \"who did what and when?\" in your account. Together they complement CloudWatch to close the observability loop.",
+  "tags": ["X-Ray", "CloudTrail", "Tracing", "Audit", "Service Map", "Sampling"],
+  "objectives": [
+    {"concept": "X-Ray Segments, Subsegments, Traces", "tested_ar": "النطاق الرابع في تشخيص اختناقات microservices.", "tested_en": "Domain 4 — diagnosing microservice bottlenecks."},
+    {"concept": "X-Ray Sampling Rules (reservoir + rate)", "tested_ar": "النطاق الرابع في ضبط تكلفة التتبّع.", "tested_en": "Domain 4 — controlling tracing cost."},
+    {"concept": "CloudTrail Management / Data / Insights events", "tested_ar": "النطاق الرابع في أسئلة التدقيق والامتثال.", "tested_en": "Domain 4 — audit and compliance questions."},
+    {"concept": "CloudTrail + EventBridge integration", "tested_ar": "النطاق الرابع في أتمتة الردّ على أحداث API.", "tested_en": "Domain 4 — automated reaction to API events."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو AWS X-Ray ولماذا؟",
+      "title_en": "What is AWS X-Ray & why?",
+      "blocks": [
+        {"type": "p",
+         "ar": "في العالم الموزّع (Lambda + API Gateway + DynamoDB + SNS) يصبح تصحيح الأعطال كابوساً: ملفّات سجلّ متناثرة وصيغ مختلفة. <strong>X-Ray</strong> يجمع كلّ الطلب في <em>trace</em> واحد بصريّ يبيّن أين يُستهلك الوقت وأين تحدث الأخطاء. فكّر فيه كـ Zipkin/Jaeger على AWS.",
+         "en": "In a distributed world (Lambda + API Gateway + DynamoDB + SNS), debugging becomes a nightmare of scattered logs and inconsistent formats. <strong>X-Ray</strong> unifies every request into a single visual <em>trace</em> showing where time is spent and where errors occur. Think Zipkin/Jaeger on AWS."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "activity", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "تشخيص الأداء", "title_en": "Performance diagnosis", "body_ar": "يكشف الاختناقات و latency بين الخدمات.", "body_en": "Reveals bottlenecks and inter-service latency."},
+          {"icon": "network", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "خريطة خدمات", "title_en": "Service Map", "body_ar": "رسم تلقائيّ للاعتمادات بين الخدمات — حتى غير المطوّرين يفهمونه.", "body_en": "Auto-drawn dependency graph — even non-devs can follow."},
+          {"icon": "alert-triangle", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "أخطاء وخنق", "title_en": "Errors & throttling", "body_ar": "يُظهر Exceptions وحالات <span dir=\"ltr\" class=\"font-mono\">429 Throttling</span> أين بالضبط.", "body_en": "Pinpoints exceptions and <span dir=\"ltr\" class=\"font-mono\">429 Throttling</span>."},
+          {"icon": "clock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "SLA", "title_en": "SLA", "body_ar": "هل نلتزم بزمن الاستجابة المتعاقد عليه؟ X-Ray يرصد ذلك.", "body_en": "Are we meeting response-time SLA? X-Ray tracks it."}
+        ]},
+        {"type": "p",
+         "ar": "يتكامل X-Ray مع: Lambda، API Gateway، Elastic Beanstalk، ECS/EKS، ELB، EC2 (وحتى خوادم On-Prem). متوافق مع Java و Python و Go و Node.js و .NET.",
+         "en": "Integrations: Lambda, API Gateway, Elastic Beanstalk, ECS/EKS, ELB, EC2 (even on-prem). Works with Java, Python, Go, Node.js, .NET."}
+      ]
+    },
+    {
+      "title_ar": "المفاهيم الأساسيّة: Segments و Subsegments و Traces",
+      "title_en": "Core concepts: Segments, Subsegments, Traces",
+      "blocks": [
+        {"type": "table",
+         "headers": {"ar": ["المفهوم", "المعنى"], "en": ["Concept", "Meaning"]},
+         "rows": [
+           [{"mono": true, "value": "Segment"}, {"ar": "العمل الذي تقوم به خدمة واحدة (مثلاً: Lambda function). كلّ خدمة ترسل segment خاصّاً بها.", "en": "The work one service does (e.g., a Lambda function). Each service emits its own segment."}],
+           [{"mono": true, "value": "Subsegment"}, {"ar": "تفصيل داخل segment لاستدعاء downstream (DynamoDB، HTTP client، SQL).", "en": "Detail inside a segment for a downstream call (DynamoDB, HTTP client, SQL)."}],
+           [{"mono": true, "value": "Trace"}, {"ar": "مجموع segments لطلب واحد عبر كلّ الخدمات من البداية إلى النهاية.", "en": "The collection of all segments for one request across all services, end to end."}],
+           [{"mono": true, "value": "Annotations"}, {"ar": "key/value <u>مفهرسة</u> للبحث والتصفية (مثل <span dir=\"ltr\" class=\"font-mono\">userId</span>).", "en": "Key/value pairs <u>indexed</u> for searching and filtering (e.g., <span dir=\"ltr\" class=\"font-mono\">userId</span>)."}],
+           [{"mono": true, "value": "Metadata"}, {"ar": "key/value <u>غير مفهرسة</u>، للمعلومات الإضافيّة فقط.", "en": "Key/value <u>not indexed</u>, for extra context only."}]
+         ]
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "قاعدة ذهبيّة للامتحان: <strong>Annotations للبحث، Metadata للقراءة فقط</strong>. <span dir=\"ltr\" class=\"font-mono\">userId</span> أو <span dir=\"ltr\" class=\"font-mono\">orderId</span> ضعهما كـ annotation؛ payload الكامل ضعه metadata.",
+         "en": "Golden rule: <strong>Annotations = searchable, Metadata = context-only</strong>. Put <span dir=\"ltr\" class=\"font-mono\">userId</span>/<span dir=\"ltr\" class=\"font-mono\">orderId</span> as annotations; full payload as metadata."},
+        {"type": "code", "lang": "java",
+         "code": "// Spring Boot + X-Ray SDK v2 — add annotations & subsegments\nimport com.amazonaws.xray.AWSXRay;\n\n@RestController\npublic class OrderController {\n\n    @GetMapping(\"/orders/{id}\")\n    public Order getOrder(@PathVariable String id) {\n        // Make this trace searchable by order id\n        AWSXRay.getCurrentSegment().putAnnotation(\"orderId\", id);\n        AWSXRay.getCurrentSegment().putMetadata(\"request-ip\", requestIp());\n\n        // Custom subsegment for business logic\n        return AWSXRay.createSubsegment(\"loadOrder\", subsegment -> {\n            return orderRepo.findById(id);\n        });\n    }\n}"}
+      ]
+    },
+    {
+      "title_ar": "التفعيل: Daemon و SDK و IAM",
+      "title_en": "Enabling X-Ray: Daemon, SDK, IAM",
+      "blocks": [
+        {"type": "p",
+         "ar": "لتمكين X-Ray تحتاج خطوتين: (١) استيراد X-Ray SDK في الكود لإنشاء segments تلقائياً، و (٢) تشغيل <strong>X-Ray Daemon</strong> — وسيط UDP على المنفذ <span dir=\"ltr\" class=\"font-mono\">2000</span> يجمع segments ويرسلها إلى خدمة X-Ray كلّ ثانية. Lambda و Beanstalk يشغّلان الـ daemon نيابةً عنك.",
+         "en": "Enable X-Ray in 2 steps: (1) import the X-Ray SDK so segments are created automatically, and (2) run the <strong>X-Ray Daemon</strong> — a UDP listener on port <span dir=\"ltr\" class=\"font-mono\">2000</span> that batches segments to the X-Ray service every second. Lambda & Beanstalk run the daemon for you."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "server", "title_ar": "ECS: Daemon Container", "title_en": "ECS: Daemon Container",
+                  "body_ar": "حاوية واحدة للـ daemon على كلّ EC2 في الـ cluster (نمط DaemonSet). رخيص، لكن مشترَك بين المهامّ.",
+                  "body_en": "One daemon container per EC2 in the cluster (DaemonSet pattern). Cheap, but shared across tasks."},
+         "right": {"tone": "emerald", "icon": "container", "title_ar": "ECS / Fargate: Sidecar", "title_en": "ECS / Fargate: Sidecar",
+                   "body_ar": "حاوية daemon مرفقة مع كلّ مهمّة — العزل أفضل، وهو الخيار الوحيد في Fargate.",
+                   "body_en": "Daemon container attached per task — better isolation, only option on Fargate."}
+        },
+        {"type": "code", "lang": "yaml",
+         "code": "# Elastic Beanstalk enables X-Ray via .ebextensions/xray-daemon.config\noption_settings:\n  aws:elasticbeanstalk:xray:\n    XRayEnabled: true\n\n# The instance profile must allow writes to X-Ray (see IAM below)."},
+        {"type": "code", "lang": "json",
+         "code": "// Minimum IAM policy for the X-Ray Daemon / application\n{\n  \"Effect\": \"Allow\",\n  \"Action\": [\n    \"xray:PutTraceSegments\",\n    \"xray:PutTelemetryRecords\",\n    \"xray:GetSamplingRules\",\n    \"xray:GetSamplingTargets\",\n    \"xray:GetSamplingStatisticSummaries\"\n  ],\n  \"Resource\": \"*\"\n}\n// Or the managed policy: arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "أكثر سببين لتعطّل X-Ray في الامتحان: (١) الـ IAM Role لا يمتلك <span dir=\"ltr\" class=\"font-mono\">xray:PutTraceSegments</span>. (٢) على Lambda: <strong>Active Tracing</strong> غير مُفعّل في إعدادات الدالّة.",
+         "en": "Top 2 X-Ray failures on exam: (1) IAM Role missing <span dir=\"ltr\" class=\"font-mono\">xray:PutTraceSegments</span>. (2) On Lambda: <strong>Active Tracing</strong> not enabled in function config."}
+      ]
+    },
+    {
+      "title_ar": "قواعد أخذ العيّنات (Sampling Rules)",
+      "title_en": "Sampling Rules",
+      "blocks": [
+        {"type": "p",
+         "ar": "تتبّع كلّ طلب يُكلّف كثيراً. Sampling Rules تتحكّم بكم من الطلبات تُسجَّل. الافتراضي: أوّل طلب في كلّ ثانية (<strong>Reservoir</strong>) ثمّ ٥٪ من الباقي (<strong>Rate</strong>). يمكن تعديل القواعد من الـ Console دون تعديل الكود.",
+         "en": "Tracing every request is expensive. Sampling Rules control how many requests are recorded. Default: the first request each second (<strong>Reservoir</strong>) then 5% of additional requests (<strong>Rate</strong>). Rules are editable from the Console — no code change needed."},
+        {"type": "table",
+         "headers": {"ar": ["المفهوم", "الشرح"], "en": ["Term", "Explanation"]},
+         "rows": [
+           [{"mono": true, "value": "Reservoir"}, {"ar": "الحدّ الأدنى المضمون في الثانية (ضمان وجود trace واحد على الأقلّ).", "en": "Guaranteed minimum per second (ensures at least one trace/sec)."}],
+           [{"mono": true, "value": "Rate"}, {"ar": "النسبة المأخوذة من الطلبات الإضافيّة فوق Reservoir.", "en": "Sampled percentage of additional requests above reservoir."}],
+           [{"ar": "قاعدة Priority", "en": "Priority rule"}, {"ar": "رقم أصغر = أولويّة أعلى. تُطبَّق القاعدة الأعلى أولاً.", "en": "Smaller = higher priority. First matching rule wins."}]
+         ]
+        },
+        {"type": "code", "lang": "json",
+         "code": "// Debugging rule: trace every PUT /history/* call\n{\n  \"RuleName\": \"DEBUG-history-updates\",\n  \"Priority\": 1,\n  \"Reservoir\": 1,\n  \"Rate\": 1.0,\n  \"ServiceName\": \"scorekeep\",\n  \"HTTPMethod\": \"PUT\",\n  \"URLPath\": \"/history/*\",\n  \"ResourceARN\": \"*\"\n}"},
+        {"type": "callout", "tone": "senior",
+         "ar": "للمطوّر السينيور: عند التحقيق في مشكلة إنتاج، أنشئ <strong>قاعدة مؤقّتة Priority=1, Rate=1.0</strong> مقصورة على المسار المشكوك فيه، واحذفها فور انتهاء التحقيق لتقليل التكلفة.",
+         "en": "Senior dev: when investigating a prod issue, create a <strong>temporary Priority=1, Rate=1.0 rule</strong> scoped to the suspect path; delete after investigation to contain cost."}
+      ]
+    },
+    {
+      "title_ar": "AWS CloudTrail — تدقيق كلّ API Call",
+      "title_en": "AWS CloudTrail — audit every API call",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>CloudTrail</strong> مُفعّل افتراضياً في كلّ حساب AWS، ويسجّل كل API call يُجرى عبر Console أو CLI أو SDK أو خدمات AWS نفسها. الوظيفة: الحوكمة، الامتثال، والتدقيق. إذا حُذف مورد — <em>CloudTrail هو الوجهة الأولى للبحث</em>.",
+         "en": "<strong>CloudTrail</strong> is on by default in every AWS account, recording every API call made via Console, CLI, SDK, or AWS services themselves. Purpose: governance, compliance, audit. If a resource disappears — <em>CloudTrail is where you look first</em>."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "shield-check", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Management Events (افتراضي)", "title_en": "Management Events (default)", "body_ar": "عمليّات الإدارة: IAM AttachRolePolicy، EC2 CreateSubnet، CloudTrail CreateTrail. قابل للتقسيم إلى Read vs Write.", "body_en": "Management ops: IAM AttachRolePolicy, EC2 CreateSubnet, CreateTrail. Splittable into Read vs Write."},
+          {"icon": "database", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Data Events (غير مسجّلة افتراضياً)", "title_en": "Data Events (NOT default)", "body_ar": "عمليّات على مستوى الكائنات: S3 GetObject/PutObject، Lambda Invoke. حجم ضخم ومكلفة — فعّل فقط عند الحاجة.", "body_en": "Object-level ops: S3 GetObject/PutObject, Lambda Invoke. High volume and expensive — enable only when needed."},
+          {"icon": "sparkles", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "CloudTrail Insights Events", "title_en": "CloudTrail Insights Events", "body_ar": "ML تتعلّم النشاط الطبيعيّ وتنبّه عند انحرافات: فورة IAM، تجاوز حدود الخدمة.", "body_en": "ML learns normal activity and alerts on anomalies: IAM bursts, service-limit spikes."},
+          {"icon": "archive", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "الاحتفاظ", "title_en": "Retention", "body_ar": "٩٠ يوماً في CloudTrail نفسها. لبقاء أطول: سلّم إلى S3 (خام) + Athena للاستعلام.", "body_en": "90 days in CloudTrail itself. For longer retention: deliver to S3 (raw) + Athena for querying."}
+        ]},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "globe", "title_ar": "Multi-Region Trail", "title_en": "Multi-Region Trail",
+                  "body_ar": "الافتراضي الجديد: يغطّي كلّ المناطق في حساب واحد. موصى به دائماً.",
+                  "body_en": "The new default: covers every region in one account. Always recommended."},
+         "right": {"tone": "emerald", "icon": "building", "title_ar": "Organization Trail", "title_en": "Organization Trail",
+                   "body_ar": "في AWS Organizations: trail واحد مركزيّ يجمع أحداث كلّ الحسابات الفرعيّة — لا يمكن لحساب فرعي إيقافه.",
+                   "body_en": "In AWS Organizations: one central trail aggregates events from all member accounts — a member cannot disable it."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Log file integrity validation</strong>: عند التسليم إلى S3، CloudTrail ينشئ ملفّ digest (SHA-256) كلّ ساعة. لاكتشاف تلاعب، تحقّق من سلسلة الـ digest عبر <span dir=\"ltr\" class=\"font-mono\">aws cloudtrail validate-logs</span>.",
+         "en": "<strong>Log file integrity validation</strong>: on S3 delivery CloudTrail creates an hourly SHA-256 digest file. To detect tampering verify the digest chain via <span dir=\"ltr\" class=\"font-mono\">aws cloudtrail validate-logs</span>."}
+      ]
+    },
+    {
+      "title_ar": "التكامل: CloudTrail + CloudWatch + EventBridge",
+      "title_en": "Integration: CloudTrail + CloudWatch + EventBridge",
+      "blocks": [
+        {"type": "p",
+         "ar": "CloudTrail وحده لا يرسل تنبيهات فوريّة. لتحقيق ذلك اربطه بـ <strong>CloudWatch Logs</strong> + Metric Filter + Alarm (مثلاً عند استدعاء <span dir=\"ltr\" class=\"font-mono\">DeleteTable</span> في DynamoDB). أو اربطه بـ <strong>EventBridge</strong> مباشرة لردّ فعل أوتوماتيكيّ.",
+         "en": "CloudTrail alone doesn't push real-time alerts. Wire it to <strong>CloudWatch Logs</strong> + Metric Filter + Alarm (e.g., trigger on <span dir=\"ltr\" class=\"font-mono\">DeleteTable</span> in DynamoDB). Or plug directly into <strong>EventBridge</strong> for automated response."},
+        {"type": "code", "lang": "json",
+         "code": "// EventBridge rule: alert when anyone edits Security Group inbound rules\n{\n  \"source\": [\"aws.ec2\"],\n  \"detail-type\": [\"AWS API Call via CloudTrail\"],\n  \"detail\": {\n    \"eventSource\": [\"ec2.amazonaws.com\"],\n    \"eventName\": [\"AuthorizeSecurityGroupIngress\",\n                  \"RevokeSecurityGroupIngress\"]\n  }\n}\n// Target: SNS topic → security oncall channel"},
+        {"type": "table",
+         "headers": {"ar": ["أيّ خدمة لماذا؟", "الحالة"], "en": ["Which service when?", "Scenario"]},
+         "rows": [
+           [{"ar": "من حذف Security Group؟", "en": "Who deleted a Security Group?"}, {"mono": true, "value": "CloudTrail"}],
+           [{"ar": "لماذا الطلب بطيء على نظام microservices؟", "en": "Why is a request slow across microservices?"}, {"mono": true, "value": "X-Ray"}],
+           [{"ar": "كم هي نسبة استخدام CPU؟", "en": "What's the CPU utilization?"}, {"mono": true, "value": "CloudWatch Metrics"}],
+           [{"ar": "كم ظهور كلمة ERROR في الساعة؟", "en": "How many ERRORs last hour?"}, {"mono": true, "value": "CloudWatch Logs Insights"}],
+           [{"ar": "أرشفة API calls لسنة لتدقيق امتثال.", "en": "Archive API calls for a year for compliance."}, {"mono": true, "value": "CloudTrail → S3 + Athena"}]
+         ]
+        }
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "تمكين X-Ray على تطبيق Spring Boot يعمل على Elastic Beanstalk، وإعداد CloudTrail trail متعدّد المناطق يبثّ إلى CloudWatch Logs لتنبيه على حذف قواعد البيانات.",
+    "goal_en": "Enable X-Ray on a Spring Boot app running on Elastic Beanstalk, and set up a multi-region CloudTrail trail streaming to CloudWatch Logs to alert on table deletions.",
+    "steps": [
+      {"title_ar": "فعّل X-Ray في Elastic Beanstalk", "title_en": "Enable X-Ray in Beanstalk",
+       "body_ar": "أضف ملفّ إعداد في مجلد <span dir=\"ltr\" class=\"font-mono\">.ebextensions/</span>.",
+       "body_en": "Add a config file under <span dir=\"ltr\" class=\"font-mono\">.ebextensions/</span>.",
+       "code": "# .ebextensions/xray-daemon.config\noption_settings:\n  aws:elasticbeanstalk:xray:\n    XRayEnabled: true"},
+      {"title_ar": "امنح Instance Profile صلاحية الكتابة لـ X-Ray", "title_en": "Give instance profile X-Ray write perms",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws iam attach-role-policy \\\n  --role-name aws-elasticbeanstalk-ec2-role \\\n  --policy-arn arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"},
+      {"title_ar": "أدخل تعليمات X-Ray في الكود", "title_en": "Instrument the code",
+       "body_ar": "",
+       "body_en": "",
+       "code": "// Spring Boot: register the AWS X-Ray servlet filter\n@Bean\npublic FilterRegistrationBean<AWSXRayServletFilter> tracingFilter() {\n    FilterRegistrationBean<AWSXRayServletFilter> bean = new FilterRegistrationBean<>();\n    bean.setFilter(new AWSXRayServletFilter(\"acme-api\"));\n    return bean;\n}"},
+      {"title_ar": "أنشئ CloudTrail متعدّد المناطق يسلّم إلى S3 و CloudWatch Logs", "title_en": "Create a multi-region trail delivering to S3 + CloudWatch Logs",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws cloudtrail create-trail --name acme-audit \\\n  --s3-bucket-name acme-audit-bucket \\\n  --is-multi-region-trail \\\n  --enable-log-file-validation\n\naws cloudtrail update-trail --name acme-audit \\\n  --cloud-watch-logs-log-group-arn arn:aws:logs:us-east-1:111:log-group:acme-audit:* \\\n  --cloud-watch-logs-role-arn arn:aws:iam::111:role/CloudTrailToCloudWatch\n\naws cloudtrail start-logging --name acme-audit"},
+      {"title_ar": "أضف Metric Filter ينذر عند DeleteTable", "title_en": "Add a Metric Filter alerting on DeleteTable",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws logs put-metric-filter --log-group-name acme-audit \\\n  --filter-name dynamo-delete-table \\\n  --filter-pattern '{ $.eventSource = \"dynamodb.amazonaws.com\" && $.eventName = \"DeleteTable\" }' \\\n  --metric-transformations \\\n    metricName=DynamoTableDeletions,metricNamespace=Acme/Audit,metricValue=1"}
+    ],
+    "warning_ar": "Data Events في CloudTrail (مثل S3 GetObject) قد تولّد ملايين الأسطر في اليوم الواحد — لا تفعّلها عبر الـ bucket كاملاً إلا عند الضرورة. ألغِ الـ trail بعد الاختبار لتفادي تكلفة تخزين S3.",
+    "warning_en": "CloudTrail Data Events (like S3 GetObject) can generate millions of lines a day — don't enable them bucket-wide unless needed. Disable the trail after testing to avoid S3 storage cost."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "مهندس يريد البحث في traces X-Ray عن كلّ الطلبات الخاصّة بمستخدم معيّن. أين يجب وضع <span dir=\"ltr\" class=\"font-mono\">userId</span>؟",
+      "question_en": "An engineer wants to search X-Ray traces for all requests of a given user. Where should <span dir=\"ltr\" class=\"font-mono\">userId</span> go?",
+      "options_ar": ["في <span dir=\"ltr\" class=\"font-mono\">metadata</span> (مفهرسة).", "في <span dir=\"ltr\" class=\"font-mono\">annotations</span> (مفهرسة وقابلة للبحث).", "في <span dir=\"ltr\" class=\"font-mono\">subsegment name</span>.", "في رسالة السجلّ في CloudWatch."],
+      "options_en": ["In <span dir=\"ltr\" class=\"font-mono\">metadata</span> (indexed).", "In <span dir=\"ltr\" class=\"font-mono\">annotations</span> (indexed and searchable).", "In the <span dir=\"ltr\" class=\"font-mono\">subsegment name</span>.", "In a CloudWatch log message."],
+      "correct": 1,
+      "explanation_ar": "<strong>Annotations = مفهرسة وقابلة للبحث</strong>. Metadata غير مفهرسة؛ تُعرض لكن لا يمكن الفلترة عليها. هذا تمييز مهمّ جداً للامتحان.",
+      "explanation_en": "<strong>Annotations = indexed and searchable</strong>. Metadata is not indexed; it's displayed but can't filter. Critical exam distinction.",
+      "wrong_ar": ["Metadata غير مفهرسة.", "", "Subsegment name ليس لتحديد مستخدم.", "CloudWatch منفصلة عن فهرس X-Ray."],
+      "wrong_en": ["Metadata isn't indexed.", "", "Subsegment name isn't for user identity.", "CloudWatch is separate from X-Ray's index."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "X-Ray لا يعمل على Lambda مع أنّ الكود يحمل SDK. الخطوة الأكثر ترجيحاً؟",
+      "question_en": "X-Ray isn't working on Lambda despite the SDK being imported. Most likely fix?",
+      "options_ar": ["زيادة حجم الذاكرة.", "تفعيل <strong>Active Tracing</strong> في إعدادات الدالّة + منحها صلاحية <span dir=\"ltr\" class=\"font-mono\">AWSXRayWriteOnlyAccess</span>.", "إعادة نشر الكود.", "تشغيل X-Ray Daemon داخل Lambda."],
+      "options_en": ["Increase memory.", "Enable <strong>Active Tracing</strong> in the function config + attach <span dir=\"ltr\" class=\"font-mono\">AWSXRayWriteOnlyAccess</span>.", "Redeploy the code.", "Run the X-Ray Daemon inside Lambda."],
+      "correct": 1,
+      "explanation_ar": "على Lambda، X-Ray يشتغل فقط عند تمكين Active Tracing، مع execution role يسمح بالكتابة لـ X-Ray. الـ daemon مدارة من AWS تلقائياً.",
+      "explanation_en": "On Lambda, X-Ray runs only when Active Tracing is enabled and the execution role allows writes. The daemon is managed by AWS automatically.",
+      "wrong_ar": ["لا علاقة بالذاكرة.", "", "إعادة النشر دون تفعيل الإعداد لا تحلّ شيئاً.", "Lambda لا تشغّل daemon في الكود."],
+      "wrong_en": ["Unrelated to memory.", "", "Redeploy without enabling won't help.", "Lambda doesn't run an in-code daemon."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "شركة تريد تتبّع كلّ الطلبات على مسار <span dir=\"ltr\" class=\"font-mono\">/payments/*</span> في الإنتاج. ما الحلّ؟",
+      "question_en": "A company wants to trace every request on <span dir=\"ltr\" class=\"font-mono\">/payments/*</span> in production. Solution?",
+      "options_ar": ["رفع الـ Sampling Rate العامّة إلى ١٠٠٪.", "إنشاء Sampling Rule بأولويّة عالية، Reservoir=1, Rate=1.0، مقصورة على <span dir=\"ltr\" class=\"font-mono\">URLPath=/payments/*</span>.", "تعطيل X-Ray خارج مسار الدفع.", "إضافة annotation لكلّ طلب."],
+      "options_en": ["Raise global Sampling Rate to 100%.", "Create a high-priority Sampling Rule with Reservoir=1, Rate=1.0, scoped to <span dir=\"ltr\" class=\"font-mono\">URLPath=/payments/*</span>.", "Disable X-Ray for non-payment paths.", "Add an annotation to every request."],
+      "correct": 1,
+      "explanation_ar": "Custom Sampling Rule بأولويّة أعلى تغطّي المسار المطلوب فقط. رفع الـ rate العامّ يرفع التكلفة بلا داعٍ. annotations لا علاقة لها بمعدّل أخذ العيّنات.",
+      "explanation_en": "A custom high-priority Sampling Rule scoped to the path. Raising global rate balloons cost needlessly. Annotations don't affect sampling.",
+      "wrong_ar": ["تكلفة مرتفعة.", "", "لا يمكن تعطيل مسارات محدّدة بهذه الطريقة.", "Annotations لا تتحكّم بالـ sampling."],
+      "wrong_en": ["High cost.", "", "Can't selectively disable paths that way.", "Annotations don't control sampling."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "مدير أمن يسأل: \"من حذف جدول DynamoDB المسمّى <span dir=\"ltr\" class=\"font-mono\">orders</span>؟\". أين نبحث؟",
+      "question_en": "Security manager asks: \"Who deleted the DynamoDB table <span dir=\"ltr\" class=\"font-mono\">orders</span>?\". Where to look?",
+      "options_ar": ["CloudWatch Metrics", "X-Ray Service Map", "CloudTrail Event History", "AWS Config"],
+      "options_en": ["CloudWatch Metrics", "X-Ray Service Map", "CloudTrail Event History", "AWS Config"],
+      "correct": 2,
+      "explanation_ar": "CloudTrail يسجّل كلّ API call مع الهويّة والوقت. <span dir=\"ltr\" class=\"font-mono\">DeleteTable</span> هو Management Event، مسجّل افتراضياً. X-Ray للأداء، Config لتاريخ التكوين وليس الفاعل.",
+      "explanation_en": "CloudTrail records every API call with identity and time. <span dir=\"ltr\" class=\"font-mono\">DeleteTable</span> is a default Management Event. X-Ray is performance; Config tracks config history, not who.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "فريق امتثال يحتاج الاحتفاظ بسجلّات API لـ٧ سنوات. أيّ الحلول الأمثل؟",
+      "question_en": "Compliance team needs to retain API logs for 7 years. Best solution?",
+      "options_ar": ["الاكتفاء بـ CloudTrail (٩٠ يوم كافٍ).", "تسليم CloudTrail إلى S3 + تفعيل Lifecycle إلى Glacier + استعلام بـ Athena.", "CloudWatch Logs بفترة احتفاظ سنة واحدة.", "نسخ السجلّات يدوياً شهرياً."],
+      "options_en": ["Rely on CloudTrail alone (90 days is enough).", "Deliver CloudTrail to S3 + Lifecycle to Glacier + query via Athena.", "CloudWatch Logs with 1-year retention.", "Manual monthly copy."],
+      "correct": 1,
+      "explanation_ar": "CloudTrail يحتفظ فقط ٩٠ يوماً. لتخزين طويل: S3 (مع Object Lock للامتثال) + Lifecycle إلى Glacier Deep Archive + Athena للاستعلام بـ SQL. النمط المعياريّ في الامتحان.",
+      "explanation_en": "CloudTrail itself keeps only 90 days. Long-term: S3 (with Object Lock for compliance) + Lifecycle to Glacier Deep Archive + Athena for SQL queries. The textbook exam pattern.",
+      "wrong_ar": ["٩٠ يوم غير كافية.", "", "سنة لا تكفي، والسجلّات غير مصمّمة لذلك.", "عمليّة يدويّة هشّة."],
+      "wrong_en": ["90 days isn't enough.", "", "1 year isn't 7, and Logs aren't built for this.", "Fragile manual process."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "multi",
+      "question_ar": "أيّ من التالي أمثلة على <strong>Data Events</strong> في CloudTrail (غير مسجّلة افتراضياً)؟",
+      "question_en": "Which are examples of CloudTrail <strong>Data Events</strong> (not logged by default)?",
+      "options_ar": ["S3 GetObject", "IAM CreateUser", "Lambda Invoke", "EC2 RunInstances"],
+      "options_en": ["S3 GetObject", "IAM CreateUser", "Lambda Invoke", "EC2 RunInstances"],
+      "correct": [0, 2],
+      "explanation_ar": "Data Events = عمليّات على مستوى الكائنات: S3 object-level (GetObject/PutObject/DeleteObject) و Lambda Invoke. IAM CreateUser و EC2 RunInstances من Management Events (مسجّلة افتراضياً).",
+      "explanation_en": "Data Events = object-level: S3 object-level (GetObject/PutObject/DeleteObject) and Lambda Invoke. IAM CreateUser and EC2 RunInstances are Management Events (default-logged).",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "شركة تريد تنبيهاً فوريّاً عندما يسجّل Root User دخوله إلى AWS. أبسط حلّ؟",
+      "question_en": "A company wants instant alerts when the Root user signs in. Simplest solution?",
+      "options_ar": ["مراجعة CloudTrail يدوياً كلّ يوم.", "EventBridge Rule يطابق <span dir=\"ltr\" class=\"font-mono\">AWS Console Sign In</span> بـ <span dir=\"ltr\" class=\"font-mono\">userIdentity.type=Root</span> → SNS.", "Metric Filter على سجلّات CloudWatch Agent.", "X-Ray sampling rule."],
+      "options_en": ["Manually review CloudTrail daily.", "EventBridge Rule matching <span dir=\"ltr\" class=\"font-mono\">AWS Console Sign In</span> with <span dir=\"ltr\" class=\"font-mono\">userIdentity.type=Root</span> → SNS.", "Metric Filter on CloudWatch Agent logs.", "An X-Ray sampling rule."],
+      "correct": 1,
+      "explanation_ar": "EventBridge يدعم مصدر <span dir=\"ltr\" class=\"font-mono\">aws.signin</span> وشرط JSON مطابق. تنبيه فوريّ بدون قراءة سجلّات. Metric Filter ممكن لكن أكثر تعقيداً. X-Ray لا علاقة له.",
+      "explanation_en": "EventBridge supports the <span dir=\"ltr\" class=\"font-mono\">aws.signin</span> source with a JSON match. Instant alert without reading logs. Metric Filter is possible but more complex. X-Ray is irrelevant.",
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "X-Ray Service Map يُظهر دوّارات حمراء على DynamoDB. ماذا يعني اللون الأحمر؟",
+      "question_en": "X-Ray Service Map shows red rings on DynamoDB. What does red indicate?",
+      "options_ar": ["استخدام عالي للـ CPU.", "نسبة عالية من الأخطاء (errors/faults).", "تكلفة عالية.", "زمن استجابة عالٍ فقط."],
+      "options_en": ["High CPU usage.", "High error/fault percentage.", "High cost.", "High latency only."],
+      "correct": 1,
+      "explanation_ar": "Service Map يرمّز الحلقات: أخضر (سليم)، أصفر (throttling أو 4xx)، أحمر (أخطاء 5xx/faults). الأحمر يعني نسبة فشل مرتفعة — نقطة بدء للتحقيق.",
+      "explanation_en": "Service Map color codes: green (healthy), yellow (throttling / 4xx), red (5xx faults). Red = high error rate — starting point to drill in.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "مطوّر يستخدم ECS Fargate. كيف يشغّل X-Ray Daemon؟",
+      "question_en": "A developer uses ECS Fargate. How to run the X-Ray Daemon?",
+      "options_ar": ["كـ DaemonSet على كلّ عقدة (غير متاح في Fargate).", "كـ Sidecar Container في نفس Task Definition.", "لا حاجة — Fargate يشغّله تلقائياً.", "تثبيته على EC2 مستضيف."],
+      "options_en": ["As a DaemonSet per node (unavailable in Fargate).", "As a Sidecar container in the same Task Definition.", "Not needed — Fargate runs it automatically.", "Install on the host EC2."],
+      "correct": 1,
+      "explanation_ar": "في Fargate لا وصول لعقد EC2، فالخيار الوحيد هو Sidecar داخل نفس Task Definition (يتواصل عبر UDP 2000). Lambda وحدها التي تشغّله تلقائياً.",
+      "explanation_en": "Fargate has no EC2 host access, so the only option is a Sidecar inside the same Task Definition (talks over UDP 2000). Only Lambda runs it automatically.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "CloudTrail Insights Events — ما الذي يميّزها عن باقي الأحداث؟",
+      "question_en": "CloudTrail Insights Events — what makes them different?",
+      "options_ar": ["تسجّل عمليّات Data Events فقط.", "تستخدم تعلّم آليّ لاكتشاف أنماط غير عاديّة في Write Management Events.", "مجّانيّة بالكامل.", "تُخزَّن في CloudWatch Logs فقط."],
+      "options_en": ["They log only Data Events.", "They use ML to detect anomalous patterns in write Management Events.", "They're entirely free.", "Stored only in CloudWatch Logs."],
+      "correct": 1,
+      "explanation_ar": "Insights Events تبني baseline للنشاط الطبيعيّ ثمّ تنبّه على الانحرافات (فورة IAM، تجاوز حدود)، وتُرسَل للـ S3 و EventBridge. مكلّفة لذلك غير مفعّلة افتراضياً.",
+      "explanation_en": "Insights Events baseline normal activity then flag anomalies (IAM bursts, service-limit spikes), and can be sent to S3 and EventBridge. Paid — not enabled by default.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "في AWS Organization، مدير حساب رئيسيّ يريد ضمان أنّ كلّ الحسابات الفرعيّة يسجّل نشاطها API. الحلّ الأمثل؟",
+      "question_en": "In an AWS Organization, the management account wants to ensure every member account logs API activity. Best solution?",
+      "options_ar": ["طلب من كلّ فريق إنشاء trail يدوياً.", "إنشاء <strong>Organization Trail</strong> واحد مركزيّ — لا يمكن لحساب فرعي تعطيله.", "استخدام AWS Config بدلاً من CloudTrail.", "مشاركة S3 bucket لكلّ الحسابات."],
+      "options_en": ["Ask each team to create a trail manually.", "Create one central <strong>Organization Trail</strong> — members cannot disable it.", "Use AWS Config instead.", "Share an S3 bucket across accounts."],
+      "correct": 1,
+      "explanation_ar": "Organization Trail يُنشَأ من الحساب الرئيسي ويطبَّق تلقائياً على كلّ الحسابات مع منع التعطيل من الحسابات الفرعيّة. أفضل الممارسات للأمن.",
+      "explanation_en": "An Organization Trail is created from the management account and auto-applies to all members with no member-side opt-out. Security best practice.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "ما الخدمة التي تجيب عن: \"خدمة A بطيئة. هل المشكلة في A أم في DynamoDB الذي تتصل به؟\"",
+      "question_en": "Which service answers: \"Service A is slow. Is the issue A itself or the DynamoDB it calls?\"",
+      "options_ar": ["CloudTrail", "CloudWatch Alarms", "AWS X-Ray", "AWS Config"],
+      "options_en": ["CloudTrail", "CloudWatch Alarms", "AWS X-Ray", "AWS Config"],
+      "correct": 2,
+      "explanation_ar": "X-Ray يعرض الـ segment الخاصّ بالخدمة A مع subsegments لكلّ downstream call (بما فيها DynamoDB)، مع زمن كلّ منها. فوراً ترى أين يُضاع الوقت. CloudTrail للتدقيق، Config للتكوين.",
+      "explanation_en": "X-Ray shows Service A's segment with subsegments for each downstream call (including DynamoDB) with per-call timing. You immediately see where time goes. CloudTrail is audit; Config is configuration state.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    }
+  ],
+  "summary": [
+    {"icon": "network", "title_ar": "X-Ray = تتبّع الطلب", "title_en": "X-Ray = request tracing",
+     "body_ar": "Segments + Subsegments + Traces. Annotations مفهرسة، Metadata لا.",
+     "body_en": "Segments + Subsegments + Traces. Annotations indexed, Metadata not."},
+    {"icon": "filter", "title_ar": "Sampling يتحكّم بالتكلفة", "title_en": "Sampling controls cost",
+     "body_ar": "Reservoir = حدّ أدنى في الثانية. Rate = نسبة من الباقي.",
+     "body_en": "Reservoir = per-second minimum. Rate = percentage of the rest."},
+    {"icon": "file-search", "title_ar": "CloudTrail = من فعل ماذا", "title_en": "CloudTrail = who did what",
+     "body_ar": "Management افتراضيّ، Data اختياريّ، Insights ML. احتفاظ ٩٠ يوماً.",
+     "body_en": "Management default, Data opt-in, Insights ML. 90-day retention."},
+    {"icon": "archive", "title_ar": "S3 + Athena للامتثال الطويل", "title_en": "S3 + Athena for long compliance",
+     "body_ar": "سلّم إلى S3، فعّل Lifecycle، استعلم بـ SQL عبر Athena.",
+     "body_en": "Deliver to S3, Lifecycle to Glacier, query with SQL via Athena."}
+  ],
+  "mnemonic_ar": "ثلاثيّة المراقبة: <strong>CloudWatch</strong> يقول \"ماذا يحدث\"، <strong>X-Ray</strong> يقول \"أين يحدث\"، <strong>CloudTrail</strong> يقول \"من فعل ذلك\". لو سؤال الامتحان فيه كلمة \"audit\" أو \"who\" — اذهب فوراً إلى CloudTrail.",
+  "mnemonic_en": "Observability trio: <strong>CloudWatch</strong> says \"what is happening\", <strong>X-Ray</strong> says \"where it happens\", <strong>CloudTrail</strong> says \"who did it\". Any exam question mentioning \"audit\" or \"who\" → jump to CloudTrail.",
+  "prev": 27,
+  "next": 29
+}

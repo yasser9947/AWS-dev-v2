@@ -1,0 +1,48 @@
+{
+  "slug": "kms",
+  "name": "AWS KMS",
+  "icon": "lock-keyhole",
+  "color": "red",
+  "tagline_ar": "خدمة إدارة مفاتيح مُدارة لتشفير البيانات مع تكامل عميق مع خدمات AWS.",
+  "tagline_en": "Managed key management service for data encryption with deep AWS integration.",
+  "key_concepts": [
+    {"concept": "Key Types", "desc_ar": "Customer Managed Key (CMK) تحت تحكّمك، AWS Managed (aws/*)، AWS Owned (شفاف).", "desc_en": "Customer Managed Key (CMK) under your control, AWS Managed (aws/*), AWS Owned (transparent)."},
+    {"concept": "Symmetric vs Asymmetric", "desc_ar": "Symmetric AES-256 للتشفير السريع، Asymmetric RSA/ECC للتواقيع والتوزيع.", "desc_en": "Symmetric AES-256 for fast encryption, Asymmetric RSA/ECC for signing and distribution."},
+    {"concept": "Envelope Encryption", "desc_ar": "Data Key مُشفّرة بـ CMK — استخدم DataKey للتشفير محليًا وEncryptedDataKey لحفظه مع البيانات.", "desc_en": "Data Key encrypted by CMK — use DataKey locally, store EncryptedDataKey with data."},
+    {"concept": "Key Policy vs IAM", "desc_ar": "Key Policy = السياسة الأساسية للمفتاح (مطلوب). IAM Policy تضيف صلاحيات للهويات.", "desc_en": "Key Policy = base key policy (required). IAM adds permissions for identities."},
+    {"concept": "Grants", "desc_ar": "صلاحيات مؤقّتة على مفتاح لخدمة أو مستخدم — تُلغى بسهولة.", "desc_en": "Temporary permissions on a key for a service/user — easily revocable."},
+    {"concept": "Multi-Region Keys", "desc_ar": "مفتاح أساسي + نسخ متماثلة في مناطق أخرى — نفس Key ID ومواد التشفير.", "desc_en": "Primary + replicas in other regions — same Key ID and key material."},
+    {"concept": "Key Rotation", "desc_ar": "Automatic Rotation سنويًا للـ CMK (symmetric فقط)، Manual لـ asymmetric.", "desc_en": "Annual automatic rotation for CMK (symmetric only), manual for asymmetric."},
+    {"concept": "External / CloudHSM", "desc_ar": "External = أنت تستورد مادة المفتاح، CloudHSM = HSM مخصّص مع FIPS 140-2 L3.", "desc_en": "External = you import key material; CloudHSM = dedicated HSM with FIPS 140-2 L3."}
+  ],
+  "limits": [
+    {"limit": "Data size per Encrypt API", "limit_en": "Data size per Encrypt API", "value": "4 KB", "note_ar": "للبيانات الكبيرة استخدم DataKey + Envelope.", "note_en": "For large data use DataKey + Envelope."},
+    {"limit": "KMS keys per region", "limit_en": "KMS keys per region", "value": "100,000", "note_ar": "حدّ صلب.", "note_en": "Hard limit."},
+    {"limit": "Request Rate", "limit_en": "Request Rate (crypto)", "value": "5,500–30,000 RPS", "note_ar": "يختلف حسب المنطقة والعملية.", "note_en": "Varies by region and operation."},
+    {"limit": "Pending Deletion Window", "limit_en": "Pending Deletion Window", "value": "7–30 days", "note_ar": "فترة الانتظار قبل الحذف النهائي.", "note_en": "Waiting period before final deletion."},
+    {"limit": "Grants per key", "limit_en": "Grants per key", "value": "50,000", "note_ar": "حدّ عالٍ للخدمات الكثيرة.", "note_en": "High ceiling for many services."},
+    {"limit": "Key material rotation", "limit_en": "Rotation interval", "value": "365 days", "note_ar": "لا يمكن تعديلها (تلقائي).", "note_en": "Not configurable (automatic)."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء مفتاح.", "desc_en": "Create key.", "cmd": "aws kms create-key --description 'Acme App Key' --key-usage ENCRYPT_DECRYPT --key-spec SYMMETRIC_DEFAULT"},
+    {"desc_ar": "تشفير نصّ قصير.", "desc_en": "Encrypt short data.", "cmd": "aws kms encrypt --key-id alias/acme --plaintext fileb://secret.txt --output text --query CiphertextBlob"},
+    {"desc_ar": "إنشاء Data Key.", "desc_en": "Generate Data Key.", "cmd": "aws kms generate-data-key --key-id alias/acme --key-spec AES_256"},
+    {"desc_ar": "إنشاء alias.", "desc_en": "Create alias.", "cmd": "aws kms create-alias --alias-name alias/acme --target-key-id <KEY_ID>"},
+    {"desc_ar": "تفعيل Rotation سنوي.", "desc_en": "Enable annual rotation.", "cmd": "aws kms enable-key-rotation --key-id alias/acme"},
+    {"desc_ar": "جدولة حذف مفتاح.", "desc_en": "Schedule key deletion.", "cmd": "aws kms schedule-key-deletion --key-id <KEY_ID> --pending-window-in-days 7"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تشفير ملفات كبيرة في S3.", "scenario_en": "Encrypt large files in S3.", "choice": "SSE-KMS + Envelope Encryption"},
+    {"scenario_ar": "توقيع JWT أو certificate.", "scenario_en": "Sign JWTs or certificates.", "choice": "KMS Asymmetric Key"},
+    {"scenario_ar": "امتثال FIPS 140-2 L3.", "scenario_en": "FIPS 140-2 L3 compliance.", "choice": "CloudHSM (not KMS)"},
+    {"scenario_ar": "تطبيق multi-region يتطلّب fallback.", "scenario_en": "Multi-region app with failover.", "choice": "Multi-Region Keys"},
+    {"scenario_ar": "إدارة مادة المفتاح داخليًا.", "scenario_en": "Manage key material internally.", "choice": "External Key / BYOK"}
+  ],
+  "exam_tips": [
+    {"ar": "Encrypt API يأخذ فقط 4 KB — استخدم DataKey + Envelope للبيانات الأكبر.", "en": "Encrypt API takes only 4 KB — use DataKey + Envelope for larger data."},
+    {"ar": "Key Policy مطلوبة؛ IAM وحده لا يكفي للوصول إلى مفتاح.", "en": "Key Policy is required; IAM alone is not enough to access a key."},
+    {"ar": "S3 SSE-KMS يضرب الأداء إذا رفعت ملايين الكائنات — فكّر في S3 Bucket Keys.", "en": "S3 SSE-KMS hurts performance for millions of objects — consider S3 Bucket Keys."},
+    {"ar": "Multi-Region Keys لها نفس Key ID في المناطق — نصّ مشفّر بمنطقة يُفكّ بأخرى.", "en": "Multi-Region Keys share Key ID — encrypt in one region, decrypt in another."},
+    {"ar": "CloudHSM للـ FIPS 140-2 L3 — KMS فقط L2.", "en": "CloudHSM for FIPS 140-2 L3 — KMS is only L2."}
+  ]
+}

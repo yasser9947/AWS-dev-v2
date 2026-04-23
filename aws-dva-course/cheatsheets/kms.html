@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS KMS — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-red-600 via-red-700 to-red-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="lock-keyhole" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-red-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">AWS KMS</h1>
+        </div>
+      </div>
+      <p class="text-lg text-red-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">خدمة إدارة مفاتيح مُدارة لتشفير البيانات مع تكامل عميق مع خدمات AWS.</span>
+        <span class="lang-en">Managed key management service for data encryption with deep AWS integration.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-red-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Key Types</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Customer Managed Key (CMK) تحت تحكّمك، AWS Managed (aws/*)، AWS Owned (شفاف).</span>
+      <span class="lang-en">Customer Managed Key (CMK) under your control, AWS Managed (aws/*), AWS Owned (transparent).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Symmetric vs Asymmetric</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Symmetric AES-256 للتشفير السريع، Asymmetric RSA/ECC للتواقيع والتوزيع.</span>
+      <span class="lang-en">Symmetric AES-256 for fast encryption, Asymmetric RSA/ECC for signing and distribution.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Envelope Encryption</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Data Key مُشفّرة بـ CMK — استخدم DataKey للتشفير محليًا وEncryptedDataKey لحفظه مع البيانات.</span>
+      <span class="lang-en">Data Key encrypted by CMK — use DataKey locally, store EncryptedDataKey with data.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Key Policy vs IAM</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Key Policy = السياسة الأساسية للمفتاح (مطلوب). IAM Policy تضيف صلاحيات للهويات.</span>
+      <span class="lang-en">Key Policy = base key policy (required). IAM adds permissions for identities.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Grants</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">صلاحيات مؤقّتة على مفتاح لخدمة أو مستخدم — تُلغى بسهولة.</span>
+      <span class="lang-en">Temporary permissions on a key for a service/user — easily revocable.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Multi-Region Keys</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">مفتاح أساسي + نسخ متماثلة في مناطق أخرى — نفس Key ID ومواد التشفير.</span>
+      <span class="lang-en">Primary + replicas in other regions — same Key ID and key material.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">Key Rotation</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Automatic Rotation سنويًا للـ CMK (symmetric فقط)، Manual لـ asymmetric.</span>
+      <span class="lang-en">Annual automatic rotation for CMK (symmetric only), manual for asymmetric.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-red-700" dir="ltr">External / CloudHSM</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">External = أنت تستورد مادة المفتاح، CloudHSM = HSM مخصّص مع FIPS 140-2 L3.</span>
+      <span class="lang-en">External = you import key material; CloudHSM = dedicated HSM with FIPS 140-2 L3.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-red-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Data size per Encrypt API</span>
+      <span class="lang-en">Data size per Encrypt API</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">للبيانات الكبيرة استخدم DataKey + Envelope.</span>
+        <span class="lang-en">For large data use DataKey + Envelope.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">4 KB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">KMS keys per region</span>
+      <span class="lang-en">KMS keys per region</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حدّ صلب.</span>
+        <span class="lang-en">Hard limit.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">100,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Request Rate</span>
+      <span class="lang-en">Request Rate (crypto)</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">يختلف حسب المنطقة والعملية.</span>
+        <span class="lang-en">Varies by region and operation.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">5,500–30,000 RPS</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Pending Deletion Window</span>
+      <span class="lang-en">Pending Deletion Window</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">فترة الانتظار قبل الحذف النهائي.</span>
+        <span class="lang-en">Waiting period before final deletion.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">7–30 days</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Grants per key</span>
+      <span class="lang-en">Grants per key</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حدّ عالٍ للخدمات الكثيرة.</span>
+        <span class="lang-en">High ceiling for many services.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">50,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Key material rotation</span>
+      <span class="lang-en">Rotation interval</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">لا يمكن تعديلها (تلقائي).</span>
+        <span class="lang-en">Not configurable (automatic).</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">365 days</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-red-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء مفتاح.</span>
+    <span class="lang-en">Create key.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms create-key --description 'Acme App Key' --key-usage ENCRYPT_DECRYPT --key-spec SYMMETRIC_DEFAULT</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تشفير نصّ قصير.</span>
+    <span class="lang-en">Encrypt short data.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms encrypt --key-id alias/acme --plaintext fileb://secret.txt --output text --query CiphertextBlob</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء Data Key.</span>
+    <span class="lang-en">Generate Data Key.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms generate-data-key --key-id alias/acme --key-spec AES_256</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء alias.</span>
+    <span class="lang-en">Create alias.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms create-alias --alias-name alias/acme --target-key-id &lt;KEY_ID></code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تفعيل Rotation سنوي.</span>
+    <span class="lang-en">Enable annual rotation.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms enable-key-rotation --key-id alias/acme</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">جدولة حذف مفتاح.</span>
+    <span class="lang-en">Schedule key deletion.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws kms schedule-key-deletion --key-id &lt;KEY_ID> --pending-window-in-days 7</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-red-600"></i>
+        <span class="lang-ar">متى تستخدم AWS KMS؟</span>
+        <span class="lang-en">When to use AWS KMS</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تشفير ملفات كبيرة في S3.</span>
+      <span class="lang-en">Encrypt large files in S3.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">SSE-KMS + Envelope Encryption</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">توقيع JWT أو certificate.</span>
+      <span class="lang-en">Sign JWTs or certificates.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">KMS Asymmetric Key</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">امتثال FIPS 140-2 L3.</span>
+      <span class="lang-en">FIPS 140-2 L3 compliance.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">CloudHSM (not KMS)</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تطبيق multi-region يتطلّب fallback.</span>
+      <span class="lang-en">Multi-region app with failover.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">Multi-Region Keys</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">إدارة مادة المفتاح داخليًا.</span>
+      <span class="lang-en">Manage key material internally.</span>
+    </p>
+    <p class="text-xs text-red-700 font-mono">External Key / BYOK</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Encrypt API يأخذ فقط 4 KB — استخدم DataKey + Envelope للبيانات الأكبر.</span>
+    <span class="lang-en">Encrypt API takes only 4 KB — use DataKey + Envelope for larger data.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Key Policy مطلوبة؛ IAM وحده لا يكفي للوصول إلى مفتاح.</span>
+    <span class="lang-en">Key Policy is required; IAM alone is not enough to access a key.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">S3 SSE-KMS يضرب الأداء إذا رفعت ملايين الكائنات — فكّر في S3 Bucket Keys.</span>
+    <span class="lang-en">S3 SSE-KMS hurts performance for millions of objects — consider S3 Bucket Keys.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Multi-Region Keys لها نفس Key ID في المناطق — نصّ مشفّر بمنطقة يُفكّ بأخرى.</span>
+    <span class="lang-en">Multi-Region Keys share Key ID — encrypt in one region, decrypt in another.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">CloudHSM للـ FIPS 140-2 L3 — KMS فقط L2.</span>
+    <span class="lang-en">CloudHSM for FIPS 140-2 L3 — KMS is only L2.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

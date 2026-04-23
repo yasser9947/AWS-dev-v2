@@ -1,0 +1,371 @@
+{
+  "n": 26,
+  "domain": "deployment",
+  "title_ar": "AWS CI/CD — CodeCommit، CodeBuild، CodeDeploy، CodePipeline",
+  "title_en": "AWS CI/CD — CodeCommit, CodeBuild, CodeDeploy, CodePipeline",
+  "pages": "706-742",
+  "subtitle_ar": "أتمتة الدورة من الـ Commit إلى الإنتاج: Git، Build، Test، Deploy. buildspec.yml و appspec.yml هما الملفّان المركزيّان للامتحان.",
+  "subtitle_en": "Automate the cycle from commit to production: Git, build, test, deploy. buildspec.yml and appspec.yml are the core exam files.",
+  "tags": ["CodePipeline", "CodeBuild", "CodeDeploy", "buildspec", "appspec", "CodeArtifact"],
+  "objectives": [
+    {"concept": "CodePipeline Stages", "tested_ar": "النطاق الثالث — Source، Build، Test، Deploy، Invoke.", "tested_en": "Domain 3 — Source, Build, Test, Deploy, Invoke."},
+    {"concept": "buildspec.yml", "tested_ar": "النطاق الثالث — install، pre_build، build، post_build، artifacts، cache.", "tested_en": "Domain 3 — install, pre_build, build, post_build, artifacts, cache."},
+    {"concept": "appspec.yml & Hooks", "tested_ar": "النطاق الثالث — EC2 hooks (BeforeInstall...) و Lambda hooks (BeforeAllowTraffic).", "tested_en": "Domain 3 — EC2 hooks (BeforeInstall...) and Lambda hooks (BeforeAllowTraffic)."},
+    {"concept": "CodeDeploy Strategies", "tested_ar": "النطاق الثالث — Canary/Linear/AllAtOnce لـ Lambda، AllAtOnce/Half/One لـ EC2.", "tested_en": "Domain 3 — Canary/Linear/AllAtOnce for Lambda; AllAtOnce/Half/One for EC2."}
+  ],
+  "sections": [
+    {
+      "title_ar": "نظرة عامّة على AWS CI/CD",
+      "title_en": "AWS CI/CD overview",
+      "blocks": [
+        {"type": "p",
+         "ar": "أتمتة الدورة من الـ Commit إلى الإنتاج تسمح بـ <strong>Deployment متكرّر وآمن</strong>. AWS تقدّم خدمات مدمجة لكل مرحلة: <strong>CodeCommit</strong> للتخزين، <strong>CodeBuild</strong> للبناء، <strong>CodeDeploy</strong> للنشر، <strong>CodePipeline</strong> لتنسيق الكل.",
+         "en": "Automating commit-to-prod enables <strong>frequent, safe deployments</strong>. AWS provides integrated services for each stage: <strong>CodeCommit</strong> for storage, <strong>CodeBuild</strong> for building, <strong>CodeDeploy</strong> for deploying, <strong>CodePipeline</strong> to orchestrate."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "git-branch", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "CodeCommit", "title_en": "CodeCommit", "body_ar": "Git مستضاف، خاص، مدعوم بـ KMS. IAM للصلاحيات، SSH/HTTPS للوصول. بديل GitHub/GitLab.", "body_en": "Managed Git, private, KMS-encrypted. IAM permissions, SSH/HTTPS access. Alternative to GitHub/GitLab."},
+          {"icon": "hammer", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "CodeBuild", "title_en": "CodeBuild", "body_ar": "خدمة CI مُدارة. تُشغّل buildspec.yml في Docker. فوترة بالدقيقة. بديل Jenkins.", "body_en": "Managed CI service. Runs buildspec.yml in Docker. Per-minute billing. Jenkins alternative."},
+          {"icon": "rocket", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "CodeDeploy", "title_en": "CodeDeploy", "body_ar": "نشر إلى EC2 / On-prem / Lambda / ECS. Hooks لتخصيص كل مرحلة. Rollback تلقائيّ.", "body_en": "Deploy to EC2 / on-prem / Lambda / ECS. Hooks customize each phase. Auto-rollback."},
+          {"icon": "git-pull-request", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "CodePipeline", "title_en": "CodePipeline", "body_ar": "ينسّق كل المراحل (Source → Build → Test → Deploy). يمكن دمجه مع GitHub، Jenkins، أدوات خارجيّة.", "body_en": "Orchestrates all stages (Source → Build → Test → Deploy). Integrates with GitHub, Jenkins, 3rd-party tools."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>CodeArtifact</strong> لتخزين حزم البرمجة (Maven، npm، pip، NuGet). <strong>CodeGuru</strong> (ML) لمراجعة الكود آلياً. <strong>CodeStar</strong> عرض مُوحَّد لكل ما سبق.",
+         "en": "<strong>CodeArtifact</strong> stores software packages (Maven, npm, pip, NuGet). <strong>CodeGuru</strong> (ML) automates code review. <strong>CodeStar</strong> is a unified view of all the above."}
+      ]
+    },
+    {
+      "title_ar": "buildspec.yml — قلب CodeBuild",
+      "title_en": "buildspec.yml — the heart of CodeBuild",
+      "blocks": [
+        {"type": "p",
+         "ar": "الملف <strong>buildspec.yml</strong> يقع في جذر مستودع الكود. يُخبر CodeBuild بكيفيّة البناء. الأقسام الأساسيّة: <strong>env</strong> (متغيّرات)، <strong>phases</strong> (الخطوات)، <strong>artifacts</strong> (المخرجات)، <strong>cache</strong> (للتسريع).",
+         "en": "<strong>buildspec.yml</strong> lives at the code root. Tells CodeBuild how to build. Key sections: <strong>env</strong> (variables), <strong>phases</strong> (steps), <strong>artifacts</strong> (outputs), <strong>cache</strong> (for speed)."},
+        {"type": "table",
+         "headers": {"ar": ["المرحلة", "الغرض"], "en": ["Phase", "Purpose"]},
+         "rows": [
+           [{"mono": true, "value": "install"}, {"ar": "تثبيت الـ runtime أو الحزم (apt/yum install...)", "en": "Install runtime or packages (apt/yum install...)"}],
+           [{"mono": true, "value": "pre_build"}, {"ar": "خطوات قبل البناء (Docker login إلى ECR، تحميل deps)", "en": "Before build (Docker login to ECR, deps download)"}],
+           [{"mono": true, "value": "build"}, {"ar": "أمر البناء الفعليّ (mvn clean package، npm run build)", "en": "The actual build command (mvn clean package, npm run build)"}],
+           [{"mono": true, "value": "post_build"}, {"ar": "اللمسات الأخيرة (Docker push، تغليف ZIP، نشر تقارير)", "en": "Finishing touches (Docker push, zip packaging, publish reports)"}]
+         ]
+        },
+        {"type": "code", "lang": "yaml",
+         "code": "version: 0.2\n\nenv:\n  variables:\n    JAVA_HOME: /usr/lib/jvm/java-17-amazon-corretto\n  parameter-store:                  # from SSM Parameter Store\n    DOCKERHUB_TOKEN: /acme/dockerhub/token\n  secrets-manager:                  # from Secrets Manager\n    DB_PASSWORD: prod/db-creds:password\n\nphases:\n  install:\n    runtime-versions:\n      java: corretto17\n    commands:\n      - echo \"Installing extras...\"\n      - apt-get install -y jq\n  pre_build:\n    commands:\n      - echo \"Logging into ECR...\"\n      - aws ecr get-login-password | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com\n  build:\n    commands:\n      - mvn clean package -DskipTests=false\n      - docker build -t acme-api:${CODEBUILD_RESOLVED_SOURCE_VERSION} .\n  post_build:\n    commands:\n      - docker tag  acme-api:${CODEBUILD_RESOLVED_SOURCE_VERSION} \\\n                    123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:latest\n      - docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:latest\n\nreports:\n  junit-reports:\n    files: ['target/surefire-reports/*.xml']\n    file-format: JUNITXML\n\nartifacts:\n  files:\n    - target/acme-*.jar\n    - appspec.yml\n    - scripts/**/*\n\ncache:\n  paths:\n    - '/root/.m2/**/*'              # cache Maven dependencies"},
+        {"type": "callout", "tone": "warn",
+         "ar": "الـ <strong>cache</strong> قسم مهمّ: تخزين <span dir=\"ltr\" class=\"font-mono\">.m2/</span> (Maven) أو <span dir=\"ltr\" class=\"font-mono\">node_modules/</span> (npm) في S3 يُقلّل وقت البناء من ٥ دقائق إلى ٣٠ ثانية.",
+         "en": "The <strong>cache</strong> section matters: storing <span dir=\"ltr\" class=\"font-mono\">.m2/</span> (Maven) or <span dir=\"ltr\" class=\"font-mono\">node_modules/</span> (npm) in S3 cuts build time from 5 minutes to 30 seconds."},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "الخطأ الشائع: <strong>CodeBuild يبني ولكن الـ Artifacts لا تصل إلى S3</strong>. السبب: قسم <span dir=\"ltr\" class=\"font-mono\">artifacts:</span> مفقود أو يُحدّد ملفّات غير موجودة. تحقّق من مسارات الإخراج في <span dir=\"ltr\" class=\"font-mono\">files:</span>.",
+         "en": "Common error: <strong>CodeBuild succeeds but artifacts don't reach S3</strong>. Cause: missing <span dir=\"ltr\" class=\"font-mono\">artifacts:</span> section or wrong paths. Check <span dir=\"ltr\" class=\"font-mono\">files:</span> entries."}
+      ]
+    },
+    {
+      "title_ar": "CodeDeploy — Configurations و Strategies",
+      "title_en": "CodeDeploy — configurations and strategies",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>CodeDeploy</strong> ينشر إلى ٤ منصّات: <strong>EC2/On-prem</strong>، <strong>Lambda</strong>، <strong>ECS</strong>. لكل منصّة استراتيجيّات مختلفة.",
+         "en": "<strong>CodeDeploy</strong> deploys to 4 platforms: <strong>EC2/on-prem</strong>, <strong>Lambda</strong>, <strong>ECS</strong>. Each platform has its own strategies."},
+        {"type": "table",
+         "headers": {"ar": ["المنصّة", "Configurations المتاحة", "الأسلوب"], "en": ["Platform", "Available configurations", "Style"]},
+         "rows": [
+           [{"ar": "EC2 / On-prem", "en": "EC2 / On-prem"}, {"mono": true, "value": "AllAtOnce, HalfAtATime, OneAtATime, Custom"}, {"ar": "In-place أو Blue/Green", "en": "In-place or Blue/Green"}],
+           [{"ar": "Lambda", "en": "Lambda"}, {"mono": true, "value": "Canary (10%5/10%30), Linear (10%/1min, 10%/10min), AllAtOnce"}, {"ar": "Traffic shift بـ Alias", "en": "Traffic shift via alias"}],
+           [{"ar": "ECS", "en": "ECS"}, {"mono": true, "value": "Canary, Linear, AllAtOnce"}, {"ar": "Blue/Green فقط (عبر ALB + Target Groups)", "en": "Blue/Green only (via ALB + Target Groups)"}]
+         ]
+        },
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "server", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EC2: In-place", "title_en": "EC2: In-place", "body_ar": "يُحدَّث الكود على Instances القائمة. يتطلّب <strong>CodeDeploy Agent</strong> على EC2.", "body_en": "Code updates on existing instances. Requires <strong>CodeDeploy Agent</strong> on EC2."},
+          {"icon": "copy-plus", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "EC2: Blue/Green", "title_en": "EC2: Blue/Green", "body_ar": "ينشئ ASG جديد بـ V2، يحوّل ترافيك ALB، ثمّ يهدم القديم.", "body_en": "Spawns a new ASG with V2, shifts ALB traffic, then tears down the old."},
+          {"icon": "zap", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Lambda: Traffic shift", "title_en": "Lambda: Traffic shift", "body_ar": "يغيّر Alias لتحويل Traffic إلى Version جديدة. Canary سريع، Linear تدريجيّ.", "body_en": "Changes alias to shift traffic to a new version. Canary = fast, Linear = gradual."},
+          {"icon": "repeat", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "ECS: Blue/Green (ALB)", "title_en": "ECS: Blue/Green (ALB)", "body_ar": "ALB مع Target Group لكل لون. CodeDeploy يُحوّل الترافيك تدريجياً.", "body_en": "ALB with one Target Group per color. CodeDeploy shifts traffic gradually."}
+        ]}
+      ]
+    },
+    {
+      "title_ar": "appspec.yml — لماذا يختلف حسب المنصّة",
+      "title_en": "appspec.yml — why it differs by platform",
+      "blocks": [
+        {"type": "p",
+         "ar": "الملف <strong>appspec.yml</strong> يُوجِّه CodeDeploy. صيغته تختلف بين EC2 و Lambda. الـ <strong>Hooks</strong> هي نقاط تحكّم بين مراحل النشر.",
+         "en": "<strong>appspec.yml</strong> drives CodeDeploy. Its schema differs between EC2 and Lambda. <strong>Hooks</strong> are control points between deploy phases."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "server", "title_ar": "appspec.yml لـ EC2", "title_en": "appspec.yml for EC2",
+                  "body_ar": "أقسام: files (ما يُنسَخ)، hooks (scripts)، Hooks: <span dir=\"ltr\" class=\"font-mono\">ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</span>.",
+                  "body_en": "Sections: files (what to copy), hooks (scripts). Hooks: <span dir=\"ltr\" class=\"font-mono\">ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</span>."},
+         "right": {"tone": "purple", "icon": "zap", "title_ar": "appspec.yml لـ Lambda", "title_en": "appspec.yml for Lambda",
+                   "body_ar": "Resources يحدّد Function و Alias و Versions. Hooks: <span dir=\"ltr\" class=\"font-mono\">BeforeAllowTraffic → AfterAllowTraffic</span> (اثنان فقط).",
+                   "body_en": "Resources specifies Function, alias, versions. Hooks: <span dir=\"ltr\" class=\"font-mono\">BeforeAllowTraffic → AfterAllowTraffic</span> (just two)."}
+        },
+        {"type": "code", "lang": "yaml",
+         "code": "# EC2 appspec.yml\nversion: 0.0\nos: linux\nfiles:\n  - source: /\n    destination: /var/www/html\nhooks:\n  ApplicationStop:\n    - location: scripts/stop_server.sh\n      timeout: 60\n      runas: root\n  BeforeInstall:\n    - location: scripts/install_deps.sh\n  AfterInstall:\n    - location: scripts/change_permissions.sh\n  ApplicationStart:\n    - location: scripts/start_server.sh\n  ValidateService:\n    - location: scripts/smoke_test.sh\n      timeout: 30"},
+        {"type": "code", "lang": "yaml",
+         "code": "# Lambda appspec.yml\nversion: 0.0\nResources:\n  - myFunction:\n      Type: AWS::Lambda::Function\n      Properties:\n        Name: acme-api\n        Alias: live\n        CurrentVersion: \"3\"\n        TargetVersion:  \"4\"\nHooks:\n  - BeforeAllowTraffic: PreTrafficValidationFn    # run before shift\n  - AfterAllowTraffic:  SmokeTestFn               # run after shift"},
+        {"type": "callout", "tone": "key",
+         "ar": "ترتيب hooks الـ EC2 مهمّ في الامتحان: <strong>ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</strong>. الـ <strong>ValidateService</strong> يمكنه إلغاء النشر لو فشل.",
+         "en": "EC2 hooks order matters on the exam: <strong>ApplicationStop → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService</strong>. <strong>ValidateService</strong> can abort a deploy on failure."}
+      ]
+    },
+    {
+      "title_ar": "CodePipeline، CodeArtifact، و Troubleshooting",
+      "title_en": "CodePipeline, CodeArtifact & troubleshooting",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>CodePipeline</strong> ينسّق كل ما سبق. يتكوّن من <strong>Stages</strong> (Source، Build، Test، Deploy، Invoke)، كل Stage به <strong>Actions</strong> متوازية أو متسلسلة. الـ <strong>Artifacts</strong> تُخزَّن في S3 وتنتقل بين Stages.",
+         "en": "<strong>CodePipeline</strong> orchestrates everything. Made of <strong>Stages</strong> (Source, Build, Test, Deploy, Invoke), each with parallel or sequential <strong>Actions</strong>. <strong>Artifacts</strong> are stored in S3 and flow between stages."},
+        {"type": "code", "lang": "json",
+         "code": "// Simplified CodePipeline stages\n{\n  \"stages\": [\n    { \"name\": \"Source\",\n      \"actions\": [{ \"actionTypeId\": \"Source\", \"provider\": \"CodeCommit\", ... }] },\n    { \"name\": \"Build\",\n      \"actions\": [{ \"actionTypeId\": \"Build\", \"provider\": \"CodeBuild\", ... }] },\n    { \"name\": \"Approval\",\n      \"actions\": [{ \"actionTypeId\": \"Approval\", \"provider\": \"Manual\", ... }] },\n    { \"name\": \"Deploy\",\n      \"actions\": [\n        { \"actionTypeId\": \"Deploy\", \"provider\": \"CodeDeploy\", ... },\n        { \"actionTypeId\": \"Deploy\", \"provider\": \"CloudFormation\", ... }\n      ]\n    }\n  ]\n}"},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "package", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "CodeArtifact", "title_en": "CodeArtifact", "body_ar": "مستودع حزم (Maven، npm، pip، NuGet). يتكامل مع CodeBuild و IDE. يمكن أن يعمل كـ Proxy لـ Maven Central.", "body_en": "Package repository (Maven, npm, pip, NuGet). Integrates with CodeBuild and IDEs. Can proxy Maven Central."},
+          {"icon": "brain-circuit", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "CodeGuru", "title_en": "CodeGuru", "body_ar": "Reviewer (مراجعة كود آلية) و Profiler (تحليل أداء Runtime). يدعم Java و Python.", "body_en": "Reviewer (automated code review) + Profiler (runtime performance). Supports Java and Python."},
+          {"icon": "star", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "CodeStar", "title_en": "CodeStar", "body_ar": "منصّة مُوحّدة لإدارة Projects (Source + Build + Deploy + Issues + Monitoring) من dashboard واحد.", "body_en": "Unified project console (Source + Build + Deploy + Issues + Monitoring) in one dashboard."},
+          {"icon": "search", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Troubleshooting", "title_en": "Troubleshooting", "body_ar": "EventBridge للإشعارات عند فشل Stage. CloudTrail للـ Audit. IAM Service Role صحيح ضروريّ.", "body_en": "EventBridge for stage-failure notifications. CloudTrail for audit. Correct IAM service role is essential."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "فشل شائع: <strong>CodePipeline can't perform action</strong>. السبب الأوّل دائماً: الـ <strong>IAM Service Role</strong> المُرتَبط بالـ Pipeline ناقصه أذونات (مثل <span dir=\"ltr\" class=\"font-mono\">codebuild:StartBuild</span> أو <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span>).",
+         "en": "Common failure: <strong>CodePipeline can't perform action</strong>. #1 cause: the <strong>IAM service role</strong> attached to the pipeline is missing permissions (like <span dir=\"ltr\" class=\"font-mono\">codebuild:StartBuild</span> or <span dir=\"ltr\" class=\"font-mono\">s3:PutObject</span>)."},
+        {"type": "callout", "tone": "senior",
+         "ar": "معمارية CI/CD نموذجيّة لـ Spring Boot: <strong>CodeCommit</strong> (Git) → <strong>CodeBuild</strong> (mvn + Docker build + Push ECR) → <strong>CodeDeploy ECS</strong> (Blue/Green عبر ALB). مع <strong>Manual Approval</strong> قبل Prod و Rollback تلقائيّ بـ CloudWatch Alarms.",
+         "en": "A canonical Spring Boot CI/CD: <strong>CodeCommit</strong> (Git) → <strong>CodeBuild</strong> (mvn + Docker build + ECR push) → <strong>CodeDeploy ECS</strong> (Blue/Green via ALB). With <strong>manual approval</strong> before prod and CloudWatch-alarm-triggered rollback."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء CodePipeline لتطبيق Spring Boot: CodeCommit → CodeBuild → CodeDeploy إلى EC2.",
+    "goal_en": "Build a CodePipeline for a Spring Boot app: CodeCommit → CodeBuild → CodeDeploy to EC2.",
+    "steps": [
+      {"title_ar": "أنشئ CodeCommit repo وادفع الكود", "title_en": "Create CodeCommit repo and push code",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "aws codecommit create-repository --repository-name acme-api\ngit remote add origin codecommit::us-east-1://acme-api\ngit push -u origin main"},
+      {"title_ar": "أضف buildspec.yml", "title_en": "Add buildspec.yml",
+       "body_ar": "احفظه في جذر المشروع.",
+       "body_en": "Save at project root.",
+       "lang": "yaml",
+       "code": "version: 0.2\nphases:\n  install:\n    runtime-versions:\n      java: corretto17\n  build:\n    commands:\n      - mvn clean package\n  post_build:\n    commands:\n      - echo Build completed\nartifacts:\n  files:\n    - target/acme-*.jar\n    - appspec.yml\n    - scripts/**/*\ncache:\n  paths:\n    - /root/.m2/**/*"},
+      {"title_ar": "أضف appspec.yml و scripts", "title_en": "Add appspec.yml and scripts",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "yaml",
+       "code": "version: 0.0\nos: linux\nfiles:\n  - source: target/acme-*.jar\n    destination: /opt/acme/\nhooks:\n  ApplicationStop:\n    - location: scripts/stop.sh\n      runas: root\n  ApplicationStart:\n    - location: scripts/start.sh\n      runas: root\n  ValidateService:\n    - location: scripts/healthcheck.sh\n      timeout: 30"},
+      {"title_ar": "جهّز EC2 مع CodeDeploy Agent", "title_en": "Prepare EC2 with CodeDeploy Agent",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "# On the EC2 instance (Amazon Linux 2):\nsudo yum install -y ruby wget\nwget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install\nchmod +x ./install && sudo ./install auto\n# Tag the instance: Name=acme-api, Environment=prod\n# Attach IAM role with CodeDeploy + S3 permissions"},
+      {"title_ar": "أنشئ CodeDeploy Application و Deployment Group", "title_en": "Create CodeDeploy application and deployment group",
+       "body_ar": "من Console: Deployment Group → In-place → Tag filter (Environment=prod) → Service Role.",
+       "body_en": "In Console: Deployment Group → In-place → Tag filter (Environment=prod) → service role."},
+      {"title_ar": "أنشئ CodePipeline", "title_en": "Create the CodePipeline",
+       "body_ar": "Console → Create Pipeline → Source: CodeCommit، Build: CodeBuild (buildspec.yml)، Deploy: CodeDeploy. Service Role يُولَّد تلقائياً.",
+       "body_en": "Console → Create Pipeline → Source: CodeCommit; Build: CodeBuild (buildspec.yml); Deploy: CodeDeploy. Service role generated automatically."},
+      {"title_ar": "ادفع تغييراً وراقب", "title_en": "Push a change and watch",
+       "body_ar": "أي git push سيُطلِق الـ Pipeline. راقب المراحل من Console.",
+       "body_en": "Any git push triggers the pipeline. Watch stages in Console.",
+       "lang": "bash",
+       "code": "echo 'Updated' >> README.md\ngit commit -am 'trigger' && git push"}
+    ],
+    "warning_ar": "CodePipeline يستخدم S3 لتخزين Artifacts — تأكّد من حذف الـ Bucket بعد الانتهاء. CodeBuild per-minute billing، و EC2 تستمرّ.",
+    "warning_en": "CodePipeline uses S3 for artifact storage — delete the bucket after. CodeBuild is per-minute billing, EC2 keeps running until stopped."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "في ملف <span dir=\"ltr\" class=\"font-mono\">buildspec.yml</span>، أين توضع أوامر Docker login إلى ECR قبل البناء؟",
+      "question_en": "In <span dir=\"ltr\" class=\"font-mono\">buildspec.yml</span>, where do you put Docker login commands for ECR before building?",
+      "options_ar": ["install", "pre_build", "build", "post_build"],
+      "options_en": ["install", "pre_build", "build", "post_build"],
+      "correct": 1,
+      "explanation_ar": "<strong>pre_build</strong> للأوامر التي تُنفَّذ قبل البناء مباشرةً (Docker login، تحضير المتغيّرات الديناميكيّة، تحميل deps). <strong>install</strong> لتثبيت runtime/packages، <strong>post_build</strong> لما بعد البناء (push).",
+      "explanation_en": "<strong>pre_build</strong> is for commands run immediately before build (Docker login, dynamic var prep, deps download). <strong>install</strong> installs runtime/packages, <strong>post_build</strong> happens after build (push).",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "CodeDeploy EC2 In-place: ما الـ Hook الذي يعمل <strong>قبل</strong> إيقاف التطبيق القديم؟",
+      "question_en": "CodeDeploy EC2 In-place: which hook runs <strong>before</strong> stopping the old app?",
+      "options_ar": ["BeforeInstall", "ApplicationStop", "ApplicationStart", "ValidateService"],
+      "options_en": ["BeforeInstall", "ApplicationStop", "ApplicationStart", "ValidateService"],
+      "correct": 1,
+      "explanation_ar": "ترتيب EC2 Hooks: <strong>ApplicationStop</strong> (قبل إيقاف التطبيق) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop أوّل Hook يُنفَّذ. Script هنا يعالج connections draining.",
+      "explanation_en": "EC2 hooks order: <strong>ApplicationStop</strong> (before stopping the app) → BeforeInstall → Install → AfterInstall → ApplicationStart → ValidateService. ApplicationStop is the first hook. Script here handles connection draining.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "في CodeDeploy لـ Lambda، ما الـ Hook الذي يعمل <strong>قبل</strong> تحويل الترافيك؟",
+      "question_en": "In CodeDeploy for Lambda, which hook runs <strong>before</strong> traffic shift?",
+      "options_ar": ["BeforeInstall", "BeforeAllowTraffic", "AfterAllowTraffic", "ValidateService"],
+      "options_en": ["BeforeInstall", "BeforeAllowTraffic", "AfterAllowTraffic", "ValidateService"],
+      "correct": 1,
+      "explanation_ar": "Lambda hooks اثنان فقط: <strong>BeforeAllowTraffic</strong> (قبل تحويل الترافيك — للتحقّق من الإصدار الجديد) و <strong>AfterAllowTraffic</strong> (بعد التحويل — للـ smoke tests). BeforeInstall و ValidateService لـ EC2 لا Lambda.",
+      "explanation_en": "Lambda has only two hooks: <strong>BeforeAllowTraffic</strong> (before traffic shift — validate the new version) and <strong>AfterAllowTraffic</strong> (after shift — smoke tests). BeforeInstall and ValidateService are EC2, not Lambda.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "مطوّر يريد نشر Lambda بـ ١٠٪ ترافيك فوراً ثمّ الباقي بعد ٣٠ دقيقة. ما الـ Deployment Configuration؟",
+      "question_en": "A developer wants Lambda deploy with 10% traffic immediately, then the rest after 30 minutes. Configuration?",
+      "options_ar": ["LambdaAllAtOnce", "LambdaCanary10Percent30Minutes", "LambdaLinear10PercentEvery30Minutes", "LambdaCanary10Percent5Minutes"],
+      "options_en": ["LambdaAllAtOnce", "LambdaCanary10Percent30Minutes", "LambdaLinear10PercentEvery30Minutes", "LambdaCanary10Percent5Minutes"],
+      "correct": 1,
+      "explanation_ar": "<strong>Canary</strong> = ١٠٪ فوراً ثمّ قفزة للـ ٩٠٪ الباقية. <strong>Linear</strong> = زيادة تدريجيّة متساوية. <span dir=\"ltr\" class=\"font-mono\">Canary10Percent30Minutes</span> يطابق الطلب بالضبط: ١٠٪ فوراً، الانتظار ٣٠ دقيقة، ثمّ التحويل الكامل.",
+      "explanation_en": "<strong>Canary</strong> = 10% immediately then jump to remaining 90%. <strong>Linear</strong> = equal gradual steps. <span dir=\"ltr\" class=\"font-mono\">Canary10Percent30Minutes</span> matches exactly: 10% now, wait 30 min, full shift.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "عند فشل مرحلة في CodePipeline، كيف يُشعَر الفريق تلقائياً؟",
+      "question_en": "When a CodePipeline stage fails, how is the team notified automatically?",
+      "options_ar": ["CodePipeline يُرسل إيميل تلقائيّ.", "EventBridge Rule على CodePipeline events → SNS.", "Manual refresh من Console.", "CloudTrail فقط."],
+      "options_en": ["CodePipeline auto-emails.", "EventBridge rule on CodePipeline events → SNS.", "Manual refresh in Console.", "CloudTrail only."],
+      "correct": 1,
+      "explanation_ar": "CodePipeline لا يُرسل إشعارات تلقائياً. النمط المعياريّ: <strong>EventBridge Rule</strong> يراقب events من CodePipeline (Failed State Change) → SNS Topic → الفريق. يمكن نفس النمط للـ CodeBuild و CodeDeploy.",
+      "explanation_en": "CodePipeline doesn't email by itself. Standard pattern: <strong>EventBridge rule</strong> watches CodePipeline events (Failed State Change) → SNS topic → team. Same pattern applies to CodeBuild and CodeDeploy.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "مطوّر Java يحتاج لتخزين حزم Maven خاصّة بالشركة (Proxy لـ Maven Central). ما الخدمة؟",
+      "question_en": "A Java developer needs a company-private Maven package store (proxying Maven Central). Which service?",
+      "options_ar": ["CodeCommit", "CodeArtifact", "CodeBuild Cache", "S3"],
+      "options_en": ["CodeCommit", "CodeArtifact", "CodeBuild Cache", "S3"],
+      "correct": 1,
+      "explanation_ar": "<strong>CodeArtifact</strong> هو حلّ AWS لإدارة الحزم: Maven، npm، pip، NuGet، twine. يعمل كـ Proxy لـ Maven Central ويخزّن نسخة محليّة (يُسرّع builds). متكامل مع IAM و Resource Policies.",
+      "explanation_en": "<strong>CodeArtifact</strong> is AWS's package management: Maven, npm, pip, NuGet, twine. Proxies Maven Central and caches locally (speeds up builds). IAM and resource-policy integrated.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "أيّ عبارة صحيحة عن CodeBuild Source options؟",
+      "question_en": "Which is TRUE about CodeBuild source options?",
+      "options_ar": ["يدعم CodeCommit فقط.", "يدعم CodeCommit، S3، Bitbucket، GitHub، GitHub Enterprise.", "يحتاج VPC دائماً.", "لا يدعم webhooks."],
+      "options_en": ["Supports CodeCommit only.", "Supports CodeCommit, S3, Bitbucket, GitHub, GitHub Enterprise.", "Always needs VPC.", "No webhook support."],
+      "correct": 1,
+      "explanation_ar": "CodeBuild يدعم مصادر متعدّدة. يمكن الـ webhook من GitHub/Bitbucket لتشغيل builds تلقائياً. VPC اختياريّ (للوصول إلى موارد خاصّة كـ RDS).",
+      "explanation_en": "CodeBuild supports multiple sources. Can webhook from GitHub/Bitbucket to auto-trigger builds. VPC is optional (for private resource access like RDS).",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "عند نشر إلى EC2 مع CodeDeploy، يفشل الـ Task بخطأ <em>\"Downloading app bundle failed\"</em>. ما الأسباب الأرجح؟",
+      "question_en": "Deploying to EC2 via CodeDeploy fails with <em>\"Downloading app bundle failed\"</em>. Most likely causes?",
+      "options_ar": ["كود التطبيق خاطئ.", "CodeDeploy Agent غير مثبّت على EC2، أو IAM Role لـ EC2 لا يمتلك صلاحيات S3.", "EC2 stopped.", "Security Group لا يسمح HTTP."],
+      "options_en": ["App code has bugs.", "CodeDeploy Agent not installed on EC2, or EC2 IAM role lacks S3 permissions.", "EC2 stopped.", "Security Group blocks HTTP."],
+      "correct": 1,
+      "explanation_ar": "الأسباب المعياريّة: ١) CodeDeploy Agent غير موجود أو غير مُحدَّث (ثبّته عبر Systems Manager)، ٢) IAM Role المرفق بـ EC2 ناقصه <span dir=\"ltr\" class=\"font-mono\">s3:Get*</span> لتحميل الـ bundle من S3 الذي وضعه CodePipeline.",
+      "explanation_en": "Canonical causes: 1) CodeDeploy Agent missing or outdated (install via Systems Manager), 2) EC2's IAM role missing <span dir=\"ltr\" class=\"font-mono\">s3:Get*</span> to pull the bundle from S3 where CodePipeline placed it.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "لتمرير إصدار محدّد من Lambda إلى CodeDeploy في <span dir=\"ltr\" class=\"font-mono\">appspec.yml</span>، أي مفاتيح مطلوبة؟",
+      "question_en": "To pass a specific Lambda version to CodeDeploy in <span dir=\"ltr\" class=\"font-mono\">appspec.yml</span>, which keys are required?",
+      "options_ar": ["Name و Alias فقط.", "Name، Alias، CurrentVersion، TargetVersion.", "FunctionArn فقط.", "Runtime و Handler."],
+      "options_en": ["Name and Alias only.", "Name, Alias, CurrentVersion, TargetVersion.", "FunctionArn only.", "Runtime and Handler."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">appspec.yml</span> لـ Lambda يحتاج: <strong>Name</strong> (اسم الدالّة)، <strong>Alias</strong> (مثل live)، <strong>CurrentVersion</strong> (الإصدار الحاليّ)، <strong>TargetVersion</strong> (الإصدار الجديد). CodeDeploy يُحوّل الـ Alias من Current إلى Target تدريجياً.",
+      "explanation_en": "Lambda <span dir=\"ltr\" class=\"font-mono\">appspec.yml</span> needs: <strong>Name</strong> (function name), <strong>Alias</strong> (e.g. live), <strong>CurrentVersion</strong>, <strong>TargetVersion</strong>. CodeDeploy shifts the alias from Current to Target gradually.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "multi",
+      "question_ar": "أيّ من الآتي صحيح عن CodePipeline؟ اختر كل ما ينطبق.",
+      "question_en": "Which are TRUE about CodePipeline? Select all that apply.",
+      "options_ar": ["Stages متسلسلة، Actions داخل Stage يمكن أن تكون متوازية.", "Artifacts تُخزَّن في S3 وتنتقل بين Stages.", "Manual Approval Action يُوقف Pipeline حتى تتمّ الموافقة.", "CodePipeline لا يدعم GitHub."],
+      "options_en": ["Stages are sequential; actions within a stage can be parallel.", "Artifacts live in S3 and flow between stages.", "A manual-approval action pauses the pipeline until approved.", "CodePipeline doesn't support GitHub."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "CodePipeline يدعم GitHub و Bitbucket و CodeCommit و S3 و ECR كمصادر. Stages متسلسلة، Actions في كل Stage قد تكون متوازية. Artifacts في S3 Bucket خاصّ بالـ Pipeline. Manual Approval Action هو ميزة قياسيّة.",
+      "explanation_en": "CodePipeline supports GitHub, Bitbucket, CodeCommit, S3, ECR as sources. Stages are sequential, actions inside a stage can be parallel. Artifacts live in a pipeline-specific S3 bucket. Manual approval is a standard action type.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "CodeBuild يحتاج الوصول إلى RDS خاصّة في VPC للتحقّق من Schema. ما الإعداد؟",
+      "question_en": "CodeBuild needs access to a private RDS in VPC to validate schema. Configuration?",
+      "options_ar": ["إضافة RDS إلى Public Subnet.", "تشغيل CodeBuild داخل VPC (VPC ID + Subnet + Security Group).", "تعطيل RDS.", "استخدام Lambda بدلاً منه."],
+      "options_en": ["Move RDS to a public subnet.", "Run CodeBuild inside the VPC (VPC ID + Subnet + Security Group).", "Disable RDS.", "Use Lambda instead."],
+      "correct": 1,
+      "explanation_ar": "CodeBuild يمكن تشغيله داخل VPC بتحديد VPC ID و Subnets و Security Groups في Project config. حينها يحصل Container CodeBuild على ENI داخل VPC ويمكنه الوصول إلى RDS الخاصّة. بدون VPC، يعمل في شبكة AWS العامّة.",
+      "explanation_en": "CodeBuild can run inside a VPC by specifying VPC ID, subnets, and SGs in the project config. The CodeBuild container then gets an ENI in the VPC and can reach private RDS. Without VPC, it runs in AWS's public network.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر يريد مراجعة تلقائيّة للكود لاكتشاف ثغرات أمنيّة. ما الخدمة؟",
+      "question_en": "A developer wants automated code review for security issues. Which service?",
+      "options_ar": ["CodeGuru Reviewer", "CodeBuild", "CodeArtifact", "CodeStar"],
+      "options_en": ["CodeGuru Reviewer", "CodeBuild", "CodeArtifact", "CodeStar"],
+      "correct": 0,
+      "explanation_ar": "<strong>CodeGuru Reviewer</strong> يستخدم ML لمراجعة الكود تلقائياً: ثغرات أمنيّة، AWS best practices، resource leaks، input validation. يدعم Java و Python. يتكامل مع GitHub، Bitbucket، CodeCommit. <strong>Profiler</strong> للأداء في Runtime.",
+      "explanation_en": "<strong>CodeGuru Reviewer</strong> uses ML to auto-review code: security issues, AWS best practices, resource leaks, input validation. Supports Java and Python. Integrates with GitHub, Bitbucket, CodeCommit. <strong>Profiler</strong> targets runtime performance.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "في EC2 CodeDeploy، أيّ <em>Deployment Configuration</em> يحافظ على ٥٠٪ من السعة دائماً؟",
+      "question_en": "In EC2 CodeDeploy, which <em>deployment configuration</em> always keeps 50% capacity?",
+      "options_ar": ["CodeDeployDefault.AllAtOnce", "CodeDeployDefault.HalfAtATime", "CodeDeployDefault.OneAtATime", "Custom"],
+      "options_en": ["CodeDeployDefault.AllAtOnce", "CodeDeployDefault.HalfAtATime", "CodeDeployDefault.OneAtATime", "Custom"],
+      "correct": 1,
+      "explanation_ar": "<strong>HalfAtATime</strong> يُحدّث نصف Instances بينما الباقي يعمل (السعة تبقى ٥٠٪). <strong>AllAtOnce</strong> يُحدّث كل شيء (downtime). <strong>OneAtATime</strong> الأبطأ لكن أكثر أماناً (١/n downtime).",
+      "explanation_en": "<strong>HalfAtATime</strong> updates half while the rest serve (50% capacity). <strong>AllAtOnce</strong> updates everything (downtime). <strong>OneAtATime</strong> is slowest but safest (1/n capacity hit).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "عند Rollback في CodeDeploy، ماذا يحدث فعلياً؟",
+      "question_en": "When CodeDeploy rolls back, what actually happens?",
+      "options_ar": ["يستعيد نسخة قديمة من Snapshot.", "يعيد نشر آخر إصدار سليم كنشر جديد.", "يُعكَس الوقت.", "لا شيء، يحتاج تدخّل يدويّ."],
+      "options_en": ["Restores an old snapshot.", "Redeploys the last known-good revision as a new deployment.", "Reverses time.", "Nothing — needs manual intervention."],
+      "correct": 1,
+      "explanation_ar": "<strong>CodeDeploy Rollback = إعادة نشر</strong> آخر إصدار صالح كعمليّة نشر جديدة. لا يُعاد \"استعادة\" النسخة القديمة. يمكن تشغيله تلقائياً عند فشل النشر أو عند تجاوز عتبة CloudWatch Alarm.",
+      "explanation_en": "<strong>CodeDeploy rollback = redeploy</strong> of the last known-good revision as a brand-new deployment. No \"restoring\" of an old snapshot. Can trigger automatically on failure or a breached CloudWatch Alarm.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "في CodeBuild، أين تُخزَّن متغيّرات حسّاسة مثل DB_PASSWORD؟",
+      "question_en": "In CodeBuild, where should sensitive variables like DB_PASSWORD be stored?",
+      "options_ar": ["env:variables في buildspec.yml.", "env:parameter-store أو env:secrets-manager.", "في الكود مباشرة.", "في cache section."],
+      "options_en": ["env:variables in buildspec.yml.", "env:parameter-store or env:secrets-manager.", "Hardcoded in source.", "In the cache section."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">env:variables</span> نصّ مكشوف وبالتالي غير آمن. استخدم <span dir=\"ltr\" class=\"font-mono\">env:parameter-store</span> (SSM SecureString) أو <span dir=\"ltr\" class=\"font-mono\">env:secrets-manager</span> (Secrets Manager). CodeBuild يسحبها عند البناء ويحقنها كمتغيّرات بيئة. IAM Role لـ CodeBuild يحتاج صلاحيّة قراءة.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">env:variables</span> is plaintext and thus insecure. Use <span dir=\"ltr\" class=\"font-mono\">env:parameter-store</span> (SSM SecureString) or <span dir=\"ltr\" class=\"font-mono\">env:secrets-manager</span>. CodeBuild fetches at build time and injects as env vars. The CodeBuild IAM role needs read permission.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    }
+  ],
+  "summary": [
+    {"icon": "git-branch", "title_ar": "٤ خدمات CI/CD", "title_en": "4 CI/CD services",
+     "body_ar": "CodeCommit (Git) + CodeBuild (buildspec) + CodeDeploy (appspec) + CodePipeline (أوركسترا).",
+     "body_en": "CodeCommit (Git) + CodeBuild (buildspec) + CodeDeploy (appspec) + CodePipeline (orchestrator)."},
+    {"icon": "file-code", "title_ar": "buildspec = 4 phases", "title_en": "buildspec = 4 phases",
+     "body_ar": "install → pre_build → build → post_build، مع artifacts و cache.",
+     "body_en": "install → pre_build → build → post_build, plus artifacts and cache."},
+    {"icon": "git-compare", "title_ar": "appspec يختلف حسب المنصّة", "title_en": "appspec differs by platform",
+     "body_ar": "EC2: ٦ hooks؛ Lambda: 2 (BeforeAllowTraffic/AfterAllowTraffic).",
+     "body_en": "EC2: 6 hooks; Lambda: 2 (BeforeAllowTraffic/AfterAllowTraffic)."},
+    {"icon": "package", "title_ar": "CodeArtifact لإدارة الحزم", "title_en": "CodeArtifact for package management",
+     "body_ar": "Maven/npm/pip/NuGet Proxy + cache. متكامل مع IAM.",
+     "body_en": "Maven/npm/pip/NuGet proxy + cache. IAM-integrated."}
+  ],
+  "mnemonic_ar": "<strong>\"SPBP\"</strong> لـ buildspec: <strong>S</strong>etup (install) → <strong>P</strong>re_build → <strong>B</strong>uild → <strong>P</strong>ost_build. للـ EC2 Hooks: <strong>\"Stop، Install، Start، Validate\"</strong> (ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService).",
+  "mnemonic_en": "<strong>\"SPBP\"</strong> for buildspec: <strong>S</strong>etup (install) → <strong>P</strong>re_build → <strong>B</strong>uild → <strong>P</strong>ost_build. EC2 hooks shorthand: <strong>\"Stop, Install, Start, Validate\"</strong> (ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService).",
+  "prev": 25,
+  "next": 27
+}

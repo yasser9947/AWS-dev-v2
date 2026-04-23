@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 25 — Containers on AWS — ECS, ECR, Fargate, EKS | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-emerald-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="rocket" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثالث — 24%</span>
+          <span class="lang-en">Domain 3 — 24%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٥ من ٣٠</span>
+        <span class="lang-en">Chapter 25 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.317-358</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Containers على AWS — ECS، ECR، Fargate، EKS</span>
+        <span class="lang-en">Containers on AWS — ECS, ECR, Fargate, EKS</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">تشغيل Docker على AWS: ECS (منصّة AWS الأصليّة) و EKS (Kubernetes مُدار). Fargate يحذف الحاجة إلى خوادم. ECR لتخزين الصور.</span>
+        <span class="lang-en">Running Docker on AWS: ECS (AWS-native) and EKS (managed Kubernetes). Fargate removes the server layer. ECR stores images.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">ECS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Fargate</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">ECR</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">EKS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Task Definition</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Task Placement</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ECS EC2 vs Fargate</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — متى أختار كلاً منهما.</span>
+      <span class="lang-en">Domain 3 — when to pick which.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Task Definition & Task Role</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — الفرق بين executionRoleArn و taskRoleArn.</span>
+      <span class="lang-en">Domain 3 — executionRoleArn vs taskRoleArn.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Task Placement</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — binpack، spread، random، constraints.</span>
+      <span class="lang-en">Domain 3 — binpack, spread, random, constraints.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ECR</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — Docker login، push/pull، IAM.</span>
+      <span class="lang-en">Domain 3 — Docker login, push/pull, IAM.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Docker على AWS — نظرة عامّة</span>
+      <span class="lang-en">Docker on AWS — overview</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Docker يغلّف التطبيق مع كل اعتماديّاته داخل <strong>Container</strong> يعمل بنفس الطريقة على أيّ نظام. على AWS، لك ثلاث طرق لتشغيل Docker: <strong>ECS</strong>، <strong>EKS</strong>، و <strong>Fargate</strong>. ECR هو Registry لتخزين الصور.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Docker packages an app with all its dependencies in a <strong>container</strong> that runs the same on any OS. On AWS you have three ways to run Docker: <strong>ECS</strong>, <strong>EKS</strong>, and <strong>Fargate</strong>. ECR is the image registry.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخدمة</span><span class="lang-en">Service</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">ماذا تقدّم</span><span class="lang-en">What it provides</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ECS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">منصّة Docker الأصليّة من Amazon. EC2 Launch Type (تُدير EC2) أو Fargate (Serverless).</span><span class="lang-en">Amazon's native Docker platform. EC2 Launch Type (you manage EC2) or Fargate (serverless).</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Fargate</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Serverless — يعمل مع ECS أو EKS. بدون إدارة خوادم. ادفع بالـ vCPU/memory.</span><span class="lang-en">Serverless — works with ECS or EKS. No server management. Pay per vCPU/memory.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">EKS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kubernetes مُدار. مفتوح المصدر، cloud-agnostic. استخدمه لو فريقك يعرف k8s.</span><span class="lang-en">Managed Kubernetes. Open source, cloud-agnostic. Use if your team knows k8s.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">ECR</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Registry لتخزين الصور. Private أو Public (gallery.ecr.aws).</span><span class="lang-en">Registry for images. Private or Public (gallery.ecr.aws).</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Task</strong> = instance of Docker container. <strong>Service</strong> = عدد من Tasks لها load balancing و auto-scaling. <strong>Cluster</strong> = مجموعة Tasks/Services.</span>
+      <span class="lang-en"> <strong>Task</strong> = instance of a Docker container. <strong>Service</strong> = N tasks with load balancing and auto-scaling. <strong>Cluster</strong> = a group of tasks/services.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ECS EC2 Launch Type vs Fargate</span>
+      <span class="lang-en">ECS EC2 Launch Type vs Fargate</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="server" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">EC2 Launch Type</span><span class="lang-en">EC2 Launch Type</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أنت تُدير EC2 Instances وعليك تثبيت <strong>ECS Agent</strong>. أرخص للأحمال الثابتة، تحكّم كامل بالـ OS والـ instance types.</p>
+      <p class="text-sm text-surface-700 lang-en">You manage EC2 instances and install the <strong>ECS Agent</strong>. Cheaper for steady workloads, full control over OS and instance types.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Fargate</span><span class="lang-en">Fargate</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Serverless. تُعرّف CPU/memory — AWS تشغّل. لا خوادم للصيانة. فوترة بالثانية. أغلى للوحدة، لكن بصفر عمليّات.</p>
+      <p class="text-sm text-surface-700 lang-en">Serverless. You define CPU/memory — AWS runs it. No servers to patch. Per-second billing. Pricier per unit but zero ops.</p>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> الاختيار في الامتحان: <strong>Fargate</strong> للأحمال المتقطّعة، الإقلاع السريع، أو تجنّب إدارة الخوادم. <strong>EC2 Launch Type</strong> للتحكّم الكامل (مثل GPU instances)، أو لأحمال ٢٤/٧ كبيرة بتكلفة أقلّ مع Reserved Instances.</span>
+      <span class="lang-en"> Exam pick: <strong>Fargate</strong> for spiky workloads, fast start, or avoiding server management. <strong>EC2 Launch Type</strong> for full control (GPU instances) or 24/7 heavy workloads at lower cost with Reserved Instances.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="server" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EC2 Launch Type</span><span class="lang-en">EC2 Launch Type</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تحتاج: EC2 + ECS Agent + Capacity Provider لإدارة التوسّع.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Needs: EC2 + ECS Agent + Capacity Provider for scaling.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Fargate</span><span class="lang-en">Fargate</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تحتاج: Task Definition فقط. AWS تُدير كل شيء.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Needs: just a Task Definition. AWS manages everything.</p>
+  </div>
+</div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Task Definition و IAM Roles (نقطة حرجة في الامتحان)</span>
+      <span class="lang-en">Task Definition & IAM Roles (exam hotspot)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Task Definition هو JSON يصف كيف تُشغَّل الـ Containers: الصورة، CPU، Memory، Networking، Ports، Volumes، Environment Variables، و <strong>نوعان من IAM Roles</strong>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Task Definition is a JSON describing how to run containers: image, CPU, memory, networking, ports, volumes, env vars, and <strong>two types of IAM roles</strong>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الدور</span><span class="lang-en">Role</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">من يستخدمه</span><span class="lang-en">Who uses it</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الغرض</span><span class="lang-en">Purpose</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">executionRoleArn</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ECS Agent / Fargate infrastructure</span><span class="lang-en">ECS Agent / Fargate infra</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">سحب صورة من ECR، إرسال Logs لـ CloudWatch، قراءة Secrets Manager/SSM عند بدء التشغيل</span><span class="lang-en">Pull image from ECR, send logs to CloudWatch, read Secrets/SSM at startup</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">taskRoleArn</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كود التطبيق داخل Container</span><span class="lang-en">App code inside the container</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">صلاحيات التطبيق (S3، DynamoDB، SQS، ...)</span><span class="lang-en">App permissions (S3, DynamoDB, SQS, ...)</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>فخّ الامتحان</strong>: خلط بين <span dir="ltr" class="font-mono">executionRoleArn</span> و <span dir="ltr" class="font-mono">taskRoleArn</span>. التطبيق Java داخل Container يستخدم <strong>taskRoleArn</strong> للوصول إلى S3 مثلاً. لكنّ Fargate نفسه يستخدم <strong>executionRoleArn</strong> لسحب الصورة من ECR.</span>
+      <span class="lang-en"> <strong>Exam trap</strong>: confusing <span dir="ltr" class="font-mono">executionRoleArn</span> and <span dir="ltr" class="font-mono">taskRoleArn</span>. A Java app inside a container uses <strong>taskRoleArn</strong> to access S3 or similar. But Fargate itself uses <strong>executionRoleArn</strong> to pull the image from ECR.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">{
+  "family": "acme-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::123:role/ecsTaskExecutionRole",
+  "taskRoleArn":      "arn:aws:iam::123:role/AcmeAppRole",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "123.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1.4.2",
+      "essential": true,
+      "portMappings": [{"containerPort": 8080, "protocol": "tcp"}],
+      "environment": [
+        {"name": "SPRING_PROFILES_ACTIVE", "value": "prod"}
+      ],
+      "secrets": [
+        {"name": "DB_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:123:secret:prod/db-AbCdEf"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/acme-api",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "api"
+        }
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Task Placement (EC2 Launch Type فقط)</span>
+      <span class="lang-en">Task Placement (EC2 Launch Type only)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عند تشغيل Tasks على <strong>EC2 Launch Type</strong>، ECS يحتاج اختيار EC2 Instance لوضع الـ Task فيها. Fargate لا يحتاج هذا لأنّه Serverless.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">With <strong>EC2 Launch Type</strong>, ECS must choose an EC2 instance to place each task. Fargate doesn't need this because it's serverless.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستراتيجيّة</span><span class="lang-en">Strategy</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السلوك</span><span class="lang-en">Behavior</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">binpack</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يضع Tasks على أقل Instances متاحة (ضغط). يُقلّل عدد EC2.</span><span class="lang-en">Packs tasks on the fewest instances. Minimizes EC2 count.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">توفير التكلفة</span><span class="lang-en">Cost savings</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">spread</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">توزيع متساوٍ على قيمة (AZ، instanceId).</span><span class="lang-en">Even spread by a value (AZ, instanceId).</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عالي التوفّر، AZ diversification</span><span class="lang-en">High availability, AZ diversification</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">random</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">اختيار عشوائيّ.</span><span class="lang-en">Random placement.</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">بسيط، بلا إعدادات</span><span class="lang-en">Simple, no tuning</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Mix strategies for HA + cost-efficient cluster
+"placementStrategy": [
+  { "type": "spread", "field": "attribute:ecs.availability-zone" },
+  { "type": "binpack", "field": "memory" }
+]
+
+// Constraints — hard rules
+"placementConstraints": [
+  { "type": "distinctInstance" },                                // no two tasks on same EC2
+  { "type": "memberOf", "expression": "attribute:ecs.instance-type =~ t3.*" }
+]</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> الأمر الذي يحدث فعلياً: ECS يختار Instances بالترتيب التالي: ١) تُرضي CPU/memory/port، ٢) Constraints، ٣) Strategies. الـ Strategies <em>best effort</em>، Constraints صارمة.</span>
+      <span class="lang-en"> What actually happens: ECS picks instances in this order: 1) CPU/memory/port requirements, 2) constraints, 3) strategies. Strategies are <em>best effort</em>; constraints are strict.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ECR، Service Discovery، و EKS</span>
+      <span class="lang-en">ECR, Service Discovery & EKS</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>ECR (Elastic Container Registry)</strong> لتخزين صور Docker على AWS. مدعوم بـ S3، مشفّر، مع vulnerability scanning و lifecycle policies.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>ECR (Elastic Container Registry)</strong> stores Docker images on AWS. Backed by S3, encrypted, with vulnerability scanning and lifecycle policies.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Login (AWS CLI v2)
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS \
+  --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+
+# Build and push
+docker build -t acme-api:v1 .
+docker tag  acme-api:v1 \
+  123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1
+docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1
+
+# Pull on another machine
+docker pull 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> خطأ شائع: <em>"No such image"</em> أو <em>"pull access denied"</em> عند تشغيل Task. السبب ٩٠٪: الـ <strong>executionRoleArn</strong> لا يملك <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span> (التي تتضمّن أذونات ECR + CloudWatch Logs).</span>
+      <span class="lang-en"> Common error: <em>"No such image"</em> or <em>"pull access denied"</em> on task start. 90% cause: <strong>executionRoleArn</strong> is missing <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span> (which includes ECR + CloudWatch Logs permissions).</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="history" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ECR Lifecycle Policies</span><span class="lang-en">ECR Lifecycle Policies</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">قواعد لحذف الصور القديمة (بالوقت أو العدد) لتوفير التكلفة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Rules to delete old images (by age or count) to save cost.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="shield" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Image Scanning</span><span class="lang-en">Image scanning</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ECR يفحص الصور لاكتشاف الثغرات الأمنيّة عند Push أو عند طلب يدويّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ECR scans images for vulnerabilities on push or on demand.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="compass" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Service Discovery</span><span class="lang-en">Service Discovery</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ECS + Cloud Map = إعطاء Tasks DNS names قابلة للكشف بدون Load Balancer للـ microservices.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">ECS + Cloud Map = give tasks discoverable DNS names — no ALB needed for internal microservices.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="kubernetes" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EKS (Kubernetes)</span><span class="lang-en">EKS (Kubernetes)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">للشركات التي تستخدم k8s. EKS يُدير Control Plane، أنت تُدير Worker Nodes (EC2 أو Fargate).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">For companies using k8s. EKS manages the control plane; you manage worker nodes (EC2 or Fargate).</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> الأمور المهمّة للامتحان في EKS: يدعم <strong>EC2 worker nodes</strong> أو <strong>Fargate</strong>، <strong>cloud-agnostic</strong> (تطبيق k8s يعمل في Azure/GCP)، مناسب للشركات التي تملك خبرة k8s محلياً وتريد الترحيل.</span>
+      <span class="lang-en"> EKS exam essentials: supports <strong>EC2 worker nodes</strong> or <strong>Fargate</strong>, is <strong>cloud-agnostic</strong> (k8s app runs on Azure/GCP), ideal for companies with existing k8s skills migrating to AWS.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء صورة Docker لتطبيق Spring Boot، رفعها إلى ECR، وتشغيلها على Fargate خلف ALB.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a Docker image for a Spring Boot app, push to ECR, and run on Fargate behind an ALB.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Dockerfile لـ Spring Boot</span>
+      <span class="lang-en">Create Dockerfile for Spring Boot</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Dockerfile
+FROM eclipse-temurin:17-jre
+COPY target/acme-*.jar /app/app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ ECR Repository</span>
+      <span class="lang-en">Create ECR repository</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ecr create-repository --repository-name acme-api</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">Login و Push</span>
+      <span class="lang-en">Login and push</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin \
+  123456789012.dkr.ecr.us-east-1.amazonaws.com
+
+docker build -t acme-api .
+docker tag acme-api 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1
+docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ ECS Cluster</span>
+      <span class="lang-en">Create ECS cluster</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ecs create-cluster --cluster-name acme-cluster</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">سجّل Task Definition</span>
+      <span class="lang-en">Register task definition</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احفظ JSON (من القسم ٣) في task-def.json، ثمّ:</p><p class="text-surface-600 leading-relaxed lang-en">Save the JSON from section 3 as task-def.json, then:</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ecs register-task-definition --cli-input-json file://task-def.json</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Service مع ALB</span>
+      <span class="lang-en">Create Service with ALB</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">من Console: Create Service → Fargate → Task Definition → ALB → 2 tasks. Service Auto Scaling على CPU > 70٪.</p><p class="text-surface-600 leading-relaxed lang-en">In Console: Create Service → Fargate → Task Definition → ALB → 2 tasks. Service Auto Scaling on CPU > 70%.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٧</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">تنظيف</span>
+      <span class="lang-en">Cleanup</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Delete service → cluster → ECR repo
+aws ecs delete-service --cluster acme-cluster --service acme-api --force
+aws ecs delete-cluster --cluster acme-cluster
+aws ecr delete-repository --repository-name acme-api --force</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Fargate و ALB لديهما تكلفة ثابتة ولو صغيرة. احذف كل شيء بعد الاختبار. تحقّق من عدم وجود ECR images في Public gallery محمّلة عليها بيانات حسّاسة.</span>
+    <span class="lang-en"> Fargate and ALB have a small ongoing cost. Delete everything after testing. Never push sensitive data to public ECR gallery images.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">ECS أو EKS أو Fargate</span>
+        <span class="lang-en">ECS or EKS or Fargate</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">ECS منصّة AWS الأصليّة، EKS Kubernetes، Fargate Serverless.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">ECS is AWS-native, EKS is Kubernetes, Fargate is serverless.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="key" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">TaskRole للتطبيق، ExecutionRole للـ Infra</span>
+        <span class="lang-en">TaskRole for app, ExecutionRole for infra</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">خلط بينهما خطأ امتحان شائع جداً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Mixing them up is a very common exam trap.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="layout-grid" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">binpack للتكلفة، spread للتوفّر</span>
+        <span class="lang-en">binpack for cost, spread for availability</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Task Placement فقط لـ EC2 Launch Type، Fargate لا يحتاجه.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Task placement is EC2-only; Fargate doesn't need it.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="archive" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">ECR = Registry مع IAM</span>
+        <span class="lang-en">ECR = registry with IAM</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Pull Errors ⇒ executionRoleArn ناقصة ECR policy.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Pull errors ⇒ missing ECR policy on executionRoleArn.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>"ExecPulls، TaskAccesses"</strong>: <strong>Exec</strong>utionRole يسحب الصورة من ECR؛ <strong>Task</strong>Role هو ما يستخدمه التطبيق للوصول إلى S3/DynamoDB. للـ Placement: <strong>"Bpack = Cheap، Spread = Safe"</strong>.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>"ExecPulls, TaskAccesses"</strong>: <strong>Exec</strong>utionRole pulls the image from ECR; <strong>Task</strong>Role is what the app uses to access S3/DynamoDB. For placement: <strong>"Bpack = Cheap, Spread = Safe"</strong>.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch24.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(25, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch26.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Java Spring Boot داخل ECS Task يحتاج الوصول إلى DynamoDB Table. أيّ Role المناسب؟</span><span class="lang-en">A Java Spring Boot app inside an ECS task needs DynamoDB access. Which role is appropriate?</span>",
+        options: [
+          "<span class="lang-ar">executionRoleArn</span><span class="lang-en">executionRoleArn</span>",
+          "<span class="lang-ar">taskRoleArn</span><span class="lang-en">taskRoleArn</span>",
+          "<span class="lang-ar">EC2 Instance Profile</span><span class="lang-en">EC2 Instance Profile</span>",
+          "<span class="lang-ar">ECS Cluster Role</span><span class="lang-en">ECS Cluster Role</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>taskRoleArn</strong> هو المخصّص لصلاحيات كود التطبيق داخل Container. الـ SDK يأخذها تلقائياً. <strong>executionRoleArn</strong> لـ ECS Agent / Fargate infrastructure (سحب الصورة، إرسال Logs).</span><span class="lang-en"><strong>taskRoleArn</strong> is for the app code inside the container. The SDK picks it up automatically. <strong>executionRoleArn</strong> is for ECS Agent / Fargate infra (pulling images, sending logs).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هذا لـ Fargate/ECS infrastructure.</span><span class=\"lang-en\">That's for Fargate/ECS infra.</span>", "", "<span class=\"lang-ar\">لـ EC2 لا للـ Container.</span><span class=\"lang-en\">For the EC2 instance, not the container.</span>", "<span class=\"lang-ar\">لا يوجد دور بهذا الاسم.</span><span class=\"lang-en\">No such role.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">Task يفشل عند البدء مع خطأ <em>"CannotPullContainerError"</em> من ECR. ما السبب الأرجح؟</span><span class="lang-en">A task fails on start with <em>"CannotPullContainerError"</em> from ECR. Most likely cause?</span>",
+        options: [
+          "<span class="lang-ar">كود التطبيق خاطئ.</span><span class="lang-en">App code is buggy.</span>",
+          "<span class="lang-ar">executionRoleArn ناقصه أذونات ECR و CloudWatch Logs.</span><span class="lang-en">executionRoleArn missing ECR + CloudWatch Logs permissions.</span>",
+          "<span class="lang-ar">Security Group يمنع الخروج.</span><span class="lang-en">Security Group blocks egress.</span>",
+          "<span class="lang-ar">ECR Repository محذوف.</span><span class="lang-en">ECR repository deleted.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">سحب الصورة من ECR عمليّة <strong>infrastructure</strong> لا <strong>application</strong>. يحتاج <span dir="ltr" class="font-mono">executionRoleArn</span> أن يحوي <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span>. الخطأ شائع جداً عند نسيانه.</span><span class="lang-en">Pulling from ECR is an <strong>infrastructure</strong> operation, not application. <span dir="ltr" class="font-mono">executionRoleArn</span> needs <span dir="ltr" class="font-mono">AmazonECSTaskExecutionRolePolicy</span>. Very common oversight.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تشغيل ECS بدون إدارة EC2 Instances أو تحديثات OS. ما اللانش تايب؟</span><span class="lang-en">A company wants to run ECS without managing EC2 or OS patches. Which launch type?</span>",
+        options: [
+          "<span class="lang-ar">EC2 Launch Type</span><span class="lang-en">EC2 Launch Type</span>",
+          "<span class="lang-ar">Fargate</span><span class="lang-en">Fargate</span>",
+          "<span class="lang-ar">EKS</span><span class="lang-en">EKS</span>",
+          "<span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Fargate</strong> هو Serverless: تُعرّف Task Definition فقط، AWS تُدير كل شيء. لا EC2، لا OS patches. الفوترة بالـ vCPU/memory بالثانية. أغلى من EC2 للوحدة لكنّ zero-ops.</span><span class="lang-en"><strong>Fargate</strong> is serverless: you only define a task definition, AWS runs everything. No EC2, no patches. Billed per vCPU/memory per second. More expensive per unit than EC2 but zero-ops.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">شركة تملك ECS Cluster (EC2 Launch Type) وتريد تقليل عدد EC2 Instances قدر الإمكان (ضغط Tasks على أقلّ Instances). ما الـ Placement Strategy؟</span><span class="lang-en">A company has an ECS cluster (EC2 Launch Type) and wants to minimize EC2 instance count (pack tasks tightly). Which placement strategy?</span>",
+        options: [
+          "<span class="lang-ar">random</span><span class="lang-en">random</span>",
+          "<span class="lang-ar">spread</span><span class="lang-en">spread</span>",
+          "<span class="lang-ar">binpack</span><span class="lang-en">binpack</span>",
+          "<span class="lang-ar">distinctInstance</span><span class="lang-en">distinctInstance</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>binpack</strong> يضغط Tasks على أقلّ Instances ممكنة حتى تمتلئ. يُقلّل تكلفة EC2. <strong>spread</strong> على العكس يُوزّع للعالي التوفّر. <strong>distinctInstance</strong> Constraint ليست Strategy.</span><span class="lang-en"><strong>binpack</strong> compacts tasks onto the fewest instances until full. Minimizes EC2 cost. <strong>spread</strong> does the opposite for HA. <strong>distinctInstance</strong> is a constraint, not a strategy.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق microservices يحتاج عالي توفّر بتوزيع Tasks عبر كل AZs. ما الإعداد؟</span><span class="lang-en">A microservices app needs HA by spreading tasks across all AZs. Configuration?</span>",
+        options: [
+          "<span class="lang-ar">placementStrategy: binpack</span><span class="lang-en">placementStrategy: binpack</span>",
+          "<span class="lang-ar">placementStrategy: spread, field: availability-zone</span><span class="lang-en">placementStrategy: spread, field: availability-zone</span>",
+          "<span class="lang-ar">placementStrategy: random</span><span class="lang-en">placementStrategy: random</span>",
+          "<span class="lang-ar">placementConstraints: distinctInstance</span><span class="lang-en">placementConstraints: distinctInstance</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">spread</span> مع <span dir="ltr" class="font-mono">attribute:ecs.availability-zone</span> يوزّع Tasks بالتساوي عبر AZs. <span dir="ltr" class="font-mono">distinctInstance</span> constraint يمنع وضع أكثر من Task على نفس EC2 (حالة مختلفة).</span><span class="lang-en"><span dir="ltr" class="font-mono">spread</span> with <span dir="ltr" class="font-mono">attribute:ecs.availability-zone</span> distributes tasks evenly across AZs. <span dir="ltr" class="font-mono">distinctInstance</span> prevents more than one task on the same EC2 (different case).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">شركة Acme تستخدم Kubernetes على premises وتريد الترحيل إلى AWS مع أقلّ تغيير في الكود. ما الخيار المناسب؟</span><span class="lang-en">Acme uses Kubernetes on-premises and wants to migrate to AWS with minimal code change. Best fit?</span>",
+        options: [
+          "<span class="lang-ar">ECS EC2 Launch Type</span><span class="lang-en">ECS EC2 Launch Type</span>",
+          "<span class="lang-ar">ECS Fargate</span><span class="lang-en">ECS Fargate</span>",
+          "<span class="lang-ar">EKS</span><span class="lang-en">EKS</span>",
+          "<span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>EKS</strong> هو Kubernetes مُدار في AWS. كل YAML manifests الحاليّة تعمل كما هي. ECS مختلف تماماً — API خاصّ بـ AWS. EKS <em>cloud-agnostic</em> لذلك يمكن تشغيل نفس التطبيق عبر clouds.</span><span class="lang-en"><strong>EKS</strong> is managed Kubernetes on AWS. All existing YAML manifests work as-is. ECS is totally different — an AWS-specific API. EKS is <em>cloud-agnostic</em>, so the same app runs across clouds.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق ECS يحتاج تخزين مشترك بين عدّة Tasks عبر AZs. ما الخيار؟</span><span class="lang-en">An ECS app needs shared storage across multiple tasks in different AZs. Option?</span>",
+        options: [
+          "<span class="lang-ar">EBS Volume</span><span class="lang-en">EBS Volume</span>",
+          "<span class="lang-ar">EFS File System mounted on tasks</span><span class="lang-en">EFS File System mounted on tasks</span>",
+          "<span class="lang-ar">Instance Store</span><span class="lang-en">Instance Store</span>",
+          "<span class="lang-ar">S3 mounted as file system</span><span class="lang-en">S3 mounted as file system</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>EFS</strong> هو نظام ملفات مُدار متعدّد AZ، يمكن ربطه بـ Tasks (EC2 و Fargate). <strong>EBS</strong> مرتبط بـ AZ واحدة فقط. <strong>S3</strong> لا يُركَّب كنظام ملفّات (object store).</span><span class="lang-en"><strong>EFS</strong> is a managed multi-AZ file system mountable on tasks (EC2 and Fargate). <strong>EBS</strong> is single-AZ. <strong>S3</strong> isn't mountable as a filesystem (object store).</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q8",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من الآتي صحيح عن ECR؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are TRUE about ECR? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">ECR يدعم Private و Public repositories.</span><span class="lang-en">ECR supports Private and Public repositories.</span>",
+          "<span class="lang-ar">ECR يفحص الصور للكشف عن ثغرات أمنيّة.</span><span class="lang-en">ECR scans images for vulnerabilities.</span>",
+          "<span class="lang-ar">الوصول إلى ECR يُتحكَّم فيه بـ IAM.</span><span class="lang-en">ECR access is IAM-controlled.</span>",
+          "<span class="lang-ar">ECR يدعم Docker فقط، ليس OCI.</span><span class="lang-en">ECR supports Docker only, not OCI.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">ECR يدعم Private و Public (Amazon ECR Public Gallery). يقدّم Vulnerability Scanning. الوصول يُتحكَّم فيه بـ IAM. ويدعم أيضاً OCI (Open Container Initiative) standards، لا Docker فقط.</span><span class="lang-en">ECR supports Private and Public (Amazon ECR Public Gallery). Provides vulnerability scanning. Access is IAM-controlled. Also supports OCI (Open Container Initiative) standards, not just Docker.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">Service ECS تحتاج التوسّع التلقائيّ بناءً على عدد الطلبات على ALB. ما المقياس؟</span><span class="lang-en">An ECS service needs auto-scaling based on ALB request count. Which metric?</span>",
+        options: [
+          "<span class="lang-ar">CPUUtilization</span><span class="lang-en">CPUUtilization</span>",
+          "<span class="lang-ar">MemoryUtilization</span><span class="lang-en">MemoryUtilization</span>",
+          "<span class="lang-ar">ALBRequestCountPerTarget</span><span class="lang-en">ALBRequestCountPerTarget</span>",
+          "<span class="lang-ar">NetworkIn</span><span class="lang-en">NetworkIn</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>ALBRequestCountPerTarget</strong> هو مقياس مخصّص للتوسّع على حمل الطلبات لكل Target. ECS Service Auto Scaling يدعم: CPU، Memory، ALB Request Count Per Target. الأخير أدقّ لتطبيقات REST.</span><span class="lang-en"><strong>ALBRequestCountPerTarget</strong> is the right metric for request-volume scaling. ECS Service Auto Scaling supports: CPU, Memory, ALBRequestCountPerTarget. The last one is most accurate for REST apps.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">Task Definition يحتوي حاويتين: أوّل للتطبيق، والثاني (sidecar) لإرسال metrics. كيف يتشاركان البيانات؟</span><span class="lang-en">A task has two containers: main app and a metrics sidecar. How do they share data?</span>",
+        options: [
+          "<span class="lang-ar">EFS mount</span><span class="lang-en">EFS mount</span>",
+          "<span class="lang-ar">Bind Mount (shared volume داخل Task)</span><span class="lang-en">Bind mount (shared volume inside task)</span>",
+          "<span class="lang-ar">S3 bucket</span><span class="lang-en">S3 bucket</span>",
+          "<span class="lang-ar">API calls</span><span class="lang-en">API calls</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Bind Mount</strong> يُنشئ حجم تخزين مشترك داخل Task، مرئي لكل الحاويات. مناسب للـ <em>sidecar pattern</em>: التطبيق يكتب logs في <span dir="ltr" class="font-mono">/var/log/</span> و sidecar يقرأها ويرسلها إلى CloudWatch/Datadog.</span><span class="lang-en"><strong>Bind Mount</strong> creates a shared volume inside a task, visible to all its containers. Fits the <em>sidecar pattern</em>: app writes logs to <span dir="ltr" class="font-mono">/var/log/</span> and the sidecar reads and ships them to CloudWatch/Datadog.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">عند تشغيل Service على Fargate مع ALB، كيف يتمّ توجيه الترافيك إلى كل Task؟</span><span class="lang-en">On Fargate with ALB, how is traffic routed to each task?</span>",
+        options: [
+          "<span class="lang-ar">Dynamic Host Port Mapping (كما EC2 Launch Type).</span><span class="lang-en">Dynamic host port mapping (like EC2 Launch Type).</span>",
+          "<span class="lang-ar">كل Task لها private IP فريد، ALB يستخدم port الـ container مباشرةً.</span><span class="lang-en">Each task has a unique private IP; ALB uses the container port directly.</span>",
+          "<span class="lang-ar">NAT Gateway.</span><span class="lang-en">NAT Gateway.</span>",
+          "<span class="lang-ar">لا يدعم ALB.</span><span class="lang-en">ALB not supported.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Fargate يعطي كل Task <strong>ENI مستقلاً مع private IP فريد</strong>. ALB يستخدم Container Port مباشرةً (مثل 8080). لا Dynamic Host Port Mapping (تلك ميزة EC2 Launch Type حيث عدّة Tasks تتشارك نفس EC2).</span><span class="lang-en">Fargate gives each task its own <strong>ENI with a unique private IP</strong>. ALB uses the container port directly (e.g. 8080). No dynamic host port mapping (that's EC2 Launch Type, where multiple tasks share the same EC2).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تشغيل ECS Task كل ساعة لمعالجة ملفات S3 (Batch Job). ما الطريقة الأنظف؟</span><span class="lang-en">A company wants an ECS task run every hour to process S3 files (batch job). Cleanest approach?</span>",
+        options: [
+          "<span class="lang-ar">Service مع Auto Scaling.</span><span class="lang-en">Service with Auto Scaling.</span>",
+          "<span class="lang-ar">EventBridge Schedule مع Rule: Run ECS Task.</span><span class="lang-en">EventBridge Schedule with Rule: Run ECS Task.</span>",
+          "<span class="lang-ar">Lambda يُطلق ECS Task.</span><span class="lang-en">Lambda triggering ECS Task.</span>",
+          "<span class="lang-ar">Cron job على EC2.</span><span class="lang-en">Cron job on EC2.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>EventBridge Schedule</strong> يدعم رفع ECS Task مباشرةً بجدول زمنيّ (Cron expression) دون كود إضافيّ. Service للأحمال الدائمة لا المهامّ المؤقّتة. Lambda حلّ ممكن لكنّه يضيف طبقة.</span><span class="lang-en"><strong>EventBridge Schedule</strong> can directly launch an ECS task on a cron, no extra code. Service is for persistent workloads, not one-shot jobs. Lambda works but adds a layer.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">أيّ عبارة صحيحة عن <span dir="ltr" class="font-mono">networkMode: awsvpc</span> في Task Definition؟</span><span class="lang-en">Which statement is TRUE about <span dir="ltr" class="font-mono">networkMode: awsvpc</span> in a task definition?</span>",
+        options: [
+          "<span class="lang-ar">كل Task تتشارك شبكة EC2.</span><span class="lang-en">All tasks share the EC2 network.</span>",
+          "<span class="lang-ar">كل Task تحصل على ENI مستقل مع private IP فريد. هذا هو الوضع الإلزاميّ لـ Fargate.</span><span class="lang-en">Each task gets its own ENI and unique private IP. This is the required mode for Fargate.</span>",
+          "<span class="lang-ar">متاح فقط لـ EC2 Launch Type.</span><span class="lang-en">Only available for EC2 Launch Type.</span>",
+          "<span class="lang-ar">يمنع استخدام Security Groups.</span><span class="lang-en">Prevents Security Group usage.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">awsvpc</span> يمنح كل Task شبكتها المستقلّة (ENI + private IP). إلزاميّ لـ Fargate، ومتاح اختيارياً لـ EC2 Launch Type. يُسمَح بـ Security Groups و Service Mesh.</span><span class="lang-en"><span dir="ltr" class="font-mono">awsvpc</span> gives each task its own network (ENI + private IP). Required for Fargate, optional for EC2 Launch Type. Security Groups and Service Mesh are supported.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">أين تُخزَّن الأسرار (DB password) في Task Definition بطريقة آمنة؟</span><span class="lang-en">Where should secrets (DB password) be stored in a task definition securely?</span>",
+        options: [
+          "<span class="lang-ar">في environment مباشرة.</span><span class="lang-en">Directly in environment.</span>",
+          "<span class="lang-ar">في secrets مع valueFrom يشير إلى Secrets Manager أو SSM Parameter Store.</span><span class="lang-en">In secrets with valueFrom pointing to Secrets Manager or SSM Parameter Store.</span>",
+          "<span class="lang-ar">في Docker image.</span><span class="lang-en">In the Docker image.</span>",
+          "<span class="lang-ar">في EFS.</span><span class="lang-en">In EFS.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">قسم <span dir="ltr" class="font-mono">secrets</span> في Task Definition يسمح بمرجع إلى Secrets Manager أو SSM Parameter Store. ECS/Fargate تسحب القيمة عند البدء وتحقنها كـ environment variable. يتطلّب executionRoleArn أن يمتلك صلاحيّة قراءة.</span><span class="lang-en">The <span dir="ltr" class="font-mono">secrets</span> block in a task definition references Secrets Manager or SSM Parameter Store. ECS/Fargate fetches the value on startup and injects it as an env var. Requires executionRoleArn to have read permission.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">عمليّة ECS Rolling Update بإعدادات Min 50%، Max 100%. خدمة بها ٤ Tasks. ما السلوك؟</span><span class="lang-en">ECS rolling update with Min 50%, Max 100%. Service has 4 tasks. Behavior?</span>",
+        options: [
+          "<span class="lang-ar">كل الـ ٤ تُحدَّث في آن.</span><span class="lang-en">All 4 update at once.</span>",
+          "<span class="lang-ar">٢ Tasks تتوقف (تبقى ٢ = 50%) ثمّ تُستبدَل بـ V2، ثمّ الـ ٢ الأخرى. لا يمكن تجاوز ٤ (Max 100%).</span><span class="lang-en">2 tasks stop (2 remain = 50%) then are replaced with V2, then the other 2. Never exceeds 4 (Max 100%).</span>",
+          "<span class="lang-ar">٨ Tasks يعملان معاً.</span><span class="lang-en">8 tasks run together.</span>",
+          "<span class="lang-ar">Downtime دائماً.</span><span class="lang-en">Always downtime.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Min 50% يعني ألّا تقلّ السعة عن ٥٠٪ (٢ Tasks). Max 100% يعني عدم تجاوز السعة الأساسيّة (٤). النتيجة: يُنهي ٢ V1 (تبقى ٢ V1)، يُشغّل ٢ V2، ثم يُنهي ٢ V1 الأخرى ويُشغّل ٢ V2. لا Downtime.</span><span class="lang-en">Min 50% = capacity never below 50% (2 tasks). Max 100% = never exceed base capacity (4). Flow: kill 2 V1 (2 V1 left), start 2 V2; then kill the other 2 V1 and start 2 V2. No downtime.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(25, QUESTIONS);
+      if (isChapterComplete(25)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

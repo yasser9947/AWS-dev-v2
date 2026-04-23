@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon SNS — Cheatsheet | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    pre[class*="language-"] { border-radius: 0.5rem !important; font-size: 0.8rem !important; margin: 0 !important; padding: 0.75rem 1rem !important; background: #0f172a !important; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+    @media print { .no-print { display: none !important; } body { background: white; } }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="p-2 text-surface-600 hover:text-brand-700 rounded-lg hover:bg-surface-100" title="Print">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-pink-600 via-pink-700 to-pink-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="bell" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <p class="text-sm text-pink-200 font-semibold">
+            <span class="lang-ar">ملخّص سريع</span>
+            <span class="lang-en">Cheatsheet</span>
+          </p>
+          <h1 class="text-3xl md:text-4xl font-bold">Amazon SNS</h1>
+        </div>
+      </div>
+      <p class="text-lg text-pink-100 max-w-2xl leading-relaxed">
+        <span class="lang-ar">خدمة نشر/اشتراك (Pub/Sub) لتوزيع الرسائل إلى عدّة مستهلكين عبر SQS و Lambda و HTTP و Email و SMS.</span>
+        <span class="lang-en">Pub/Sub service that fans messages out to many subscribers via SQS, Lambda, HTTP, Email, and SMS.</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- Key concepts -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="key" class="w-4 h-4 text-pink-600"></i>
+          <span class="lang-ar">المفاهيم الأساسية</span>
+          <span class="lang-en">Key Concepts</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2 w-48">
+                <span class="lang-ar">المفهوم</span>
+                <span class="lang-en">Concept</span>
+              </th>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الوصف</span>
+                <span class="lang-en">Description</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Topics & Subscribers</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">ينشر المُنتِج رسالة إلى Topic وتصل إلى كل المشتركين (fan-out).</span>
+      <span class="lang-en">Producer publishes to a Topic; each subscriber receives a copy (fan-out).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Standard vs FIFO</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Standard يعمل at-least-once وبترتيب غير مضمون. FIFO ترتيب وexactly-once مع SQS FIFO.</span>
+      <span class="lang-en">Standard: at-least-once, best-effort ordering. FIFO: ordered & exactly-once (with SQS FIFO).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Delivery Protocols</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">SQS، Lambda، HTTP(S)، Email، SMS، Mobile Push، Kinesis Data Firehose.</span>
+      <span class="lang-en">SQS, Lambda, HTTP(S), Email, SMS, Mobile Push, Kinesis Data Firehose.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Message Filtering</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">فلاتر على خصائص الرسالة أو body لإيصالها فقط للمشتركين المعنيّين.</span>
+      <span class="lang-en">Filters on message attributes or body to deliver only to relevant subscribers.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Retry & DLQ</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">سياسة إعادة محاولة قابلة للتكوين + DLQ (SQS) لكل اشتراك.</span>
+      <span class="lang-en">Configurable retry policy + subscription-level DLQ (SQS).</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Encryption</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">SSE عبر KMS للرسائل في الراحة، و HTTPS للنقل.</span>
+      <span class="lang-en">KMS-based SSE at rest, HTTPS in transit.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Access Control</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">Topic Policies (Resource-based) + IAM للمنشورين والمشتركين.</span>
+      <span class="lang-en">Topic policies (resource-based) + IAM for publishers/subscribers.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono font-semibold text-pink-700" dir="ltr">Mobile Push</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">APNs، FCM، ADM لإشعارات الجوّال.</span>
+      <span class="lang-en">APNs, FCM, ADM for mobile push notifications.</span>
+    </td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limits -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+        <h2 class="font-bold text-surface-800 flex items-center gap-2">
+          <i data-lucide="ruler" class="w-4 h-4 text-pink-600"></i>
+          <span class="lang-ar">الحدود المهمة للامتحان</span>
+          <span class="lang-en">Exam-Relevant Limits</span>
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+            <tr>
+              <th class="text-start px-4 py-2">
+                <span class="lang-ar">الحدّ</span>
+                <span class="lang-en">Limit</span>
+              </th>
+              <th class="text-start px-4 py-2 w-40">
+                <span class="lang-ar">القيمة</span>
+                <span class="lang-en">Value</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى حجم رسالة</span>
+      <span class="lang-en">Max message size</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">نفس حدّ SQS.</span>
+        <span class="lang-en">Same as SQS.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">256 KB</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">اشتراكات لكل Topic</span>
+      <span class="lang-en">Subscriptions per topic</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حدّ ناعم قابل للزيادة.</span>
+        <span class="lang-en">Soft limit, can be raised.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">12.5 million</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Topics لكل حساب</span>
+      <span class="lang-en">Topics per account</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حدّ ناعم.</span>
+        <span class="lang-en">Soft limit.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">100,000</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">FIFO throughput</span>
+      <span class="lang-en">FIFO throughput</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">عند الدمج مع batch يصل 3,000/s.</span>
+        <span class="lang-en">With batching up to 3,000/s.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">300 msg/s / topic</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Retry policy افتراضي لـ HTTP</span>
+      <span class="lang-en">Default HTTP retry</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">حتى 100,015 محاولة خلال 23 يومًا.</span>
+        <span class="lang-en">Up to 100,015 retries across ~23 days.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">3 tries (immediate) + linear + exponential</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">Fan-out إلى SQS</span>
+      <span class="lang-en">Fan-out to SQS queues</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">فعلياً مقيّد بحدود الحساب.</span>
+        <span class="lang-en">Effectively account-limited.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">Unlimited subscribers</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700">
+      <span class="lang-ar">أقصى SMS رسائل</span>
+      <span class="lang-en">Max SMS spend (default)</span>
+      
+      <div class="text-xs text-surface-500 mt-1">
+        <span class="lang-ar">يمكن رفعه بطلب دعم.</span>
+        <span class="lang-en">Can be raised via support.</span>
+      </div>
+
+    </td>
+    <td class="px-4 py-2 font-mono text-brand-700 font-semibold whitespace-nowrap" dir="ltr">$1 / month</td>
+  </tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <!-- CLI commands -->
+    
+    <section class="bg-white rounded-2xl border border-surface-200 p-6 space-y-4">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-pink-600"></i>
+        <span class="lang-ar">أوامر CLI الأساسية</span>
+        <span class="lang-en">Essential CLI Commands</span>
+      </h2>
+      
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء Topic.</span>
+    <span class="lang-en">Create a topic.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns create-topic --name orders-topic</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إنشاء Topic من نوع FIFO.</span>
+    <span class="lang-en">Create a FIFO topic.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns create-topic --name orders-topic.fifo --attributes FifoTopic=true,ContentBasedDeduplication=true</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">اشتراك طابور SQS في Topic.</span>
+    <span class="lang-en">Subscribe an SQS queue to a topic.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns subscribe --topic-arn arn:aws:sns:us-east-1:111:orders-topic --protocol sqs --notification-endpoint arn:aws:sqs:us-east-1:111:orders</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">نشر رسالة مع خصائص للفلترة.</span>
+    <span class="lang-en">Publish a message with filter attributes.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns publish --topic-arn arn:aws:sns:us-east-1:111:orders-topic --message '{"id":42}' --message-attributes 'region={DataType=String,StringValue=EU}'</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">تمكين فلتر على الاشتراك.</span>
+    <span class="lang-en">Set a subscription filter policy.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns set-subscription-attributes --subscription-arn arn:aws:sns:...:SubId --attribute-name FilterPolicy --attribute-value '{"region":["EU"]}'</code></pre>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <p class="text-sm text-surface-600">
+    <span class="lang-ar">إرسال SMS مباشر.</span>
+    <span class="lang-en">Send a direct SMS.</span>
+  </p>
+  <div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+    <pre class="!p-3"><code class="language-bash">aws sns publish --phone-number +15550123 --message "OTP 4321"</code></pre>
+  </div>
+</div>
+
+    </section>
+    
+
+    <!-- When to use -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="compass" class="w-4 h-4 text-pink-600"></i>
+        <span class="lang-ar">متى تستخدم Amazon SNS؟</span>
+        <span class="lang-en">When to use Amazon SNS</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">إيصال حدث لعدة أنظمة مختلفة في نفس الوقت.</span>
+      <span class="lang-en">Deliver an event to multiple subsystems simultaneously.</span>
+    </p>
+    <p class="text-xs text-pink-700 font-mono">SNS Topic + SQS subscribers</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">إشعار المستخدمين عبر SMS أو Email.</span>
+      <span class="lang-en">Notify users via SMS or Email.</span>
+    </p>
+    <p class="text-xs text-pink-700 font-mono">SNS direct publish</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">إشعارات الجوّال (iOS/Android).</span>
+      <span class="lang-en">Mobile push notifications (iOS/Android).</span>
+    </p>
+    <p class="text-xs text-pink-700 font-mono">SNS Mobile Push</p>
+  </div>
+</div>
+
+<div class="bg-white border border-surface-200 rounded-xl p-4 flex items-start gap-3">
+  <div class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i></div>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-surface-800 mb-1">
+      <span class="lang-ar">تصفية الأحداث حسب النوع/المنطقة.</span>
+      <span class="lang-en">Filter events by type/region.</span>
+    </p>
+    <p class="text-xs text-pink-700 font-mono">SNS Message Filtering</p>
+  </div>
+</div>
+</div>
+    </section>
+    
+
+    
+<section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-surface-200 bg-surface-50">
+    <h2 class="font-bold text-surface-800 flex items-center gap-2">
+      <i data-lucide="git-compare" class="w-4 h-4"></i>
+      <span class="lang-ar">مقارنة مع البدائل</span>
+      <span class="lang-en">Vs Alternatives</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-100 text-surface-700 text-xs uppercase">
+        <tr>
+          <th class="text-start px-4 py-2">
+            <span class="lang-ar">الخاصّية</span>
+            <span class="lang-en">Feature</span>
+          </th>
+          <th class="text-start px-4 py-2">Amazon SNS</th>
+          <th class="text-start px-4 py-2">SQS</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-surface-100">
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">النمط</span>
+      <span class="lang-en">Pattern</span>
+    </td>
+    <td class="px-4 py-2 text-pink-700 font-semibold">Pub/Sub fan-out</td>
+    <td class="px-4 py-2 text-surface-600">Point-to-point queue</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">التوصيل</span>
+      <span class="lang-en">Delivery</span>
+    </td>
+    <td class="px-4 py-2 text-pink-700 font-semibold">Push to all subscribers</td>
+    <td class="px-4 py-2 text-surface-600">Pulled by one consumer</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">التخزين</span>
+      <span class="lang-en">Storage</span>
+    </td>
+    <td class="px-4 py-2 text-pink-700 font-semibold">Ephemeral (retry only)</td>
+    <td class="px-4 py-2 text-surface-600">Up to 14 days</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">المستقبِلون</span>
+      <span class="lang-en">Receivers</span>
+    </td>
+    <td class="px-4 py-2 text-pink-700 font-semibold">HTTP, Email, SMS, Lambda, SQS</td>
+    <td class="px-4 py-2 text-surface-600">Consumers calling ReceiveMessage</td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 text-surface-700 font-medium">
+      <span class="lang-ar">التصفية</span>
+      <span class="lang-en">Filtering</span>
+    </td>
+    <td class="px-4 py-2 text-pink-700 font-semibold">Subscription filter policies</td>
+    <td class="px-4 py-2 text-surface-600">Client-side filtering</td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- Exam tips -->
+    
+    <section class="space-y-3">
+      <h2 class="font-bold text-surface-800 flex items-center gap-2">
+        <i data-lucide="target" class="w-4 h-4 text-amber-600"></i>
+        <span class="lang-ar">نصائح للامتحان</span>
+        <span class="lang-en">Exam Tips</span>
+      </h2>
+      
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">نمط Fan-out الكلاسيكي: SNS → عدة SQS لضمان استقلالية المستهلكين.</span>
+    <span class="lang-en">Classic fan-out pattern: SNS → multiple SQS queues for consumer independence.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">Message Filtering يقلّل استهلاك المستهلكين غير المعنيّين.</span>
+    <span class="lang-en">Message filtering reduces useless deliveries to uninterested subscribers.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">SNS FIFO يتكامل فقط مع SQS FIFO كمشترك للحفاظ على الترتيب.</span>
+    <span class="lang-en">SNS FIFO only integrates with SQS FIFO subscribers to preserve order.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">DLQ في SNS مُعرَّف على مستوى الاشتراك وليس Topic.</span>
+    <span class="lang-en">DLQ in SNS is defined per-subscription, not per-topic.</span>
+  </div>
+</div>
+
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-800">
+    <span class="lang-ar">للرسائل > 256 KB استخدم مكتبة SNS Extended Client مع S3.</span>
+    <span class="lang-en">For payloads > 256 KB use the SNS Extended Client Library with S3.</span>
+  </div>
+</div>
+
+    </section>
+    
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-6 px-4 sm:px-6 text-center text-sm no-print">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const o = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = o; if (window.lucide) lucide.createIcons(); }, 1500);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+{
+  "n": 17,
+  "domain": "security",
+  "title_ar": "IAM بعمق",
+  "title_en": "IAM Deep Dive",
+  "pages": "21-38",
+  "subtitle_ar": "إدارة الهويّة والوصول في AWS: المستخدمون، المجموعات، الأدوار، السياسات JSON، منطق التقييم، MFA، وسياسة كلمات المرور. هذا الأساس الذي تُبنى عليه كلّ قرارات الأمان في AWS.",
+  "subtitle_en": "AWS Identity & Access Management: Users, Groups, Roles, JSON policies, evaluation logic, MFA, password policies. The foundation every AWS security decision rests on.",
+  "tags": ["IAM", "Policies", "Roles", "MFA", "Least Privilege", "Access Analyzer"],
+  "objectives": [
+    {"concept": "Users/Groups/Roles", "tested_ar": "النطاق الثاني في بناء هويّات منفصلة لكل مستخدم وخدمة.", "tested_en": "Domain 2 — separate identity per human and service."},
+    {"concept": "Policy Evaluation Logic", "tested_ar": "النطاق الثاني في ترتيب تقييم السياسات (Deny > Allow > Implicit Deny).", "tested_en": "Domain 2 — Deny > Allow > Implicit Deny ordering."},
+    {"concept": "Managed vs Inline Policies", "tested_ar": "النطاق الثاني في اختيار نوع السياسة المناسبة.", "tested_en": "Domain 2 — picking the right policy type."},
+    {"concept": "MFA & Password Policy", "tested_ar": "النطاق الثاني في حماية الحساب الجذر والمستخدمين.", "tested_en": "Domain 2 — protecting root and IAM users."},
+    {"concept": "IAM Access Analyzer & Credentials Report", "tested_ar": "النطاق الثاني في التدقيق والمراجعة الدوريّة للصلاحيات.", "tested_en": "Domain 2 — auditing and periodic permission review."}
+  ],
+  "sections": [
+    {
+      "title_ar": "المستخدمون، المجموعات، والأدوار",
+      "title_en": "Users, Groups, Roles",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">IAM</span> اختصار لـ Identity and Access Management، وهي خدمة عالميّة (Global) لا ترتبط بمنطقة. الحساب الجذر (Root) يُنشَأ تلقائياً عند فتح الحساب، لكن لا يجب استخدامه للعمل اليوميّ؛ بل أنشئ مستخدمين IAM فرديين.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">IAM</span> is Identity and Access Management — a global service (no region). The root account is created on signup but should not be used day-to-day; create individual IAM users instead."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "user", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "User", "title_en": "User", "body_ar": "كائن يمثّل شخصاً فيزيائياً. يملك كلمة مرور و/أو Access Keys.", "body_en": "Represents a physical human. Has a password and/or Access Keys."},
+          {"icon": "users", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Group", "title_en": "Group", "body_ar": "حاوية للمستخدمين فقط (لا تحوي مجموعات أخرى). السياسات تُرفَق بالمجموعة وترث للأعضاء.", "body_en": "Container for users only (no nested groups). Policies attach to the group and inherit to members."},
+          {"icon": "shield", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Role", "title_en": "Role", "body_ar": "هويّة بلا كلمة مرور؛ تُسنَد للخدمات أو للمستخدمين مؤقّتاً عبر <span dir=\"ltr\" class=\"font-mono\">AssumeRole</span>.", "body_en": "Identity without a password; assumed by services or users temporarily via <span dir=\"ltr\" class=\"font-mono\">AssumeRole</span>."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>قاعدة ذهبيّة:</strong> مستخدم واحد لكلّ شخص، دور واحد لكلّ خدمة/تطبيق. لا تشارك الـ <span dir=\"ltr\" class=\"font-mono\">Access Keys</span> أبداً، ولا تستخدم الـ Root إلّا لإعداد الحساب الأوليّ ثمّ فعّل MFA عليه وضع مفاتيحه جانباً.",
+         "en": "<strong>Golden rule:</strong> one user per person, one role per service/app. Never share <span dir=\"ltr\" class=\"font-mono\">Access Keys</span>. Use Root only for initial account setup, then enable MFA and store its keys safely."}
+      ]
+    },
+    {
+      "title_ar": "بنية سياسة JSON وأنواعها",
+      "title_en": "JSON policy structure & types",
+      "blocks": [
+        {"type": "p",
+         "ar": "السياسة في AWS عبارة عن مستند JSON بعناصر ثابتة: <span dir=\"ltr\" class=\"font-mono\">Version</span>, <span dir=\"ltr\" class=\"font-mono\">Statement</span> (واحدة أو أكثر). كلّ <strong>Statement</strong> فيها: <span dir=\"ltr\" class=\"font-mono\">Effect</span> (Allow/Deny)، <span dir=\"ltr\" class=\"font-mono\">Action</span>، <span dir=\"ltr\" class=\"font-mono\">Resource</span>، و<span dir=\"ltr\" class=\"font-mono\">Condition</span> اختياريّة.",
+         "en": "An AWS policy is a JSON document with fixed elements: <span dir=\"ltr\" class=\"font-mono\">Version</span>, <span dir=\"ltr\" class=\"font-mono\">Statement</span> (one or more). Each statement has: <span dir=\"ltr\" class=\"font-mono\">Effect</span> (Allow/Deny), <span dir=\"ltr\" class=\"font-mono\">Action</span>, <span dir=\"ltr\" class=\"font-mono\">Resource</span>, and optional <span dir=\"ltr\" class=\"font-mono\">Condition</span>."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"AllowReadMyBucket\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:GetObject\",\n        \"s3:ListBucket\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::acme-reports\",\n        \"arn:aws:s3:::acme-reports/*\"\n      ],\n      \"Condition\": {\n        \"IpAddress\": { \"aws:SourceIp\": \"203.0.113.0/24\" },\n        \"Bool\":      { \"aws:MultiFactorAuthPresent\": \"true\" }\n      }\n    }\n  ]\n}"},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "user", "title_ar": "Identity-based", "title_en": "Identity-based",
+                  "body_ar": "تُرفَق بمستخدم أو مجموعة أو دور. تجيب عن سؤال: <em>ماذا يستطيع هذا المستخدم أن يفعل؟</em>",
+                  "body_en": "Attached to a user/group/role. Answers: <em>what can this principal do?</em>"},
+         "right": {"tone": "emerald", "icon": "box", "title_ar": "Resource-based", "title_en": "Resource-based",
+                   "body_ar": "تُرفَق بالمورد نفسه (Bucket Policy, KMS Key Policy). تجيب عن سؤال: <em>من يستطيع الوصول إلى هذا المورد؟</em> وتدعم الوصول عبر الحسابات.",
+                   "body_en": "Attached to the resource (Bucket Policy, KMS Key Policy). Answers: <em>who can access this resource?</em> and supports cross-account access."}
+        },
+        {"type": "table",
+         "headers": {"ar": ["النوع", "الاستخدام", "السلوك"], "en": ["Type", "Use case", "Behavior"]},
+         "rows": [
+           [{"mono": true, "value": "AWS Managed"}, {"ar": "جاهزة من AWS (مثل <span dir=\"ltr\" class=\"font-mono\">AdministratorAccess</span>)", "en": "AWS-provided (e.g., <span dir=\"ltr\" class=\"font-mono\">AdministratorAccess</span>)"}, {"ar": "AWS تحدّثها تلقائياً مع الخدمات الجديدة.", "en": "AWS updates them for new services automatically."}],
+           [{"mono": true, "value": "Customer Managed"}, {"ar": "تكتبها أنت وتُعاد استخدامها", "en": "You write them; reusable"}, {"ar": "أفضل ممارسة — Versioning و Rollback متاحان.", "en": "Best practice — versioning and rollback available."}],
+           [{"mono": true, "value": "Inline"}, {"ar": "علاقة 1-إلى-1 مع المستخدم/الدور", "en": "1-to-1 with user/role"}, {"ar": "تُحذَف بحذف الهويّة. مناسبة للاستثناءات.", "en": "Deleted with the principal. Good for exceptions."}]
+         ]
+        }
+      ]
+    },
+    {
+      "title_ar": "منطق تقييم السياسات",
+      "title_en": "Policy evaluation logic",
+      "blocks": [
+        {"type": "p",
+         "ar": "عند كلّ طلب API، يقيّم IAM جميع السياسات المنطبقة (Identity-based + Resource-based + SCP + Session). الترتيب الحاسم:",
+         "en": "On every API call, IAM evaluates all applicable policies (Identity-based + Resource-based + SCP + Session). Decisive order:"},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "x-circle", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "١. Explicit Deny يفوز", "title_en": "1. Explicit Deny wins", "body_ar": "أيّ <span dir=\"ltr\" class=\"font-mono\">Deny</span> صريح يرفض الطلب فوراً.", "body_en": "Any explicit <span dir=\"ltr\" class=\"font-mono\">Deny</span> rejects the request immediately."},
+          {"icon": "check-circle", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "٢. Explicit Allow يسمح", "title_en": "2. Explicit Allow permits", "body_ar": "في غياب Deny، أيّ <span dir=\"ltr\" class=\"font-mono\">Allow</span> صريح يمرّر الطلب.", "body_en": "Absent a Deny, any explicit <span dir=\"ltr\" class=\"font-mono\">Allow</span> permits it."},
+          {"icon": "ban", "icon_bg": "bg-gray-100", "icon_color": "text-gray-700", "title_ar": "٣. Implicit Deny افتراضيّ", "title_en": "3. Implicit Deny default", "body_ar": "عدم وجود Allow = Deny. AWS آمنة افتراضياً.", "body_en": "No Allow = Deny. AWS is secure by default."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "سؤال امتحان كلاسيكيّ: <em>IAM Policy تسمح للمستخدم بـ <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span>، لكن Bucket Policy فيها <span dir=\"ltr\" class=\"font-mono\">Deny</span> صريح عليه. هل يستطيع القراءة؟</em> الجواب: <strong>لا</strong> — الـ explicit Deny في أيّ سياسة يفوز دائماً.",
+         "en": "Classic exam scenario: <em>IAM policy allows <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span>, but Bucket Policy has an explicit Deny on the user. Can they read?</em> Answer: <strong>No</strong> — an explicit Deny anywhere always wins."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"DenyIfNotFromCorporateVPN\",\n      \"Effect\": \"Deny\",\n      \"Action\": \"*\",\n      \"Resource\": \"*\",\n      \"Condition\": {\n        \"NotIpAddress\": {\n          \"aws:SourceIp\": [\"198.51.100.0/24\", \"203.0.113.0/24\"]\n        },\n        \"Bool\": { \"aws:ViaAWSService\": \"false\" }\n      }\n    }\n  ]\n}"}
+      ]
+    },
+    {
+      "title_ar": "MFA وسياسة كلمات المرور",
+      "title_en": "MFA & password policy",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>MFA</strong> (كلمة المرور تعرفها + جهاز تملكه) هي أهمّ طبقة حماية ضد سرقة كلمات المرور. AWS يدعم: تطبيقات مثل Google Authenticator و Authy، مفاتيح U2F مثل YubiKey، و Hardware Key Fobs.",
+         "en": "<strong>MFA</strong> (password you know + device you own) is the single most important protection against stolen passwords. AWS supports: apps like Google Authenticator/Authy, U2F keys like YubiKey, and Hardware Key Fobs."},
+        {"type": "table",
+         "headers": {"ar": ["الإعداد", "الحدّ الموصى به"], "en": ["Setting", "Recommended"]},
+         "rows": [
+           [{"ar": "الحدّ الأدنى للطول", "en": "Minimum length"}, {"mono": true, "value": "14 chars"}],
+           [{"ar": "أحرف كبيرة + صغيرة + أرقام + رموز", "en": "Upper + lower + digits + symbols"}, {"mono": true, "value": "required"}],
+           [{"ar": "منع إعادة الاستخدام", "en": "Prevent reuse"}, {"mono": true, "value": "last 5 passwords"}],
+           [{"ar": "انتهاء الصلاحيّة", "en": "Expiration"}, {"mono": true, "value": "90 days"}],
+           [{"ar": "السماح بالتغيير الذاتي", "en": "Allow self-change"}, {"mono": true, "value": "true"}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "فعّل MFA على <strong>Root</strong> فوراً بعد إنشاء الحساب. هذه أوّل توصية في AWS Well-Architected. بعدها فعّله على كلّ مستخدم IAM له صلاحيّات حسّاسة، وافرض ذلك عبر <span dir=\"ltr\" class=\"font-mono\">aws:MultiFactorAuthPresent</span> في السياسات.",
+         "en": "Enable MFA on <strong>Root</strong> immediately after account creation — AWS Well-Architected's #1 recommendation. Then enable it on every sensitive IAM user and enforce via <span dir=\"ltr\" class=\"font-mono\">aws:MultiFactorAuthPresent</span> in policies."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Sid\": \"DenyAllExceptListedIfNoMFA\",\n    \"Effect\": \"Deny\",\n    \"NotAction\": [\n      \"iam:CreateVirtualMFADevice\",\n      \"iam:EnableMFADevice\",\n      \"iam:ResyncMFADevice\",\n      \"iam:ListMFADevices\",\n      \"iam:ListUsers\",\n      \"sts:GetSessionToken\"\n    ],\n    \"Resource\": \"*\",\n    \"Condition\": {\n      \"BoolIfExists\": { \"aws:MultiFactorAuthPresent\": \"false\" }\n    }\n  }]\n}"}
+      ]
+    },
+    {
+      "title_ar": "أدوار الخدمات وطرق الوصول",
+      "title_en": "Service roles & access methods",
+      "blocks": [
+        {"type": "p",
+         "ar": "هناك ثلاث طرق للوصول إلى AWS: <strong>Console</strong> (كلمة مرور + MFA)، <strong>CLI</strong> و <strong>SDK</strong> (Access Keys). لخدماتك في AWS نفسه (EC2, Lambda, ECS) استخدم <strong>IAM Roles</strong> دائماً — لا مفاتيح مُبرمجة أبداً.",
+         "en": "Three ways to access AWS: <strong>Console</strong> (password + MFA), <strong>CLI</strong> and <strong>SDK</strong> (Access Keys). For AWS services themselves (EC2, Lambda, ECS) always use <strong>IAM Roles</strong> — never hardcoded keys."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 with IAM Role from Instance Profile (no keys in code!)\nimport software.amazon.awssdk.services.s3.S3Client;\nimport software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;\n\nS3Client s3 = S3Client.builder()\n    .credentialsProvider(DefaultCredentialsProvider.create())\n    .build();\n\n// DefaultCredentialsProvider checks (in order):\n//  1. Environment variables\n//  2. Java System properties\n//  3. Credentials file (~/.aws/credentials)\n//  4. ECS container credentials\n//  5. EC2 Instance Profile metadata (IMDSv2)\n// If running on EC2 with a role attached, keys are fetched automatically & rotated."},
+        {"type": "callout", "tone": "senior",
+         "ar": "للمطوّر السينيور: لا تعتمد على <span dir=\"ltr\" class=\"font-mono\">IMDSv1</span> بعد الآن. افرض <span dir=\"ltr\" class=\"font-mono\">IMDSv2</span> (Session-based) عند إطلاق الخادم؛ فهو يتطلّب رمز PUT قبل قراءة البيانات الوصفيّة ويمنع هجمات SSRF المعروفة (مثل Capital One 2019).",
+         "en": "Senior tip: don't rely on <span dir=\"ltr\" class=\"font-mono\">IMDSv1</span> anymore. Enforce <span dir=\"ltr\" class=\"font-mono\">IMDSv2</span> (session-based) at launch; it requires a PUT token before metadata reads and blocks SSRF-based credential theft (e.g., Capital One 2019)."}
+      ]
+    },
+    {
+      "title_ar": "أدوات التدقيق: Credentials Report و Access Analyzer",
+      "title_en": "Audit tools: Credentials Report & Access Analyzer",
+      "blocks": [
+        {"type": "p",
+         "ar": "AWS تقدّم ثلاث أدوات مجانيّة للتدقيق:",
+         "en": "AWS provides three free audit tools:"},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "file-text", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Credentials Report", "title_en": "Credentials Report", "body_ar": "تقرير على مستوى الحساب يعرض جميع المستخدمين وحالة كلمات مرورهم ومفاتيحهم و MFA.", "body_en": "Account-level CSV listing every user's password, keys, and MFA status."},
+          {"icon": "eye", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Access Advisor", "title_en": "Access Advisor", "body_ar": "على مستوى المستخدم: يعرض آخر مرّة استُخدمت فيها كلّ خدمة ضمن صلاحيّاته.", "body_en": "User-level: shows when each service was last used by that principal."},
+          {"icon": "search", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Access Analyzer", "title_en": "Access Analyzer", "body_ar": "يكتشف الموارد المُشارَكة مع هويّات خارجيّة (حسابات أخرى أو عموم الإنترنت).", "body_en": "Detects resources shared with external identities (other accounts or public)."}
+        ]},
+        {"type": "code", "lang": "bash",
+         "code": "# Generate IAM Credentials Report (CSV)\naws iam generate-credential-report\naws iam get-credential-report --query Content --output text | base64 -d > creds.csv\n\n# Use Access Analyzer via the Policy Simulator\naws iam simulate-principal-policy \\\n  --policy-source-arn arn:aws:iam::111122223333:role/BackendRole \\\n  --action-names s3:GetObject s3:PutObject \\\n  --resource-arns arn:aws:s3:::acme-prod/*"},
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Policy Simulator</strong> أداة لا تُقدَّر بثمن: تختبر أثر السياسات قبل تطبيقها. استخدمها في كلّ Pull Request يعدّل صلاحيّات الإنتاج.",
+         "en": "<strong>Policy Simulator</strong> is invaluable — tests a policy's effect before you deploy it. Run it on every PR that modifies production permissions."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء مستخدم IAM آمن مع سياسة كلمات مرور، MFA، ومجموعة صلاحيّات قراءة فقط على S3.",
+    "goal_en": "Create a secure IAM user with a password policy, MFA, and a read-only S3 group.",
+    "steps": [
+      {"title_ar": "اضبط سياسة كلمات المرور على الحساب", "title_en": "Set the account password policy",
+       "body_ar": "IAM → Account settings → حدّ أدنى ١٤ حرف، جميع الفئات، منع إعادة آخر ٥، انتهاء ٩٠ يوم.",
+       "body_en": "IAM → Account settings → min 14 chars, all categories, prevent reuse of last 5, expire every 90 days."},
+      {"title_ar": "أنشئ مجموعة <span dir=\"ltr\" class=\"font-mono\">ReadOnlyS3</span>", "title_en": "Create group <span dir=\"ltr\" class=\"font-mono\">ReadOnlyS3</span>",
+       "body_ar": "أرفق السياسة المُدارة <span dir=\"ltr\" class=\"font-mono\">AmazonS3ReadOnlyAccess</span>.",
+       "body_en": "Attach the managed policy <span dir=\"ltr\" class=\"font-mono\">AmazonS3ReadOnlyAccess</span>."},
+      {"title_ar": "أنشئ مستخدم <span dir=\"ltr\" class=\"font-mono\">alice</span>", "title_en": "Create user <span dir=\"ltr\" class=\"font-mono\">alice</span>",
+       "body_ar": "Console access فقط، ضعها في المجموعة أعلاه، واطلب تغيير كلمة المرور عند أوّل دخول.",
+       "body_en": "Console access only, add to the group, require password change on first sign-in."},
+      {"title_ar": "أضف جهاز MFA افتراضيّ", "title_en": "Add a virtual MFA device",
+       "body_ar": "IAM → Users → alice → Security credentials → Assign MFA → مسح QR في Google Authenticator.",
+       "body_en": "IAM → Users → alice → Security credentials → Assign MFA → scan QR in Google Authenticator.",
+       "code": "# After MFA setup, test with STS GetSessionToken:\naws sts get-session-token \\\n  --serial-number arn:aws:iam::111122223333:mfa/alice \\\n  --token-code 123456 \\\n  --duration-seconds 3600"},
+      {"title_ar": "دقّق عبر Credentials Report", "title_en": "Audit via Credentials Report",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws iam generate-credential-report\naws iam get-credential-report --query Content --output text | base64 -d | column -s, -t | head"},
+      {"title_ar": "نظّف", "title_en": "Clean up",
+       "body_ar": "احذف المستخدم والمجموعة بعد التجربة. احتفظ بسياسة كلمات المرور — فهي أفضل ممارسة دائمة.",
+       "body_en": "Delete the user and group after testing. Keep the password policy — it's a permanent best practice."}
+    ],
+    "warning_ar": "لا تولّد Access Keys للمستخدم في هذه الممارسة؛ Console فقط. Keys تُنشأ فقط عند الحاجة إلى CLI/SDK، وتُلغى فور انتهاء الحاجة.",
+    "warning_en": "Don't generate Access Keys in this lab — Console only. Create keys only when CLI/SDK is truly needed, and revoke them immediately when done."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "شركة Acme لديها سياسة IAM تسمح للمستخدم <span dir=\"ltr\" class=\"font-mono\">bob</span> بعمل <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span> على Bucket معيّن. الـ Bucket Policy تحتوي <span dir=\"ltr\" class=\"font-mono\">Deny</span> صريح على <span dir=\"ltr\" class=\"font-mono\">bob</span>. هل يستطيع القراءة؟",
+      "question_en": "Acme has an IAM policy allowing user <span dir=\"ltr\" class=\"font-mono\">bob</span> to <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span> on a specific bucket. The bucket policy has an explicit <span dir=\"ltr\" class=\"font-mono\">Deny</span> on <span dir=\"ltr\" class=\"font-mono\">bob</span>. Can he read?",
+      "options_ar": ["نعم — الـ IAM Policy تعلو على Bucket Policy.", "نعم — لأنّ الـ IAM Allow أحدث.", "لا — Explicit Deny في أيّ سياسة يفوز دائماً.", "يعتمد على ترتيب إنشاء السياسات."],
+      "options_en": ["Yes — IAM policy overrides bucket policy.", "Yes — because IAM Allow is newer.", "No — an explicit Deny anywhere always wins.", "Depends on policy creation order."],
+      "correct": 2,
+      "explanation_ar": "منطق تقييم IAM: <strong>Explicit Deny → Explicit Allow → Implicit Deny</strong>. أيّ <span dir=\"ltr\" class=\"font-mono\">Deny</span> صريح في أيّ سياسة (Identity-based أو Resource-based) يُفشل الطلب حتى لو كانت هناك Allows صريحة.",
+      "explanation_en": "IAM evaluation: <strong>Explicit Deny → Explicit Allow → Implicit Deny</strong>. Any explicit <span dir=\"ltr\" class=\"font-mono\">Deny</span> in any policy (identity-based or resource-based) rejects the request regardless of Allows.",
+      "wrong_ar": ["IAM وBucket Policy على قدم المساواة، ولا أحدهما يعلو تلقائياً.", "الوقت الزمنيّ لا علاقة له بالتقييم.", "", "التقييم يحدث في اللحظة الآنيّة لكلّ الطلبات، لا حسب التاريخ."],
+      "wrong_en": ["IAM and Bucket Policy are peers; neither auto-overrides.", "Time of creation is irrelevant.", "", "Evaluation is at request-time, not creation-order."],
+      "reference_ar": "القسم ٣ — منطق تقييم السياسات",
+      "reference_en": "Section 3 — Policy evaluation"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "ما الفرق الجوهريّ بين <strong>Customer Managed Policy</strong> و <strong>Inline Policy</strong>؟",
+      "question_en": "Key difference between <strong>Customer Managed Policy</strong> and <strong>Inline Policy</strong>?",
+      "options_ar": ["Managed أسرع من Inline.", "Inline مشفّرة أكثر.", "Managed قابلة لإعادة الاستخدام وتدعم Versioning؛ Inline علاقة 1-إلى-1 وتُحذَف بحذف الهويّة.", "Managed للمستخدمين فقط، Inline للأدوار فقط."],
+      "options_en": ["Managed is faster than Inline.", "Inline is more encrypted.", "Managed is reusable & versioned; Inline is 1-to-1 and deleted with the principal.", "Managed is users-only, Inline is roles-only."],
+      "correct": 2,
+      "explanation_ar": "Customer Managed هو أفضل ممارسة للسياسات العامة: قابلة لإعادة الاستخدام عبر عدّة مستخدمين/أدوار، Versioning، Rollback، وتدقيق مركزيّ. Inline مناسبة فقط للاستثناءات الخاصّة بهويّة واحدة التي لا يجب أن تُنسَخ.",
+      "explanation_en": "Customer Managed is the best-practice for general policies: reusable across principals, versioned, rollback-able, centrally audited. Inline is only for exceptions tied to a single identity that must never be copied.",
+      "wrong_ar": ["لا فرق في الأداء.", "مستوى التشفير ذاته لكليهما.", "", "كلاهما تُرفَق بأيّ نوع هويّة."],
+      "wrong_en": ["No perf difference.", "Same encryption level for both.", "", "Both attach to any principal type."],
+      "reference_ar": "القسم ٢ — جدول أنواع السياسات",
+      "reference_en": "Section 2 — Policy types table"
+    },
+    {
+      "id": "q3", "type": "multi",
+      "question_ar": "أيّ الممارسات التالية تعدّ <strong>أفضل ممارسات IAM</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are <strong>IAM best practices</strong>? Select all that apply.",
+      "options_ar": ["استخدم Root account في العمل اليومي لسرعة الإنجاز.", "فعّل MFA على الـ Root وكلّ المستخدمين الحسّاسين.", "أرفق صلاحيّات بمجموعات ولا تُكرّرها على كلّ مستخدم.", "خزّن Access Keys في Git repository خاصّ مُشفّر.", "أنشئ Role لكلّ خدمة (EC2, Lambda, ECS) بدلاً من مفاتيح."],
+      "options_en": ["Use Root daily for convenience.", "Enable MFA on Root and all sensitive users.", "Attach permissions to groups, not individual users.", "Store Access Keys in a private encrypted Git repo.", "Create an IAM Role per service (EC2, Lambda, ECS) instead of keys."],
+      "correct": [1, 2, 4],
+      "explanation_ar": "Root يُستخدم فقط لإعداد الحساب ثمّ يُترك. السياسات تُرفَق بالمجموعات لتوحيد الإدارة. Access Keys لا تُخزَّن في أيّ repo (عامّ أو خاصّ) — استخدم Roles. MFA إلزاميّ لكلّ حساب حسّاس.",
+      "explanation_en": "Root is only for setup, then unused. Attach policies to groups for central management. Access Keys never belong in any repo (public or private) — use Roles. MFA is mandatory for sensitive accounts.",
+      "reference_ar": "القسم ١ و ٤",
+      "reference_en": "Sections 1 & 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "تطبيق Spring Boot يعمل على EC2 يحتاج قراءة ملفات من S3. ما أفضل طريقة لإعطائه الصلاحيّات؟",
+      "question_en": "A Spring Boot app on EC2 needs to read S3 files. Best way to grant permissions?",
+      "options_ar": ["إنشاء IAM User وحفظ مفاتيحه في <span dir=\"ltr\" class=\"font-mono\">application.properties</span>.", "إرفاق IAM Role (Instance Profile) بالخادم مع سياسة <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span>.", "كتابة مفاتيح AWS مباشرة في كود Java.", "استخدام Root credentials مع تشفير AES."],
+      "options_en": ["Create an IAM User and put keys in <span dir=\"ltr\" class=\"font-mono\">application.properties</span>.", "Attach an IAM Role (Instance Profile) to the instance with <span dir=\"ltr\" class=\"font-mono\">s3:GetObject</span>.", "Hardcode AWS keys in Java code.", "Use Root credentials with AES encryption."],
+      "correct": 1,
+      "explanation_ar": "IAM Role مرفق بالخادم هو الحلّ المعياريّ: الـ SDK يجلب المفاتيح تلقائياً من IMDSv2، وتُدوَّر دون تدخل. أيّ طريقة تتضمّن مفاتيح مكتوبة في ملفات التطبيق أو الكود تُعتبر كارثة أمنيّة (تسرّب أوّل ما يصل المفاتيح إلى Git).",
+      "explanation_en": "An IAM Role on the instance is standard: SDK fetches keys from IMDSv2 and they rotate automatically. Any method involving hardcoded or filed keys is a security disaster (keys leak the instant they hit Git).",
+      "wrong_ar": ["المفاتيح في ملف التطبيق تظهر في أيّ backup/Git.", "", "أسوأ ممارسة على الإطلاق — Root يجب ألّا يُستخدم برمجيّاً.", "Root لا يُستخدم للتطبيقات، والتشفير لا يحلّ مشكلة الهويّة."],
+      "wrong_en": ["Keys in a config file leak to any backup/Git.", "", "The worst practice — Root should never be used programmatically.", "Root shouldn't run apps; encryption doesn't fix the identity issue."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "ما الغرض من <strong>IAM Credentials Report</strong>؟",
+      "question_en": "Purpose of the <strong>IAM Credentials Report</strong>?",
+      "options_ar": ["إصلاح تلقائيّ للسياسات الضعيفة.", "تقرير CSV على مستوى الحساب يعرض كلّ المستخدمين وحالة كلمات مرورهم، مفاتيحهم، MFA.", "كشف الـ brute-force attacks.", "تحليل أداء طلبات IAM."],
+      "options_en": ["Auto-remediate weak policies.", "Account-level CSV listing every user with password, key, and MFA status.", "Detect brute-force attacks.", "Analyze IAM request performance."],
+      "correct": 1,
+      "explanation_ar": "Credentials Report تقرير دوريّ (كلّ ٤ ساعات) يُنشَأ عند الطلب. مفيد جدّاً للإجابة على أسئلة مثل: من يستخدم مفاتيحه؟ من دون MFA؟ من لم يُغيّر كلمة مروره منذ ٩٠ يوم؟ للمقارنة، <em>Access Advisor</em> على مستوى المستخدم.",
+      "explanation_en": "Credentials Report is a periodic (every 4h) on-demand CSV. Answers: who has active keys? who lacks MFA? who hasn't rotated password in 90d? Compare with <em>Access Advisor</em> which is user-level.",
+      "wrong_ar": ["لا يعدّل السياسات.", "", "هذا دور GuardDuty أو CloudTrail insights.", "غير موجود — IAM لا يقيس الأداء."],
+      "wrong_en": ["Doesn't modify policies.", "", "That's GuardDuty / CloudTrail Insights.", "N/A — IAM doesn't measure perf."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "سياسة IAM تحتوي <span dir=\"ltr\" class=\"font-mono\">\"Resource\": \"arn:aws:s3:::acme-prod/*\"</span> دون <span dir=\"ltr\" class=\"font-mono\">\"arn:aws:s3:::acme-prod\"</span>. هل يستطيع المستخدم عمل <span dir=\"ltr\" class=\"font-mono\">ListBucket</span>؟",
+      "question_en": "An IAM policy has <span dir=\"ltr\" class=\"font-mono\">\"Resource\": \"arn:aws:s3:::acme-prod/*\"</span> without <span dir=\"ltr\" class=\"font-mono\">\"arn:aws:s3:::acme-prod\"</span>. Can the user <span dir=\"ltr\" class=\"font-mono\">ListBucket</span>?",
+      "options_ar": ["نعم — <span dir=\"ltr\" class=\"font-mono\">*</span> تشمل كلّ شيء.", "لا — <span dir=\"ltr\" class=\"font-mono\">ListBucket</span> تحتاج ARN للـ Bucket نفسه، بينما العمليّات على الكائنات تحتاج <span dir=\"ltr\" class=\"font-mono\">/*</span>.", "نعم — S3 لا يفرّق بين النوعين.", "لا — يجب إضافة <span dir=\"ltr\" class=\"font-mono\">s3:HeadBucket</span> أيضاً."],
+      "options_en": ["Yes — <span dir=\"ltr\" class=\"font-mono\">*</span> covers everything.", "No — <span dir=\"ltr\" class=\"font-mono\">ListBucket</span> needs the bucket ARN; object actions need <span dir=\"ltr\" class=\"font-mono\">/*</span>.", "Yes — S3 doesn't distinguish.", "No — you also need <span dir=\"ltr\" class=\"font-mono\">s3:HeadBucket</span>."],
+      "correct": 1,
+      "explanation_ar": "خطأ كلاسيكيّ: <span dir=\"ltr\" class=\"font-mono\">ListBucket</span> عمليّة على الـ Bucket كمورد (<span dir=\"ltr\" class=\"font-mono\">arn:aws:s3:::acme-prod</span>)، بينما <span dir=\"ltr\" class=\"font-mono\">GetObject/PutObject</span> على الكائنات (<span dir=\"ltr\" class=\"font-mono\">arn:aws:s3:::acme-prod/*</span>). يجب تضمين كلا الـ ARNs في السياسة.",
+      "explanation_en": "Classic trap: <span dir=\"ltr\" class=\"font-mono\">ListBucket</span> acts on the bucket (<span dir=\"ltr\" class=\"font-mono\">arn:aws:s3:::acme-prod</span>); <span dir=\"ltr\" class=\"font-mono\">GetObject/PutObject</span> act on objects (<span dir=\"ltr\" class=\"font-mono\">arn:aws:s3:::acme-prod/*</span>). Include both ARNs.",
+      "wrong_ar": ["<span dir=\"ltr\" class=\"font-mono\">/*</span> لا تشمل الـ Bucket نفسه.", "", "S3 فعلاً يفرّق بين الـ Bucket والكائنات.", "HeadBucket غير مطلوبة لـ ListBucket."],
+      "wrong_en": ["<span dir=\"ltr\" class=\"font-mono\">/*</span> excludes the bucket itself.", "", "S3 does distinguish.", "HeadBucket not needed for ListBucket."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "ما هي أداة <strong>IAM Access Analyzer</strong> في AWS؟",
+      "question_en": "What is <strong>IAM Access Analyzer</strong>?",
+      "options_ar": ["أداة لفحص أداء طلبات IAM.", "أداة تكتشف الموارد (S3, SQS, IAM Roles...) المُشارَكة مع هويّات خارج الحساب.", "أداة لتشفير السياسات.", "أداة لترقية AWS Managed Policies."],
+      "options_en": ["A tool to profile IAM request performance.", "A tool that detects resources (S3, SQS, IAM Roles...) shared with identities outside your account.", "A tool to encrypt policies.", "A tool to upgrade AWS Managed Policies."],
+      "correct": 1,
+      "explanation_ar": "Access Analyzer يستخدم استدلال رياضيّ (formal verification) لفحص كلّ سياسات الموارد في الحساب ويُظهر النتائج العابرة للحسابات: مثلاً Bucket Policy تسمح للعموم، أو KMS Key مشارك مع حساب آخر لم يكن بقصد. أداة مجانيّة وأساسيّة للأمان.",
+      "explanation_en": "Access Analyzer uses formal reasoning to scan every resource policy and flag cross-account/external access: e.g., a public bucket policy or a KMS key shared with an unintended account. Free and essential.",
+      "wrong_ar": ["لا علاقة له بالأداء.", "", "السياسات نصيّة JSON بطبيعتها.", "لا يُعدّل AWS Managed Policies."],
+      "wrong_en": ["Nothing to do with perf.", "", "Policies are plain JSON.", "Doesn't modify AWS Managed Policies."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "مطوّر يريد فرض MFA على جميع العمليّات في حسابه ما عدا إدارة MFA نفسها. ما الشرط الصحيح في السياسة؟",
+      "question_en": "A developer wants to require MFA for all actions except managing MFA itself. Correct condition?",
+      "options_ar": ["<span dir=\"ltr\" class=\"font-mono\">\"aws:MultiFactorAuthPresent\": \"true\"</span> في Allow.", "<span dir=\"ltr\" class=\"font-mono\">\"aws:MultiFactorAuthPresent\": \"false\"</span> مع Deny و NotAction استثنائيّة لعمليّات MFA.", "<span dir=\"ltr\" class=\"font-mono\">\"aws:MFAEnabled\": \"true\"</span>.", "<span dir=\"ltr\" class=\"font-mono\">\"iam:RequireMFA\": \"yes\"</span>."],
+      "options_en": ["<span dir=\"ltr\" class=\"font-mono\">\"aws:MultiFactorAuthPresent\": \"true\"</span> in Allow.", "<span dir=\"ltr\" class=\"font-mono\">\"aws:MultiFactorAuthPresent\": \"false\"</span> with Deny and <span dir=\"ltr\" class=\"font-mono\">NotAction</span> for MFA operations.", "<span dir=\"ltr\" class=\"font-mono\">\"aws:MFAEnabled\": \"true\"</span>.", "<span dir=\"ltr\" class=\"font-mono\">\"iam:RequireMFA\": \"yes\"</span>."],
+      "correct": 1,
+      "explanation_ar": "النمط المعتمد: <span dir=\"ltr\" class=\"font-mono\">Deny</span> على <span dir=\"ltr\" class=\"font-mono\">NotAction</span> (قائمة عمليّات MFA الضروريّة لتسجيل الجهاز) عند كون <span dir=\"ltr\" class=\"font-mono\">MultiFactorAuthPresent = false</span>. هذا يترك للمستخدم فقط القدرة على تسجيل MFA ثمّ كلّ شيء محظور حتى يتحقّق.",
+      "explanation_en": "Standard pattern: <span dir=\"ltr\" class=\"font-mono\">Deny</span> on <span dir=\"ltr\" class=\"font-mono\">NotAction</span> (list of MFA management ops) when <span dir=\"ltr\" class=\"font-mono\">MultiFactorAuthPresent = false</span>. This leaves users able only to register MFA, then everything else is blocked until verified.",
+      "wrong_ar": ["لا يسمح باستثناء عمليّات MFA نفسها.", "", "لا يوجد مفتاح بهذا الاسم في IAM.", "اسم مخترع — غير موجود."],
+      "wrong_en": ["Doesn't allow bootstrapping MFA itself.", "", "No such IAM key.", "Made-up key."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "ما الفرق بين <strong>IAM User</strong> و <strong>IAM Role</strong>؟",
+      "question_en": "Difference between <strong>IAM User</strong> and <strong>IAM Role</strong>?",
+      "options_ar": ["User للأفراد ذوو credentials ثابتة؛ Role هويّة مؤقّتة تُتحمَّل عبر STS (بلا كلمة مرور).", "Role للأدمن فقط.", "User يمكن إنشاؤه فقط من Console.", "Role لا يصلح إلّا للخدمات."],
+      "options_en": ["User is for individuals with persistent credentials; Role is a temporary identity assumed via STS (no password).", "Role is admin-only.", "User can only be created in the Console.", "Role works only for services."],
+      "correct": 0,
+      "explanation_ar": "User = هويّة دائمة لشخص فيزيائيّ (كلمة مرور + مفاتيح). Role = هويّة بلا مالك دائم؛ تُتحمَّل (<span dir=\"ltr\" class=\"font-mono\">AssumeRole</span>) وتُعطي مفاتيح مؤقّتة (١٥د - ١٢س). استخدم Roles لكلّ وصول عابر للحسابات ولكلّ خدمة AWS.",
+      "explanation_en": "User = permanent identity for a human (password + keys). Role = ownerless identity; assumed (<span dir=\"ltr\" class=\"font-mono\">AssumeRole</span>) yielding temporary credentials (15m–12h). Use Roles for all cross-account access and every AWS service.",
+      "wrong_ar": ["أيّ مستخدم يمكن منحه أيّ صلاحيّات.", "CLI و SDK وCloudFormation كلّها تنشئ users.", "Roles تصلح للبشر أيضاً (Federation)."],
+      "wrong_en": ["Any principal can hold any perms.", "CLI, SDK, CFN all create users.", "Roles work for humans too (Federation)."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "شركة Acme تريد منع استخدام AWS API من أيّ مصدر خارج شبكة المكتب (<span dir=\"ltr\" class=\"font-mono\">203.0.113.0/24</span>). أيّ سياسة مناسبة؟",
+      "question_en": "Acme wants to block all AWS API usage from outside the office network (<span dir=\"ltr\" class=\"font-mono\">203.0.113.0/24</span>). Best policy?",
+      "options_ar": ["<span dir=\"ltr\" class=\"font-mono\">Allow</span> مع شرط <span dir=\"ltr\" class=\"font-mono\">aws:SourceVpc</span>.", "<span dir=\"ltr\" class=\"font-mono\">Deny</span> مع <span dir=\"ltr\" class=\"font-mono\">NotIpAddress</span> على <span dir=\"ltr\" class=\"font-mono\">aws:SourceIp</span>.", "Security Group على مستوى الحساب.", "Network ACL."],
+      "options_en": ["<span dir=\"ltr\" class=\"font-mono\">Allow</span> with <span dir=\"ltr\" class=\"font-mono\">aws:SourceVpc</span>.", "<span dir=\"ltr\" class=\"font-mono\">Deny</span> with <span dir=\"ltr\" class=\"font-mono\">NotIpAddress</span> on <span dir=\"ltr\" class=\"font-mono\">aws:SourceIp</span>.", "Account-level Security Group.", "Network ACL."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">Deny</span> مع <span dir=\"ltr\" class=\"font-mono\">NotIpAddress</span> يمنع أيّ طلب من خارج الـ CIDR المُعرَّف. يُدمَج في سياسة الـ Root أو كـ SCP على مستوى Organization. استخدم <span dir=\"ltr\" class=\"font-mono\">aws:ViaAWSService=false</span> للسماح لطلبات AWS الداخليّة (مثل CloudFormation).",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">Deny</span> with <span dir=\"ltr\" class=\"font-mono\">NotIpAddress</span> blocks any request outside the CIDR. Best implemented at the Root policy or an Organization SCP. Add <span dir=\"ltr\" class=\"font-mono\">aws:ViaAWSService=false</span> so AWS internal calls (e.g., CloudFormation) aren't blocked.",
+      "wrong_ar": ["<span dir=\"ltr\" class=\"font-mono\">SourceVpc</span> لحسابات داخل VPC فقط، ولا يغطّي الحالة العامة.", "", "Security Group على مستوى الخادم لا الحساب.", "NACL داخل VPC لا يتحكم بـ AWS API calls."],
+      "wrong_en": ["<span dir=\"ltr\" class=\"font-mono\">SourceVpc</span> only for VPC-bound calls, doesn't cover general case.", "", "Security Groups are instance-level, not account-level.", "NACLs are VPC-internal, not for AWS API calls."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "ما الفرق بين <strong>Identity-based</strong> و <strong>Resource-based</strong> policies؟",
+      "question_en": "Difference between <strong>Identity-based</strong> and <strong>Resource-based</strong> policies?",
+      "options_ar": ["Identity-based للـ S3 فقط.", "Identity-based تُرفَق بالهويّة (user/group/role)؛ Resource-based بالمورد (bucket, KMS key) وتدعم Cross-account.", "Resource-based أسرع.", "لا فرق حقيقي."],
+      "options_en": ["Identity-based is S3-only.", "Identity-based attaches to principal (user/group/role); Resource-based attaches to the resource (bucket, KMS key) and supports cross-account.", "Resource-based is faster.", "No real difference."],
+      "correct": 1,
+      "explanation_ar": "Identity-based تجيب <em>ماذا يستطيع هذا المستخدم أن يفعل؟</em>. Resource-based تجيب <em>من يستطيع الوصول إلى هذا المورد؟</em> مثل Bucket Policy و KMS Key Policy. الأخيرة ضروريّة لـ cross-account وتسمح بتحديد <span dir=\"ltr\" class=\"font-mono\">Principal</span>.",
+      "explanation_en": "Identity-based answers <em>what can this principal do?</em>. Resource-based answers <em>who can touch this resource?</em>, e.g., bucket policies, KMS key policies. Essential for cross-account access; allows specifying <span dir=\"ltr\" class=\"font-mono\">Principal</span>.",
+      "wrong_ar": ["تُطبَّق على جميع الخدمات.", "", "الأداء متقارب.", "الفرق جوهريّ."],
+      "wrong_en": ["Apply across all services.", "", "Perf is comparable.", "Difference is fundamental."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "بعد تمكين سياسة كلمات مرور صارمة (١٤ حرف، انتهاء ٩٠ يوم)، متى ستُطبَّق؟",
+      "question_en": "After enabling a strict password policy (14 chars, 90-day expiry), when does it apply?",
+      "options_ar": ["فوراً على كلّ كلمات المرور الحاليّة.", "عند التغيير التالي لكلمة المرور (المستخدمون الحاليّون يحتفظون بكلمات مرورهم حتى الانتهاء أو التغيير).", "لا تُطبَّق إلا على المستخدمين الجدد.", "بعد إعادة تشغيل الحساب."],
+      "options_en": ["Instantly on all existing passwords.", "On next password change (existing users keep their password until expiry or change).", "Only on new users.", "After account restart."],
+      "correct": 1,
+      "explanation_ar": "السياسة تسري على إنشاء كلمات المرور وتغييرها مستقبلاً. كلمات المرور الموجودة لا تتأثّر رجعيّاً، لكنّ ميزة الانتهاء ستجبر التغيير قريباً. لا توجد عمليّة \"إعادة تشغيل الحساب\" في AWS.",
+      "explanation_en": "The policy applies to future password creates/changes. Existing passwords aren't retroactively invalidated, but expiration forces a change soon. There's no \"account restart\" in AWS.",
+      "wrong_ar": ["AWS لا تُجبر التغيير الفوريّ على الحاليّين.", "", "تُطبَّق على الجميع بالتدريج.", "غير موجود في AWS."],
+      "wrong_en": ["AWS doesn't force instant changes on existing users.", "", "Applies to everyone progressively.", "Not a thing in AWS."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q13", "type": "multi",
+      "question_ar": "أيّ من التالي يمنع <strong>IMDSv2</strong>؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which of the following does <strong>IMDSv2</strong> prevent? Select all that apply.",
+      "options_ar": ["هجمات SSRF التي تسرق مفاتيح IAM الدور.", "Cross-Site Scripting (XSS).", "الوصول للبيانات الوصفيّة بدون رمز Session.", "هجمات SQL Injection."],
+      "options_en": ["SSRF attacks that steal role IAM credentials.", "Cross-Site Scripting (XSS).", "Metadata access without a session token.", "SQL Injection."],
+      "correct": [0, 2],
+      "explanation_ar": "IMDSv2 يتطلّب <span dir=\"ltr\" class=\"font-mono\">PUT</span> أوّلاً للحصول على رمز Session (صالح لمدّة قصيرة) ثمّ استخدامه في الـ GET. هذا يمنع معظم هجمات SSRF المعروفة (مثل ثغرة Capital One 2019). XSS و SQL Injection خارج نطاقه.",
+      "explanation_en": "IMDSv2 requires a <span dir=\"ltr\" class=\"font-mono\">PUT</span> to obtain a short-lived session token, then a GET with it. This blocks most known SSRF credential-theft attacks (e.g., Capital One 2019). XSS/SQLi are unrelated.",
+      "reference_ar": "القسم ٥ — نصيحة السينيور",
+      "reference_en": "Section 5 — Senior tip"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "لماذا يُنصَح بربط السياسات بـ <strong>Groups</strong> لا بالمستخدمين مباشرة؟",
+      "question_en": "Why is it recommended to attach policies to <strong>Groups</strong> rather than directly to users?",
+      "options_ar": ["لأنّ AWS تفرض ذلك قانونياً.", "للإدارة المركزيّة وقابلية التوسّع — تغيير سياسة المجموعة ينطبق على كلّ الأعضاء فوراً.", "لأنّ المجموعات أسرع في التقييم.", "لأنّ المستخدمين لا يقبلون سياسات مباشرة."],
+      "options_en": ["AWS legally requires it.", "Central management and scale — changing the group policy applies to all members instantly.", "Groups evaluate faster.", "Users can't hold direct policies."],
+      "correct": 1,
+      "explanation_ar": "الفائدة الكبرى هي <strong>المركزيّة</strong>: سياسة واحدة تُدار في مكان واحد وتنطبق على كلّ الأعضاء. عند إضافة مطوّر جديد: ضعه في Group فقط، دون تكرار الأذونات. Audit أسهل بكثير.",
+      "explanation_en": "The win is <strong>centralization</strong>: one policy managed in one place applies to all members. Adding a new dev = just put them in the Group. Audit is vastly simpler.",
+      "wrong_ar": ["لا إلزام قانونيّ.", "", "الأداء متطابق.", "المستخدمون يمكنهم حمل سياسات مباشرة، لكنّه ممارسة سيّئة للتوسّع."],
+      "wrong_en": ["No legal mandate.", "", "Performance identical.", "Users can hold direct policies, just doesn't scale."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "مطوّر يشكّ في أنّ سياسة معقّدة ستمنع عمليّة معيّنة قبل نشرها في الإنتاج. أيّ أداة AWS تُستخدم للاختبار؟",
+      "question_en": "A developer suspects a complex policy will block an operation before deploying to production. Which AWS tool tests this?",
+      "options_ar": ["AWS Config.", "IAM Policy Simulator.", "CloudTrail.", "AWS Inspector."],
+      "options_en": ["AWS Config.", "IAM Policy Simulator.", "CloudTrail.", "AWS Inspector."],
+      "correct": 1,
+      "explanation_ar": "IAM Policy Simulator (متوفر في Console و CLI عبر <span dir=\"ltr\" class=\"font-mono\">aws iam simulate-principal-policy</span>) يحاكي طلب API كاملاً على مستخدم/دور ويخبرك بالنتيجة (Allow/Deny) وأيّ بيان يتحكم بها. أساسيّ لأيّ تغيير صلاحيّات.",
+      "explanation_en": "IAM Policy Simulator (Console and CLI via <span dir=\"ltr\" class=\"font-mono\">aws iam simulate-principal-policy</span>) simulates a full API request against a principal and tells you the outcome (Allow/Deny) with the deciding statement. Essential for any permission change.",
+      "wrong_ar": ["AWS Config لرصد الامتثال، لا اختبار السياسات.", "", "CloudTrail يسجّل الأحداث التاريخيّة، لا يختبر.", "Inspector لفحص الثغرات الأمنيّة في EC2/ECR."],
+      "wrong_en": ["AWS Config tracks compliance, not policy testing.", "", "CloudTrail logs historical events, not test.", "Inspector scans EC2/ECR vulnerabilities."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    }
+  ],
+  "summary": [
+    {"icon": "shield", "title_ar": "Explicit Deny يفوز", "title_en": "Explicit Deny wins",
+     "body_ar": "Deny > Allow > Implicit Deny. أيّ Deny في أيّ سياسة يحسم القرار.",
+     "body_en": "Deny > Allow > Implicit Deny. Any Deny anywhere decides."},
+    {"icon": "users", "title_ar": "هويّة واحدة لكلّ فرد/خدمة", "title_en": "One identity per human/service",
+     "body_ar": "User للأفراد، Role لخدماتك. لا تشارك مفاتيح أبداً.",
+     "body_en": "User per human, Role per service. Never share keys."},
+    {"icon": "key", "title_ar": "MFA على Root وكلّ الحسّاسين", "title_en": "MFA on Root + sensitive",
+     "body_ar": "أفضل حماية ضدّ سرقة كلمة المرور — ضرورة لا خيار.",
+     "body_en": "Best defense against stolen passwords — mandatory."},
+    {"icon": "search", "title_ar": "دقّق بـ Credentials Report و Access Analyzer", "title_en": "Audit via reports & Analyzer",
+     "body_ar": "راجع المفاتيح غير المُدوَّرة والموارد المشارَكة خارجيّاً شهريّاً.",
+     "body_en": "Review non-rotated keys and externally-shared resources monthly."}
+  ],
+  "mnemonic_ar": "<strong>DAI</strong> لمنطق التقييم: <strong>D</strong>eny (explicit) → <strong>A</strong>llow (explicit) → <strong>I</strong>mplicit deny. تذكّر: <em>الرافض يحسم، المُجيز يُجيز، والصمت رفض</em>.",
+  "mnemonic_en": "<strong>DAI</strong> for evaluation: <strong>D</strong>eny (explicit) → <strong>A</strong>llow (explicit) → <strong>I</strong>mplicit deny. Remember: <em>the refuser decides, the allower allows, silence denies</em>.",
+  "prev": 16,
+  "next": 18
+}

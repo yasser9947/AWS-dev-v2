@@ -1,0 +1,346 @@
+{
+  "n": 3,
+  "domain": "foundations",
+  "title_ar": "تخزين خوادم EC2: EBS و EFS و Instance Store",
+  "title_en": "EC2 Instance Storage: EBS, EFS, Instance Store",
+  "pages": "72-94",
+  "subtitle_ar": "ثلاث طبقات تخزين لكلّ منها شخصيّة مختلفة: أقراص شبكيّة مُستمرّة (EBS)، ونظام ملفّات مشترك (EFS)، وأقراص فيزيائيّة سريعة لكنّها مؤقّتة (Instance Store). فهم الفروق بينها شرط للامتحان ولأيّ قرار معماريّ جدّيّ.",
+  "subtitle_en": "Three storage tiers, each with a distinct personality: persistent network-attached block (EBS), shared multi-instance file (EFS), and ultra-fast ephemeral local (Instance Store). Knowing their trade-offs is essential for the exam and for any serious architectural call.",
+  "tags": ["EBS", "EFS", "Instance Store", "Snapshots", "AMI", "io2", "gp3"],
+  "objectives": [
+    {"concept": "EBS Volume Types", "tested_ar": "النطاقان الثالث والرابع في اختيار النوع المناسب (gp3 مقابل io2 مقابل st1).", "tested_en": "Domains 3 & 4 — choosing the right volume type (gp3 vs io2 vs st1)."},
+    {"concept": "EFS vs EBS vs Instance Store", "tested_ar": "النطاق الأوّل في أسئلة الاختيار بين تخزين مُستمرّ ومشترك ومؤقّت.", "tested_en": "Domain 1 — persistent vs shared vs ephemeral decisions."},
+    {"concept": "Snapshots and AMIs", "tested_ar": "النطاق الثالث في أسئلة النسخ الاحتياطي والنقل بين الـ AZs.", "tested_en": "Domain 3 — backups and cross-AZ migration."},
+    {"concept": "EBS Multi-Attach", "tested_ar": "النطاق الأوّل في أسئلة التجميع العنقوديّ (clustered apps).", "tested_en": "Domain 1 — clustered application questions."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو EBS؟ القرص الشبكيّ المُستمرّ",
+      "title_en": "What is EBS? The persistent network drive",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">EBS (Elastic Block Store)</span> هو قرص تخزين كتليّ (block) يُرفَق بخادم EC2 عبر الشبكة. تعامل معه كأنّه <strong>USB شبكيّ</strong>: يمكن فصله من خادم وإعادة ربطه بخادم آخر بسرعة، ويبقى محتواه سليماً حتى لو حُذف الخادم.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">EBS (Elastic Block Store)</span> is a block storage volume attached to an EC2 instance over the network. Think of it as a <strong>network USB stick</strong>: detachable from one instance, quickly attachable to another, and the data persists even after the instance is terminated."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "hard-drive", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "شبكيّ لا فيزيائيّ", "title_en": "Network, not physical", "body_ar": "يُتَّصل به عبر شبكة AWS الداخليّة، ولذا هناك زمن استجابة بسيط مقارنةً بالأقراص المحلّية.", "body_en": "Attached over AWS's internal network, so slightly higher latency than local disks."},
+          {"icon": "map-pin", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "مقيّد بـ AZ واحدة", "title_en": "Locked to one AZ", "body_ar": "قرص في <span dir=\"ltr\" class=\"font-mono\">us-east-1a</span> لا يمكن ربطه بخادم في <span dir=\"ltr\" class=\"font-mono\">us-east-1b</span>. للنقل تحتاج Snapshot.", "body_en": "A volume in <span dir=\"ltr\" class=\"font-mono\">us-east-1a</span> cannot attach to an instance in <span dir=\"ltr\" class=\"font-mono\">us-east-1b</span>. Migrate via snapshot."},
+          {"icon": "link", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "خادم واحد افتراضياً", "title_en": "One instance by default", "body_ar": "على مستوى CCP: قرص واحد لخادم واحد. الاستثناء هو <strong>Multi-Attach</strong> لفئة io1/io2.", "body_en": "At CCP level: one volume to one instance. Exception: <strong>Multi-Attach</strong> for io1/io2."},
+          {"icon": "save", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "مُستمرّ بعد حذف الخادم", "title_en": "Persists after termination", "body_ar": "البيانات تبقى إلّا إذا فُعِّلت <span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span> (مُفعَّلة افتراضياً للـ root).", "body_en": "Data survives unless <span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span> is enabled (default for root)."}
+        ]},
+        {"type": "callout", "tone": "warn",
+         "ar": "سلوك <span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span>: مُفعَّل افتراضياً على الـ <strong>root volume</strong>، ومُعطَّل للأقراص الإضافيّة. يسأل الامتحان عن هذا في سياق حفظ البيانات عند حذف الخادم بالخطأ.",
+         "en": "<span dir=\"ltr\" class=\"font-mono\">Delete on Termination</span> behavior: enabled by default for the <strong>root volume</strong>, disabled for additional EBS volumes. Exam tests this in data-preservation scenarios."}
+      ]
+    },
+    {
+      "title_ar": "أنواع أقراص EBS واختيار المناسب",
+      "title_en": "EBS volume types and choosing the right one",
+      "blocks": [
+        {"type": "p",
+         "ar": "EBS يأتي بـ٦ أنواع مقسَّمة إلى عائلتين: SSD لأحمال الأداء، و HDD لأحمال النقل الضخم. أسئلة الامتحان تدور دائماً حول اختيار النوع الأمثل بناءً على الحِمل.",
+         "en": "EBS comes in 6 types split across two families: SSD for performance workloads, HDD for high-throughput bulk workloads. Exam questions revolve around picking the right type for the workload."},
+        {"type": "table",
+         "headers": {"ar": ["النوع", "الحجم", "IOPS / Throughput", "حالة الاستخدام"], "en": ["Type", "Size", "IOPS / Throughput", "Use case"]},
+         "rows": [
+           [{"mono": true, "value": "gp3 (SSD)"}, {"ar": "1 GiB - 16 TiB", "en": "1 GiB - 16 TiB"}, {"ar": "٣٠٠٠ IOPS، ١٢٥ MiB/s (قابلة للرفع مستقلاً)", "en": "3000 IOPS, 125 MiB/s (independently scalable)"}, {"ar": "الأكثر استخداماً — توازن الأداء والتكلفة", "en": "Most common — balanced price/perf"}],
+           [{"mono": true, "value": "gp2 (SSD)"}, {"ar": "1 GiB - 16 TiB", "en": "1 GiB - 16 TiB"}, {"ar": "٣ IOPS لكلّ GiB (مرتبط بالحجم)", "en": "3 IOPS/GiB (linked to size)"}, {"ar": "السابق لـ gp3 — لا تختره للأحمال الجديدة", "en": "Predecessor to gp3 — avoid for new work"}],
+           [{"mono": true, "value": "io1/io2 (SSD)"}, {"ar": "4 GiB - 16 TiB", "en": "4 GiB - 16 TiB"}, {"ar": "حتى ٦٤٠٠٠ IOPS (Nitro)", "en": "Up to 64000 IOPS (Nitro)"}, {"ar": "قواعد بيانات حرجة، وحدها تدعم Multi-Attach", "en": "Critical DBs, only family with Multi-Attach"}],
+           [{"mono": true, "value": "io2 Block Express"}, {"ar": "4 GiB - 64 TiB", "en": "4 GiB - 64 TiB"}, {"ar": "حتى ٢٥٦٠٠٠ IOPS، زمن استجابة أقلّ من ميلّي ثانية", "en": "Up to 256000 IOPS, sub-ms latency"}, {"ar": "SAP HANA و Oracle الضخمة", "en": "Largest SAP HANA, Oracle workloads"}],
+           [{"mono": true, "value": "st1 (HDD)"}, {"ar": "125 GiB - 16 TiB", "en": "125 GiB - 16 TiB"}, {"ar": "حتى ٥٠٠ MiB/s — لا يصلح كـ boot", "en": "Up to 500 MiB/s — cannot boot"}, {"ar": "Big Data و معالجة السجلّات", "en": "Big Data, log processing"}],
+           [{"mono": true, "value": "sc1 (HDD)"}, {"ar": "125 GiB - 16 TiB", "en": "125 GiB - 16 TiB"}, {"ar": "حتى ٢٥٠ MiB/s — لا يصلح كـ boot", "en": "Up to 250 MiB/s — cannot boot"}, {"ar": "بيانات أرشيفيّة نادرة الوصول", "en": "Rarely accessed archival data"}]
+         ]
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>فقط SSD تصلح كأقراص إقلاع (boot volumes)</strong>: gp2/gp3 و io1/io2. الـ HDD (st1/sc1) لا يمكن أن تكون <span dir=\"ltr\" class=\"font-mono\">root</span>. هذه معلومة تتكرّر في أسئلة الامتحان.",
+         "en": "<strong>Only SSDs can be boot volumes</strong>: gp2/gp3 and io1/io2. HDD (st1/sc1) cannot be the <span dir=\"ltr\" class=\"font-mono\">root</span>. This fact recurs on the exam."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "zap", "title_ar": "gp3 vs gp2 — متى تختار أيّاً؟", "title_en": "gp3 vs gp2 — which one?",
+                  "body_ar": "<strong>gp3</strong>: الأداء منفصل عن الحجم. ابدأ بـ ٣٠٠٠ IOPS دون الحاجة لقرص كبير، وارفع IOPS و throughput باستقلالية. أرخص من gp2 بحوالي ٢٠٪ لنفس الأداء. <strong>gp2</strong>: الأداء مربوط بالحجم (٣ IOPS/GiB). للوصول لـ ١٦٠٠٠ IOPS تحتاج ٥٣٣٤ GiB.",
+                  "body_en": "<strong>gp3</strong>: perf decoupled from size. Start at 3000 IOPS without oversizing the disk; scale IOPS and throughput independently. ~20% cheaper than gp2 for same performance. <strong>gp2</strong>: perf tied to size (3 IOPS/GiB). To hit 16000 IOPS you need a 5334 GiB disk."},
+         "right": {"tone": "emerald", "icon": "database", "title_ar": "io1/io2 — أحمال الإنتاج الحرجة", "title_en": "io1/io2 — critical production",
+                   "body_ar": "خصّص الـ IOPS بشكل ثابت (Provisioned). <strong>io2 Block Express</strong> هو الأحدث والأسرع — يصل لـ ٢٥٦٠٠٠ IOPS بزمن استجابة أقلّ من ميلّي ثانية. استخدم io1/io2 لقواعد بيانات الإنتاج الحسّاسة. فقط هذه العائلة تدعم <strong>Multi-Attach</strong>.",
+                   "body_en": "Statically provisioned IOPS. <strong>io2 Block Express</strong> is newest/fastest — up to 256000 IOPS with sub-ms latency. Use io1/io2 for sensitive prod databases. Only this family supports <strong>Multi-Attach</strong>."}
+        }
+      ]
+    },
+    {
+      "title_ar": "Snapshots و AMIs",
+      "title_en": "Snapshots and AMIs",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>EBS Snapshot</strong> هو نسخة احتياطيّة نقطة-زمنيّة (point-in-time) للقرص تُخزَّن في S3 (بشكل مخفيّ). وحدها الطريقة لنقل قرص EBS بين AZs أو Regions. <strong>AMI</strong> يتضمّن Snapshot للقرص بالإضافة إلى إعدادات الخادم (نوع، صلاحيات، ...).",
+         "en": "An <strong>EBS Snapshot</strong> is a point-in-time backup stored in S3 (under the hood). It's the only way to move an EBS volume across AZs or Regions. An <strong>AMI</strong> wraps a snapshot plus instance config (type, permissions, etc.)."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "archive", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EBS Snapshot Archive", "title_en": "EBS Snapshot Archive", "body_ar": "تنقل Snapshot إلى طبقة أرخص بنسبة ٧٥٪، لكنّ الاستعادة تأخذ ٢٤-٧٢ ساعة.", "body_en": "Moves a snapshot to an archive tier 75% cheaper, but restore takes 24-72 hours."},
+          {"icon": "trash-2", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Recycle Bin", "title_en": "Recycle Bin", "body_ar": "يحفظ Snapshots المحذوفة لفترة تحدّدها (من يوم إلى سنة) لاستعادتها عند الحذف الخاطئ.", "body_en": "Retains deleted snapshots for a configurable window (1 day - 1 year) for accidental-deletion recovery."},
+          {"icon": "rocket", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Fast Snapshot Restore", "title_en": "Fast Snapshot Restore (FSR)", "body_ar": "تهيئة مسبقة كاملة للـ Snapshot لتفادي زمن استجابة أوّل قراءة — مكلّف.", "body_en": "Pre-initializes a snapshot to avoid first-read latency — expensive."}
+        ]},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — create a snapshot, then launch an AMI from it\nimport software.amazon.awssdk.services.ec2.Ec2Client;\nimport software.amazon.awssdk.services.ec2.model.*;\n\nEc2Client ec2 = Ec2Client.create();\n\n// 1. Snapshot an EBS volume\nCreateSnapshotResponse snap = ec2.createSnapshot(CreateSnapshotRequest.builder()\n    .volumeId(\"vol-0abc1234\")\n    .description(\"Acme prod DB nightly backup\")\n    .tagSpecifications(TagSpecification.builder()\n        .resourceType(ResourceType.SNAPSHOT)\n        .tags(Tag.builder().key(\"env\").value(\"prod\").build())\n        .build())\n    .build());\n\nString snapshotId = snap.snapshotId();\nSystem.out.println(\"Snapshot: \" + snapshotId);\n\n// 2. Copy the snapshot to another region (DR)\nec2.copySnapshot(CopySnapshotRequest.builder()\n    .sourceRegion(\"us-east-1\")\n    .sourceSnapshotId(snapshotId)\n    .destinationRegion(\"eu-west-1\")\n    .description(\"DR copy for Acme\")\n    .build());"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>AMI مرتبط بـ Region واحدة</strong>. لإطلاق خادم من نفس الـ AMI في region أخرى، انسخه عبر <span dir=\"ltr\" class=\"font-mono\">CopyImage</span>. كذلك الأمر لـ Snapshots — لا يمكن استخدامها عبر regions إلّا بعد النسخ.",
+         "en": "<strong>An AMI is tied to one Region</strong>. To launch it in another region, copy it via <span dir=\"ltr\" class=\"font-mono\">CopyImage</span>. Same for snapshots — cross-region requires an explicit copy."}
+      ]
+    },
+    {
+      "title_ar": "Instance Store و EBS Multi-Attach",
+      "title_en": "Instance Store and EBS Multi-Attach",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Instance Store</strong> قرص فيزيائيّ متّصل مباشرةً بالخادم. أداءه مذهل (ملايين IOPS للـ <span dir=\"ltr\" class=\"font-mono\">i3.metal</span>) لأنّه لا يعبر الشبكة. لكنّه <u>مؤقّت (ephemeral)</u>: البيانات تُمسَح عند إيقاف الخادم أو عند فشل الجهاز الفيزيائيّ. استخدامه مقصور على تخزين مؤقّت و scratch و cache.",
+         "en": "<strong>Instance Store</strong> is a physical disk directly attached to the host. Performance is phenomenal (millions of IOPS on <span dir=\"ltr\" class=\"font-mono\">i3.metal</span>) because it bypasses the network. But it's <u>ephemeral</u>: data is wiped on stop or host failure. Use only for scratch, cache, buffers."},
+        {"type": "compare",
+         "left": {"tone": "amber", "icon": "cpu", "title_ar": "Instance Store — الأداء المطلق", "title_en": "Instance Store — peak performance",
+                  "body_ar": "ملايين الـ IOPS، زمن استجابة سخيف الصغر. استخدمه لقواعد بيانات الذاكرة المؤقّتة (Redis scratch)، تحليلات Spark العابرة، caching لفك ترميز الفيديو. يجب أن يكون تطبيقك مستعدّاً لفقدان البيانات في أيّ لحظة — استنسخ أو اربطه بـ EBS/S3 للحفظ الدائم.",
+                  "body_en": "Millions of IOPS, absurdly low latency. Use for ephemeral DBs (Redis scratch), transient Spark analytics, video-encoding caches. App must tolerate data loss at any moment — replicate or pair with EBS/S3 for durability."},
+         "right": {"tone": "purple", "icon": "users", "title_ar": "EBS Multi-Attach (io1/io2)", "title_en": "EBS Multi-Attach (io1/io2)",
+                   "body_ar": "يسمح بربط نفس القرص بحتى ١٦ خادم EC2 في نفس الـ AZ. القراءة والكتابة كاملة لكلّ خادم. يتطلّب نظام ملفّات <strong>cluster-aware</strong> (مثل GFS2) — لا يعمل مع XFS أو EXT4. مخصّص لتطبيقات التجميع العنقوديّ (Teradata clustered Linux).",
+                   "body_en": "Same volume attachable to up to 16 EC2 instances in one AZ. Full R/W per instance. Requires a <strong>cluster-aware</strong> file system (GFS2) — does NOT work with XFS or EXT4. For clustered Linux apps (Teradata)."}
+        },
+        {"type": "callout", "tone": "senior",
+         "ar": "لمطوّر Spring Boot: اعتبر <span dir=\"ltr\" class=\"font-mono\">Instance Store</span> مثل <span dir=\"ltr\" class=\"font-mono\">/tmp</span> في JVM — مساحة عمل سريعة تُمسَح مع عمر العمليّة. أيّ بيانات جلسة (session) أو نتيجة تحتاج الحفاظ عليها ضعها على EBS أو في ElastiCache/Redis خارجيّ. لا تعتمد على Instance Store لتخزين logs الإنتاج.",
+         "en": "Spring Boot analogy: treat <span dir=\"ltr\" class=\"font-mono\">Instance Store</span> like the JVM's <span dir=\"ltr\" class=\"font-mono\">/tmp</span> — workspace that dies with the process. Put session state or persistent results on EBS or in external ElastiCache/Redis. Never rely on Instance Store for prod logs."}
+      ]
+    },
+    {
+      "title_ar": "Amazon EFS — نظام الملفّات المشترك",
+      "title_en": "Amazon EFS — the shared file system",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>EFS (Elastic File System)</strong> هو NFS مُدار يمكن ربطه بآلاف خوادم EC2 بشكل متزامن عبر عدّة AZs. يصلح لمحتوى مشترك (WordPress، إدارة المحتوى، مشاركة ملفّات). مُتوافق مع Linux فقط (POSIX)، ويستخدم NFSv4.1.",
+         "en": "<strong>EFS (Elastic File System)</strong> is a managed NFS mountable to thousands of EC2 instances simultaneously across AZs. Great for shared content (WordPress, CMS, file sharing). Linux-only (POSIX), NFSv4.1."},
+        {"type": "table",
+         "headers": {"ar": ["الخاصّية", "EBS", "EFS", "Instance Store"], "en": ["Property", "EBS", "EFS", "Instance Store"]},
+         "rows": [
+           [{"ar": "مستوى التشغيل", "en": "Level"}, {"ar": "كتلة (block)", "en": "Block"}, {"ar": "ملفّ (file/NFS)", "en": "File (NFS)"}, {"ar": "كتلة فيزيائيّة", "en": "Physical block"}],
+           [{"ar": "عدد الخوادم", "en": "Instances"}, {"ar": "١ (١٦ مع Multi-Attach)", "en": "1 (16 with Multi-Attach)"}, {"ar": "آلاف عبر AZs", "en": "Thousands across AZs"}, {"ar": "الخادم نفسه فقط", "en": "Host itself only"}],
+           [{"ar": "النطاق", "en": "Scope"}, {"ar": "AZ واحدة", "en": "Single AZ"}, {"ar": "Multi-AZ", "en": "Multi-AZ"}, {"ar": "خادم واحد", "en": "Single host"}],
+           [{"ar": "الدوام", "en": "Durability"}, {"ar": "مُستمرّ", "en": "Persistent"}, {"ar": "مُستمرّ ومُكرَّر", "en": "Persistent, replicated"}, {"ar": "مؤقّت", "en": "Ephemeral"}],
+           [{"ar": "نظام التشغيل", "en": "OS"}, {"ar": "Linux / Windows", "en": "Linux / Windows"}, {"ar": "Linux فقط", "en": "Linux only"}, {"ar": "Linux / Windows", "en": "Linux / Windows"}],
+           [{"ar": "التكلفة", "en": "Cost"}, {"ar": "متوسّطة", "en": "Moderate"}, {"ar": "مرتفعة (~٣× gp2)", "en": "High (~3× gp2)"}, {"ar": "مشمولة بسعر الخادم", "en": "Bundled in instance price"}]
+         ]
+        },
+        {"type": "p",
+         "ar": "<strong>أوضاع أداء EFS</strong>: <code class=\"font-mono\">General Purpose</code> (افتراضي، لمواقع الويب)، و <code class=\"font-mono\">Max I/O</code> (لأحمال متوازية ضخمة مع زمن استجابة أعلى). <strong>أوضاع الـ throughput</strong>: Bursting (افتراضي)، Provisioned (ثابت)، و Elastic (يتوسّع تلقائياً للأحمال غير المتوقّعة).",
+         "en": "<strong>EFS performance modes</strong>: <code class=\"font-mono\">General Purpose</code> (default, for websites), <code class=\"font-mono\">Max I/O</code> (massively parallel with higher latency). <strong>Throughput modes</strong>: Bursting (default), Provisioned (fixed), Elastic (auto-scales for unpredictable workloads)."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "database", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EFS Standard", "title_en": "EFS Standard", "body_ar": "للملفّات النشطة. Multi-AZ بشكل افتراضيّ.", "body_en": "For active files. Multi-AZ by default."},
+          {"icon": "snowflake", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "EFS IA", "title_en": "EFS IA (Infrequent Access)", "body_ar": "أرخص في التخزين، تكلفة عند كلّ قراءة. استخدم lifecycle policies للنقل التلقائي.", "body_en": "Cheaper storage, charge on retrieval. Use lifecycle policies to auto-tier."},
+          {"icon": "package", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "EFS Archive", "title_en": "EFS Archive", "body_ar": "لبيانات تُقرَأ بضع مرّات في السنة — أرخص بـ٥٠٪.", "body_en": "For data read a few times a year — 50% cheaper."}
+        ]},
+        {"type": "callout", "tone": "tip",
+         "ar": "لتوفير ٩٠٪+ من تكلفة EFS: فعِّل <strong>Lifecycle Policies</strong> التي تنقل الملفّات إلى IA أو Archive بعد N يوم من عدم الوصول إليها. وضع <strong>One Zone</strong> متوفّر للتطوير — Multi-AZ هو الخيار الصحيح للإنتاج.",
+         "en": "To save 90%+ on EFS cost: enable <strong>Lifecycle Policies</strong> that move files to IA or Archive after N days of no access. <strong>One Zone</strong> mode exists for dev — Multi-AZ is the right pick for production."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "ربط قرص EBS إضافيّ بخادم Acme، أخذ Snapshot، ثم محاكاة فشل الخادم واستعادة البيانات من الـ Snapshot في AZ مختلفة.",
+    "goal_en": "Attach an extra EBS volume to an Acme instance, snapshot it, simulate instance failure, then restore from the snapshot in a different AZ.",
+    "steps": [
+      {"title_ar": "أنشئ قرص EBS وأرفقه", "title_en": "Create and attach an EBS volume",
+       "body_ar": "من الـ Console: EC2 → Volumes → Create. اختر <span dir=\"ltr\" class=\"font-mono\">gp3</span>، ١٠ GiB، في نفس AZ للخادم.",
+       "body_en": "In the Console: EC2 → Volumes → Create. Choose <span dir=\"ltr\" class=\"font-mono\">gp3</span>, 10 GiB, in the same AZ as the instance."},
+      {"title_ar": "هيّئ القرص داخل الخادم", "title_en": "Format the volume inside the instance",
+       "body_ar": "",
+       "body_en": "",
+       "code": "# After attaching as /dev/sdf\nlsblk                          # confirm device (e.g., /dev/nvme1n1)\nsudo mkfs -t xfs /dev/nvme1n1  # format\nsudo mkdir /data\nsudo mount /dev/nvme1n1 /data\necho 'Hello Acme' | sudo tee /data/test.txt"},
+      {"title_ar": "خذ Snapshot", "title_en": "Take a snapshot",
+       "body_ar": "Volumes → اختر القرص → Actions → Create Snapshot. أضف tag <span dir=\"ltr\" class=\"font-mono\">env=lab</span>.",
+       "body_en": "Volumes → select volume → Actions → Create Snapshot. Add tag <span dir=\"ltr\" class=\"font-mono\">env=lab</span>."},
+      {"title_ar": "استعد القرص في AZ مختلفة", "title_en": "Restore into a different AZ",
+       "body_ar": "Snapshots → اختر الـ Snapshot → Actions → Create Volume from Snapshot. اختر AZ مختلفة.",
+       "body_en": "Snapshots → select → Actions → Create Volume from Snapshot. Pick a different AZ."},
+      {"title_ar": "أرفقه بخادم جديد وتحقّق", "title_en": "Attach to a new instance and verify",
+       "body_ar": "",
+       "body_en": "",
+       "code": "sudo mount /dev/nvme1n1 /data\ncat /data/test.txt              # Should print 'Hello Acme'"}
+    ],
+    "warning_ar": "احذف الأقراص و Snapshots عند انتهاء التجربة — التخزين يُحسَب بالـ GiB-شهر حتى لو لم يرتبط القرص بخادم.",
+    "warning_en": "Delete volumes and snapshots when done — storage is billed per GiB-month even when unattached."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "فريق قواعد البيانات في Acme يحتاج قرصاً يدعم أكثر من ١٠٠٠٠٠ IOPS بزمن استجابة أقلّ من ميلّي ثانية لقاعدة بيانات SAP HANA. ما القرص المناسب؟",
+      "question_en": "Acme's DB team needs a volume supporting 100000+ IOPS with sub-millisecond latency for an SAP HANA database. Which volume fits?",
+      "options_ar": ["<span class=\"font-mono\">gp3</span>", "<span class=\"font-mono\">io1</span>", "<span class=\"font-mono\">io2 Block Express</span>", "<span class=\"font-mono\">st1</span>"],
+      "options_en": ["<span class=\"font-mono\">gp3</span>", "<span class=\"font-mono\">io1</span>", "<span class=\"font-mono\">io2 Block Express</span>", "<span class=\"font-mono\">st1</span>"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">io2 Block Express</span> وحده يصل لـ ٢٥٦٠٠٠ IOPS بزمن استجابة أقلّ من ميلّي ثانية. gp3 يقف عند ١٦٠٠٠ IOPS، و io1 عند ٦٤٠٠٠ IOPS على Nitro. st1 قرص صلب (HDD) لا يناسب قاعدة بيانات.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">io2 Block Express</span> is the only one reaching 256000 IOPS with sub-ms latency. gp3 caps at 16000, io1 at 64000 on Nitro. st1 is HDD, not suitable for a DB.",
+      "wrong_ar": ["يقف عند ١٦٠٠٠ IOPS.", "يصل حتى ٦٤٠٠٠ IOPS، غير كافٍ.", "", "قرص صلب بطيء — لا يناسب قاعدة بيانات."],
+      "wrong_en": ["Caps at 16000 IOPS.", "Max 64000 IOPS, insufficient.", "", "HDD, too slow for a DB."],
+      "reference_ar": "القسم ٢ — أنواع EBS",
+      "reference_en": "Section 2 — EBS types"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "مطوّر لاحظ أنّ قرص <span dir=\"ltr\" class=\"font-mono\">gp2</span> الحاليّ بحجم ٢٠٠ GiB أصبح بطيئاً عند ٦٠٠ IOPS فقط. ما الحلّ الأكثر كفاءة من حيث التكلفة؟",
+      "question_en": "A developer notices a <span dir=\"ltr\" class=\"font-mono\">gp2</span> 200 GiB volume is slow, peaking at only 600 IOPS. Most cost-effective fix?",
+      "options_ar": ["توسيع gp2 إلى ١٠٠٠ GiB للحصول على ٣٠٠٠ IOPS.", "التحويل إلى gp3 مع تحديد ٣٠٠٠ IOPS مباشرةً بنفس الحجم.", "الانتقال إلى io1 بتخصيص ٣٠٠٠ IOPS.", "شراء Instance Store بدلاً منه."],
+      "options_en": ["Resize gp2 to 1000 GiB to get 3000 IOPS.", "Migrate to gp3 and set 3000 IOPS at the current size.", "Move to io1 with 3000 provisioned IOPS.", "Switch to Instance Store."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">gp3</span> يفصل الأداء عن الحجم، فتحصل على ٣٠٠٠ IOPS (بل حتى ١٦٠٠٠) بدون الحاجة لرفع الحجم. gp3 أرخص من gp2 و io1. تكبير gp2 ممكن لكنّه مكلف جداً لأنّك تدفع مقابل مساحة غير مستخدَمة.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">gp3</span> decouples performance from size, giving 3000 IOPS (up to 16000) without oversizing. gp3 is cheaper than gp2 or io1. Enlarging gp2 works but wastes money on unused space.",
+      "wrong_ar": ["مكلف — تدفع ٨٠٠ GiB إضافية للحصول على IOPS فقط.", "", "io1 أغلى من gp3 للأداء المماثل.", "Instance Store مؤقّت — البيانات تُفقَد."],
+      "wrong_en": ["Wasteful — 800 extra GiB just for IOPS.", "", "io1 is pricier than gp3 for same performance.", "Instance Store is ephemeral — data lost."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "تطبيق Spring Boot في Acme يعمل على ١٠ خوادم EC2 موزَّعة على ٣ AZs، ويحتاج إلى مشاركة مجلّد رفع الملفّات بينها جميعاً. ما الحلّ الصحيح؟",
+      "question_en": "An Acme Spring Boot app runs on 10 EC2 instances across 3 AZs and needs to share an upload folder across all of them. Correct solution?",
+      "options_ar": ["قرص EBS واحد مرفق بجميع الخوادم.", "قرص io2 مع Multi-Attach.", "Amazon EFS مرفق بكلّ الخوادم.", "Instance Store على كلّ خادم ونسخ يدويّ."],
+      "options_en": ["One EBS volume attached to all.", "io2 with Multi-Attach.", "Amazon EFS mounted on all instances.", "Instance Store per instance with manual sync."],
+      "correct": 2,
+      "explanation_ar": "<strong>EFS</strong> هو الحلّ الوحيد الذي يدعم مشاركة ملفّات بين خوادم <u>عبر عدّة AZs</u>. EBS مقيّد بـ AZ واحدة. Multi-Attach ل io2 يدعم فقط خوادم في نفس الـ AZ (حدّ أقصى ١٦). Instance Store محلّي ولا يمكن مشاركته.",
+      "explanation_en": "<strong>EFS</strong> is the only option that shares files <u>across multiple AZs</u>. EBS is AZ-locked. io2 Multi-Attach is single-AZ, max 16. Instance Store is local, cannot share.",
+      "wrong_ar": ["EBS مقيّد بـ AZ واحدة ولخادم واحد افتراضياً.", "Multi-Attach يعمل في AZ واحدة فقط، حدّ ١٦ خادم.", "", "بطيء ومعقّد، ويفقد البيانات عند إيقاف الخادم."],
+      "wrong_en": ["EBS is locked to one AZ, one instance by default.", "Multi-Attach is single-AZ, 16 instances max.", "", "Slow, complex, loses data on stop."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "multi",
+      "question_ar": "أيّ العبارات صحيحة عن EBS Snapshots؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which statements about EBS Snapshots are true? Select all that apply.",
+      "options_ar": ["تُخزَّن في S3 (مخفيّة عن المستخدم) وتدعم التكرار عبر AZs داخل Region.", "يجب فصل القرص قبل أخذ Snapshot.", "يمكن نسخها عبر Regions للـ Disaster Recovery.", "EBS Snapshot Archive يجعل الاستعادة شبه فوريّة.", "تعتمد على زيادات (incremental) — فقط الكتل المتغيّرة تُخزَّن في الـ Snapshot التالي."],
+      "options_en": ["Stored in S3 (hidden) and replicated across AZs within a Region.", "The volume must be detached before snapshotting.", "They can be copied across Regions for DR.", "EBS Snapshot Archive makes restore near-instant.", "They are incremental — only changed blocks are stored in subsequent snapshots."],
+      "correct": [0, 2, 4],
+      "explanation_ar": "الـ Snapshots تُخزَّن في S3، قابلة للنسخ عبر Regions، و incremental. لا يلزم فصل القرص (مفضَّل للسلامة فقط). Archive tier أرخص بـ ٧٥٪ لكنّ الاستعادة تأخذ ٢٤-٧٢ ساعة.",
+      "explanation_en": "Snapshots live in S3, are cross-region copyable, and incremental. Detaching isn't required (only recommended for consistency). Archive tier is 75% cheaper but restore takes 24-72 hours.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "مطوّر أنشأ خادم EC2 مع root EBS و EBS إضافيّ ثمّ نفّذ <span dir=\"ltr\" class=\"font-mono\">terminate</span>. أيّ قرصٍ يبقى افتراضياً؟",
+      "question_en": "A developer created an EC2 instance with root EBS and an additional EBS, then terminated it. Which volume persists by default?",
+      "options_ar": ["الـ root EBS فقط.", "الـ EBS الإضافيّ فقط.", "كلاهما.", "لا شيء."],
+      "options_en": ["Only the root EBS.", "Only the additional EBS.", "Both.", "Neither."],
+      "correct": 1,
+      "explanation_ar": "السلوك الافتراضيّ: <span dir=\"ltr\" class=\"font-mono\">Delete on Termination = true</span> للـ root (يُحذَف)، و <span dir=\"ltr\" class=\"font-mono\">false</span> للأقراص الإضافيّة (تبقى). يمكن تغيير هذا عند الإنشاء أو عبر <span dir=\"ltr\" class=\"font-mono\">modify-instance-attribute</span>.",
+      "explanation_en": "Default: <span dir=\"ltr\" class=\"font-mono\">Delete on Termination = true</span> for root (deleted), <span dir=\"ltr\" class=\"font-mono\">false</span> for additional volumes (preserved). Changeable at launch or via <span dir=\"ltr\" class=\"font-mono\">modify-instance-attribute</span>.",
+      "wrong_ar": ["الـ root يُحذَف افتراضياً.", "", "الـ root يُحذَف افتراضياً.", "الـ EBS الإضافيّ يبقى."],
+      "wrong_en": ["Root is deleted by default.", "", "Root is deleted by default.", "Additional EBS persists."],
+      "reference_ar": "القسم ١ — تنبيه",
+      "reference_en": "Section 1 — Warning"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "تطبيق Big Data في Acme يقرأ logs بحجم TBs بشكل تسلسليّ. الأولوية للـ throughput (نقل البيانات) وليس IOPS، والتكلفة مهمّة. ما القرص؟",
+      "question_en": "An Acme Big Data app reads multi-TB logs sequentially. Priority is throughput, not IOPS, and cost matters. Which volume?",
+      "options_ar": ["<span class=\"font-mono\">gp3 SSD</span>", "<span class=\"font-mono\">io2</span>", "<span class=\"font-mono\">st1 (Throughput Optimized HDD)</span>", "<span class=\"font-mono\">sc1 (Cold HDD)</span>"],
+      "options_en": ["<span class=\"font-mono\">gp3 SSD</span>", "<span class=\"font-mono\">io2</span>", "<span class=\"font-mono\">st1 (Throughput Optimized HDD)</span>", "<span class=\"font-mono\">sc1 (Cold HDD)</span>"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">st1</span> مصمَّم لـ Big Data و data warehouses و log processing — throughput حتى ٥٠٠ MiB/s بتكلفة أقلّ بكثير من SSD. <span dir=\"ltr\" class=\"font-mono\">sc1</span> أرخص لكن للـ Cold data نادرة الوصول. gp3/io2 أغلى ولا حاجة لـ IOPS العالية هنا.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">st1</span> is designed for Big Data, warehouses, log processing — up to 500 MiB/s at a fraction of SSD cost. <span dir=\"ltr\" class=\"font-mono\">sc1</span> is cheaper but for cold, rarely accessed data. gp3/io2 are pricier and overkill here.",
+      "wrong_ar": ["أغلى بكثير، وIOPS ليست الأولوية.", "أعلى تكلفة، يُستخدم لقواعد بيانات حسّاسة.", "", "بطيء جداً — للبيانات شديدة الأرشفة فقط."],
+      "wrong_en": ["Much pricier, IOPS is not priority.", "Highest cost, for critical DBs.", "", "Too slow — for archival data only."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "فريق Acme يريد قرصاً واحداً مشتركاً بين ٨ خوادم EC2 في نفس الـ AZ لتطبيق Linux clustered. أيّ الخيارات ممكن؟",
+      "question_en": "Acme wants one volume shared between 8 EC2 instances in the same AZ for a clustered Linux app. Which option works?",
+      "options_ar": ["EBS gp3 مع Multi-Attach.", "EBS io2 مع Multi-Attach ونظام ملفّات cluster-aware.", "EFS — لأنّه الوحيد الذي يدعم المشاركة.", "Instance Store مشترك."],
+      "options_en": ["EBS gp3 with Multi-Attach.", "EBS io2 with Multi-Attach + cluster-aware FS.", "EFS — only option that shares.", "Shared Instance Store."],
+      "correct": 1,
+      "explanation_ar": "Multi-Attach متاح <strong>فقط لعائلة io1/io2</strong>، ويصل حتى ١٦ خادم في نفس الـ AZ. يجب استخدام نظام ملفّات cluster-aware (GFS2، OCFS2) — XFS/EXT4 لا يصلحان. EFS حلّ بديل لكنّ السؤال يطلب \"قرصاً واحداً\".",
+      "explanation_en": "Multi-Attach is <strong>only for io1/io2</strong>, up to 16 instances in one AZ. Must use cluster-aware FS (GFS2, OCFS2) — not XFS/EXT4. EFS is an alternative, but the question specifies 'one volume'.",
+      "wrong_ar": ["gp3 لا يدعم Multi-Attach.", "", "EFS يستخدم NFS لا كتلة (block)، فهو نظام ملفّات لا قرص واحد.", "Instance Store محلّي لكلّ خادم — لا يُشارَك."],
+      "wrong_en": ["gp3 doesn't support Multi-Attach.", "", "EFS is NFS (file), not a block device — not a single volume.", "Instance Store is host-local — never shared."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "مطوّر يريد نقل قرص EBS من <span dir=\"ltr\" class=\"font-mono\">us-east-1a</span> إلى <span dir=\"ltr\" class=\"font-mono\">us-east-1b</span>. ما الخطوات الصحيحة؟",
+      "question_en": "A developer wants to move an EBS volume from <span dir=\"ltr\" class=\"font-mono\">us-east-1a</span> to <span dir=\"ltr\" class=\"font-mono\">us-east-1b</span>. Correct steps?",
+      "options_ar": ["Detach → Attach في الـ AZ الجديدة.", "Modify volume → تغيير الـ AZ.", "Snapshot → Create Volume from Snapshot في الـ AZ الجديدة.", "استخدم VPC Peering لنقل القرص."],
+      "options_en": ["Detach → Attach in the new AZ.", "Modify volume → change AZ.", "Snapshot → Create Volume from Snapshot in new AZ.", "Use VPC Peering to move the volume."],
+      "correct": 2,
+      "explanation_ar": "أقراص EBS مربوطة بـ AZ واحدة بشكل دائم. الطريقة الوحيدة للنقل: <strong>Snapshot ثمّ استعادة في الـ AZ الجديدة</strong>. لا يوجد خيار مباشر لتغيير الـ AZ، ولا علاقة لـ VPC Peering بالأقراص.",
+      "explanation_en": "EBS volumes are permanently tied to one AZ. Only path: <strong>Snapshot → restore in target AZ</strong>. No direct AZ-change option, and VPC Peering is unrelated to volumes.",
+      "wrong_ar": ["القرص لا يمكن إرفاقه بـ AZ مختلفة.", "لا يوجد خيار modify للـ AZ.", "", "VPC Peering لشبكات VPC، لا للتخزين."],
+      "wrong_en": ["Volume can't attach in a different AZ.", "No modify-AZ option exists.", "", "VPC Peering is for networks, not storage."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "مطوّر Spring Boot يشغّل cache مؤقّت كبير (scratch) على قرص. الأداء هو الأولوية القصوى والبيانات يمكن إعادة بنائها. الخادم هو <span dir=\"ltr\" class=\"font-mono\">i3.2xlarge</span>. أيّ تخزين؟",
+      "question_en": "A Spring Boot dev runs a big ephemeral scratch cache. Performance is critical, data is rebuildable. Instance is <span dir=\"ltr\" class=\"font-mono\">i3.2xlarge</span>. Which storage?",
+      "options_ar": ["EBS io2 Block Express.", "Instance Store (الموجود أصلاً مع <span class=\"font-mono\">i3</span>).", "EFS Max I/O.", "EBS gp3 مع أقصى IOPS."],
+      "options_en": ["EBS io2 Block Express.", "Instance Store (already on <span class=\"font-mono\">i3</span>).", "EFS Max I/O.", "EBS gp3 with max IOPS."],
+      "correct": 1,
+      "explanation_ar": "خوادم <span dir=\"ltr\" class=\"font-mono\">i3</span> مخصّصة لـ storage — <strong>Instance Store</strong> يأتي مع <span dir=\"ltr\" class=\"font-mono\">i3.2xlarge</span> بـ ٤١٢٠٠٠ IOPS مجاناً، وهذا أسرع بكثير من أيّ EBS. بما أنّ البيانات مؤقّتة وقابلة لإعادة البناء، فقدها مقبول. EBS و EFS أبطأ وأغلى.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">i3</span> is storage-optimized — <strong>Instance Store</strong> comes free with <span dir=\"ltr\" class=\"font-mono\">i3.2xlarge</span> at 412000 IOPS, far faster than any EBS. Since data is ephemeral and rebuildable, loss is acceptable. EBS/EFS are slower and more expensive.",
+      "wrong_ar": ["مكلف ويوفّر أداءً أقلّ من Instance Store المجاني هنا.", "", "NFS بطيء لأحمال الأداء العالي.", "gp3 يقف عند ١٦٠٠٠ IOPS — بعيد عن الـ i3."],
+      "wrong_en": ["Expensive and slower than the free Instance Store here.", "", "NFS is slow for high-performance workloads.", "gp3 caps at 16000 IOPS — far below i3."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "فريق Acme DevOps يحتاج إلى نسخة احتياطيّة لـ EBS لأكثر من سنة لأغراض الامتثال، مع تكلفة منخفضة جداً. ما الحلّ؟",
+      "question_en": "Acme DevOps needs an EBS backup kept over a year for compliance, at very low cost. Which option?",
+      "options_ar": ["Snapshot عاديّ.", "EBS Snapshot Archive.", "تحميل الـ Snapshot إلى Glacier يدوياً.", "نسخ الـ Snapshot لكلّ AZ كنسخ احتياطية."],
+      "options_en": ["Regular snapshot.", "EBS Snapshot Archive.", "Manually upload snapshot to Glacier.", "Copy snapshot to every AZ as backup."],
+      "correct": 1,
+      "explanation_ar": "<strong>EBS Snapshot Archive</strong> خدمة مدمجة تنقل الـ Snapshot إلى طبقة تخزين أرخص بـ٧٥٪ للاحتفاظ الطويل. الاستعادة تأخذ ٢٤-٧٢ ساعة — مقبول للامتثال. Snapshot العاديّ يكلّف أكثر للتخزين المديد. لا يوجد طريقة مدعومة لرفع snapshot لـ Glacier يدوياً.",
+      "explanation_en": "<strong>EBS Snapshot Archive</strong> is a built-in service that moves snapshots to a 75%-cheaper tier for long-term retention. Restore takes 24-72 hours — acceptable for compliance. Regular snapshots cost more long-term. Manual Glacier upload isn't a supported path.",
+      "wrong_ar": ["مكلف للاحتفاظ الطويل.", "", "غير مدعوم مباشرةً — ولا حاجة لذلك مع Archive.", "النسخ المتعدّدة تكثّف التكلفة بلا مبرّر."],
+      "wrong_en": ["Expensive for long retention.", "", "Not directly supported — and unnecessary with Archive.", "Copies multiply cost without benefit."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q11", "type": "multi",
+      "question_ar": "أيّ الأنواع <strong>يمكن</strong> استخدامها كـ <span dir=\"ltr\" class=\"font-mono\">root (boot)</span> volume؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which volume types <strong>can</strong> be used as a <span dir=\"ltr\" class=\"font-mono\">root (boot)</span> volume? Select all that apply.",
+      "options_ar": ["<span class=\"font-mono\">gp2</span>", "<span class=\"font-mono\">gp3</span>", "<span class=\"font-mono\">io1</span>", "<span class=\"font-mono\">io2 Block Express</span>", "<span class=\"font-mono\">st1</span>", "<span class=\"font-mono\">sc1</span>"],
+      "options_en": ["<span class=\"font-mono\">gp2</span>", "<span class=\"font-mono\">gp3</span>", "<span class=\"font-mono\">io1</span>", "<span class=\"font-mono\">io2 Block Express</span>", "<span class=\"font-mono\">st1</span>", "<span class=\"font-mono\">sc1</span>"],
+      "correct": [0, 1, 2, 3],
+      "explanation_ar": "فقط عائلة SSD تصلح كـ root: gp2, gp3, io1, io2/Block Express. الـ HDD (st1 و sc1) ممنوعة للإقلاع بسبب بُطء الوصول العشوائيّ. هذه معلومة أساسيّة في الامتحان.",
+      "explanation_en": "Only SSD family can boot: gp2, gp3, io1, io2/Block Express. HDD (st1, sc1) are forbidden for boot due to poor random-access latency. Core exam fact.",
+      "reference_ar": "القسم ٢ — مفهوم أساسي",
+      "reference_en": "Section 2 — Key concept"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "مطوّر Spring Boot نشر WordPress على ٥ خوادم خلف Load Balancer عبر AZs. مجلّد <span dir=\"ltr\" class=\"font-mono\">wp-content/uploads</span> يجب أن يكون متوفّراً للجميع فوراً عند رفع صورة. الحلّ الأمثل؟",
+      "question_en": "A dev deploys WordPress on 5 instances behind a Load Balancer across AZs. The <span dir=\"ltr\" class=\"font-mono\">wp-content/uploads</span> folder must be instantly available to all. Best solution?",
+      "options_ar": ["EBS لكلّ خادم ومزامنة عبر rsync كلّ دقيقة.", "Amazon EFS مرفق بجميع الخوادم.", "Instance Store مع نسخ إلى S3 دورياً.", "EBS Multi-Attach io2."],
+      "options_en": ["EBS per instance with rsync every minute.", "Amazon EFS mounted on all instances.", "Instance Store with periodic S3 sync.", "EBS Multi-Attach io2."],
+      "correct": 1,
+      "explanation_ar": "<strong>EFS</strong> هو الحلّ المعياريّ لمشاركة ملفّات WordPress عبر عدّة خوادم وعبر AZs. يعمل POSIX، متوافق مع Linux، ومحمول (عدّة آلاف من الـ concurrent clients). rsync غير فوريّ ومعرَّض لفقدان البيانات. io2 Multi-Attach محدود بـ AZ واحدة.",
+      "explanation_en": "<strong>EFS</strong> is the canonical WordPress cross-instance, cross-AZ file share. POSIX, Linux, scales to thousands of concurrent clients. rsync isn't real-time and risks data loss. io2 Multi-Attach is single-AZ.",
+      "wrong_ar": ["غير فوريّ، ومعقّد، ومعرَّض لفقدان البيانات بين عمليّات المزامنة.", "", "Instance Store مؤقّت — البيانات تُفقَد.", "Multi-Attach يعمل في AZ واحدة فقط."],
+      "wrong_en": ["Not instant, complex, risks data loss between syncs.", "", "Instance Store is ephemeral — data lost.", "Multi-Attach is single-AZ only."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "hard-drive", "title_ar": "EBS: قرص شبكيّ مُستمرّ", "title_en": "EBS: persistent network block",
+     "body_ar": "مربوط بـ AZ واحدة. gp3 الخيار الافتراضيّ. io2 Block Express للأحمال الحرجة.",
+     "body_en": "AZ-locked. gp3 default. io2 Block Express for critical workloads."},
+    {"icon": "folder-open", "title_ar": "EFS: ملفّات مشتركة Multi-AZ", "title_en": "EFS: Multi-AZ shared files",
+     "body_ar": "NFS مُدار، آلاف الخوادم Linux. غالٍ لكن Storage Tiers توفّر ٩٠٪.",
+     "body_en": "Managed NFS, thousands of Linux instances. Expensive but tiers save 90%."},
+    {"icon": "zap", "title_ar": "Instance Store: أسرع لكنّه مؤقّت", "title_en": "Instance Store: fastest but ephemeral",
+     "body_ar": "للـ cache والـ scratch فقط. البيانات تُفقَد عند stop أو host failure.",
+     "body_en": "For cache/scratch only. Data lost on stop or host failure."},
+    {"icon": "save", "title_ar": "Snapshots = نقل وDR", "title_en": "Snapshots = migration and DR",
+     "body_ar": "الطريقة الوحيدة لنقل EBS بين AZs/Regions. Archive للتخزين الطويل.",
+     "body_en": "Only path for cross-AZ/Region EBS migration. Archive for long-term retention."}
+  ],
+  "mnemonic_ar": "للتمييز بين الثلاثة: <strong>E</strong>BS = <strong>E</strong>lastic (شبكيّ ومُستمرّ، AZ واحدة). <strong>E</strong>FS = <strong>E</strong>xpensive but shared (Multi-AZ، Linux). <strong>I</strong>nstance Store = <strong>I</strong>mpermanent (أسرع، لكن يختفي عند stop).",
+  "mnemonic_en": "To tell them apart: <strong>E</strong>BS = <strong>E</strong>lastic (network, persistent, one AZ). <strong>E</strong>FS = <strong>E</strong>xpensive but shared (Multi-AZ, Linux). <strong>I</strong>nstance Store = <strong>I</strong>mpermanent (fastest but vanishes on stop).",
+  "prev": 2,
+  "next": 4
+}

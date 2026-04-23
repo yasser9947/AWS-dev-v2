@@ -1,0 +1,342 @@
+{
+  "n": 6,
+  "domain": "foundations",
+  "title_ar": "Amazon Route 53: DNS الذكيّ من AWS",
+  "title_en": "Amazon Route 53: AWS's Smart DNS",
+  "pages": "165-196",
+  "subtitle_ar": "DNS ليس مجرّد ترجمة اسم إلى IP — في AWS هو أداة توزيع حِمل عالميّة ومتحكّم إتاحة. Route 53 خدمة DNS الوحيدة بضمان ١٠٠٪، ويوفّر سياسات توجيه ذكيّة تحوّل DNS إلى طبقة معمار فعّالة.",
+  "subtitle_en": "DNS isn't just name→IP translation — on AWS it's a global load balancer and availability controller. Route 53 is the only AWS service with a 100% SLA and offers routing policies that turn DNS into an active architectural layer.",
+  "tags": ["Route 53", "DNS", "Alias", "CNAME", "Routing Policies", "Health Checks", "Hosted Zones"],
+  "objectives": [
+    {"concept": "DNS Records and Hosted Zones", "tested_ar": "النطاق الأوّل في تكوين سجلات DNS الصحيحة.", "tested_en": "Domain 1 — configuring correct DNS records."},
+    {"concept": "CNAME vs Alias", "tested_ar": "النطاق الأوّل في ربط النطاقات بـ AWS resources، خصوصاً في الـ apex (root).", "tested_en": "Domain 1 — mapping domains to AWS resources, especially apex domains."},
+    {"concept": "Routing Policies", "tested_ar": "النطاقان الأوّل والرابع في سيناريوهات Multi-Region و failover و latency.", "tested_en": "Domains 1 & 4 — Multi-Region, failover, latency scenarios."},
+    {"concept": "Health Checks", "tested_ar": "النطاق الرابع في الكشف عن فشل الخدمات وتحويل الحِمل تلقائياً.", "tested_en": "Domain 4 — failure detection and automatic traffic shifts."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو Route 53 وكيف يعمل DNS",
+      "title_en": "What is Route 53 and how DNS works",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Route 53</strong> خدمة DNS مُدارة من AWS. هو <strong>Authoritative DNS</strong> (أنت تتحكّم بالسجلّات)، و Domain Registrar (يمكنك شراء النطاقات منه مباشرةً)، ويوفّر Health Checks متكاملة. <strong>يملك ضمان SLA 100٪</strong> — الخدمة الوحيدة في AWS بهذا المستوى.",
+         "en": "<strong>Route 53</strong> is AWS's managed DNS service. It's an <strong>Authoritative DNS</strong> (you control the records), a Domain Registrar (buy domains directly), and provides integrated Health Checks. <strong>100% SLA</strong> — the only AWS service at that level."},
+        {"type": "p",
+         "ar": "الاسم <strong>Route 53</strong> مشتقّ من المنفذ ٥٣ — المنفذ التقليديّ لـ DNS. عند طلب <code class=\"font-mono\">example.com</code>، يمرّ الاستعلام عبر: Root DNS Server (<code class=\"font-mono\">.</code>) → TLD Server (<code class=\"font-mono\">.com</code>) → Authoritative Server (Route 53 في حالتنا).",
+         "en": "The name <strong>Route 53</strong> comes from port 53 — DNS's classic port. A <code class=\"font-mono\">example.com</code> query traverses: Root DNS Server (<code class=\"font-mono\">.</code>) → TLD Server (<code class=\"font-mono\">.com</code>) → Authoritative Server (Route 53 in our case)."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "globe", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Public Hosted Zone", "title_en": "Public Hosted Zone", "body_ar": "لأسماء النطاقات العامّة على الإنترنت (<span dir=\"ltr\" class=\"font-mono\">api.acme.com</span>).", "body_en": "For public domains on the Internet (<span dir=\"ltr\" class=\"font-mono\">api.acme.com</span>)."},
+          {"icon": "lock", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Private Hosted Zone", "title_en": "Private Hosted Zone", "body_ar": "لأسماء داخليّة في VPC واحد أو أكثر (<span dir=\"ltr\" class=\"font-mono\">db.acme.internal</span>).", "body_en": "For internal names within one or more VPCs (<span dir=\"ltr\" class=\"font-mono\">db.acme.internal</span>)."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "تكلفة <strong>٠٫٥٠ دولار/شهر لكلّ Hosted Zone</strong>. رسوم الاستعلامات إضافيّة (منخفضة جداً). <strong>كلّ DNS record يحتاج TTL</strong> (مدّة التخزين المؤقّت)، <u>ما عدا Alias records</u> التي تأخذ TTL تلقائياً من الـ target.",
+         "en": "Pricing: <strong>$0.50/month per hosted zone</strong>. Query charges are extra (very low). <strong>Every DNS record needs a TTL</strong> (cache duration), <u>except Alias records</u> which inherit TTL from the target."}
+      ]
+    },
+    {
+      "title_ar": "CNAME vs Alias — التمييز المهمّ",
+      "title_en": "CNAME vs Alias — the key distinction",
+      "blocks": [
+        {"type": "p",
+         "ar": "موارد AWS (ELB، CloudFront، S3 Website) تعطيك اسم مضيف AWS مثل <span dir=\"ltr\" class=\"font-mono\">my-alb.us-east-1.elb.amazonaws.com</span>. لكنّك تريد <span dir=\"ltr\" class=\"font-mono\">acme.com</span>. أمامك خياران: CNAME أو Alias. الفرق بينهما يُسأل كثيراً في الامتحان.",
+         "en": "AWS resources (ELB, CloudFront, S3 Website) give you AWS hostnames like <span dir=\"ltr\" class=\"font-mono\">my-alb.us-east-1.elb.amazonaws.com</span>. But you want <span dir=\"ltr\" class=\"font-mono\">acme.com</span>. Two options: CNAME or Alias. The exam asks about this constantly."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "link", "title_ar": "CNAME — قياسيّ لكن محدود", "title_en": "CNAME — standard but limited",
+                  "body_ar": "يوجّه اسماً إلى اسم آخر (<span dir=\"ltr\" class=\"font-mono\">app.acme.com → blabla.anywhere.com</span>). يعمل مع أيّ hostname، ليس محصوراً بـ AWS. <strong>لا يعمل على الـ Zone Apex (الـ root domain)</strong> — لا يمكنك إنشاء CNAME لـ <span dir=\"ltr\" class=\"font-mono\">acme.com</span> نفسها، فقط للـ subdomains.",
+                  "body_en": "Points a name to another name (<span dir=\"ltr\" class=\"font-mono\">app.acme.com → blabla.anywhere.com</span>). Works with any hostname, not AWS-only. <strong>Cannot be used at the Zone Apex (root domain)</strong> — you can't CNAME <span dir=\"ltr\" class=\"font-mono\">acme.com</span> itself, only subdomains."},
+         "right": {"tone": "emerald", "icon": "target", "title_ar": "Alias — الخيار الـ AWS-native", "title_en": "Alias — the AWS-native choice",
+                   "body_ar": "ميزة Route 53 الخاصّة: يوجّه اسماً إلى <strong>مورد AWS محدّد</strong>. <strong>يعمل على Zone Apex و subdomains</strong>. <strong>مجانيّ</strong> (لا رسوم استعلام). دائماً من نوع A أو AAAA (IPv4/IPv6). يكتشف تغيّر IP الـ resource تلقائياً. لا يمكن ضبط TTL يدوياً.",
+                   "body_en": "A Route 53 exclusive: points a name to a <strong>specific AWS resource</strong>. <strong>Works on Zone Apex and subdomains</strong>. <strong>Free</strong> (no query fee). Always type A or AAAA (IPv4/IPv6). Auto-detects target IP changes. Cannot set TTL manually."}
+        },
+        {"type": "table",
+         "headers": {"ar": ["الـ Target", "مدعوم كـ Alias؟"], "en": ["Target", "Alias-supported?"]},
+         "rows": [
+           [{"ar": "Elastic Load Balancer (ALB, NLB)", "en": "Elastic Load Balancer (ALB, NLB)"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "CloudFront Distribution", "en": "CloudFront Distribution"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "API Gateway", "en": "API Gateway"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "Elastic Beanstalk environment", "en": "Elastic Beanstalk environment"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "S3 Website (ليس S3 العاديّ)", "en": "S3 Website (not plain S3)"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "VPC Interface Endpoint", "en": "VPC Interface Endpoint"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "Global Accelerator accelerator", "en": "Global Accelerator accelerator"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "Route 53 record في نفس Hosted Zone", "en": "Route 53 record in same Hosted Zone"}, {"ar": "نعم", "en": "Yes"}],
+           [{"ar": "EC2 DNS name (مباشرة)", "en": "EC2 DNS name (direct)"}, {"ar": "<strong>لا — هذا فخّ كبير</strong>", "en": "<strong>No — common trap</strong>"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>لا يمكنك إنشاء Alias لـ EC2 DNS name</strong>. لإرسال نطاق إلى EC2 مباشرة، استخدم سجلّ A بـ IP ثابت (Elastic IP)، أو ضع EC2 خلف ELB واستخدم Alias للـ ELB. هذا فخّ متكرّر في الامتحان.",
+         "en": "<strong>You cannot Alias an EC2 DNS name</strong>. To route a domain directly to EC2, use an A record with an Elastic IP, or put EC2 behind an ELB and Alias the ELB. Common exam trap."}
+      ]
+    },
+    {
+      "title_ar": "أنواع سجلّات DNS",
+      "title_en": "DNS record types",
+      "blocks": [
+        {"type": "p",
+         "ar": "Route 53 يدعم كلّ أنواع السجلّات القياسيّة. في الامتحان، اعرف الأربعة الأساسيّة جيّداً، والباقي معرفة سطحيّة.",
+         "en": "Route 53 supports all standard record types. For the exam, master the four essentials; the rest is surface knowledge."},
+        {"type": "table",
+         "headers": {"ar": ["النوع", "الوظيفة", "مثال"], "en": ["Type", "Function", "Example"]},
+         "rows": [
+           [{"mono": true, "value": "A"}, {"ar": "اسم → عنوان IPv4", "en": "Name → IPv4"}, {"mono": true, "value": "acme.com → 52.1.2.3"}],
+           [{"mono": true, "value": "AAAA"}, {"ar": "اسم → عنوان IPv6", "en": "Name → IPv6"}, {"mono": true, "value": "acme.com → 2001:db8::1"}],
+           [{"mono": true, "value": "CNAME"}, {"ar": "اسم → اسم آخر (subdomain فقط)", "en": "Name → another name (subdomain only)"}, {"mono": true, "value": "www.acme.com → acme.com"}],
+           [{"mono": true, "value": "NS"}, {"ar": "خوادم الأسماء للنطاق", "en": "Name servers for the zone"}, {"mono": true, "value": "NS ns-123.awsdns-45.com"}],
+           [{"mono": true, "value": "MX"}, {"ar": "خوادم البريد (متقدّم)", "en": "Mail servers (advanced)"}, {"mono": true, "value": "MX 10 mail.acme.com"}],
+           [{"mono": true, "value": "TXT"}, {"ar": "نصّ حرّ (SPF, DKIM، التحقّق)", "en": "Free text (SPF, DKIM, verification)"}, {"mono": true, "value": "\"v=spf1 ...\""}]
+         ]
+        },
+        {"type": "code", "lang": "bash",
+         "code": "# Create an Alias A record pointing acme.com to an ALB\naws route53 change-resource-record-sets \\\n  --hosted-zone-id Z0123456789ABC \\\n  --change-batch '{\n    \"Changes\": [{\n      \"Action\": \"UPSERT\",\n      \"ResourceRecordSet\": {\n        \"Name\": \"acme.com\",\n        \"Type\": \"A\",\n        \"AliasTarget\": {\n          \"HostedZoneId\": \"Z35SXDOTRQ7X7K\",\n          \"DNSName\": \"dualstack.acme-lb-123.us-east-1.elb.amazonaws.com\",\n          \"EvaluateTargetHealth\": true\n        }\n      }\n    }]\n  }'"}
+      ]
+    },
+    {
+      "title_ar": "سياسات التوجيه (Routing Policies)",
+      "title_en": "Routing Policies",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>سياسات التوجيه تحدّد كيف يردّ Route 53 على استعلامات DNS</strong>. هذه القدرة تحوّل DNS من خدمة تسمية إلى أداة توزيع حِمل عالميّة. Route 53 يدعم ٧ سياسات.",
+         "en": "<strong>Routing policies define how Route 53 answers DNS queries</strong>. This turns DNS from a naming service into a global traffic director. Route 53 supports 7 policies."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "arrow-right", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Simple", "title_en": "Simple", "body_ar": "افتراضي — قيمة واحدة أو عدّة قيم يختار منها العميل عشوائياً. <u>لا يدعم Health Checks</u>.", "body_en": "Default — single or multiple values; client picks randomly. <u>No health checks</u>."},
+          {"icon": "percent", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Weighted", "title_en": "Weighted", "body_ar": "توزيع حسب أوزان. ٧٠٪ لـ v1، ٣٠٪ لـ v2 — مثاليّ لـ canary releases و A/B testing.", "body_en": "Split by weights. 70% to v1, 30% to v2 — perfect for canary releases and A/B testing."},
+          {"icon": "alert-circle", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "Failover (Active-Passive)", "title_en": "Failover (Active-Passive)", "body_ar": "Primary + Secondary. Health Check إلزاميّ على Primary. عند فشله، التوجيه يحوّل إلى Secondary.", "body_en": "Primary + Secondary. Health check required on Primary. On failure, traffic shifts to Secondary."},
+          {"icon": "clock", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Latency-based", "title_en": "Latency-based", "body_ar": "توجيه إلى الـ Region ذي أقلّ زمن استجابة من المستخدم. <u>قد يتغيّر ديناميكياً</u>.", "body_en": "Routes to the lowest-latency Region from the user. <u>Changes dynamically</u>."},
+          {"icon": "map", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Geolocation", "title_en": "Geolocation", "body_ar": "حسب موقع المستخدم (قارّة، دولة، ولاية أمريكية). مختلف عن Latency — قد لا يكون الأسرع. ضع سجلّ Default.", "body_en": "By user location (continent, country, US state). Different from latency — not always fastest. Always set a Default record."},
+          {"icon": "sliders", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "Geoproximity", "title_en": "Geoproximity", "body_ar": "مزيج من الموقع والـ bias. تتحكّم بتوسيع (+١ إلى +٩٩) أو تقليص (-١ إلى -٩٩) حجم المنطقة. يحتاج Route 53 Traffic Flow.", "body_en": "Combines location + bias. Expand (+1 to +99) or shrink (-1 to -99) a region's footprint. Requires Route 53 Traffic Flow."},
+          {"icon": "list", "icon_bg": "bg-cyan-100", "icon_color": "text-cyan-700", "title_ar": "Multi-Value", "title_en": "Multi-Value", "body_ar": "حتى ٨ قيم صحّية تُعاد في نفس الاستعلام. بديل client-side بسيط لـ ELB — لكن <strong>ليس بديلاً حقيقياً</strong>.", "body_en": "Up to 8 healthy values returned per query. Simple client-side alternative to ELB — but <strong>not a real replacement</strong>."}
+        ]},
+        {"type": "callout", "tone": "warn",
+         "ar": "الأسئلة تميل لسيناريوهات: <strong>canary deploy → Weighted</strong>. <strong>DR passive → Failover</strong>. <strong>أقرب region للسرعة → Latency-based</strong>. <strong>امتثال قانونيّ (محتوى مخصّص للدولة) → Geolocation</strong>. <strong>شبه-ELB client-side → Multi-Value</strong>.",
+         "en": "Exam leans on scenarios: <strong>canary deploy → Weighted</strong>. <strong>Passive DR → Failover</strong>. <strong>Nearest region for speed → Latency-based</strong>. <strong>Regulatory (country-specific content) → Geolocation</strong>. <strong>Client-side pseudo-ELB → Multi-Value</strong>."}
+      ]
+    },
+    {
+      "title_ar": "Health Checks — كشف الفشل وتحويل الحِمل",
+      "title_en": "Health Checks — failure detection and traffic shifts",
+      "blocks": [
+        {"type": "p",
+         "ar": "Health Checks في Route 53 تعمل من <strong>١٥ فاحصاً عالميّاً</strong>. كلّ فاحص يطلب المورد، وإذا اتّفق أكثر من ١٨٪ على أنّه سليم، يعتبره Route 53 healthy. الفحص كلّ ٣٠ ثانية افتراضياً (١٠ مدفوع).",
+         "en": "Route 53 Health Checks use <strong>~15 global checkers</strong>. If 18%+ report healthy, Route 53 considers the endpoint healthy. Check interval is 30s default (10s paid)."},
+        {"type": "cards", "cols": 3, "items": [
+          {"icon": "globe", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Endpoint Health Check", "title_en": "Endpoint Health Check", "body_ar": "HTTP/HTTPS/TCP على IP أو hostname عامّ. يجب أن يعيد 2xx/3xx. يمكن فحص نصّ في أوّل ٥١٢٠ bytes.", "body_en": "HTTP/HTTPS/TCP against a public IP or hostname. Must return 2xx/3xx. Can match text in the first 5120 bytes."},
+          {"icon": "git-merge", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Calculated Health Check", "title_en": "Calculated Health Check", "body_ar": "يدمج نتائج عدّة فحوصات (<strong>AND / OR / NOT</strong>، حتى ٢٥٦ child). مفيد للصيانة.", "body_en": "Combines multiple checks (<strong>AND / OR / NOT</strong>, up to 256 children). Great for maintenance windows."},
+          {"icon": "activity", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "CloudWatch Alarm Health Check", "title_en": "CloudWatch Alarm Health Check", "body_ar": "يراقب Alarm مخصّصاً (مثل throttles DynamoDB). <strong>الحلّ الوحيد لـ Private endpoints</strong>.", "body_en": "Watches a custom alarm (e.g. DynamoDB throttles). <strong>The only way to check Private endpoints</strong>."}
+        ]},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>Route 53 Health Checkers موجودة خارج VPC</strong>، فلا يمكنها الوصول إلى endpoints خاصّة. الحلّ: استخدم CloudWatch Alarm (مبني على metric من الـ endpoint الخاصّ) وأربط Health Check بالـ Alarm.",
+         "en": "<strong>Route 53 Health Checkers live outside the VPC</strong> — they can't reach private endpoints. Fix: use a CloudWatch Alarm (built from a metric inside the private endpoint) and associate the Health Check with that alarm."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — create a Failover routing with health check\nimport software.amazon.awssdk.services.route53.Route53Client;\nimport software.amazon.awssdk.services.route53.model.*;\n\nRoute53Client r53 = Route53Client.create();\n\n// 1. Create an HTTPS health check on the primary endpoint\nCreateHealthCheckResponse hc = r53.createHealthCheck(CreateHealthCheckRequest.builder()\n    .callerReference(\"acme-primary-\" + System.currentTimeMillis())\n    .healthCheckConfig(HealthCheckConfig.builder()\n        .type(HealthCheckType.HTTPS)\n        .fullyQualifiedDomainName(\"api.acme.com\")\n        .port(443)\n        .resourcePath(\"/health\")\n        .requestInterval(30)\n        .failureThreshold(3)\n        .build())\n    .build());\n\n// 2. Create the Primary record (points to primary ALB, uses the health check)\nr53.changeResourceRecordSets(ChangeResourceRecordSetsRequest.builder()\n    .hostedZoneId(\"Z0123\")\n    .changeBatch(ChangeBatch.builder().changes(\n        Change.builder().action(ChangeAction.UPSERT).resourceRecordSet(\n            ResourceRecordSet.builder()\n                .name(\"api.acme.com\")\n                .type(RRType.A)\n                .setIdentifier(\"primary\")\n                .failover(ResourceRecordSetFailover.PRIMARY)\n                .healthCheckId(hc.healthCheck().id())\n                .aliasTarget(AliasTarget.builder()\n                    .hostedZoneId(\"Z35SXDOTRQ7X7K\")\n                    .dnsName(\"acme-primary-alb.us-east-1.elb.amazonaws.com\")\n                    .evaluateTargetHealth(true).build())\n                .build()).build()\n    ).build())\n    .build());\n\n// 3. Create the Secondary record (DR, no health check needed)"}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إعداد Multi-Region failover لـ Acme باستخدام Route 53: primary في us-east-1، و DR في eu-west-1، مع تحويل تلقائيّ عند فشل الـ primary.",
+    "goal_en": "Set up Multi-Region failover for Acme with Route 53: primary in us-east-1, DR in eu-west-1, with auto-failover on primary failure.",
+    "steps": [
+      {"title_ar": "أنشئ ALB في كلّ Region", "title_en": "Create an ALB in each Region",
+       "body_ar": "<span dir=\"ltr\" class=\"font-mono\">acme-primary-alb</span> في us-east-1 و <span dir=\"ltr\" class=\"font-mono\">acme-dr-alb</span> في eu-west-1. كلاهما يرجع 200 على <span dir=\"ltr\" class=\"font-mono\">/health</span>.",
+       "body_en": "<span dir=\"ltr\" class=\"font-mono\">acme-primary-alb</span> in us-east-1 and <span dir=\"ltr\" class=\"font-mono\">acme-dr-alb</span> in eu-west-1. Both return 200 on <span dir=\"ltr\" class=\"font-mono\">/health</span>."},
+      {"title_ar": "أنشئ Hosted Zone", "title_en": "Create a Hosted Zone",
+       "body_ar": "Public Hosted Zone لـ <span dir=\"ltr\" class=\"font-mono\">acme.example.com</span>.",
+       "body_en": "Public Hosted Zone for <span dir=\"ltr\" class=\"font-mono\">acme.example.com</span>."},
+      {"title_ar": "أنشئ Health Check على الـ primary", "title_en": "Create a Health Check on primary",
+       "body_ar": "HTTPS على <span dir=\"ltr\" class=\"font-mono\">primary.acme.example.com/health</span>، كلّ ٣٠ ثانية.",
+       "body_en": "HTTPS on <span dir=\"ltr\" class=\"font-mono\">primary.acme.example.com/health</span>, every 30s."},
+      {"title_ar": "أضف سجلَّي Alias مع Failover", "title_en": "Add two Alias records with Failover",
+       "body_ar": "Primary: Alias إلى primary-alb مع Health Check. Secondary: Alias إلى dr-alb بلا Health Check.",
+       "body_en": "Primary: Alias to primary-alb with health check. Secondary: Alias to dr-alb, no health check."},
+      {"title_ar": "اختبر الـ failover", "title_en": "Test the failover",
+       "body_ar": "أوقف الـ primary-alb (أو غيّر health-check path لإجباره على fail). خلال ٦٠-٩٠ ثانية، <span dir=\"ltr\" class=\"font-mono\">dig acme.example.com</span> يرجع IP الـ DR.",
+       "body_en": "Stop primary-alb (or change health-check path to fail). In 60-90s, <span dir=\"ltr\" class=\"font-mono\">dig acme.example.com</span> returns the DR IP."}
+    ],
+    "warning_ar": "لا تنسَ حذف Hosted Zone و Health Checks بعد انتهاء التجربة — كلاهما يُحتسَب شهرياً.",
+    "warning_en": "Don't forget to delete Hosted Zone and Health Checks after testing — both are billed monthly."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "Acme تريد توجيه <span dir=\"ltr\" class=\"font-mono\">acme.com</span> (الـ root) إلى ALB. ما النوع الصحيح من السجلّات؟",
+      "question_en": "Acme wants to point <span dir=\"ltr\" class=\"font-mono\">acme.com</span> (root) to an ALB. Correct record type?",
+      "options_ar": ["CNAME", "A record Alias", "TXT", "MX"],
+      "options_en": ["CNAME", "A record Alias", "TXT", "MX"],
+      "correct": 1,
+      "explanation_ar": "<strong>CNAME لا يعمل على الـ Zone Apex</strong> — لا يمكنك إنشاء CNAME لـ <span dir=\"ltr\" class=\"font-mono\">acme.com</span> نفسها. <strong>Alias record</strong> هو الحلّ: يعمل على الـ root و subdomains، ومجانيّ، ويكتشف تغيّر IP ALB تلقائياً.",
+      "explanation_en": "<strong>CNAME can't be used at the Zone Apex</strong> — you can't CNAME <span dir=\"ltr\" class=\"font-mono\">acme.com</span> itself. <strong>Alias record</strong> solves this: works on apex and subdomains, free, auto-detects ALB IP changes.",
+      "wrong_ar": ["ممنوع على الـ apex.", "", "نصّ حرّ — لا يوجّه traffic.", "لخوادم البريد."],
+      "wrong_en": ["Forbidden on apex.", "", "Free text — doesn't route traffic.", "Mail servers."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "Acme تريد إصدار canary: ٩٠٪ من المستخدمين على v1 الحاليّة و ١٠٪ على v2 الجديدة. ما سياسة التوجيه؟",
+      "question_en": "Acme wants a canary release: 90% of users on v1, 10% on new v2. Routing policy?",
+      "options_ar": ["Simple", "Weighted", "Latency-based", "Multi-Value"],
+      "options_en": ["Simple", "Weighted", "Latency-based", "Multi-Value"],
+      "correct": 1,
+      "explanation_ar": "<strong>Weighted</strong> مصمَّمة بالضبط لهذا: تعيّن أوزاناً نسبيّة (٩٠ و ١٠) لسجلّين، ويوزّع Route 53 الاستعلامات وفقاً للنسبة. مثاليّة للـ canary releases و A/B testing. تدعم Health Checks لسحب v2 لو تعطّلت.",
+      "explanation_en": "<strong>Weighted</strong> is designed for this: assign relative weights (90 and 10) to two records, Route 53 distributes queries by ratio. Perfect for canary and A/B testing. Supports health checks to pull v2 if it fails.",
+      "wrong_ar": ["لا يدعم التوزيع النسبيّ.", "", "حسب الـ region لا النسبة.", "يعيد حتى ٨ قيم — لا تحكّم نسبيّ."],
+      "wrong_en": ["No proportional split.", "", "By region, not ratio.", "Returns up to 8 values — no proportional control."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "Acme لها ٣ regions حول العالم وتريد توجيه المستخدم إلى الـ region الأسرع. ما السياسة؟",
+      "question_en": "Acme has 3 regions worldwide and wants to send each user to the fastest one. Policy?",
+      "options_ar": ["Geolocation", "Latency-based", "Geoproximity", "Failover"],
+      "options_en": ["Geolocation", "Latency-based", "Geoproximity", "Failover"],
+      "correct": 1,
+      "explanation_ar": "<strong>Latency-based</strong> يوجّه المستخدم للـ region الذي يعطيه أقلّ زمن استجابة (قياسات AWS الفعليّة). قد يختلف عن الـ Geolocation — مثلاً مستخدم ألمانيّ قد يصل للـ us-east-1 أسرع من eu-west-3 بسبب بنى الشبكة. <strong>Geolocation</strong> يقرّر حسب الموقع الجغرافيّ فقط، بصرف النظر عن السرعة.",
+      "explanation_en": "<strong>Latency-based</strong> routes to the region with lowest measured latency (AWS's measurements). May differ from geolocation — a German user might hit us-east-1 faster than eu-west-3 due to network topology. <strong>Geolocation</strong> decides purely by user location, not speed.",
+      "wrong_ar": ["يعتمد على الموقع لا السرعة.", "", "للميل النسبيّ لا الأسرع.", "لـ DR لا للأداء."],
+      "wrong_en": ["Based on location, not speed.", "", "For relative bias, not fastest.", "For DR, not performance."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "بسبب قانون، Acme يجب أن تقدّم محتوى مختلفاً لمستخدمي فرنسا فقط. ما السياسة؟",
+      "question_en": "Due to regulation, Acme must serve different content to French users only. Policy?",
+      "options_ar": ["Latency-based", "Weighted", "Geolocation (country = France)", "Multi-Value"],
+      "options_en": ["Latency-based", "Weighted", "Geolocation (country = France)", "Multi-Value"],
+      "correct": 2,
+      "explanation_ar": "<strong>Geolocation</strong> يسمح بالتوجيه حسب القارّة، الدولة، أو الولاية الأمريكية. مثاليّ للامتثال القانونيّ (GDPR، محتوى محجوب في الدولة، ...). يجب إنشاء سجلّ <strong>Default</strong> لمن لا يطابق أيّ موقع.",
+      "explanation_en": "<strong>Geolocation</strong> routes by continent, country, or US state. Perfect for regulatory compliance (GDPR, geo-blocked content, ...). Must define a <strong>Default</strong> record for unmatched locations.",
+      "wrong_ar": ["حسب السرعة لا الدولة.", "تقسيم نسبيّ، ليس حسب الموقع.", "", "لا يميّز حسب الدولة."],
+      "wrong_en": ["By speed, not country.", "Proportional split, not location.", "", "Doesn't discriminate by country."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "multi",
+      "question_ar": "أيّ العبارات صحيحة عن Alias records؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which statements are true about Alias records? Select all that apply.",
+      "options_ar": ["تعمل على Zone Apex و subdomains.", "مجّانية (لا رسوم استعلامات).", "يمكن الإشارة بها إلى EC2 instance DNS name مباشرة.", "تكتشف تغيّر IP الـ target تلقائياً.", "يمكن ضبط TTL يدوياً."],
+      "options_en": ["Work at Zone Apex and subdomains.", "Free (no query fees).", "Can point directly to EC2 DNS name.", "Auto-detect target IP changes.", "Can set TTL manually."],
+      "correct": [0, 1, 3],
+      "explanation_ar": "Alias يعمل على الـ apex، مجّانيّ، ويكتشف تغيّر IP. <strong>لا يدعم EC2 DNS name</strong> (خدعة شائعة). TTL غير قابل للضبط — يُرثَ من الـ target.",
+      "explanation_en": "Alias works on apex, is free, auto-detects IP changes. <strong>Doesn't support EC2 DNS name</strong> (common trap). TTL is inherited from target, not manually set.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "Acme تحتاج DR passive: عند فشل us-east-1 ALB، يحوّل DNS تلقائياً إلى eu-west-1 ALB. ما السياسة؟",
+      "question_en": "Acme needs passive DR: on us-east-1 ALB failure, DNS auto-shifts to eu-west-1 ALB. Policy?",
+      "options_ar": ["Simple مع سجلَّين.", "Failover (Active-Passive) + Health Check على الـ primary.", "Weighted ٩٩/١.", "Latency-based."],
+      "options_en": ["Simple with two records.", "Failover (Active-Passive) + Health Check on primary.", "Weighted 99/1.", "Latency-based."],
+      "correct": 1,
+      "explanation_ar": "<strong>Failover</strong> هي الـ policy الوحيدة المصمَّمة للـ DR التلقائيّ: Primary + Secondary، Health Check إلزاميّ على الـ Primary، وعند فشله يتوجّه الـ traffic تلقائياً للـ Secondary. Simple لا يدعم Health Checks، Weighted ليس للـ failover، Latency يعتمد على السرعة لا على الصحّة.",
+      "explanation_en": "<strong>Failover</strong> is the only policy designed for automatic DR: Primary + Secondary, required Health Check on Primary, and traffic shifts automatically on failure. Simple lacks health checks, Weighted isn't for failover, Latency is speed-based not health-based.",
+      "wrong_ar": ["لا يدعم Health Checks.", "", "Weighted لا يدير الفشل.", "يوجّه حسب السرعة لا الصحّة."],
+      "wrong_en": ["Doesn't support health checks.", "", "Weighted doesn't handle failure.", "Speed-based, not health-based."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "مطوّر يريد Route 53 يرصد صحّة RDS في VPC خاصّة (ليس بينها عامّ endpoint). كيف؟",
+      "question_en": "A dev wants Route 53 to monitor a private RDS (no public endpoint). How?",
+      "options_ar": ["Endpoint Health Check مباشر.", "لا يمكن — Route 53 لا يرصد الموارد الخاصّة.", "<strong>CloudWatch Alarm Health Check</strong> — أنشئ Alarm من CloudWatch metric للـ RDS، ثمّ اربطه بـ Route 53 Health Check.", "Calculated Health Check مع Endpoint Health Check."],
+      "options_en": ["Direct Endpoint Health Check.", "Not possible — Route 53 can't monitor private resources.", "<strong>CloudWatch Alarm Health Check</strong> — create a CloudWatch alarm from the RDS metric, link it to a Route 53 health check.", "Calculated Health Check with Endpoint Health Check."],
+      "correct": 2,
+      "explanation_ar": "Route 53 Health Checkers خارج VPC ولا يمكنها الوصول للـ private endpoints. <strong>الحلّ الوحيد: CloudWatch Alarm Health Check</strong> — ترصد metric يُنشَر من داخل VPC (بشكل طبيعيّ أو بـ Custom Metric)، ثمّ تربط Alarm بـ Route 53.",
+      "explanation_en": "Route 53 Health Checkers are outside the VPC, can't reach private endpoints. <strong>Only fix: CloudWatch Alarm Health Check</strong> — monitor a metric published from inside the VPC (native or custom), link its Alarm to Route 53.",
+      "wrong_ar": ["لا يصل لموارد خاصّة.", "ممكن — عبر CW Alarm.", "", "Endpoint لا يصل — فلا فائدة من calculated."],
+      "wrong_en": ["Can't reach private resources.", "It is possible — via CW Alarm.", "", "Endpoint can't reach — calculated useless here."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "ما الفرق بين Geolocation و Geoproximity في Route 53؟",
+      "question_en": "What's the difference between Geolocation and Geoproximity in Route 53?",
+      "options_ar": ["كلاهما نفس الشيء.", "Geolocation يحدّد بدقّة (قارّة/دولة/ولاية). Geoproximity يتيح <strong>bias</strong> لتوسيع أو تقليص منطقة معيّنة، ويتطلّب Traffic Flow.", "Geolocation يعتمد على السرعة.", "Geoproximity ل Email فقط."],
+      "options_en": ["Same thing.", "Geolocation pins precisely (continent/country/state). Geoproximity allows <strong>bias</strong> to grow or shrink a region's reach, and requires Traffic Flow.", "Geolocation is speed-based.", "Geoproximity is for Email only."],
+      "correct": 1,
+      "explanation_ar": "<strong>Geolocation</strong> توجيه ثابت حسب موقع المستخدم (دولة مثلاً). <strong>Geoproximity</strong> أكثر مرونة: يحدّد \"سحب\" (bias) من +١ إلى +٩٩ لتوسيع منطقة، أو من -١ إلى -٩٩ لتقليصها. يحتاج ميزة <strong>Route 53 Traffic Flow</strong> (محرّر مرئيّ).",
+      "explanation_en": "<strong>Geolocation</strong> is static by user location (e.g., country). <strong>Geoproximity</strong> is more flexible: set a bias +1 to +99 to expand a region or -1 to -99 to shrink it. Requires <strong>Route 53 Traffic Flow</strong> (visual editor).",
+      "wrong_ar": ["مختلفتان تماماً.", "", "Geolocation لا يعتمد على السرعة.", "لا علاقة بالإيميل."],
+      "wrong_en": ["Very different.", "", "Geolocation isn't speed-based.", "No email relation."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "Acme تضع TTL = ٨٦٤٠٠ ثانية (٢٤ ساعة) لسجلّ A. ما النتيجة؟",
+      "question_en": "Acme sets TTL = 86400s (24h) on an A record. Result?",
+      "options_ar": ["توفير تكلفة استعلامات + عملاء قد يصلون إلى IP قديم لمدّة يوم كامل بعد التغيير.", "لا فرق.", "Route 53 يتجاهل الـ TTL أعلى من ٣٠٠.", "DNS يتعطّل عند أيّ تغيير."],
+      "options_en": ["Saves query cost + clients may use a stale IP for a full day after an update.", "No difference.", "Route 53 ignores TTLs above 300.", "DNS breaks on any change."],
+      "correct": 0,
+      "explanation_ar": "TTL العالي يقلّل الاستعلامات (وبالتالي التكلفة والحِمل على Route 53)، لكنّه يعني أنّ تغييرات السجلّ تنتشر ببطء. العملاء يستخدمون القيمة المخزّنة مؤقّتاً حتى انتهاء TTL. <strong>قبل أيّ تغيير مخطّط له (نقل موقع مثلاً)، قلّل TTL إلى ٦٠ ثانية قبل ٢٤ ساعة</strong>، ثمّ طبّق التغيير.",
+      "explanation_en": "High TTL reduces queries (cost and Route 53 load) but slows record change propagation. Clients use the cached value until TTL expires. <strong>Before a planned change (site migration), lower TTL to 60s 24h in advance</strong>, then apply the change.",
+      "wrong_ar": ["", "فرق كبير — ٢٤ ساعة تأخير.", "Route 53 لا يتجاهل TTL.", "DNS لا يتعطّل — فقط بطء الانتشار."],
+      "wrong_en": ["", "Big difference — 24h delay.", "Route 53 doesn't ignore TTL.", "DNS doesn't break — just slow propagation."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "Acme اشترت النطاق <span dir=\"ltr\" class=\"font-mono\">acme.com</span> من GoDaddy وتريد استخدام Route 53 لإدارة السجلّات. ما الخطوة المطلوبة؟",
+      "question_en": "Acme bought <span dir=\"ltr\" class=\"font-mono\">acme.com</span> on GoDaddy and wants Route 53 to manage records. Required step?",
+      "options_ar": ["نقل النطاق إلى Route 53 إلزامياً.", "إنشاء Hosted Zone في Route 53، ثمّ تحديث <strong>Name Servers</strong> في GoDaddy لتشير إلى NS الخاصّة بـ Route 53.", "إلغاء النطاق وشراء جديد من Route 53.", "غير ممكن — يجب تسجيل النطاق عبر Route 53."],
+      "options_en": ["Must transfer the domain to Route 53.", "Create a Hosted Zone in Route 53, then update <strong>Name Servers</strong> in GoDaddy to point to Route 53's NS.", "Cancel and buy a new one via Route 53.", "Impossible — must register via Route 53."],
+      "correct": 1,
+      "explanation_ar": "تسجيل النطاق (Registrar) مستقلّ عن إدارة DNS (DNS Service). يمكنك شراء النطاق من أيّ registrar واستخدام Route 53 للإدارة: أنشئ Public Hosted Zone، احصل على الـ ٤ Name Servers التي تقدّمها Route 53، ثمّ اذهب إلى GoDaddy وحدّث NS الخاصّة بالنطاق.",
+      "explanation_en": "Registrar and DNS service are independent. You can buy from any registrar and use Route 53 to manage: create a Public Hosted Zone, get the 4 Name Servers Route 53 gives you, then in GoDaddy update the domain's NS.",
+      "wrong_ar": ["غير ضروريّ.", "", "إسراف كامل.", "ممكن — Registrar و DNS منفصلان."],
+      "wrong_en": ["Not required.", "", "Total waste.", "Works fine — Registrar and DNS are separate."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "مطوّر يحتاج فحصاً مركّباً: \"النظام سليم فقط إذا كان ALB سليماً <strong>AND</strong> RDS سليمة\". ما الأداة؟",
+      "question_en": "A dev needs a composite check: \"system is healthy only if ALB is healthy <strong>AND</strong> RDS is healthy\". Tool?",
+      "options_ar": ["إنشاء عدّة Endpoint Health Checks منفصلة.", "<strong>Calculated Health Check</strong> مع AND بين فحوصات الأبناء.", "Route 53 لا يدعم هذا.", "Lambda function."],
+      "options_en": ["Multiple separate endpoint health checks.", "<strong>Calculated Health Check</strong> with AND across child checks.", "Not supported in Route 53.", "A Lambda function."],
+      "correct": 1,
+      "explanation_ar": "<strong>Calculated Health Check</strong> يدمج حتى ٢٥٦ فحصاً فرعياً بمنطق AND/OR/NOT. يحدّد كم فحصاً فرعياً يجب أن ينجح لكي يكون الأب healthy. يستخدم لصيانة مخطّطة دون تعطيل كلّ الفحوصات.",
+      "explanation_en": "<strong>Calculated Health Check</strong> combines up to 256 child checks with AND/OR/NOT logic. Specify how many children must pass for parent to be healthy. Useful for scheduled maintenance without killing all checks.",
+      "wrong_ar": ["لا تنتج نتيجة مجمّعة.", "", "Route 53 يدعم calculated.", "Lambda غير ضروريّ — ميزة مدمجة."],
+      "wrong_en": ["No combined result.", "", "Route 53 does support calculated.", "Lambda isn't needed — built-in feature."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "Acme لديها ٥ خوادم بـ IPs عامّة ويريد العملاء التوزيع عليها بدون ELB. أبسط طريقة في Route 53؟",
+      "question_en": "Acme has 5 servers with public IPs and wants clients to distribute across them without an ELB. Simplest Route 53 approach?",
+      "options_ar": ["Simple routing policy بـ ٥ قيم.", "<strong>Multi-Value Answer</strong> مع Health Checks — يعيد حتى ٨ قيم صحّية فقط.", "Weighted بـ ٢٠٪ لكلّ واحد.", "٥ hosted zones منفصلة."],
+      "options_en": ["Simple with 5 values.", "<strong>Multi-Value Answer</strong> with health checks — returns up to 8 healthy values only.", "Weighted 20% each.", "5 separate hosted zones."],
+      "correct": 1,
+      "explanation_ar": "<strong>Multi-Value</strong> أفضل من Simple لأنّه يدعم Health Checks — يعيد فقط القيم الصحّية. Simple لا يدعم Health Checks. Weighted ممكنة لكنّ Multi-Value أنظف لهذا السيناريو. <strong>ملاحظة</strong>: Multi-Value ليس بديلاً حقيقياً لـ ELB — لا يعالج stickiness، SSL termination، routing ذكي.",
+      "explanation_en": "<strong>Multi-Value</strong> beats Simple because it supports health checks — only healthy values are returned. Simple lacks health checks. Weighted works but Multi-Value is cleaner for this scenario. <strong>Note</strong>: Multi-Value is not a real ELB replacement — no stickiness, SSL termination, or smart routing.",
+      "wrong_ar": ["لا يدعم Health Checks.", "", "ممكن لكنّ Multi-Value أبسط.", "تعقيد بلا جدوى."],
+      "wrong_en": ["Doesn't support health checks.", "", "Works but Multi-Value is simpler.", "Pointless complexity."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    }
+  ],
+  "summary": [
+    {"icon": "globe", "title_ar": "Route 53 = DNS + Registrar + Health Checks", "title_en": "Route 53 = DNS + Registrar + Health Checks",
+     "body_ar": "الوحيد في AWS بضمان SLA ١٠٠٪. $0.50/شهر لكلّ hosted zone.",
+     "body_en": "Only AWS service with 100% SLA. $0.50/month per hosted zone."},
+    {"icon": "target", "title_ar": "Alias ≠ CNAME", "title_en": "Alias ≠ CNAME",
+     "body_ar": "Alias يعمل على apex ومجّانيّ. CNAME للـ subdomains فقط.",
+     "body_en": "Alias works on apex and is free. CNAME for subdomains only."},
+    {"icon": "route", "title_ar": "٧ سياسات توجيه", "title_en": "7 routing policies",
+     "body_ar": "Simple, Weighted, Failover, Latency, Geolocation, Geoproximity, Multi-Value.",
+     "body_en": "Simple, Weighted, Failover, Latency, Geolocation, Geoproximity, Multi-Value."},
+    {"icon": "heart", "title_ar": "Health Checks للـ Private عبر CW Alarm", "title_en": "Private Health Checks via CW Alarm",
+     "body_ar": "Route 53 خارج VPC — لموارد خاصّة استخدم CloudWatch Alarm.",
+     "body_en": "Route 53 is outside VPC — for private resources use a CloudWatch Alarm."}
+  ],
+  "mnemonic_ar": "لاختيار السياسة: \"<strong>W</strong>eighted = <strong>W</strong>hat percentage، <strong>F</strong>ailover = <strong>F</strong>ix it، <strong>L</strong>atency = <strong>L</strong>east delay، <strong>G</strong>eolocation = <strong>G</strong>overnment (قانونيّ)، <strong>M</strong>ulti-value = <strong>M</strong>any IPs\".",
+  "mnemonic_en": "Policy picks: \"<strong>W</strong>eighted = <strong>W</strong>hat percentage, <strong>F</strong>ailover = <strong>F</strong>ix it, <strong>L</strong>atency = <strong>L</strong>east delay, <strong>G</strong>eolocation = <strong>G</strong>overnment (legal), <strong>M</strong>ulti-value = <strong>M</strong>any IPs\".",
+  "prev": 5,
+  "next": 7
+}

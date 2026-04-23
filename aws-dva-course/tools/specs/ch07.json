@@ -1,0 +1,330 @@
+{
+  "n": 7,
+  "domain": "foundations",
+  "title_ar": "أساسيات Amazon VPC",
+  "title_en": "Amazon VPC Basics",
+  "pages": "197-213",
+  "subtitle_ar": "VPC هي الشبكة الخاصّة التي تعيش فيها كلّ مواردك في AWS. امتحان المطوّر لا يطلب إتقاناً كاملاً — لكنّه يسأل عن المفاهيم الأساسيّة: Subnets، Internet Gateway، NAT، NACL، Security Groups، VPC Peering، Endpoints. هذه الأساسات كافية لاجتياز أيّ سؤال VPC في DVA.",
+  "subtitle_en": "VPC is the private network where all your AWS resources live. The developer exam doesn't demand mastery — but it does test core concepts: Subnets, Internet Gateway, NAT, NACL, Security Groups, VPC Peering, Endpoints. These basics are enough for any VPC question on DVA.",
+  "tags": ["VPC", "Subnets", "Internet Gateway", "NAT", "NACL", "Security Groups", "VPC Endpoints"],
+  "objectives": [
+    {"concept": "VPC Structure (VPC, Subnets, CIDR)", "tested_ar": "النطاق الأوّل في تصميم شبكة آمنة متعدّدة AZs.", "tested_en": "Domain 1 — designing a secure multi-AZ network."},
+    {"concept": "Internet Gateway vs NAT Gateway", "tested_ar": "النطاقان الثاني والرابع في إعطاء الإنترنت لـ subnets العامّة والخاصّة.", "tested_en": "Domains 2 & 4 — Internet access for public vs private subnets."},
+    {"concept": "Security Groups vs NACL", "tested_ar": "النطاق الثاني في سؤال الـ stateful/stateless.", "tested_en": "Domain 2 — stateful/stateless question."},
+    {"concept": "VPC Endpoints", "tested_ar": "النطاق الثاني في الوصول الخاصّ لـ AWS services.", "tested_en": "Domain 2 — private access to AWS services."}
+  ],
+  "sections": [
+    {
+      "title_ar": "VPC و Subnets و CIDR",
+      "title_en": "VPC, Subnets, and CIDR",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>VPC (Virtual Private Cloud)</strong> هو شبكتك الافتراضيّة الخاصّة داخل region واحدة. تقسّمها إلى <strong>Subnets</strong> (كلّ واحد يعيش في AZ واحدة بالضبط). الـ VPC يأخذ نطاق <strong>CIDR</strong> (مثلاً <code class=\"font-mono\">10.0.0.0/16</code> = ٦٥٥٣٦ عنواناً)، والـ subnets تأخذ قطعاً منه.",
+         "en": "<strong>VPC (Virtual Private Cloud)</strong> is your private virtual network within a single Region. You partition it into <strong>Subnets</strong> (each lives in exactly one AZ). A VPC takes a <strong>CIDR</strong> range (e.g., <code class=\"font-mono\">10.0.0.0/16</code> = 65536 addresses), and subnets get slices of it."},
+        {"type": "compare",
+         "left": {"tone": "emerald", "icon": "globe", "title_ar": "Public Subnet", "title_en": "Public Subnet",
+                  "body_ar": "Subnet يملك <strong>route إلى Internet Gateway</strong> في route table. الموارد فيه تحصل على IP عامّ وتُوصَل من الإنترنت (مع السماح في SG). مناسب لـ Load Balancers و bastion hosts.",
+                  "body_en": "A subnet with a <strong>route to an Internet Gateway</strong> in its route table. Resources get a public IP and are reachable from the Internet (if allowed by SG). Suitable for Load Balancers, bastion hosts."},
+         "right": {"tone": "blue", "icon": "lock", "title_ar": "Private Subnet", "title_en": "Private Subnet",
+                   "body_ar": "بدون route مباشر إلى Internet Gateway. الموارد فيه <u>لا يمكن الوصول إليها من الإنترنت</u>. للوصول الصادر (مثل <span dir=\"ltr\" class=\"font-mono\">yum update</span>) تحتاج <strong>NAT Gateway</strong>. مناسب لـ application servers و databases.",
+                   "body_en": "No direct IGW route. Resources <u>cannot be reached from the Internet</u>. For outbound access (e.g., <span dir=\"ltr\" class=\"font-mono\">yum update</span>) you need a <strong>NAT Gateway</strong>. Suitable for app servers, databases."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>نمط الإنتاج المعياريّ</strong>: 3 AZs، كلّ AZ فيها public subnet (لـ ALB و NAT) و private subnet (لـ EC2 و ECS) و data subnet (لـ RDS و ElastiCache). هذا \"3-tier architecture\" الذي يسأل عنه الامتحان كثيراً.",
+         "en": "<strong>Canonical production pattern</strong>: 3 AZs, each with a public subnet (ALB + NAT), a private subnet (EC2, ECS), and a data subnet (RDS, ElastiCache). This \"3-tier architecture\" shows up often on the exam."},
+        {"type": "callout", "tone": "warn",
+         "ar": "AWS يحجز <strong>٥ عناوين</strong> في كلّ subnet (الأوّل: network، الثاني: VPC router، الثالث: DNS، الرابع: مستقبليّ، والأخير: broadcast). لذلك subnet <code class=\"font-mono\">/28</code> يعطيك ١١ عنواناً قابلاً للاستخدام لا ١٦.",
+         "en": "AWS reserves <strong>5 addresses</strong> per subnet (first: network, second: VPC router, third: DNS, fourth: future, last: broadcast). A <code class=\"font-mono\">/28</code> subnet gives you 11 usable addresses, not 16."}
+      ]
+    },
+    {
+      "title_ar": "Internet Gateway و NAT Gateway",
+      "title_en": "Internet Gateway and NAT Gateway",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Internet Gateway (IGW)</strong> مورد VPC-scope يعطي الإنترنت لمواردك. يوجد واحد فقط لكلّ VPC. Subnet \"public\" يعني أنّ route table الخاصّ به يحوي <code class=\"font-mono\">0.0.0.0/0 → igw-xxx</code>.",
+         "en": "<strong>Internet Gateway (IGW)</strong> is a VPC-scope resource that gives your resources Internet access. One per VPC. A \"public\" subnet means its route table has <code class=\"font-mono\">0.0.0.0/0 → igw-xxx</code>."},
+        {"type": "p",
+         "ar": "<strong>NAT Gateway</strong> (مُدار من AWS) أو <strong>NAT Instance</strong> (تديره بنفسك) يسمح للخوادم في private subnets <strong>بالخروج</strong> إلى الإنترنت (تحميل تحديثات، استدعاء APIs خارجيّة) بدون استقبال طلبات واردة. الـ NAT Gateway يعيش في public subnet ويحتاج Elastic IP.",
+         "en": "<strong>NAT Gateway</strong> (AWS-managed) or <strong>NAT Instance</strong> (self-managed) lets instances in private subnets <strong>initiate outbound</strong> to the Internet (updates, external API calls) without accepting inbound. NAT Gateway lives in a public subnet and needs an Elastic IP."},
+        {"type": "table",
+         "headers": {"ar": ["الخاصّية", "NAT Gateway", "NAT Instance"], "en": ["Feature", "NAT Gateway", "NAT Instance"]},
+         "rows": [
+           [{"ar": "الإدارة", "en": "Management"}, {"ar": "مُدار من AWS", "en": "AWS-managed"}, {"ar": "EC2 — تديره أنت", "en": "EC2 — you manage"}],
+           [{"ar": "التوفّر", "en": "Availability"}, {"ar": "مُدار، لكنّه في AZ واحدة. ضع واحداً في كلّ AZ للـ HA", "en": "Managed, single-AZ. One per AZ for HA"}, {"ar": "AZ واحدة، تدير HA يدوياً", "en": "Single-AZ, manual HA"}],
+           [{"ar": "Bandwidth", "en": "Bandwidth"}, {"ar": "حتى ١٠٠ Gbps تلقائياً", "en": "Up to 100 Gbps automatic"}, {"ar": "حسب حجم الخادم", "en": "Depends on instance size"}],
+           [{"ar": "Security Groups", "en": "Security Groups"}, {"ar": "غير مدعومة", "en": "Not supported"}, {"ar": "مدعومة", "en": "Supported"}],
+           [{"ar": "Bastion قابلية الاستخدام", "en": "Bastion capability"}, {"ar": "لا", "en": "No"}, {"ar": "نعم", "en": "Yes"}]
+         ]
+        },
+        {"type": "callout", "tone": "tip",
+         "ar": "لـ HA: ضع <strong>NAT Gateway في كلّ AZ</strong> (٣ NAT Gateways لـ ٣ AZs). الـ private subnet في AZ-A يستخدم NAT في AZ-A، وهكذا. هذا يمنع انقطاع AZ-A من تعطيل AZ-B أيضاً. تكلفة أعلى لكن HA حقيقيّ.",
+         "en": "For HA: place <strong>a NAT Gateway in every AZ</strong> (3 NATs for 3 AZs). Private subnet in AZ-A uses its AZ-A NAT, and so on. Prevents AZ-A outage from also killing AZ-B. Higher cost but real HA."}
+      ]
+    },
+    {
+      "title_ar": "NACLs و Security Groups",
+      "title_en": "NACLs and Security Groups",
+      "blocks": [
+        {"type": "p",
+         "ar": "هذا من أكثر أسئلة VPC في الامتحان. كلاهما يعمل كجدار ناريّ لكن على مستويات مختلفة، وبمنطق مختلف.",
+         "en": "One of the most-asked VPC topics. Both act as firewalls, but at different levels and with different semantics."},
+        {"type": "table",
+         "headers": {"ar": ["الخاصّية", "Security Group", "NACL"], "en": ["Property", "Security Group", "NACL"]},
+         "rows": [
+           [{"ar": "المستوى", "en": "Level"}, {"ar": "Instance / ENI", "en": "Instance / ENI"}, {"ar": "Subnet", "en": "Subnet"}],
+           [{"ar": "نوع القواعد", "en": "Rule type"}, {"ar": "Allow فقط", "en": "Allow only"}, {"ar": "Allow و Deny", "en": "Allow and Deny"}],
+           [{"ar": "الحالة", "en": "State"}, {"ar": "<strong>Stateful</strong> — رد الطلب مسموح تلقائياً", "en": "<strong>Stateful</strong> — return traffic auto-allowed"}, {"ar": "<strong>Stateless</strong> — يجب السماح صراحةً للرد", "en": "<strong>Stateless</strong> — must explicitly allow return"}],
+           [{"ar": "المصادر", "en": "Sources"}, {"ar": "IP, CIDR, <strong>Security Groups أخرى</strong>", "en": "IP, CIDR, <strong>other Security Groups</strong>"}, {"ar": "IP أو CIDR فقط", "en": "IP or CIDR only"}],
+           [{"ar": "تقييم القواعد", "en": "Rule evaluation"}, {"ar": "كلّ القواعد تُقيَّم معاً", "en": "All rules evaluated together"}, {"ar": "بترتيب رقميّ", "en": "By rule number"}],
+           [{"ar": "التطبيق", "en": "Application"}, {"ar": "يدويّ عند الإرفاق", "en": "Manual on attachment"}, {"ar": "تلقائيّ لكلّ الموارد في الـ subnet", "en": "Automatic for all subnet resources"}]
+         ]
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>القاعدة الذهبيّة</strong>: Security Groups أوّلاً وافتراضياً. NACLs للحالات النادرة (حظر IPs مؤذية، عزل subnets). <strong>NACL stateless</strong> يعني أنّك يجب السماح بمنفذ الرد (ephemeral ports ١٠٢٤-٦٥٥٣٥) صراحةً.",
+         "en": "<strong>Rule of thumb</strong>: Security Groups first and by default. NACLs for rare cases (block malicious IPs, subnet-level isolation). <strong>NACL is stateless</strong> — you must explicitly allow the return traffic port range (ephemeral ports 1024-65535)."},
+        {"type": "compare",
+         "left": {"tone": "red", "icon": "ban", "title_ar": "مثال NACL Stateless", "title_en": "Stateless NACL example",
+                  "body_ar": "السماح بالوارد على المنفذ ٤٤٣ (HTTPS inbound) لا يسمح تلقائياً بردّ ephemeral. يجب إضافة قاعدة خارجيّة للسماح بالـ ephemeral ports. كثير من أخطاء VPC تبدأ هنا.",
+                  "body_en": "Allowing inbound on port 443 doesn't auto-allow the ephemeral return. Must add an outbound rule for ephemeral ports. Many VPC issues start here."},
+         "right": {"tone": "emerald", "icon": "check-circle", "title_ar": "Security Group Stateful", "title_en": "Stateful Security Group",
+                   "body_ar": "إذا سمحت بـ inbound على ٤٤٣، الرد outbound مسموح تلقائياً — لا داعي لقاعدة إضافيّة. بهذا SG أسهل بكثير.",
+                   "body_en": "Inbound allow on 443 auto-allows the outbound reply — no extra rule needed. Much easier."}
+        }
+      ]
+    },
+    {
+      "title_ar": "VPC Peering و VPC Endpoints و VPC Flow Logs",
+      "title_en": "VPC Peering, VPC Endpoints, and Flow Logs",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>VPC Peering</strong> يربط اثنين VPC بحيث تتصل مواردهما كأنّها في نفس الشبكة. شروط: <strong>CIDR ranges لا تتداخل</strong>، و <strong>العلاقة غير انتقاليّة (not transitive)</strong> — VPC A مرتبطة بـ B، و B بـ C، لا يعني أنّ A تصل C مباشرةً.",
+         "en": "<strong>VPC Peering</strong> connects two VPCs so their resources talk as if on one network. Requirements: <strong>non-overlapping CIDR</strong>, and <strong>non-transitive</strong> — A↔B, B↔C doesn't mean A↔C directly."},
+        {"type": "p",
+         "ar": "<strong>VPC Endpoints</strong> تسمح لمواردك داخل VPC بالوصول لخدمات AWS <strong>عبر شبكة AWS الخاصّة</strong> بدون المرور بالإنترنت. توفّر أمناً وأداءً أعلى وتكلفة أقلّ (لا تدفع NAT).",
+         "en": "<strong>VPC Endpoints</strong> let resources inside your VPC reach AWS services <strong>over AWS's private network</strong> without traversing the Internet. Better security, lower latency, and no NAT bill."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "door-open", "title_ar": "Gateway Endpoint", "title_en": "Gateway Endpoint",
+                  "body_ar": "مجانيّ تقريباً. يُضاف كـ route في الـ route table. <strong>متاح فقط لـ S3 و DynamoDB</strong>. لا يدعم الوصول من VPCs أخرى أو on-premises.",
+                  "body_en": "Essentially free. Added as a route in the route table. <strong>Only available for S3 and DynamoDB</strong>. No access from other VPCs or on-premises."},
+         "right": {"tone": "purple", "icon": "network", "title_ar": "Interface Endpoint", "title_en": "Interface Endpoint",
+                   "body_ar": "يستخدم ENI مع IP خاصّ في subnets محدّدة. يكلّف بالساعة + بالـ GB. <strong>يدعم معظم خدمات AWS</strong> (بما فيها S3 و DynamoDB). يعمل عبر VPC Peering و VPN و Direct Connect.",
+                   "body_en": "Uses an ENI with a private IP in specified subnets. Billed hourly + per-GB. <strong>Supports most AWS services</strong> (including S3 and DynamoDB). Works across VPC Peering, VPN, Direct Connect."}
+        },
+        {"type": "p",
+         "ar": "<strong>VPC Flow Logs</strong> يلتقط معلومات عن كلّ IP traffic يمرّ عبر ENI. يمكن توجيه السجلّات إلى CloudWatch Logs أو S3 أو Kinesis Data Firehose. مستويات الالتقاط: VPC كامل، subnet، أو ENI واحد. مفيد لتشخيص المشاكل الأمنيّة وتتبّع الاختراقات.",
+         "en": "<strong>VPC Flow Logs</strong> capture info on all IP traffic through an ENI. Logs can go to CloudWatch Logs, S3, or Kinesis Data Firehose. Capture levels: entire VPC, subnet, or single ENI. Useful for security forensics and breach investigations."},
+        {"type": "code", "lang": "bash",
+         "code": "# Enable VPC Flow Logs for a whole VPC, sending to CloudWatch Logs\naws ec2 create-flow-logs \\\n  --resource-type VPC \\\n  --resource-ids vpc-0abc1234 \\\n  --traffic-type ALL \\\n  --log-destination-type cloud-watch-logs \\\n  --log-group-name /aws/vpc/acme-prod \\\n  --deliver-logs-permission-arn arn:aws:iam::123456789012:role/flowlogsRole"},
+        {"type": "callout", "tone": "senior",
+         "ar": "VPC Endpoints تحلّ مشكلة كبيرة في تطبيقات serverless: Lambda في private subnet تريد الوصول لـ S3. بدون Endpoint، تحتاج NAT Gateway (باهظ التكلفة مع حركة S3 كثيفة). Gateway Endpoint لـ S3 مجانيّ تقريباً ويلغي الحاجة للـ NAT لهذه الحركة.",
+         "en": "VPC Endpoints solve a big serverless cost issue: Lambda in a private subnet needing S3 access. Without an Endpoint, you need a NAT Gateway (expensive with heavy S3 traffic). S3 Gateway Endpoint is essentially free and removes NAT need for that traffic."}
+      ]
+    },
+    {
+      "title_ar": "الاتصال بالـ on-premises: VPN و Direct Connect",
+      "title_en": "Connecting to on-premises: VPN and Direct Connect",
+      "blocks": [
+        {"type": "p",
+         "ar": "للاتّصال بين Data Center خاصّتك و VPC هناك طريقتان: <strong>Site-to-Site VPN</strong> (عبر الإنترنت العامّ، مشفّر) و <strong>AWS Direct Connect</strong> (اتّصال فيزيائيّ خاصّ).",
+         "en": "To connect your data center with a VPC: <strong>Site-to-Site VPN</strong> (over public Internet, encrypted) or <strong>AWS Direct Connect</strong> (physical dedicated connection)."},
+        {"type": "compare",
+         "left": {"tone": "amber", "icon": "shield", "title_ar": "Site-to-Site VPN", "title_en": "Site-to-Site VPN",
+                  "body_ar": "سريع الإعداد (ساعات). <strong>عبر الإنترنت</strong> — مشفّر ومعقّد. تكلفة منخفضة. Bandwidth محدود (عادة <١ Gbps). مناسب للـ DR أو الحمولات الخفيفة.",
+                  "body_en": "Fast to set up (hours). <strong>Over the Internet</strong> — encrypted, complexity shifts to your side. Low cost. Limited bandwidth (usually <1 Gbps). Fit for DR or light traffic."},
+         "right": {"tone": "blue", "icon": "cable", "title_ar": "Direct Connect (DX)", "title_en": "Direct Connect (DX)",
+                   "body_ar": "اتّصال فيزيائيّ بـ AWS. <strong>يستغرق ≥ شهر للإعداد</strong>. أداء ثابت (١-١٠٠ Gbps). <strong>لا يعبر الإنترنت</strong>. مناسب للحمولات الحرجة والسرّيّة والبيانات الكبيرة.",
+                   "body_en": "Physical connection to AWS. <strong>Takes ≥ 1 month to set up</strong>. Stable performance (1-100 Gbps). <strong>Never traverses the Internet</strong>. For critical, sensitive, or high-volume workloads."}
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "DX بحدّ ذاته <strong>ليس مشفّراً</strong>. إن احتجت تشفيراً، شغّل VPN فوق DX (يُعرَف بـ \"VPN over DX\"). الامتحان يختبر هذه النقطة في أسئلة الامتثال.",
+         "en": "DX itself is <strong>not encrypted</strong>. If you need encryption, run VPN over DX (\"VPN over DX\"). The exam tests this in compliance scenarios."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء VPC بسيط لـ Acme: ٢ AZs، كلّ واحدة بـ public و private subnet، IGW، NAT Gateway واحدة، خادم في private subnet يصل S3 عبر Gateway Endpoint.",
+    "goal_en": "Build a simple Acme VPC: 2 AZs, each with public and private subnet, IGW, one NAT Gateway, and a private-subnet instance reaching S3 via Gateway Endpoint.",
+    "steps": [
+      {"title_ar": "أنشئ VPC بـ CIDR <span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>", "title_en": "Create VPC with <span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>",
+       "body_ar": "Resources: VPC → Create. اختر IPv4 CIDR = <span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>.",
+       "body_en": "Resources: VPC → Create. IPv4 CIDR = <span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>."},
+      {"title_ar": "أنشئ Subnets", "title_en": "Create subnets",
+       "body_ar": "4 subnets: public-a (10.0.1.0/24), public-b (10.0.2.0/24), private-a (10.0.11.0/24), private-b (10.0.12.0/24).",
+       "body_en": "4 subnets: public-a (10.0.1.0/24), public-b (10.0.2.0/24), private-a (10.0.11.0/24), private-b (10.0.12.0/24)."},
+      {"title_ar": "أنشئ IGW و NAT", "title_en": "Create IGW and NAT",
+       "body_ar": "IGW → attach to VPC. NAT Gateway في public-a مع Elastic IP جديد.",
+       "body_en": "IGW → attach to VPC. NAT Gateway in public-a with a new Elastic IP."},
+      {"title_ar": "اضبط Route Tables", "title_en": "Set Route Tables",
+       "body_ar": "",
+       "body_en": "",
+       "code": "# Public route table: 0.0.0.0/0 → IGW\naws ec2 create-route --route-table-id rtb-public \\\n  --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0abc\n\n# Private route table: 0.0.0.0/0 → NAT\naws ec2 create-route --route-table-id rtb-private \\\n  --destination-cidr-block 0.0.0.0/0 --nat-gateway-id nat-0xyz"},
+      {"title_ar": "أنشئ S3 Gateway Endpoint", "title_en": "Create S3 Gateway Endpoint",
+       "body_ar": "VPC → Endpoints → Create. Service = <span dir=\"ltr\" class=\"font-mono\">com.amazonaws.us-east-1.s3</span>، Type = Gateway. اختر الـ private route table.",
+       "body_en": "VPC → Endpoints → Create. Service = <span dir=\"ltr\" class=\"font-mono\">com.amazonaws.us-east-1.s3</span>, Type = Gateway. Select the private route table."},
+      {"title_ar": "أطلق خادم في private subnet واختبر", "title_en": "Launch a private-subnet instance and test",
+       "body_ar": "SSH عبر bastion في public-a. من الخادم الخاصّ: <span dir=\"ltr\" class=\"font-mono\">aws s3 ls</span> يعمل عبر الـ Endpoint (لا NAT cost).",
+       "body_en": "SSH via a bastion in public-a. From the private instance: <span dir=\"ltr\" class=\"font-mono\">aws s3 ls</span> works via the Endpoint (no NAT cost)."}
+    ],
+    "warning_ar": "NAT Gateway يكلّف ~$35/شهر + data processing. لا تتركه شغّالاً. IGW مجّانيّ لكن Elastic IP يُحتسَب إذا لم يكن مرتبطاً بخادم شغّال.",
+    "warning_en": "NAT Gateway costs ~$35/month + data processing. Don't leave it running. IGW is free but Elastic IP is billed if not attached to a running instance."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "Acme تريد خوادم EC2 في private subnet تصل إلى إنترنت لتحديثات yum، لكن لا تقبل اتّصالات واردة من الإنترنت. الحلّ؟",
+      "question_en": "Acme wants private-subnet EC2 to reach the Internet for yum updates, but not accept inbound from the Internet. Solution?",
+      "options_ar": ["Internet Gateway مباشرةً.", "<strong>NAT Gateway</strong> في public subnet + route <span dir=\"ltr\" class=\"font-mono\">0.0.0.0/0 → NAT</span> في private route table.", "VPC Peering.", "Elastic IP مباشرةً على الخادم."],
+      "options_en": ["Internet Gateway directly.", "<strong>NAT Gateway</strong> in public subnet + <span dir=\"ltr\" class=\"font-mono\">0.0.0.0/0 → NAT</span> route in private route table.", "VPC Peering.", "Elastic IP directly on instance."],
+      "correct": 1,
+      "explanation_ar": "<strong>NAT Gateway</strong> هو الحلّ المعياريّ: يمرّر الحركة الخارجة من private subnet عبر IP عامّ، لكنّه لا يقبل طلبات جديدة من الإنترنت. Internet Gateway يجعل الخادم عامّاً كلياً. VPC Peering يربط VPCs. Elastic IP يحوّل الخادم إلى public — عكس المطلوب.",
+      "explanation_en": "<strong>NAT Gateway</strong> is the canonical fix: lets outbound traffic from private subnet traverse via a public IP without accepting inbound. IGW makes the instance fully public. VPC Peering connects VPCs. EIP makes the instance public — opposite of what's asked.",
+      "wrong_ar": ["يعرّض الخادم للإنترنت.", "", "VPC-to-VPC لا للإنترنت.", "يُعلن الخادم للإنترنت."],
+      "wrong_en": ["Exposes the instance to Internet.", "", "VPC-to-VPC, not Internet.", "Makes instance public."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q2", "type": "multi",
+      "question_ar": "أيّ العبارات صحيحة عن الفرق بين Security Groups و NACLs؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about SGs vs NACLs? Select all that apply.",
+      "options_ar": ["SG <strong>stateful</strong>، NACL <strong>stateless</strong>.", "SG على مستوى الـ instance، NACL على مستوى الـ subnet.", "SG تدعم Allow فقط، NACL تدعم Allow و Deny.", "SG يمكنها الإشارة لمجموعة أمان أخرى كمصدر، NACL لا.", "NACL مرتبطة تلقائياً بكلّ الموارد في الـ subnet، SG يجب إرفاقها يدوياً."],
+      "options_en": ["SG is <strong>stateful</strong>, NACL is <strong>stateless</strong>.", "SG operates at instance level, NACL at subnet level.", "SG supports Allow only, NACL supports Allow and Deny.", "SG can reference another SG as source, NACL cannot.", "NACL auto-applies to all subnet resources; SG must be attached manually."],
+      "correct": [0, 1, 2, 3, 4],
+      "explanation_ar": "كلّ العبارات صحيحة — هذه الفروق الخمسة الكاملة. <strong>Stateful vs Stateless</strong> هو الأكثر تكراراً في الامتحان.",
+      "explanation_en": "All true — these are the five distinguishing features. <strong>Stateful vs stateless</strong> is the most-repeated exam point.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "Lambda في private subnet تتصل بـ S3 بكثافة. فريق الماليّة ينبّه لتكلفة NAT Gateway العالية. ما الحلّ الأمثل؟",
+      "question_en": "A Lambda in a private subnet hits S3 heavily. Finance flags high NAT Gateway cost. Best fix?",
+      "options_ar": ["ترقية NAT Gateway.", "<strong>S3 Gateway Endpoint</strong> — مجانيّ تقريباً ويلغي الحاجة للـ NAT في حركة S3.", "نقل Lambda إلى public subnet.", "استخدام VPC Peering."],
+      "options_en": ["Upgrade the NAT Gateway.", "<strong>S3 Gateway Endpoint</strong> — essentially free, removes NAT need for S3 traffic.", "Move Lambda to public subnet.", "Use VPC Peering."],
+      "correct": 1,
+      "explanation_ar": "<strong>Gateway Endpoint</strong> متاح لـ S3 و DynamoDB، وهو مجّانيّ تقريباً. يوفّر route خاصّ لـ S3 داخل شبكة AWS، فتلغي تكلفة NAT Gateway لحركة S3 (قد يكون هذا الجزء الأكبر من فاتورتك). Interface Endpoint خيار بديل لكنّه بالساعة والـ GB — Gateway أرخص لـ S3.",
+      "explanation_en": "<strong>Gateway Endpoint</strong> is available for S3 and DynamoDB, essentially free. Provides a private route to S3 within AWS's network, eliminating NAT cost for S3 traffic (often the biggest part of the bill). Interface Endpoint is an alternative but is billed hourly + per-GB — Gateway is cheaper for S3.",
+      "wrong_ar": ["يزيد التكلفة لا يقلّلها.", "", "Lambda في public subnet ممارسة سيّئة.", "Peering VPC-to-VPC، لا لـ S3."],
+      "wrong_en": ["Raises cost.", "", "Lambda in public subnet is bad practice.", "Peering is VPC-to-VPC, not to S3."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "Acme لديها VPC A (<span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>) و VPC B (<span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>). يريدون ربطهما عبر VPC Peering. ما المشكلة؟",
+      "question_en": "Acme has VPC A (<span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>) and VPC B (<span dir=\"ltr\" class=\"font-mono\">10.0.0.0/16</span>) and wants to peer them. Issue?",
+      "options_ar": ["لا مشكلة.", "<strong>CIDR ranges متطابقة (overlapping)</strong> — VPC Peering يتطلّب نطاقات غير متداخلة. يجب إعادة إنشاء أحد الـ VPCs بنطاق مختلف.", "يجب استخدام VPN.", "VPC Peering ممنوع بين نفس الحساب."],
+      "options_en": ["No issue.", "<strong>Overlapping CIDR ranges</strong> — VPC Peering requires non-overlapping. Must recreate one VPC with a different CIDR.", "Must use VPN.", "Peering forbidden within same account."],
+      "correct": 1,
+      "explanation_ar": "VPC Peering يتطلّب CIDRs غير متداخلة لأنّ الـ routing يعتمد على IP. لا يمكن تحويل <span dir=\"ltr\" class=\"font-mono\">10.0.1.5</span> بشكل صحيح إذا وُجِد في VPCs. يجب إعادة إنشاء واحد — للأسف لا يمكن تغيير CIDR الأساسيّ لـ VPC.",
+      "explanation_en": "VPC Peering needs non-overlapping CIDRs because routing is IP-based. You can't route <span dir=\"ltr\" class=\"font-mono\">10.0.1.5</span> correctly if it exists in both VPCs. One must be recreated — sadly you can't change a VPC's primary CIDR.",
+      "wrong_ar": ["مشكلة حقيقيّة.", "", "Peering ممكن عادة.", "Peering مدعوم داخل الحساب."],
+      "wrong_en": ["Real issue.", "", "Peering is usually possible.", "Peering works within an account."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "بعد ضبط NACL للسماح بـ inbound HTTPS 443، المطوّر لاحظ أنّ الردود لا تصل للعميل. ما السبب؟",
+      "question_en": "After NACL allows inbound HTTPS 443, the dev notices replies don't reach clients. Why?",
+      "options_ar": ["HTTPS معطّل في الخادم.", "<strong>NACL stateless</strong> — الردود تستخدم ephemeral ports (<span dir=\"ltr\" class=\"font-mono\">1024-65535</span>) ويجب السماح بها صراحةً في outbound NACL.", "Security Group يمنع الردود.", "Route 53 يتدخّل."],
+      "options_en": ["HTTPS disabled on instance.", "<strong>NACL is stateless</strong> — replies use ephemeral ports (<span dir=\"ltr\" class=\"font-mono\">1024-65535</span>), must be explicitly allowed in outbound NACL.", "SG blocks replies.", "Route 53 interferes."],
+      "correct": 1,
+      "explanation_ar": "هذا فخّ NACL Stateless الكلاسيكيّ: السماح بالـ inbound لا يسمح تلقائياً بالرد. يجب إضافة قاعدة outbound تسمح بـ ephemeral ports (<span dir=\"ltr\" class=\"font-mono\">1024-65535</span>) للعودة إلى العميل. Security Group ستكون كافية لأنّها stateful.",
+      "explanation_en": "Classic stateless NACL trap: inbound allow doesn't auto-allow replies. Must add outbound rule for ephemeral ports (<span dir=\"ltr\" class=\"font-mono\">1024-65535</span>). An SG alone would suffice since it's stateful.",
+      "wrong_ar": ["لا علاقة عادة.", "", "SG stateful — لا تمنع الردود.", "Route 53 DNS لا يتدخّل في traffic."],
+      "wrong_en": ["Usually unrelated.", "", "SG is stateful — wouldn't block replies.", "Route 53 is DNS, not traffic."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "ما أكبر فرق بين Site-to-Site VPN و Direct Connect؟",
+      "question_en": "Biggest difference between Site-to-Site VPN and Direct Connect?",
+      "options_ar": ["VPN مجّانيّ.", "<strong>VPN يعبر الإنترنت العامّ (مشفّر) وسريع الإعداد. Direct Connect اتّصال فيزيائيّ خاصّ، أداء ثابت، لكنّ إعداده يأخذ شهراً+</strong>.", "DX أسرع في الإعداد.", "VPN أسرع."],
+      "options_en": ["VPN is free.", "<strong>VPN goes over public Internet (encrypted) and is fast to set up. DX is a private physical connection, steady performance, but setup takes 1+ month</strong>.", "DX is faster to set up.", "VPN is faster."],
+      "correct": 1,
+      "explanation_ar": "VPN يعبر الإنترنت العامّ — يعني تشفير إلزاميّ لكنّ أداء متقلّب. DX اتّصال فيزيائيّ خاصّ — أداء ثابت ومنخفض الـ latency، لكنّه يستغرق شهراً على الأقلّ للتوصيل. الأداء والتكلفة والزمن تختلف جميعها.",
+      "explanation_en": "VPN traverses the public Internet — mandatory encryption but variable performance. DX is a dedicated physical connection — steady, low-latency, but 1+ month to provision. Performance, cost, and time all differ.",
+      "wrong_ar": ["VPN يكلّف بالساعة.", "", "DX أبطأ في الإعداد بشكل كبير.", "VPN أبطأ عموماً."],
+      "wrong_en": ["VPN has hourly costs.", "", "DX is much slower to provision.", "VPN is generally slower."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "مطوّر يحقّق في اختراق محتمل ويحتاج لسجلّ كلّ الحركة IP عبر VPC. ما الأداة؟",
+      "question_en": "A dev investigates a potential breach and needs a log of all IP traffic across the VPC. Which tool?",
+      "options_ar": ["CloudTrail.", "<strong>VPC Flow Logs</strong> — يلتقط metadata كلّ packet على مستوى VPC، subnet، أو ENI. يُرسَل إلى CloudWatch Logs / S3 / Kinesis.", "CloudFront logs.", "Route 53 query logs."],
+      "options_en": ["CloudTrail.", "<strong>VPC Flow Logs</strong> — captures packet metadata at VPC, subnet, or ENI level. Delivered to CloudWatch Logs / S3 / Kinesis.", "CloudFront logs.", "Route 53 query logs."],
+      "correct": 1,
+      "explanation_ar": "<strong>VPC Flow Logs</strong> مخصّصة للشبكة: source/dest IP، ports، protocol، bytes، ACCEPT/REJECT. CloudTrail للـ API calls (مثل \"من شغّل خادم\"). CloudFront logs للـ CDN requests. Route 53 logs لاستعلامات DNS.",
+      "explanation_en": "<strong>VPC Flow Logs</strong> are network-focused: source/dest IP, ports, protocol, bytes, ACCEPT/REJECT. CloudTrail is for API calls (\"who launched an instance\"). CloudFront logs are CDN-only. Route 53 logs are DNS-only.",
+      "wrong_ar": ["CloudTrail للأنشطة API، لا لحركة الشبكة.", "", "CloudFront للـ CDN فقط.", "Route 53 للـ DNS فقط."],
+      "wrong_en": ["CloudTrail is API activity, not network.", "", "CloudFront is CDN only.", "Route 53 is DNS only."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "مطوّر يريد خادم EC2 في private subnet يصل لـ DynamoDB بأقلّ تكلفة. ما الحلّ؟",
+      "question_en": "A dev wants a private-subnet EC2 to reach DynamoDB at the lowest cost. Solution?",
+      "options_ar": ["NAT Gateway.", "<strong>Gateway Endpoint لـ DynamoDB</strong> — مجّانيّ تقريباً.", "VPC Peering.", "Direct Connect."],
+      "options_en": ["NAT Gateway.", "<strong>DynamoDB Gateway Endpoint</strong> — essentially free.", "VPC Peering.", "Direct Connect."],
+      "correct": 1,
+      "explanation_ar": "<strong>Gateway Endpoints</strong> متاحة لـ S3 و DynamoDB فقط — وهي مجّانيّة تقريباً. تضيف route في الـ route table إلى DynamoDB مباشرة عبر شبكة AWS الخاصّة. NAT مكلف. VPC Peering و Direct Connect حلول مختلفة تماماً.",
+      "explanation_en": "<strong>Gateway Endpoints</strong> are available only for S3 and DynamoDB — essentially free. Adds a route-table entry direct to DynamoDB over AWS's private network. NAT is expensive. Peering and DX are different scenarios.",
+      "wrong_ar": ["مكلف.", "", "غير مناسب لاتصال بخدمة.", "تعقيد بلا داعٍ ومكلف."],
+      "wrong_en": ["Expensive.", "", "Not for service access.", "Overkill and costly."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "VPC لديها <span dir=\"ltr\" class=\"font-mono\">/16</span> CIDR. كم IP usable في subnet <span dir=\"ltr\" class=\"font-mono\">/28</span>؟",
+      "question_en": "A VPC has a <span dir=\"ltr\" class=\"font-mono\">/16</span> CIDR. Usable IPs in a <span dir=\"ltr\" class=\"font-mono\">/28</span> subnet?",
+      "options_ar": ["١٦", "١٤", "<strong>١١</strong>", "٨"],
+      "options_en": ["16", "14", "<strong>11</strong>", "8"],
+      "correct": 2,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">/28</span> يعطي ١٦ عنواناً. AWS يحجز ٥: الأوّل (network)، الثاني (VPC router)، الثالث (DNS)، الرابع (مستقبليّ)، والأخير (broadcast). ١٦ - ٥ = <strong>١١ usable</strong>. هذا يختلف عن الشبكات التقليديّة التي تحجز ٢ فقط.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">/28</span> gives 16 addresses. AWS reserves 5: first (network), second (VPC router), third (DNS), fourth (future), last (broadcast). 16 - 5 = <strong>11 usable</strong>. Different from traditional networks that reserve only 2.",
+      "wrong_ar": ["AWS يحجز ٥ لا صفر.", "التقليديّة تحجز ٢، AWS تحجز ٥.", "", "لا، الرياضيّة مختلفة."],
+      "wrong_en": ["AWS reserves 5, not 0.", "Traditional reserves 2, AWS reserves 5.", "", "Wrong math."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "Acme لديها ٣ VPCs: A، B، C. A peer with B، B peer with C. هل يمكن لـ A التحدّث مع C مباشرةً؟",
+      "question_en": "Acme has 3 VPCs: A, B, C. A peers B, B peers C. Can A talk to C directly?",
+      "options_ar": ["نعم، تلقائياً.", "<strong>لا — VPC Peering غير انتقاليّ (non-transitive)</strong>. يجب إنشاء peering مباشر بين A و C أو استخدام Transit Gateway.", "نعم، بعد ضبط IAM.", "نعم، عبر NACL."],
+      "options_en": ["Yes, automatically.", "<strong>No — VPC Peering is non-transitive</strong>. Create a direct peer between A and C, or use Transit Gateway.", "Yes, after IAM setup.", "Yes, via NACL."],
+      "correct": 1,
+      "explanation_ar": "مفهوم مفتاحيّ: <strong>VPC Peering ليس انتقالياً (non-transitive)</strong>. إن أردت A → C يجب إنشاء peering مباشر A ↔ C. لإدارة عدّة VPCs بكفاءة استخدم <strong>AWS Transit Gateway</strong> (موضوع متقدّم خارج هذا الفصل لكن يستحقّ التذكّر).",
+      "explanation_en": "Key concept: <strong>VPC Peering is non-transitive</strong>. For A → C, create a direct A ↔ C peering. For managing many VPCs efficiently, use <strong>AWS Transit Gateway</strong> (advanced topic beyond this chapter, worth remembering).",
+      "wrong_ar": ["خاطئ — غير انتقاليّ.", "", "IAM لا علاقة.", "NACL يفلتر لا يوصل."],
+      "wrong_en": ["Wrong — non-transitive.", "", "IAM unrelated.", "NACL filters, doesn't create paths."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    }
+  ],
+  "summary": [
+    {"icon": "network", "title_ar": "VPC = شبكة خاصّة Region-scope", "title_en": "VPC = Region-scope private network",
+     "body_ar": "Subnets ترتبط بـ AZ واحدة. public = route لـ IGW، private = بدون.",
+     "body_en": "Subnets tie to one AZ. Public = IGW route, private = no route."},
+    {"icon": "shield", "title_ar": "SG stateful، NACL stateless", "title_en": "SG stateful, NACL stateless",
+     "body_ar": "SG على الـ ENI بـ Allow فقط. NACL على الـ subnet بـ Allow + Deny.",
+     "body_en": "SG on ENI, Allow only. NACL on subnet, Allow + Deny."},
+    {"icon": "share-2", "title_ar": "VPC Endpoints = وصول خاصّ لـ AWS", "title_en": "VPC Endpoints = private AWS access",
+     "body_ar": "Gateway مجّانيّ لـ S3 و DynamoDB. Interface لمعظم الخدمات.",
+     "body_en": "Gateway (free) for S3 and DynamoDB. Interface for most services."},
+    {"icon": "cable", "title_ar": "VPN vs DX", "title_en": "VPN vs DX",
+     "body_ar": "VPN سريع + إنترنت. DX فيزيائيّ + شهر + لا تشفير افتراضيّ.",
+     "body_en": "VPN fast + Internet. DX physical + 1mo + no default encryption."}
+  ],
+  "mnemonic_ar": "للتمييز بين SG و NACL: \"<strong>SG = Single resource (ENI)، Stateful، Sole Allow</strong>\". \"<strong>NACL = Net-wide (subnet)، Non-stateful، Allow and Deny</strong>\".",
+  "mnemonic_en": "SG vs NACL: \"<strong>SG = Single resource (ENI), Stateful, Sole Allow</strong>\". \"<strong>NACL = Net-wide (subnet), Non-stateful, Allow and Deny</strong>\".",
+  "prev": 6,
+  "next": 8
+}

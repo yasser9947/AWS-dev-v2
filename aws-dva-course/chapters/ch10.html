@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 10 — AWS Lambda Core — Triggers, Runtime, Events | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-blue-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الأول — 32%</span>
+          <span class="lang-en">Domain 1 — 32%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٠ من ٣٠</span>
+        <span class="lang-en">Chapter 10 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.532-575</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS Lambda — النواة: المُشغّلات والوقت التشغيليّ والأحداث</span>
+        <span class="lang-en">AWS Lambda Core — Triggers, Runtime, Events</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">هذا هو قلب الامتحان لمطوّر Lambda+API Gateway. كل ما تحتاج معرفته عن أنواع الاستدعاء (sync/async/event source mapping)، Event و Context Objects، آلية retry للأحداث غير المتزامنة، و DLQ، و execution role، و X-Ray، و Lambda@Edge، و CloudFront Functions.</span>
+        <span class="lang-en">The core of a Lambda+API Gateway developer's exam. Everything on invocation types (sync / async / event source mapping), Event & Context objects, async retry semantics, DLQ, execution role, X-Ray, Lambda@Edge, and CloudFront Functions.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Lambda</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Event Source Mapping</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DLQ</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">X-Ray</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Execution Role</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Lambda@Edge</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Async Invocations</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Invocation Models (sync/async/ESM)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول — اختيار نوع الاستدعاء حسب المصدر.</span>
+      <span class="lang-en">Domain 1 — picking invocation type by source.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Event Source Mapping (Kinesis/SQS/DynamoDB)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول — معالجة الـ streams والـ queues.</span>
+      <span class="lang-en">Domain 1 — processing streams and queues.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Execution Role & Resource Policies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني — منح الصلاحيات بطريقتين متكاملتين.</span>
+      <span class="lang-en">Domain 2 — two complementary permission layers.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">X-Ray Tracing & CloudWatch</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع — استكشاف الأخطاء ومراقبة الأداء.</span>
+      <span class="lang-en">Domain 4 — troubleshooting and performance monitoring.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">ما هو Lambda ومتى يُختار</span>
+      <span class="lang-en">What Lambda is and when to choose it</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Lambda</strong> خدمة حوسبة بلا خوادم (FaaS). ترفع كود ودالة فقط، وتدفع حسب عدد الاستدعاءات ومدّة التنفيذ بالمللي ثانية. يتمدّد تلقائياً. مصمَّم للأحمال قصيرة المدى (حد أقصى ١٥ دقيقة للتنفيذ).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Lambda</strong> is serverless compute (FaaS). You upload code + a handler, pay per request and per-millisecond execution. Auto-scales. Designed for short-running work (max 15-minute execution).</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="server" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">EC2</span><span class="lang-en">EC2</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">خادم افتراضيّ دائم. تدير OS والمكتبات. التمدّد يدويّ أو عبر Auto Scaling. تدفع طوال وقت التشغيل.</p>
+      <p class="text-sm text-surface-700 lang-en">Persistent VM. You manage OS and libs. Manual or Auto Scaling. Paid while running.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">دوالّ افتراضيّة. AWS تدير كل شيء. تمدّد تلقائيّ. تدفع بالاستدعاء فقط.</p>
+      <p class="text-sm text-surface-700 lang-en">Virtual functions. AWS manages everything. Auto-scales. Pay per invocation.</p>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">الـ runtimes المدعومة</span><span class="lang-en">Supported runtimes</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Node.js، Python، Java، ‎.NET، Go، Ruby، Custom Runtime API، Lambda Container Image.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Node.js, Python, Java, .NET, Go, Ruby, Custom Runtime API, Lambda Container Image.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="cpu" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">موارد الدالة</span><span class="lang-en">Function resources</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">RAM ١٢٨MB - ١٠GB. زيادة الـ RAM تزيد CPU أيضاً. كامل vCPU عند ١٧٩٢MB.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">RAM 128MB - 10GB. More RAM = more CPU. Full vCPU at 1792MB.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">التسعير</span><span class="lang-en">Pricing</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أوّل مليون طلب مجاناً شهرياً، ٤٠٠,٠٠٠ GB-seconds مجاناً. بعدها $0.20 لكل مليون طلب.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">First 1M requests free/month + 400,000 GB-seconds free. Then $0.20 per million requests.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">التكاملات</span><span class="lang-en">Integrations</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">API Gateway، Kinesis، DynamoDB، S3، CloudFront، EventBridge، SNS، SQS، Cognito وأكثر.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">API Gateway, Kinesis, DynamoDB, S3, CloudFront, EventBridge, SNS, SQS, Cognito and more.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> قرار EC2 vs Lambda كسينيور: إن كانت الدالة تستمرّ أقلّ من ١٥ دقيقة، تتمدّد أفقياً بشكل مستقلّ، ولا تحتاج حالة في الذاكرة — استخدم Lambda. إن كانت محادثة WebSocket طويلة أو تحتاج GPU خاصّة أو تعمل ٢٤/٧ على حِمل ثابت — EC2/ECS أفضل.</span>
+      <span class="lang-en"> Senior decision: if the function runs <15 min, scales horizontally, and needs no in-memory state — use Lambda. If it's a long WebSocket, needs a specific GPU, or runs 24/7 on steady load — EC2/ECS wins.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الاستدعاء المتزامن (Synchronous Invocation)</span>
+      <span class="lang-en">Synchronous Invocation</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الاستدعاء المتزامن هو عندما ينتظر الـ client النتيجة — يحصل على الإجابة مباشرةً أو يتحمّل مسؤولية إعادة المحاولة. أشهر المصادر: <strong>API Gateway</strong>، <strong>Application Load Balancer</strong>، <strong>CLI/SDK</strong>، <strong>Cognito</strong>، <strong>Step Functions</strong>، <strong>Lex</strong>، <strong>Alexa</strong>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Synchronous: the client waits for the result — either gets it directly or must retry. Top sources: <strong>API Gateway</strong>, <strong>ALB</strong>, <strong>CLI/SDK</strong>, <strong>Cognito</strong>, <strong>Step Functions</strong>, <strong>Lex</strong>, <strong>Alexa</strong>.</p>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> في sync invocation: <strong>معالجة الأخطاء مسؤوليّة الـ client</strong> — retry و exponential backoff و circuit breaker كلّها في كود الـ caller. Lambda لا يعيد المحاولة تلقائياً.</span>
+      <span class="lang-en"> With sync invocation: <strong>error handling is the caller's responsibility</strong> — retry, backoff, circuit breaker all belong to the client. Lambda won't retry automatically.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — sync invoke a Lambda from another service
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.*;
+import software.amazon.awssdk.core.SdkBytes;
+
+LambdaClient lambda = LambdaClient.create();
+
+InvokeResponse resp = lambda.invoke(InvokeRequest.builder()
+    .functionName("calculate-order-total")
+    .invocationType(InvocationType.REQUEST_RESPONSE)          // = sync
+    .payload(SdkBytes.fromUtf8String("{\"orderId\":\"O-991\"}"))
+    .build());
+
+if (resp.statusCode() != 200 || resp.functionError() != null) {
+    // retry with exponential backoff (client responsibility)
+    throw new RuntimeException("Lambda error: " + resp.functionError());
+}
+String response = resp.payload().asUtf8String();</code></pre>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>ALB + Lambda</strong>: لفتح Lambda عبر HTTP دون API Gateway، سجّل الدالة في <strong>Target Group</strong>. ALB يحوّل الـ HTTP إلى JSON (<span dir="ltr" class="font-mono">requestContext</span>، <span dir="ltr" class="font-mono">httpMethod</span>، <span dir="ltr" class="font-mono">headers</span>...) وتعود الدالة بـ <span dir="ltr" class="font-mono">{statusCode, headers, body, isBase64Encoded}</span>. لا تنسى resource policy على الـ Lambda تسمح لـ <span dir="ltr" class="font-mono">elasticloadbalancing.amazonaws.com</span>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>ALB + Lambda</strong>: expose Lambda over HTTP without API Gateway by registering it in a <strong>Target Group</strong>. ALB converts HTTP→JSON (<span dir="ltr" class="font-mono">requestContext</span>, <span dir="ltr" class="font-mono">httpMethod</span>, <span dir="ltr" class="font-mono">headers</span>...) and you return <span dir="ltr" class="font-mono">{statusCode, headers, body, isBase64Encoded}</span>. Remember the Lambda resource policy allowing <span dir="ltr" class="font-mono">elasticloadbalancing.amazonaws.com</span>.</p>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الاستدعاء غير المتزامن (Asynchronous)</span>
+      <span class="lang-en">Asynchronous Invocation</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عندما يستدعي مصدر (مثلاً <strong>S3</strong>، <strong>SNS</strong>، <strong>EventBridge</strong>) الـ Lambda بشكل async، يُوضَع الحدث في <strong>Event Queue</strong> داخليّ. Lambda يحاول معالجته، وإذا فشل يُعيد المحاولة <strong>٣ مرّات (الأصلي + ٢)</strong> مع انتظار ١ دقيقة ثم ٢ دقائق.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">When a source (e.g., <strong>S3</strong>, <strong>SNS</strong>, <strong>EventBridge</strong>) invokes Lambda async, the event is placed in an internal <strong>Event Queue</strong>. Lambda tries to process it; on failure it retries <strong>3 times total (original + 2)</strong> with 1-min then 2-min waits.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">الإعادة تلقائيّة</span><span class="lang-en">Auto retries</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">٣ محاولات افتراضياً. يمكن ضبط عدد المحاولات و max event age.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">3 attempts default. Retries count and max event age both configurable.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="copy" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Idempotency إلزاميّ</span><span class="lang-en">Idempotency required</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نفس الحدث قد يصل مرّتين. اجعل معالجتك idempotent (مثال: استخدام event ID كـ primary key).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">The same event may be delivered twice. Make processing idempotent (e.g., use event ID as primary key).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="skull" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">DLQ عند الفشل</span><span class="lang-en">DLQ on failure</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">بعد استنفاد المحاولات، أرسِل إلى <strong>DLQ</strong> (SNS أو SQS). يحتاج resource permissions.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">After retries exhaust, send to <strong>DLQ</strong> (SNS or SQS). Needs proper perms.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Destinations (الموصى به الجديد)</span><span class="lang-en">Destinations (new, preferred)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تعريف destinations لـ success و failure على حدّ سواء: SQS، SNS، Lambda، EventBridge.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Define destinations for success AND failure: SQS, SNS, Lambda, EventBridge.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java handler — async-safe processing with idempotency via DynamoDB
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.*;
+
+public class OrderHandler implements RequestHandler&lt;S3Event, String> {
+
+    private static final DynamoDbClient ddb = DynamoDbClient.create();   // init OUTSIDE handler
+
+    @Override
+    public String handleRequest(S3Event event, Context ctx) {
+        String eventId = event.getRecords().get(0).getResponseElements().get("x-amz-request-id");
+
+        try {
+            // conditional put = idempotency guard
+            ddb.putItem(PutItemRequest.builder()
+                .tableName("processed-events")
+                .item(java.util.Map.of(
+                    "eventId", AttributeValue.fromS(eventId),
+                    "at", AttributeValue.fromN(String.valueOf(System.currentTimeMillis()))))
+                .conditionExpression("attribute_not_exists(eventId)")
+                .build());
+        } catch (ConditionalCheckFailedException e) {
+            ctx.getLogger().log("Duplicate event " + eventId + " — skipping");
+            return "skipped";
+        }
+
+        // ... actual processing here ...
+        return "ok";
+    }
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> خطأ شائع في الامتحان: تخلط بين <strong>DLQ</strong> (للاستدعاء غير المتزامن فقط) وبين DLQ لـ <strong>SQS مباشرةً</strong> (عند استخدام event source mapping مع SQS). DLQ على Lambda للـ async invocations، DLQ على SQS للرسائل التي فشلت معالجتها بعد visibilityTimeout × maxReceiveCount.</span>
+      <span class="lang-en"> Common exam trap: don't confuse the <strong>Lambda DLQ</strong> (async-invocations only) with an <strong>SQS DLQ</strong> (used when SQS→Lambda via ESM). Lambda DLQ = async; SQS DLQ = messages exceeding visibilityTimeout × maxReceiveCount.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Event Source Mapping (Kinesis، SQS، DynamoDB Streams)</span>
+      <span class="lang-en">Event Source Mapping (Kinesis, SQS, DynamoDB Streams)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Event Source Mapping (ESM) نمط خاصّ: Lambda <strong>يَسحَب (poll)</strong> السجلّات من المصدر ثم يستدعي الدالة <strong>بشكل متزامن مع batches</strong>. المصادر المدعومة: <strong>Kinesis Data Streams</strong>، <strong>DynamoDB Streams</strong>، <strong>SQS (Standard و FIFO)</strong>، <strong>Amazon MQ</strong>، <strong>Kafka</strong>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Event Source Mapping (ESM) is special: Lambda <strong>polls</strong> records from the source and invokes your function <strong>synchronously with batches</strong>. Supported: <strong>Kinesis Data Streams</strong>, <strong>DynamoDB Streams</strong>, <strong>SQS (Standard & FIFO)</strong>, <strong>Amazon MQ</strong>, <strong>Kafka</strong>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المصدر</span><span class="lang-en">Source</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">تمدّد Lambda</span><span class="lang-en">Lambda scaling</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الترتيب</span><span class="lang-en">Ordering</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Kinesis / DynamoDB Streams</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استدعاء واحد لكلّ shard، حتى ١٠ batches متوازية لكلّ shard</span><span class="lang-en">One invocation per shard; up to 10 parallel batches per shard</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مضمون لكل partition key</span><span class="lang-en">Guaranteed per partition key</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SQS Standard</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يضيف ٦٠ instance في الدقيقة، حتى ١٠٠٠ batch متوازي</span><span class="lang-en">Adds 60/min, up to 1000 parallel batches</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">غير مضمون</span><span class="lang-en">Not guaranteed</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SQS FIFO</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يتمدّد بعدد Message Groups النشطة</span><span class="lang-en">Scales by active Message Groups</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مضمون لنفس GroupID</span><span class="lang-en">Guaranteed per GroupID</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> لـ SQS → Lambda: اجعل <strong>visibilityTimeout = 6× timeout الـ Lambda</strong>. هذا يمنع رسالة تُعالَج بالفعل من الظهور مجدّداً قبل أن تكتمل.</span>
+      <span class="lang-en"> For SQS → Lambda: set <strong>visibilityTimeout = 6× your Lambda timeout</strong>. Prevents an in-flight message from reappearing before processing finishes.</span>
+    </div>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> Streams & Lambda — Error Handling: افتراضياً إذا فشلت دالتك، تتمّ إعادة معالجة <strong>الـ batch كلّه</strong> من البداية حتى ينجح أو تنتهي صلاحيّة السجلّات. يمكنك ضبط: <strong>retries عدد محدود</strong>، <strong>batch splitting عند الفشل</strong> (لتجنّب مشكلة timeout)، أو <strong>إرسال الـ discarded events إلى destination</strong>.</span>
+      <span class="lang-en"> Streams & Lambda — Error Handling: by default if your function fails, the <strong>entire batch</strong> is reprocessed until it succeeds or records expire. You can configure: <strong>bounded retries</strong>, <strong>batch splitting on error</strong> (to sidestep timeout issues), or <strong>send discarded events to a destination</strong>.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — create an SQS event source mapping programmatically
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.*;
+
+LambdaClient lambda = LambdaClient.create();
+
+CreateEventSourceMappingResponse esm = lambda.createEventSourceMapping(
+    CreateEventSourceMappingRequest.builder()
+        .functionName("process-orders")
+        .eventSourceArn("arn:aws:sqs:eu-west-1:123456789012:orders-queue")
+        .batchSize(10)                                       // up to 10 per batch
+        .maximumBatchingWindowInSeconds(5)                   // or flush every 5s
+        .functionResponseTypes(FunctionResponseType.REPORT_BATCH_ITEM_FAILURES) // partial failures
+        .build());
+
+System.out.println("ESM UUID: " + esm.uuid());</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Event Object و Context Object</span>
+      <span class="lang-en">Event Object & Context Object</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">كلّ دالة Lambda تستقبل وسيطَين: <strong>event</strong> (بيانات الطلب — JSON) و <strong>context</strong> (معلومات حول التنفيذ نفسه). فهم هذَين ضروريّ لأنّ الامتحان يختبر تمييز المحتوى (request ID، function name، memory limit، log stream، حد التنفيذ المتبقّي).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Every Lambda receives two args: <strong>event</strong> (request data — JSON) and <strong>context</strong> (runtime info). Understanding them is exam-critical because you'll need to identify fields like request ID, function name, memory limit, log stream, and remaining runtime.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java handler with explicit event and context types
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+
+public class ApiHandler implements RequestHandler&lt;APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context ctx) {
+        // Event: request payload
+        String method = event.getHttpMethod();
+        String path = event.getPath();
+        java.util.Map&lt;String, String> query = event.getQueryStringParameters();
+
+        // Context: runtime metadata
+        ctx.getLogger().log("Request ID: " + ctx.getAwsRequestId());
+        ctx.getLogger().log("Function ARN: " + ctx.getInvokedFunctionArn());
+        ctx.getLogger().log("Memory limit (MB): " + ctx.getMemoryLimitInMB());
+        ctx.getLogger().log("Log stream: " + ctx.getLogStreamName());
+        ctx.getLogger().log("Remaining time (ms): " + ctx.getRemainingTimeInMillis());
+
+        // ALWAYS reuse SDK clients initialized outside the handler (execution context reuse)
+        return new APIGatewayProxyResponseEvent()
+            .withStatusCode(200)
+            .withBody("{\"message\":\"hello from " + method + " " + path + "\"}");
+    }
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>getRemainingTimeInMillis()</strong> أداة حيوية: استخدمها داخل loops طويلة لتقطع أعمالاً تدريجياً قبل timeout ولترك وقت لكتابة نقطة استئناف (checkpoint) في DynamoDB/S3.</span>
+      <span class="lang-en"> <strong>getRemainingTimeInMillis()</strong> is your friend: use it inside long loops to gracefully break work and leave time to checkpoint progress to DynamoDB/S3 before timeout.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Execution Role و Resource Policy و التسجيل والمراقبة</span>
+      <span class="lang-en">Execution Role, Resource Policies, Logging & Monitoring</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">لـ Lambda طبقتا صلاحيات: <strong>Execution Role</strong> (ما <u>تفعله</u> الدالة) و <strong>Resource Policy</strong> (مَن يمكنه <u>استدعاء</u> الدالة). الـ Execution Role يشبه IAM Role لـ EC2، والـ Resource Policy يشبه Bucket Policy لـ S3.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Lambda has two permission layers: <strong>Execution Role</strong> (what the function <u>does</u>) and <strong>Resource Policy</strong> (who can <u>invoke</u> the function). Execution Role is like an EC2 IAM Role; Resource Policy is like an S3 Bucket Policy.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Managed Policy</span><span class="lang-en">Managed Policy</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الغرض</span><span class="lang-en">Purpose</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSLambdaBasicExecutionRole</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كتابة logs إلى CloudWatch. أساسي لكل Lambda.</span><span class="lang-en">Write logs to CloudWatch. Required for every Lambda.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSLambdaKinesisExecutionRole</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قراءة من Kinesis Data Streams.</span><span class="lang-en">Read from Kinesis Data Streams.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSLambdaDynamoDBExecutionRole</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قراءة من DynamoDB Streams.</span><span class="lang-en">Read from DynamoDB Streams.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSLambdaSQSQueueExecutionRole</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">استقبال رسائل من SQS.</span><span class="lang-en">Receive from SQS.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSLambdaVPCAccessExecutionRole</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نشر الدالة داخل VPC.</span><span class="lang-en">Deploy function inside a VPC.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">AWSXRayDaemonWriteAccess</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إرسال trace data إلى X-Ray.</span><span class="lang-en">Upload trace data to X-Ray.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Example resource policy letting API Gateway invoke your Lambda
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "Service": "apigateway.amazonaws.com" },
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:eu-west-1:123456789012:function:api-orders",
+      "Condition": {
+        "ArnLike": {
+          "AWS:SourceArn": "arn:aws:execute-api:eu-west-1:123456789012:abc123xyz/*/GET/orders"
+        }
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudWatch Logs</span><span class="lang-en">CloudWatch Logs</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل stdout/stderr يُكتب في log group <span dir="ltr" class="font-mono">/aws/lambda/FUNC_NAME</span>. يحتاج BasicExecutionRole.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">All stdout/stderr goes to <span dir="ltr" class="font-mono">/aws/lambda/FUNC_NAME</span>. Requires BasicExecutionRole.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudWatch Metrics</span><span class="lang-en">CloudWatch Metrics</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Invocations، Duration، Errors، Throttles، ConcurrentExecutions، IteratorAge (للـ streams).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Invocations, Duration, Errors, Throttles, ConcurrentExecutions, IteratorAge (streams).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="eye" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">X-Ray Active Tracing</span><span class="lang-en">X-Ray Active Tracing</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">فعّله من إعدادات الدالة. يتتبّع الـ segments و downstream calls. يحتاج AWSXRayDaemonWriteAccess.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Enable it in function config. Traces segments and downstream calls. Needs AWSXRayDaemonWriteAccess.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="settings" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">متغيّرات البيئة X-Ray</span><span class="lang-en">X-Ray env vars</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">_X_AMZN_TRACE_ID، AWS_XRAY_CONTEXT_MISSING، AWS_XRAY_DAEMON_ADDRESS.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">_X_AMZN_TRACE_ID, AWS_XRAY_CONTEXT_MISSING, AWS_XRAY_DAEMON_ADDRESS.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> <strong>Step Functions vs Lambda chain</strong>: للتكوين الطويل، استخدم Step Functions بدلاً من ربط Lambdas عبر SDK. أسباب: الـ retry و error handling مصمَّمان في الـ state machine، visibility أوضح، تكلفة أقلّ (لا تدفع أثناء wait states). الـ direct invocation chain أسرع لكن أهشّ.</span>
+      <span class="lang-en"> <strong>Step Functions vs Lambda chain</strong>: for multi-step orchestration, prefer Step Functions over SDK-chained Lambdas. Reasons: retries and error handling built into the state machine, better visibility, lower cost (wait states free). Direct invoke is faster but fragile.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء Lambda Java يعالج S3 events مع idempotency (DynamoDB)، X-Ray، DLQ، و reserved concurrency.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a Java Lambda that processes S3 events with idempotency (DynamoDB), X-Ray, DLQ, and reserved concurrency.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ execution role مع السياسات المطلوبة</span>
+      <span class="lang-en">Create execution role with required policies</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">الحد الأدنى: AWSLambdaBasicExecutionRole + كتابة DynamoDB + قراءة S3 + X-Ray.</p><p class="text-surface-600 leading-relaxed lang-en">Minimum: AWSLambdaBasicExecutionRole + DynamoDB write + S3 read + X-Ray.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws iam create-role --role-name lambda-s3-processor \
+  --assume-role-policy-document file://trust.json
+
+aws iam attach-role-policy --role-name lambda-s3-processor \
+  --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+aws iam attach-role-policy --role-name lambda-s3-processor \
+  --policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ SQS DLQ وأعطه صلاحيّة الدالة</span>
+      <span class="lang-en">Create SQS DLQ and grant function permission</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws sqs create-queue --queue-name s3-processor-dlq
+
+# Add to execution role inline policy
+{
+  "Effect": "Allow",
+  "Action": "sqs:SendMessage",
+  "Resource": "arn:aws:sqs:eu-west-1:123456789012:s3-processor-dlq"
+}</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ارفع Java package مع تكامل X-Ray</span>
+      <span class="lang-en">Deploy Java package with X-Ray integration</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">أضف <span dir="ltr" class="font-mono">aws-xray-recorder-sdk-aws-sdk</span> في Maven.</p><p class="text-surface-600 leading-relaxed lang-en">Add <span dir="ltr" class="font-mono">aws-xray-recorder-sdk-aws-sdk</span> in Maven.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda create-function \
+  --function-name S3Processor \
+  --runtime java17 \
+  --role arn:aws:iam::123456789012:role/lambda-s3-processor \
+  --handler com.acme.OrderHandler::handleRequest \
+  --zip-file fileb://target/function.jar \
+  --timeout 30 --memory-size 512 \
+  --tracing-config Mode=Active \
+  --dead-letter-config TargetArn=arn:aws:sqs:eu-west-1:123456789012:s3-processor-dlq</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اربط الـ S3 event بـ Lambda مع resource policy</span>
+      <span class="lang-en">Wire the S3 event to Lambda with resource policy</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda add-permission --function-name S3Processor \
+  --statement-id s3-invoke --action lambda:InvokeFunction \
+  --principal s3.amazonaws.com \
+  --source-arn arn:aws:s3:::acme-prod-data
+
+aws s3api put-bucket-notification-configuration --bucket acme-prod-data \
+  --notification-configuration file://notif.json</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف Reserved Concurrency للتحكّم بالضغط</span>
+      <span class="lang-en">Add reserved concurrency to cap load</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">مهم جداً لمنع Lambda من استهلاك كامل الحصّة المشتركة على الحساب أو إغراق DynamoDB.</p><p class="text-surface-600 leading-relaxed lang-en">Critical to prevent Lambda from consuming all account concurrency or overwhelming DynamoDB.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda put-function-concurrency --function-name S3Processor \
+  --reserved-concurrent-executions 50</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> تذكّر أنّ Lambda DLQ يعمل <strong>للـ async invocations فقط</strong>. إذا كان المصدر SQS عبر ESM فاستخدم SQS DLQ (redrive policy على الطابور نفسه).</span>
+    <span class="lang-en"> Lambda DLQ works <strong>only for async invocations</strong>. If the source is SQS via ESM, use an SQS DLQ (redrive policy on the queue itself).</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="zap" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٣ نماذج استدعاء</span>
+        <span class="lang-en">3 invocation models</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Sync (API GW/ALB/SDK)، Async (S3/SNS/EB)، ESM (Kinesis/SQS/DDB Streams).</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Sync (API GW/ALB/SDK), Async (S3/SNS/EB), ESM (Kinesis/SQS/DDB Streams).</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="refresh-cw" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">async = ٣ محاولات + DLQ</span>
+        <span class="lang-en">async = 3 tries + DLQ</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Idempotency إلزاميّ. Destinations أفضل من DLQ الكلاسيكيّة.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Idempotency is mandatory. Destinations > classic DLQ.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">طبقتا الصلاحيات</span>
+        <span class="lang-en">Two permission layers</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Execution Role = ما تفعله الدالة. Resource Policy = مَن يستدعيها.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Execution Role = what it does. Resource Policy = who invokes it.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="eye" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">X-Ray + CloudWatch</span>
+        <span class="lang-en">X-Ray + CloudWatch</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Active Tracing للـ downstream calls. IteratorAge مفتاح صحّة الـ streams.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Active Tracing for downstream calls. IteratorAge = stream health.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للاستدعاء: <strong>SAE</strong> = <strong>S</strong>ync (API GW، ALB، SDK) → <strong>A</strong>sync (S3، SNS، EB) → <strong>E</strong>vent Source Mapping (Kinesis، SQS، DDB Streams). تذكّر: "قُل" sync عندما تنتظر، "ارمِ" async عندما تترك، "اسحب" ESM عندما تحتاج الترتيب.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">For invocation: <strong>SAE</strong> = <strong>S</strong>ync (API GW, ALB, SDK) → <strong>A</strong>sync (S3, SNS, EB) → <strong>E</strong>vent Source Mapping (Kinesis, SQS, DDB Streams). "Say" sync when you wait, "toss" async when you fire-and-forget, "pull" ESM when ordering matters.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch09.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(10, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch11.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">أيّ نوع استدعاء يقوم به API Gateway عند تشغيل Lambda؟</span><span class="lang-en">Which invocation type does API Gateway use for Lambda?</span>",
+        options: [
+          "<span class="lang-ar">متزامن (synchronous) — الـ client ينتظر الرد.</span><span class="lang-en">Synchronous — client waits for response.</span>",
+          "<span class="lang-ar">غير متزامن (async) — الحدث يُوضَع في queue.</span><span class="lang-en">Async — event placed in queue.</span>",
+          "<span class="lang-ar">Event Source Mapping.</span><span class="lang-en">Event Source Mapping.</span>",
+          "<span class="lang-ar">Custom Runtime.</span><span class="lang-en">Custom Runtime.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">API Gateway، ALB، و CLI/SDK كلّها تستدعي Lambda <strong>متزامناً</strong> لأنّ الـ client يحتاج رداً فورياً (HTTP response). معالجة الأخطاء مسؤوليّة الـ client.</span><span class="lang-en">API Gateway, ALB, and CLI/SDK all invoke Lambda <strong>synchronously</strong> because the client needs an immediate response (HTTP). Error handling is on the client.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">async للـ S3، SNS، EventBridge.</span><span class=\"lang-en\">Async is for S3, SNS, EventBridge.</span>", "", "<span class=\"lang-ar\">ESM للـ Kinesis، SQS، DynamoDB Streams.</span><span class=\"lang-en\">ESM is for Kinesis, SQS, DynamoDB Streams.</span>", "<span class=\"lang-ar\">Custom Runtime وسيلة لتشغيل لغة غير مدعومة، وليس نوع استدعاء.</span><span class=\"lang-en\">Custom Runtime is a way to run unsupported languages, not an invocation type.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">دالة Lambda تُستدعى بشكل async من S3. فشلت المعالجة. كم مرّة يحاول Lambda قبل إرسال الحدث إلى DLQ؟</span><span class="lang-en">A Lambda invoked async by S3 fails. How many times does Lambda retry before sending to DLQ?</span>",
+        options: [
+          "<span class="lang-ar">مرّة واحدة (الأصلية فقط).</span><span class="lang-en">Once (original only).</span>",
+          "<span class="lang-ar">٣ مرّات إجمالاً (الأصلية + ٢ محاولتان).</span><span class="lang-en">3 total (original + 2 retries).</span>",
+          "<span class="lang-ar">٥ مرّات.</span><span class="lang-en">5 times.</span>",
+          "<span class="lang-ar">لا يُعيد.</span><span class="lang-en">None.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الاستدعاء الأصلي + محاولتان إعادة (بعد ١ دقيقة ثم ٢ دقائق). بعدها يُرسَل إلى DLQ إذا كانت معرّفة. عدد المحاولات قابل للضبط (٠-٢).</span><span class="lang-en">Original + 2 retries (after 1 min, then 2 min). Then sent to DLQ if configured. Retry count is tunable (0-2).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">Lambda يقرأ من SQS عبر ESM. ما أفضل <span dir="ltr" class="font-mono">visibilityTimeout</span> للطابور إذا كان timeout الدالة ٣٠ ثانية؟</span><span class="lang-en">Lambda consumes from SQS via ESM. Best <span dir="ltr" class="font-mono">visibilityTimeout</span> if Lambda timeout is 30s?</span>",
+        options: [
+          "<span class="lang-ar">٣٠ ثانية (نفس الـ timeout).</span><span class="lang-en">30s (same as timeout).</span>",
+          "<span class="lang-ar">١٨٠ ثانية (٦x timeout الدالة).</span><span class="lang-en">180s (6× function timeout).</span>",
+          "<span class="lang-ar">٥ ثواني.</span><span class="lang-en">5s.</span>",
+          "<span class="lang-ar">لا أهمية له.</span><span class="lang-en">Doesn't matter.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">التوصية الرسميّة: visibilityTimeout = ٦× Lambda timeout. يمنع إعادة ظهور الرسالة أثناء المعالجة ويعطي هامشاً للـ retries داخل الـ batch.</span><span class="lang-en">Official recommendation: visibilityTimeout = 6× Lambda timeout. Prevents redelivery during processing and leaves margin for in-batch retries.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">شركة لديها Lambda يكتب إلى DynamoDB عند كلّ S3 event. يلاحظون أنّ بعض الـ records تُكتَب مرّتين. ما الحلّ؟</span><span class="lang-en">A company has a Lambda that writes to DynamoDB on every S3 event. They notice some records written twice. Fix?</span>",
+        options: [
+          "<span class="lang-ar">زيادة عدد الـ retries.</span><span class="lang-en">Increase retry count.</span>",
+          "<span class="lang-ar">جعل المعالجة idempotent (مثلاً استخدام event ID كـ primary key مع conditional put).</span><span class="lang-en">Make processing idempotent (use event ID as PK with conditional put).</span>",
+          "<span class="lang-ar">تعطيل DLQ.</span><span class="lang-en">Disable DLQ.</span>",
+          "<span class="lang-ar">التبديل إلى sync invocation.</span><span class="lang-en">Switch to sync invocation.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Lambda async قد يسلّم نفس الحدث مرّتين (at-least-once delivery). الحلّ الصحيح: <strong>idempotency</strong> — حارس في كودك يتجاهل الحدث المكرّر. زيادة retries تزيد المشكلة.</span><span class="lang-en">Lambda async has at-least-once delivery. Proper fix: <strong>idempotency</strong> — a guard in your code ignoring duplicates. More retries makes it worse.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يزيد فرصة التكرار.</span><span class=\"lang-en\">Amplifies duplicates.</span>", "", "<span class=\"lang-ar\">DLQ للفشل لا للتكرار.</span><span class=\"lang-en\">DLQ is for failures, not duplicates.</span>", "<span class=\"lang-ar\">S3 لا يستدعي sync.</span><span class=\"lang-en\">S3 can't invoke sync.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">أيّ managed policy يحتاجها Lambda لقراءة من DynamoDB Streams؟</span><span class="lang-en">Which managed policy lets Lambda read DynamoDB Streams?</span>",
+        options: [
+          "<span class="lang-ar">AWSLambdaBasicExecutionRole</span><span class="lang-en">AWSLambdaBasicExecutionRole</span>",
+          "<span class="lang-ar">AWSLambdaDynamoDBExecutionRole</span><span class="lang-en">AWSLambdaDynamoDBExecutionRole</span>",
+          "<span class="lang-ar">AWSLambdaKinesisExecutionRole</span><span class="lang-en">AWSLambdaKinesisExecutionRole</span>",
+          "<span class="lang-ar">AmazonDynamoDBFullAccess</span><span class="lang-en">AmazonDynamoDBFullAccess</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>AWSLambdaDynamoDBExecutionRole</strong> تضيف صلاحيّة قراءة DynamoDB Streams + الكتابة إلى CloudWatch Logs. الصلاحيّة الأساسية ضروريّة للـ logs لكن لا تسمح بالقراءة من Streams.</span><span class="lang-en"><strong>AWSLambdaDynamoDBExecutionRole</strong> adds DynamoDB Streams read + CloudWatch Logs write. Basic is needed but doesn't permit stream reads.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q6",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ معلومة تستطيع الحصول عليها من Context object في Lambda؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which info is available via the Lambda Context object? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">aws_request_id</span><span class="lang-en">aws_request_id</span>",
+          "<span class="lang-ar">function_name</span><span class="lang-en">function_name</span>",
+          "<span class="lang-ar">memory_limit_in_mb</span><span class="lang-en">memory_limit_in_mb</span>",
+          "<span class="lang-ar">get_remaining_time_in_millis</span><span class="lang-en">get_remaining_time_in_millis</span>",
+          "<span class="lang-ar">بيانات حمولة الطلب نفسها</span><span class="lang-en">Request payload itself</span>"
+        ],
+        correct: [0,1,2,3],
+        explanation: "<span class="lang-ar">Context يوفّر معلومات التنفيذ فقط — request ID، اسم الدالة، حد الذاكرة، الوقت المتبقّي، log stream، identity (للـ Cognito). حمولة الطلب تأتي في الـ <strong>event</strong> لا context.</span><span class="lang-en">Context carries runtime info only — request ID, name, memory, remaining time, log stream, identity (Cognito). Payload is on the <strong>event</strong>, not context.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">Kinesis stream بـ ٤ shards يستهلكه Lambda عبر ESM. ما الحد الأقصى من الـ batches المتزامنة؟</span><span class="lang-en">A Kinesis stream with 4 shards consumed by Lambda via ESM. Max parallel batches?</span>",
+        options: [
+          "<span class="lang-ar">٤ (shard واحد = invocation واحدة)</span><span class="lang-en">4 (one invocation per shard)</span>",
+          "<span class="lang-ar">٤٠ (١٠ batches متوازية لكلّ shard)</span><span class="lang-en">40 (10 parallel batches per shard)</span>",
+          "<span class="lang-ar">١٠٠٠</span><span class="lang-en">1000</span>",
+          "<span class="lang-ar">غير محدود</span><span class="lang-en">Unlimited</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">افتراضياً كلّ shard = invocation واحدة، لكن يمكن تفعيل <strong>parallelization factor</strong> حتى ١٠، فيصبح ٤ shards × ١٠ = ٤٠ batch متوازي. الترتيب يُحفَظ لكل partition key.</span><span class="lang-en">Default: 1 invocation per shard. With <strong>parallelization factor</strong> up to 10, you get 4 × 10 = 40 parallel batches. Order preserved per partition key.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">فريق يحتاج تنفيذ مهام متسلسلة: Lambda A → Lambda B → Lambda C مع retry لكلّ خطوة وحالات شرطيّة. الأنسب؟</span><span class="lang-en">Team needs sequential: Lambda A → Lambda B → Lambda C with per-step retries and conditional branches. Best choice?</span>",
+        options: [
+          "<span class="lang-ar">استدعاء مباشر من A إلى B ومن B إلى C عبر SDK.</span><span class="lang-en">Direct SDK invokes A→B→C.</span>",
+          "<span class="lang-ar">AWS Step Functions — state machine مع الـ retry و error handling مدمج.</span><span class="lang-en">AWS Step Functions — state machine with built-in retry and error handling.</span>",
+          "<span class="lang-ar">SQS بين كلّ دالتَين.</span><span class="lang-en">SQS between each pair.</span>",
+          "<span class="lang-ar">EventBridge scheduler.</span><span class="lang-en">EventBridge scheduler.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Step Functions</strong> صُمِّم لهذا بالضبط: retry، catch، choice، parallel، map. يوفّر visibility كامل ويخفّض التكلفة (لا تدفع أثناء wait). الـ chain المباشر هشّ ويصعب تتبّعه.</span><span class="lang-en"><strong>Step Functions</strong> is built for this: retry, catch, choice, parallel, map. Full visibility and lower cost (waits are free). Direct chaining is fragile and hard to trace.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بدائي، لا يتيح visibility.</span><span class=\"lang-en\">Primitive, no visibility.</span>", "", "<span class=\"lang-ar\">معقّد ومكلف لتنفيذ متسلسل بسيط.</span><span class=\"lang-en\">Complex and costly for simple chain.</span>", "<span class=\"lang-ar\">للجدولة الدوريّة، لا للـ orchestration.</span><span class=\"lang-en\">For periodic scheduling, not orchestration.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تتبّع الـ downstream calls (إلى DynamoDB و S3) التي تقوم بها دالة Lambda. ما الإعداد المطلوب؟</span><span class="lang-en">A dev wants to trace downstream calls (to DynamoDB, S3) from a Lambda. What's needed?</span>",
+        options: [
+          "<span class="lang-ar">تمكين Active Tracing في الدالة + إضافة managed policy AWSXRayDaemonWriteAccess.</span><span class="lang-en">Enable Active Tracing on the function + attach AWSXRayDaemonWriteAccess.</span>",
+          "<span class="lang-ar">تثبيت X-Ray daemon على EC2.</span><span class="lang-en">Install X-Ray daemon on EC2.</span>",
+          "<span class="lang-ar">كتابة logs يدوياً إلى CloudWatch.</span><span class="lang-en">Write manual CloudWatch logs.</span>",
+          "<span class="lang-ar">تفعيل CloudTrail.</span><span class="lang-en">Enable CloudTrail.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar"><strong>Active Tracing</strong> في إعدادات Lambda يشغّل X-Ray daemon ضمن بيئة التنفيذ. يحتاج IAM policy للكتابة لـ X-Ray. إن دمجت AWS X-Ray SDK في الكود، تحصل على trace كامل للـ downstream calls.</span><span class="lang-en"><strong>Active Tracing</strong> in Lambda config spins up the X-Ray daemon in the execution env. Needs an IAM policy to write to X-Ray. Integrate the X-Ray SDK in code for full downstream tracing.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">Lambda يدير الـ daemon له.</span><span class=\"lang-en\">Lambda manages the daemon.</span>", "<span class=\"lang-ar\">Logs لا تعطي trace graph.</span><span class=\"lang-en\">Logs don't produce a trace graph.</span>", "<span class=\"lang-ar\">للـ API-level auditing لا للأداء.</span><span class=\"lang-en\">For API audit, not perf.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تنفيذ كود خفيف جداً (مثل تعديل headers) على طلبات CloudFront. الأنسب؟</span><span class="lang-en">A company wants very lightweight code (e.g., header tweaks) on CloudFront requests. Best fit?</span>",
+        options: [
+          "<span class="lang-ar">Lambda@Edge (قوي لكن أبطأ).</span><span class="lang-en">Lambda@Edge (powerful but slower).</span>",
+          "<span class="lang-ar">CloudFront Functions (JavaScript، sub-ms، ملايين req/sec).</span><span class="lang-en">CloudFront Functions (JavaScript, sub-ms, millions req/sec).</span>",
+          "<span class="lang-ar">API Gateway + Lambda.</span><span class="lang-en">API Gateway + Lambda.</span>",
+          "<span class="lang-ar">EC2 in a region.</span><span class="lang-en">EC2 in a region.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>CloudFront Functions</strong> مصمَّم للتعديلات البسيطة على Viewer Request/Response: sub-ms، ملايين طلب/ثانية، ضمن CloudFront مباشرة. Lambda@Edge للمنطق الأثقل مع دعم مكتبات.</span><span class="lang-en"><strong>CloudFront Functions</strong> is built for simple Viewer Request/Response edits: sub-ms, millions req/sec, native to CloudFront. Lambda@Edge is for heavier logic with library support.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">للمنطق الأثقل مثل استدعاء APIs، أبطأ من Functions.</span><span class=\"lang-en\">For heavier logic like API calls, slower.</span>", "", "<span class=\"lang-ar\">يتطلّب round-trip إلى region.</span><span class=\"lang-en\">Round-trip to region required.</span>", "<span class=\"lang-ar\">ليس edge-based.</span><span class=\"lang-en\">Not edge-based.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">Lambda يفشل مع رسالة <span dir="ltr" class="font-mono">Task timed out after 3.00 seconds</span>. ماذا يحدث للحدث الأصليّ؟</span><span class="lang-en">Lambda fails with <span dir="ltr" class="font-mono">Task timed out after 3.00 seconds</span>. What happens to the original event?</span>",
+        options: [
+          "<span class="lang-ar">يُحذَف فوراً.</span><span class="lang-en">Deleted immediately.</span>",
+          "<span class="lang-ar">يُعتبَر فشلاً — لو كان async يُعاد إلى الطابور للمحاولة، لو sync يُعاد الخطأ إلى الـ caller.</span><span class="lang-en">Treated as failure — if async, re-queued for retry; if sync, error returned to caller.</span>",
+          "<span class="lang-ar">يُنسى.</span><span class="lang-en">Forgotten.</span>",
+          "<span class="lang-ar">يُسجَّل كنجاح.</span><span class="lang-en">Marked as success.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Timeout = فشل. السلوك يعتمد على نوع الاستدعاء: async يعيد المحاولة حتى ٣ مرّات ثم DLQ. sync يُرجِع خطأ للـ client الذي يجب أن يُعيد. الحلّ الجذريّ: زيادة timeout (حتى ١٥ دقيقة).</span><span class="lang-en">Timeout = failure. Behavior depends on invocation: async retries up to 3x then DLQ; sync returns error to caller who must retry. Root fix: increase timeout (up to 15 min).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢، ٣</span><span class=\"lang-en\">Sections 2, 3</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">Lambda يستدعي DynamoDB ويحصل على ThrottlingException بشكل متكرّر. أفضل حلّ؟</span><span class="lang-en">A Lambda calls DynamoDB and repeatedly gets ThrottlingException. Best fix?</span>",
+        options: [
+          "<span class="lang-ar">زيادة RAM في الـ Lambda.</span><span class="lang-en">Increase Lambda RAM.</span>",
+          "<span class="lang-ar">زيادة read/write capacity في DynamoDB أو التبديل إلى On-Demand، مع الاعتماد على retries الافتراضية في الـ SDK.</span><span class="lang-en">Increase DynamoDB R/W capacity or switch to On-Demand; SDK retries handle transient throttles.</span>",
+          "<span class="lang-ar">تعطيل الـ logs.</span><span class="lang-en">Disable logs.</span>",
+          "<span class="lang-ar">التبديل إلى RDS.</span><span class="lang-en">Switch to RDS.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الـ throttling مصدره DynamoDB لا Lambda. الحلول: On-Demand mode، أو رفع Provisioned Capacity، أو Auto Scaling على DynamoDB. الـ SDK يُعيد تلقائياً على الـ throttling لكن إن كانت الحالة مستمرّة فالسعة هي الحل.</span><span class="lang-en">Throttling originates in DynamoDB, not Lambda. Fixes: On-Demand, raise Provisioned Capacity, or Auto Scaling. SDK retries handle transient throttles; persistent ones need more capacity.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦ + ch08</span><span class=\"lang-en\">Section 6 + ch08</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">ALB يستدعي Lambda. أيّ من الحقول التالية يجب أن تُرجِعها الدالة في الـ response JSON؟</span><span class="lang-en">ALB invokes Lambda. Which fields must the function return in its response JSON?</span>",
+        options: [
+          "<span class="lang-ar">result و error.</span><span class="lang-en">result and error.</span>",
+          "<span class="lang-ar">statusCode، headers، body، isBase64Encoded.</span><span class="lang-en">statusCode, headers, body, isBase64Encoded.</span>",
+          "<span class="lang-ar">httpMethod و path.</span><span class="lang-en">httpMethod and path.</span>",
+          "<span class="lang-ar">requestId.</span><span class="lang-en">requestId.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">ALB يتوقّع response JSON بصيغة محدّدة: <span dir="ltr" class="font-mono">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. الحقول الأخرى في الـ request لا الـ response.</span><span class="lang-en">ALB expects a JSON response with <span dir="ltr" class="font-mono">{statusCode, statusDescription?, headers, body, isBase64Encoded}</span>. Others belong to the request.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q14",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من هذه المصادر تستدعي Lambda بشكل <strong>async</strong>؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of these invoke Lambda <strong>async</strong>? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">S3 Event Notifications</span><span class="lang-en">S3 Event Notifications</span>",
+          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
+          "<span class="lang-ar">EventBridge</span><span class="lang-en">EventBridge</span>",
+          "<span class="lang-ar">API Gateway</span><span class="lang-en">API Gateway</span>",
+          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">S3، SNS، EventBridge كلّها async. API Gateway = sync. Kinesis = Event Source Mapping (نمط خاصّ — Lambda يسحب، ثم يستدعي sync داخلياً).</span><span class="lang-en">S3, SNS, EventBridge are async. API Gateway = sync. Kinesis = ESM (special — Lambda polls, then invokes sync internally).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد منع API Gateway من حساب آخر من استدعاء دالة Lambda الخاصّة به. ما الطبقة المناسبة للضبط؟</span><span class="lang-en">A dev wants to prevent a different account's API Gateway from invoking their Lambda. Where to enforce?</span>",
+        options: [
+          "<span class="lang-ar">Execution Role.</span><span class="lang-en">Execution Role.</span>",
+          "<span class="lang-ar">Resource-based Policy (Lambda Policy) — تحديد SourceArn للـ account الصحيح.</span><span class="lang-en">Resource-based Policy (Lambda Policy) — set SourceArn to the correct account.</span>",
+          "<span class="lang-ar">Security Group.</span><span class="lang-en">Security Group.</span>",
+          "<span class="lang-ar">VPC Endpoint.</span><span class="lang-en">VPC Endpoint.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الـ <strong>Resource Policy</strong> تتحكّم بمن <u>يستدعي</u> الدالة. شرط <span dir="ltr" class="font-mono">aws:SourceArn</span> أو <span dir="ltr" class="font-mono">aws:SourceAccount</span> يقصر الاستدعاء على مصادر محدّدة. Execution Role تضبط ما <u>تفعله</u> الدالة.</span><span class="lang-en"><strong>Resource Policy</strong> controls who <u>invokes</u> the function. <span dir="ltr" class="font-mono">aws:SourceArn</span> or <span dir="ltr" class="font-mono">aws:SourceAccount</span> conditions limit invokers. Execution Role controls what the function <u>does</u>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يضبط ما تفعله الدالة.</span><span class=\"lang-en\">Controls what function does.</span>", "", "<span class=\"lang-ar\">لا تتحكّم في استدعاء Lambda.</span><span class=\"lang-en\">Doesn't control Lambda invocations.</span>", "<span class=\"lang-ar\">مخصّصة للخصوصية الشبكيّة، لا للـ cross-account invoke.</span><span class=\"lang-en\">For network privacy, not cross-account invoke.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(10, QUESTIONS);
+      if (isChapterComplete(10)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

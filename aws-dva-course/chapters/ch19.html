@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 19 — S3 Security: Policies, Encryption, Presigned URLs, Block Public Access | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-red-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الثاني — 26%</span>
+          <span class="lang-en">Domain 2 — 26%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٩ من ٣٠</span>
+        <span class="lang-en">Chapter 19 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.266-285</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">أمان S3: السياسات، التشفير، Presigned URLs، Block Public Access</span>
+        <span class="lang-en">S3 Security: Policies, Encryption, Presigned URLs, Block Public Access</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">كلّ ما يتعلّق بأمان S3 في اختبار DVA: Bucket Policies، التشفير بأنواعه الأربعة (SSE-S3/SSE-KMS/SSE-C/Client-Side)، Presigned URLs، CORS، Block Public Access، و VPC Endpoints. الهدف: بيانات محميّة لا تتسرّب.</span>
+        <span class="lang-en">All things S3 security on DVA: Bucket Policies, 4 encryption modes (SSE-S3/SSE-KMS/SSE-C/Client-Side), Presigned URLs, CORS, Block Public Access, VPC Endpoints. Goal: protected data that doesn't leak.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">S3</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Bucket Policy</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">SSE-KMS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Presigned URL</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Block Public Access</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">VPC Endpoint</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Bucket Policy & Conditions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في كتابة سياسات S3 مع <span dir="ltr" class="font-mono">aws:SourceIp</span> و <span dir="ltr" class="font-mono">aws:SecureTransport</span>.</span>
+      <span class="lang-en">Domain 2 — writing S3 policies with <span dir="ltr" class="font-mono">aws:SourceIp</span> and <span dir="ltr" class="font-mono">aws:SecureTransport</span>.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SSE-S3/KMS/C Encryption</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في التفريق بين أنواع التشفير ومن يدير المفاتيح.</span>
+      <span class="lang-en">Domain 2 — differentiating encryption types and key ownership.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Presigned URLs</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني والثالث في منح وصول مؤقّت دون تغيير صلاحيّات.</span>
+      <span class="lang-en">Domains 2 & 3 — granting temporary access without changing permissions.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Block Public Access</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني في منع التسرّب العرضيّ للبيانات.</span>
+      <span class="lang-en">Domain 2 — preventing accidental data leaks.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">VPC Gateway Endpoints</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثاني والثالث في تجنّب المرور عبر الإنترنت العامّ.</span>
+      <span class="lang-en">Domains 2 & 3 — avoiding public internet traffic.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">طبقات التحكّم في الوصول: IAM vs Bucket Policy vs ACL</span>
+      <span class="lang-en">Access control layers: IAM vs Bucket Policy vs ACL</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">S3 تقدّم عدّة آليّات للتحكّم في الوصول. الأساسيّ: <strong>IAM Policy</strong> (على الهويّة) و <strong>Bucket Policy</strong> (على المورد). الـ <strong>ACLs</strong> موروثة من ما قبل IAM وتُنصَح بتعطيلها (<em>Object Ownership = Bucket owner enforced</em>).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">S3 offers multiple access-control mechanisms. Primary: <strong>IAM Policy</strong> (identity-based) and <strong>Bucket Policy</strong> (resource-based). <strong>ACLs</strong> predate IAM and should be disabled (<em>Object Ownership = Bucket owner enforced</em>).</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الآليّة</span><span class="lang-en">Mechanism</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">تُرفَق بـ</span><span class="lang-en">Attached to</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">IAM Policy</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">المستخدم/المجموعة/الدور</span><span class="lang-en">User/Group/Role</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">وصول من نفس الحساب — الأكثر شيوعاً.</span><span class="lang-en">Same-account access — most common.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Bucket Policy</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الـ Bucket نفسه</span><span class="lang-en">The bucket itself</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Cross-Account، فرض HTTPS أو التشفير، الوصول العامّ.</span><span class="lang-en">Cross-account, forcing HTTPS or encryption, public access.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Object ACL</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كائن واحد (قديم)</span><span class="lang-en">Single object (legacy)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نادر — يُنصَح بتعطيل ACLs بالكامل.</span><span class="lang-en">Rare — best to disable ACLs entirely.</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Access Point</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مسار داخل Bucket</span><span class="lang-en">Prefix within a bucket</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تقسيم صلاحيّات على أقسام (finance, sales).</span><span class="lang-en">Slicing permissions per prefix (finance, sales).</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> قاعدة التقييم في S3: <em>يستطيع المستخدم الوصول إذا سمحت IAM <strong>أو</strong> Bucket Policy، وليس هناك Deny صريح</em>. الـ Deny في أيّ طبقة يفوز دائماً.</span>
+      <span class="lang-en"> S3 evaluation rule: <em>access granted if IAM <strong>OR</strong> Bucket Policy allows, and no explicit Deny exists</em>. A Deny at any layer always wins.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Bucket Policies عمليّة</span>
+      <span class="lang-en">Practical Bucket Policies</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">أمثلة حقيقيّة من سؤال امتحان كلاسيكيّ: فرض HTTPS، حصر IP، تشفير إلزاميّ.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Real-world examples from classic exam questions: force HTTPS, restrict IP, mandatory encryption.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// 1) Force HTTPS on every request
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyHTTP",
+    "Effect": "Deny",
+    "Principal": "*",
+    "Action": "s3:*",
+    "Resource": [
+      "arn:aws:s3:::acme-prod",
+      "arn:aws:s3:::acme-prod/*"
+    ],
+    "Condition": {
+      "Bool": { "aws:SecureTransport": "false" }
+    }
+  }]
+}</code></pre>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// 2) Restrict by source IP (corporate VPN only)
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "AllowCorpOnly",
+    "Effect": "Deny",
+    "Principal": "*",
+    "Action": "s3:*",
+    "Resource": "arn:aws:s3:::acme-prod/*",
+    "Condition": {
+      "NotIpAddress": {
+        "aws:SourceIp": ["203.0.113.0/24", "198.51.100.0/24"]
+      }
+    }
+  }]
+}</code></pre>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// 3) Reject PUTs that aren't SSE-KMS encrypted
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyUnEncryptedObjectUploads",
+    "Effect": "Deny",
+    "Principal": "*",
+    "Action": "s3:PutObject",
+    "Resource": "arn:aws:s3:::acme-prod/*",
+    "Condition": {
+      "StringNotEquals": {
+        "s3:x-amz-server-side-encryption": "aws:kms"
+      }
+    }
+  }]
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> عند استخدام <span dir="ltr" class="font-mono">aws:SourceIp</span> لحصر الوصول، <strong>استثنِ</strong> حركة VPC الداخليّة عبر <span dir="ltr" class="font-mono">aws:ViaAWSService</span> أو <span dir="ltr" class="font-mono">aws:SourceVpce</span>، وإلّا ستكسر خدمات مثل CloudFormation و Lambda.</span>
+      <span class="lang-en"> When using <span dir="ltr" class="font-mono">aws:SourceIp</span> to restrict, <strong>exempt</strong> internal AWS traffic via <span dir="ltr" class="font-mono">aws:ViaAWSService</span> or <span dir="ltr" class="font-mono">aws:SourceVpce</span>, otherwise you break CloudFormation, Lambda, etc.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أنواع تشفير S3</span>
+      <span class="lang-en">S3 encryption types</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">S3 يدعم ٤ طرق للتشفير. الفرق الجوهريّ: <em>من يدير المفاتيح، ومن يقوم بالتشفير</em>.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">S3 supports 4 encryption methods. Key difference: <em>who manages keys, and who encrypts</em>.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النوع</span><span class="lang-en">Type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">من يدير المفتاح</span><span class="lang-en">Key owner</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">التشفير يتمّ عند</span><span class="lang-en">Encryption point</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Header إلزاميّ</span><span class="lang-en">Required header</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SSE-S3</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS (S3)</span><span class="lang-en">AWS (S3)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الخادم (افتراضيّ على كلّ الـ Buckets الجديدة)</span><span class="lang-en">Server-side (default on new buckets)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">x-amz-server-side-encryption: AES256</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SSE-KMS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">AWS KMS (CMK)</span><span class="lang-en">AWS KMS (CMK)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الخادم — مع تدقيق في CloudTrail</span><span class="lang-en">Server-side — with CloudTrail audit</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">x-amz-server-side-encryption: aws:kms</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SSE-C</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">العميل (خارج AWS)</span><span class="lang-en">Customer (outside AWS)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الخادم — يستلم المفتاح في الـ Header</span><span class="lang-en">Server-side — key in header</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">x-amz-server-side-encryption-customer-key</td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Client-Side</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">العميل</span><span class="lang-en">Customer</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قبل الإرسال إلى S3 (Encryption SDK)</span><span class="lang-en">Before upload (Encryption SDK)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">N/A</td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> <strong>SSE-C تتطلّب HTTPS إلزامياً</strong> لأنّ المفتاح يُرسَل في Header. S3 لا يخزّن المفتاح أبداً — إن ضاع، ضاعت البيانات. لا تستخدمه إلّا إذا كان لديك نظام KMS خارجيّ ناضج.</span>
+      <span class="lang-en"> <strong>SSE-C mandates HTTPS</strong> because the key travels in a header. S3 never stores the key — lose it, lose the data. Use only with a mature external KMS.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">SSE-S3 vs SSE-KMS: متى أختار ماذا؟</span><span class="lang-en">SSE-S3 vs SSE-KMS: which?</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">SSE-S3: تشفير افتراضيّ بدون تدخّل، رخيص، لا حدود طلبات. SSE-KMS: تحكّم دقيق عبر Key Policy، تدقيق في CloudTrail، لكن يستهلك حصّة KMS (٥٥٠٠-٣٠٠٠٠ طلب/ث).</p>
+      <p class="text-sm text-surface-700 lang-en">SSE-S3: default encryption, cheap, no request quota. SSE-KMS: fine-grained control via Key Policy, CloudTrail audit — but consumes KMS quota (5500–30000 req/s).</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">S3 Bucket Key</span><span class="lang-en">S3 Bucket Key</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">ميزة تقلّل طلبات KMS بنسبة ٩٩٪ عند SSE-KMS. يُنشَأ "S3 Bucket Key" وسيط يشفّر الكائنات بمفاتيح بيانات، بدلاً من استدعاء KMS لكلّ كائن.</p>
+      <p class="text-sm text-surface-700 lang-en">Feature cutting KMS calls by 99% with SSE-KMS. An intermediate "S3 Bucket Key" encrypts objects with data keys instead of calling KMS per object.</p>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Presigned URLs و CORS</span>
+      <span class="lang-en">Presigned URLs & CORS</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Presigned URL</strong> رابط موقَّع بمفاتيحك يعطي وصولاً مؤقّتاً إلى Object في Bucket خاصّ. المستلم يستخدم الرابط دون الحاجة لحساب AWS. الصلاحيّة: من ١ دقيقة إلى ١٢ ساعة (Console) أو إلى ١٦٨ ساعة (CLI/SDK).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A <strong>Presigned URL</strong> is a URL signed with your keys giving temporary access to an object in a private bucket. The recipient uses it without an AWS account. Duration: 1 min–12h (Console) or up to 168h (CLI/SDK).</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — generate a presigned GET URL valid for 15 minutes
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import java.time.Duration;
+
+S3Presigner presigner = S3Presigner.create();
+
+GetObjectPresignRequest req = GetObjectPresignRequest.builder()
+    .signatureDuration(Duration.ofMinutes(15))
+    .getObjectRequest(GetObjectRequest.builder()
+        .bucket("acme-reports")
+        .key("2026/Q1/report.pdf")
+        .build())
+    .build();
+
+String url = presigner.presignGetObject(req).url().toString();
+// Share `url` with the user — works for 15 minutes, no AWS login needed.</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> المستلم يرث صلاحيّات <strong>من وقّع الرابط</strong>. إذا وقّعه دور بصلاحيّة PUT، يستطيع المستلم رفع ملف جديد عبر الرابط. استخدم أدوار بأقلّ الصلاحيّات الممكنة للتوقيع.</span>
+      <span class="lang-en"> The recipient inherits permissions of <strong>whoever signed</strong> the URL. If signed by a role with PUT, the recipient can upload via that URL. Sign with least-privileged roles.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>CORS (Cross-Origin Resource Sharing)</strong> ضروريّ عندما يطلب JavaScript في متصفّح موارد من S3 على دومين مختلف. تُعرَّف في إعدادات الـ Bucket بصيغة JSON.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CORS (Cross-Origin Resource Sharing)</strong> is needed when browser JS fetches S3 resources on a different origin. Configure in bucket settings as JSON.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedOrigins": ["https://app.acme.com"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3000
+  }
+]</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Block Public Access بطبقاته</span>
+      <span class="lang-en">Block Public Access layers</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Block Public Access (BPA)</strong> شبكة أمان تمنع التسرّب العرضيّ. تعمل بأربعة إعدادات يمكن تفعيلها على مستويَين: Bucket و Account.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Block Public Access (BPA)</strong> is a safety net against accidental leaks. Four settings, applicable at two levels: Bucket and Account.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="shield" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">BlockPublicAcls</span><span class="lang-en">BlockPublicAcls</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يرفض محاولات تعيين ACL عامّ على أيّ كائن.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Rejects attempts to set public ACL on any object.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="shield-off" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">IgnorePublicAcls</span><span class="lang-en">IgnorePublicAcls</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يتجاهل أيّ ACL عامّ موجود حالياً.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Ignores any existing public ACLs.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">BlockPublicPolicy</span><span class="lang-en">BlockPublicPolicy</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يرفض وضع Bucket Policy تفتح الوصول للعموم.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Rejects bucket policies that grant public access.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="slash" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">RestrictPublicBuckets</span><span class="lang-en">RestrictPublicBuckets</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">يحدّد الوصول لأيّ Bucket "عامّ" إلى الخدمات المصرّحة داخل AWS فقط.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Limits access to any "public" bucket to authorized AWS services only.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>على مستوى الحساب</strong> يعلو على مستوى الـ Bucket. فعّل كلّ الأربعة على الحساب كسلوك افتراضيّ، ثمّ استثنِ Buckets الـ CDN/الثابتة المطلوب أن تكون عامّة.</span>
+      <span class="lang-en"> <strong>Account-level</strong> overrides bucket-level. Enable all four at account level as default, then explicitly exempt CDN/static buckets that need public access.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Enable all BPA at account level
+aws s3control put-public-access-block \
+  --account-id 111122223333 \
+  --public-access-block-configuration \
+    BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">VPC Endpoints لـ S3</span>
+      <span class="lang-en">VPC Endpoints for S3</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">افتراضياً، حركة EC2 ↔ S3 تمرّ عبر الإنترنت العامّ (مع TLS). <strong>VPC Gateway Endpoint</strong> ينشئ مساراً داخل شبكة AWS لا يغادر VPC — أسرع، أرخص (لا رسوم NAT)، وأكثر أمناً (لا تعريض لـ Internet Gateway).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">By default, EC2 ↔ S3 traffic traverses the public internet (with TLS). A <strong>VPC Gateway Endpoint</strong> creates a path inside the AWS network never leaving the VPC — faster, cheaper (no NAT fees), more secure (no Internet Gateway exposure).</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Gateway Endpoint (S3 و DynamoDB فقط)</span><span class="lang-en">Gateway Endpoint (S3 & DynamoDB only)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">مجاني. يُضاف كمدخل في Route Table الـ VPC. عليه Endpoint Policy تعمل كسياسة موارد موازية.</p>
+      <p class="text-sm text-surface-700 lang-en">Free. Added as an entry in the VPC route table. Supports an endpoint policy acting as a parallel resource policy.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="network" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Interface Endpoint (PrivateLink)</span><span class="lang-en">Interface Endpoint (PrivateLink)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">ENI داخل subnet خاصّ. مدفوع (بالساعة + GB). يدعم معظم خدمات AWS (S3 أيضاً منذ 2021).</p>
+      <p class="text-sm text-surface-700 lang-en">An ENI in a private subnet. Paid (hourly + per GB). Supports most AWS services (including S3 since 2021).</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// VPC Endpoint policy — restrict to one bucket + read-only
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "RestrictedAccess",
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": ["s3:GetObject", "s3:ListBucket"],
+    "Resource": [
+      "arn:aws:s3:::acme-prod-reports",
+      "arn:aws:s3:::acme-prod-reports/*"
+    ]
+  }]
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> لمؤسّسة ناضجة: اربط <span dir="ltr" class="font-mono">aws:SourceVpce</span> في Bucket Policy لرفض أيّ طلب لا يمرّ عبر VPC Endpoint محدّد. هذا يمنع تسرّب البيانات من خادم EC2 مُختَرَق عبر الإنترنت.</span>
+      <span class="lang-en"> Mature orgs: bind <span dir="ltr" class="font-mono">aws:SourceVpce</span> in Bucket Policy to reject any request not coming through a specific VPC Endpoint. Blocks data exfil from a compromised EC2 via internet.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء Bucket آمن بـ SSE-KMS، Block Public Access كامل، وفرض HTTPS، ثمّ توليد Presigned URL من Java.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create a secure bucket with SSE-KMS, full Block Public Access, HTTPS enforcement, then generate a Java Presigned URL.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Bucket ومفتاح KMS</span>
+      <span class="lang-en">Create bucket and KMS key</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># Create KMS CMK
+aws kms create-key --description 'S3-acme-prod'
+aws kms create-alias --alias-name alias/s3-acme-prod --target-key-id &lt;KEY_ID>
+
+# Create bucket
+aws s3api create-bucket --bucket acme-prod-reports --region us-east-1
+
+# Enable default SSE-KMS
+aws s3api put-bucket-encryption --bucket acme-prod-reports \
+  --server-side-encryption-configuration '{
+    "Rules": [{
+      "ApplyServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "aws:kms",
+        "KMSMasterKeyID": "alias/s3-acme-prod"
+      },
+      "BucketKeyEnabled": true
+    }]
+  }'</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل Block Public Access على الـ Bucket</span>
+      <span class="lang-en">Enable Block Public Access on the bucket</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws s3api put-public-access-block --bucket acme-prod-reports \
+  --public-access-block-configuration \
+    BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف Bucket Policy تفرض HTTPS</span>
+      <span class="lang-en">Add a Bucket Policy enforcing HTTPS</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyHTTP",
+    "Effect": "Deny",
+    "Principal": "*",
+    "Action": "s3:*",
+    "Resource": [
+      "arn:aws:s3:::acme-prod-reports",
+      "arn:aws:s3:::acme-prod-reports/*"
+    ],
+    "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+  }]
+}</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ارفع ملفاً تجريبياً واختبر Presigned URL من Java</span>
+      <span class="lang-en">Upload a test file and generate Presigned URL from Java</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">استخدم كود Java أعلاه. شارك الرابط وافتحه في متصفّح — يجب أن يُنزَّل الملف لمدّة ١٥ دقيقة ثمّ ينتهي.</p><p class="text-surface-600 leading-relaxed lang-en">Use the Java snippet above. Share the URL and open in a browser — should download for 15 minutes, then expire.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">(اختياريّ) أنشئ Gateway Endpoint لـ S3</span>
+      <span class="lang-en">(Optional) Create a Gateway Endpoint for S3</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws ec2 create-vpc-endpoint \
+  --vpc-id vpc-0abc1234 \
+  --service-name com.amazonaws.us-east-1.s3 \
+  --route-table-ids rtb-0abc1234 \
+  --vpc-endpoint-type Gateway</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">نظّف</span>
+      <span class="lang-en">Clean up</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">احذف الكائنات ثمّ الـ Bucket. ضع الـ KMS key في جدولة حذف (٧-٣٠ يوم) — لا يمكن حذفه فوراً.</p><p class="text-surface-600 leading-relaxed lang-en">Delete objects then the bucket. Schedule KMS key deletion (7–30 days) — it can't be deleted immediately.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> إذا فعّلت HTTPS-only ولم تحدّث التطبيقات القديمة، ستنكسر الاتصالات غير الآمنة فوراً. جرّب في بيئة Dev أوّلاً.</span>
+    <span class="lang-en"> Enabling HTTPS-only without updating legacy apps breaks insecure connections instantly. Test in Dev first.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="lock" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٤ أنواع تشفير S3</span>
+        <span class="lang-en">4 S3 encryption types</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">SSE-S3 / SSE-KMS / SSE-C / Client-Side — الفرق: من يدير المفتاح.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">SSE-S3 / SSE-KMS / SSE-C / Client-Side — differ by key owner.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Block Public Access على الحساب</span>
+        <span class="lang-en">Account-level BPA</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">شبكة أمان تعلو على Bucket — فعّل الأربعة افتراضياً.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Safety net overriding bucket — enable all 4 by default.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="link" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Presigned URL وصول مؤقّت</span>
+        <span class="lang-en">Presigned URL = temp access</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">يرث صلاحيّات الموقّع؛ يُلغى فوراً بإلغاء صلاحيّاته.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Inherits signer perms; invalidated instantly on revoke.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="network" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">VPC Gateway Endpoint</span>
+        <span class="lang-en">VPC Gateway Endpoint</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">مجاني لـ S3/DynamoDB؛ حركة لا تغادر AWS.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Free for S3/DynamoDB; traffic stays inside AWS.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar"><strong>SCRB</strong> لأمان S3: <strong>S</strong>ecureTransport (HTTPS) + <strong>C</strong>MK (SSE-KMS) + <strong>R</strong>estrict Public (BPA) + <strong>B</strong>ucket Policy على aws:SourceIp/Vpce. هذه الأربعة تغطي ٩٠٪ من أسئلة DVA عن S3.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en"><strong>SCRB</strong> for S3 security: <strong>S</strong>ecureTransport (HTTPS) + <strong>C</strong>MK (SSE-KMS) + <strong>R</strong>estrict Public (BPA) + <strong>B</strong>ucket Policy on aws:SourceIp/Vpce. Covers 90% of DVA S3 questions.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch18.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(19, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch20.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد منع أيّ طلب غير مشفّر (HTTP) إلى Bucket. ما الشرط الصحيح في Bucket Policy؟</span><span class="lang-en">A developer wants to block any unencrypted (HTTP) request to a bucket. Correct condition in Bucket Policy?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"Bool": {"aws:SecureTransport": "false"}</span> مع Effect Deny.</span><span class="lang-en"><span dir="ltr" class="font-mono">"Bool": {"aws:SecureTransport": "false"}</span> with Deny.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"StringEquals": {"s3:protocol": "https"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"StringEquals": {"s3:protocol": "https"}</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"NumericLessThan": {"aws:port": 443}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"NumericLessThan": {"aws:port": 443}</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "https://*"}</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">"IpAddress": {"aws:SourceIp": "https://*"}</span>.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">المفتاح القياسيّ هو <span dir="ltr" class="font-mono">aws:SecureTransport</span> (Boolean). نستخدم <span dir="ltr" class="font-mono">Deny</span> عندما يكون <span dir="ltr" class="font-mono">false</span> (أي الطلب ليس HTTPS). الصيغ الأخرى غير موجودة في AWS.</span><span class="lang-en">The standard key is <span dir="ltr" class="font-mono">aws:SecureTransport</span> (Boolean). Use <span dir="ltr" class="font-mono">Deny</span> when it's <span dir="ltr" class="font-mono">false</span> (not HTTPS). Other syntaxes don't exist in AWS.</span>",
+        wrongExplanations: ["", "<span class=\"lang-ar\">لا يوجد مفتاح بهذا الاسم.</span><span class=\"lang-en\">No such key.</span>", "<span class=\"lang-ar\">مفتاح غير موجود في S3.</span><span class=\"lang-en\">Not a real condition.</span>", "<span class=\"lang-ar\">SourceIp للـ IPs لا للبروتوكول.</span><span class=\"lang-en\">SourceIp is for IPs, not protocols.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تشفير S3 مع تدقيق كامل في CloudTrail لكلّ عمليّة استخدام للمفتاح. أيّ نوع تشفير؟</span><span class="lang-en">A company wants S3 encryption with full CloudTrail audit of every key use. Which encryption type?</span>",
+        options: [
+          "<span class="lang-ar">SSE-S3.</span><span class="lang-en">SSE-S3.</span>",
+          "<span class="lang-ar">SSE-KMS.</span><span class="lang-en">SSE-KMS.</span>",
+          "<span class="lang-ar">SSE-C.</span><span class="lang-en">SSE-C.</span>",
+          "<span class="lang-ar">Client-Side بدون أيّ خدمة AWS.</span><span class="lang-en">Client-Side with no AWS service.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">SSE-KMS يُسجّل كلّ عمليّات <span dir="ltr" class="font-mono">GenerateDataKey</span> و <span dir="ltr" class="font-mono">Decrypt</span> في CloudTrail مع Principal والـ Request ID. SSE-S3 لا يعطي تدقيقاً دقيقاً. SSE-C العميل يدير المفتاح خارج AWS، فلا تدقيق داخل AWS.</span><span class="lang-en">SSE-KMS logs every <span dir="ltr" class="font-mono">GenerateDataKey</span> and <span dir="ltr" class="font-mono">Decrypt</span> in CloudTrail with principal and request ID. SSE-S3 gives no fine-grained audit. SSE-C: customer manages key outside AWS, so no AWS audit.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تدقيق تفصيليّ للمفاتيح.</span><span class=\"lang-en\">No fine-grained key audit.</span>", "", "<span class=\"lang-ar\">المفتاح خارج AWS.</span><span class=\"lang-en\">Key outside AWS.</span>", "<span class=\"lang-ar\">لا تدقيق من AWS.</span><span class=\"lang-en\">No AWS audit.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">مستخدم يحاول رفع ملف عبر Presigned URL صالح، لكن يفشل بخطأ <em>SignatureDoesNotMatch</em>. ما السبب الأرجح؟</span><span class="lang-en">A user tries to upload via a valid Presigned URL but fails with <em>SignatureDoesNotMatch</em>. Most likely cause?</span>",
+        options: [
+          "<span class="lang-ar">انتهاء صلاحيّة الرابط.</span><span class="lang-en">URL expired.</span>",
+          "<span class="lang-ar">اختلاف Header أو Content-Type عند الرفع عن الذي وُقِّع له الرابط.</span><span class="lang-en">Mismatched header or Content-Type at upload vs what was signed.</span>",
+          "<span class="lang-ar">الـ Bucket غير موجود.</span><span class="lang-en">Bucket doesn't exist.</span>",
+          "<span class="lang-ar">MFA مطلوبة.</span><span class="lang-en">MFA required.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">التوقيع يشمل الـ Headers (خاصّة <span dir="ltr" class="font-mono">Content-Type</span> و <span dir="ltr" class="font-mono">x-amz-*</span>). أيّ اختلاف عند الطلب الفعليّ يُبطل التوقيع. الانتهاء يُعطي <em>RequestExpired</em>. المفقود يُعطي <em>NoSuchBucket</em>.</span><span class="lang-en">The signature includes headers (notably <span dir="ltr" class="font-mono">Content-Type</span> and <span dir="ltr" class="font-mono">x-amz-*</span>). Any mismatch at actual request invalidates it. Expiry → <em>RequestExpired</em>. Missing → <em>NoSuchBucket</em>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الخطأ حينها <em>RequestExpired</em>.</span><span class=\"lang-en\">That would be <em>RequestExpired</em>.</span>", "", "<span class=\"lang-ar\">الخطأ <em>NoSuchBucket</em>.</span><span class=\"lang-en\">That would be <em>NoSuchBucket</em>.</span>", "<span class=\"lang-ar\">S3 لا يدعم MFA على الرفع العادي.</span><span class=\"lang-en\">S3 doesn't require MFA for plain uploads.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق بين Block Public Access على مستوى الحساب والـ Bucket؟</span><span class="lang-en">Difference between account-level and bucket-level Block Public Access?</span>",
+        options: [
+          "<span class="lang-ar">الحساب أضعف من الـ Bucket.</span><span class="lang-en">Account is weaker than Bucket.</span>",
+          "<span class="lang-ar">الحساب يعلو على الـ Bucket — أيّ إعداد على الحساب لا يمكن للـ Bucket تجاوزه.</span><span class="lang-en">Account overrides Bucket — nothing at the bucket level can override an account setting.</span>",
+          "<span class="lang-ar">لا فرق.</span><span class="lang-en">No difference.</span>",
+          "<span class="lang-ar">Bucket فقط يمكن تعطيله.</span><span class="lang-en">Only Bucket can be disabled.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">BPA على الحساب يُطبَّق على <em>كلّ</em> الـ Buckets الموجودة والقادمة. إذا فعّلت <span dir="ltr" class="font-mono">BlockPublicPolicy=true</span> على الحساب، لن يستطيع أيّ Bucket فتح سياسة عامّة حتى لو أراد المالك ذلك. شبكة أمان رائعة — فعّل الأربعة افتراضياً.</span><span class="lang-en">Account-level BPA applies to <em>every</em> existing and future bucket. With <span dir="ltr" class="font-mono">BlockPublicPolicy=true</span> at account, no bucket can open a public policy even if the owner wants to. Great safety net — enable all 4 by default.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">العكس.</span><span class=\"lang-en\">Opposite.</span>", "", "<span class=\"lang-ar\">فرق أساسيّ.</span><span class=\"lang-en\">Fundamental difference.</span>", "<span class=\"lang-ar\">كلاهما قابل للتعطيل لكنّ الحساب أولوية.</span><span class=\"lang-en\">Both can be disabled but account takes precedence.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q5",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي <strong>يتطلّب</strong> HTTPS إلزامياً؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which of the following <strong>require</strong> HTTPS? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">SSE-S3.</span><span class="lang-en">SSE-S3.</span>",
+          "<span class="lang-ar">SSE-KMS.</span><span class="lang-en">SSE-KMS.</span>",
+          "<span class="lang-ar">SSE-C (العميل يرسل المفتاح).</span><span class="lang-en">SSE-C (client sends the key).</span>",
+          "<span class="lang-ar">Presigned URL بسيطة.</span><span class="lang-en">Simple presigned URL.</span>",
+          "<span class="lang-ar">CORS request.</span><span class="lang-en">CORS request.</span>"
+        ],
+        correct: [2],
+        explanation: "<span class="lang-ar">SSE-C <strong>فقط</strong> يفرض HTTPS لأنّ المفتاح يسافر في Header — بدون HTTPS يُفضح. الباقون يدعمون HTTP و HTTPS (رغم أنّ HTTPS هو الافتراضيّ والموصى به). لفرض HTTPS على كلّ الطلبات استخدم <span dir="ltr" class="font-mono">aws:SecureTransport</span> في Bucket Policy.</span><span class="lang-en">SSE-C <strong>only</strong> forces HTTPS because the key travels in a header — over HTTP it'd be exposed. Others support both (HTTPS is default and recommended). To force HTTPS on everything use <span dir="ltr" class="font-mono">aws:SecureTransport</span> in Bucket Policy.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">خادم EC2 داخل VPC خاصّ (بدون Internet Gateway) يحتاج الوصول إلى S3. ما الحلّ الأمثل؟</span><span class="lang-en">An EC2 in a private VPC (no Internet Gateway) needs S3 access. Best solution?</span>",
+        options: [
+          "<span class="lang-ar">إضافة NAT Gateway.</span><span class="lang-en">Add a NAT Gateway.</span>",
+          "<span class="lang-ar">VPC Gateway Endpoint لـ S3 (مجانيّ، حركة داخل AWS).</span><span class="lang-en">VPC Gateway Endpoint for S3 (free, AWS internal).</span>",
+          "<span class="lang-ar">تخصيص Public IP للخادم.</span><span class="lang-en">Give the instance a public IP.</span>",
+          "<span class="lang-ar">استخدام VPN.</span><span class="lang-en">Use a VPN.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Gateway Endpoint هو الخيار الأمثل لـ S3 و DynamoDB: مجانيّ، الحركة لا تغادر AWS، ويُضاف كمدخل في الـ Route Table. NAT Gateway أغلى ويُعرّض الحركة للإنترنت العامّ. Public IP على خادم خاصّ مخالفة لفكرة الشبكة الخاصّة.</span><span class="lang-en">Gateway Endpoint is the optimal choice for S3 and DynamoDB: free, traffic never leaves AWS, added as a route-table entry. NAT Gateway is expensive and puts traffic on the public internet. Public IP on a private instance defeats the design.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">أغلى، يحتاج Internet Gateway، حركة عبر الإنترنت.</span><span class=\"lang-en\">More expensive, needs IGW, public internet.</span>", "", "<span class=\"lang-ar\">يخالف كون الخادم "private".</span><span class=\"lang-en\">Defeats "private" subnet design.</span>", "<span class=\"lang-ar\">VPN للوصول من On-Premise، لا للوصول لـ S3.</span><span class=\"lang-en\">VPN is for on-prem access, not S3.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">سياسة Bucket تسمح لـ <span dir="ltr" class="font-mono">Principal: "*"</span> بالقراءة. ماذا يحدث إذا فعّلت Block Public Access على الحساب؟</span><span class="lang-en">A bucket policy allows <span dir="ltr" class="font-mono">Principal: "*"</span> read. What happens if account-level Block Public Access is enabled?</span>",
+        options: [
+          "<span class="lang-ar">لا يتغيّر شيء — Bucket Policy تعلو على BPA.</span><span class="lang-en">Nothing changes — Bucket Policy overrides BPA.</span>",
+          "<span class="lang-ar">BPA يمنع تلك السياسة من التأثير — الطلبات العامّة مرفوضة.</span><span class="lang-en">BPA blocks that policy from taking effect — public requests are denied.</span>",
+          "<span class="lang-ar">الـ Bucket يُحذَف تلقائياً.</span><span class="lang-en">Bucket auto-deletes.</span>",
+          "<span class="lang-ar">يظهر خطأ كتابيّ.</span><span class="lang-en">A syntax error appears.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Block Public Access هو الطبقة العليا: إذا فعّل <span dir="ltr" class="font-mono">RestrictPublicBuckets</span>، كلّ الطلبات الخارجيّة العامّة تُرفَض حتى لو سمحت Bucket Policy. مصمّم خصّيصاً كشبكة أمان ضدّ تسرّب عرضيّ.</span><span class="lang-en">Block Public Access is the top layer: with <span dir="ltr" class="font-mono">RestrictPublicBuckets</span>, all external public requests are denied even if bucket policy allows. Designed as a safety net against accidental exposure.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">BPA هو الأقوى.</span><span class=\"lang-en\">BPA wins.</span>", "", "<span class=\"lang-ar\">AWS لا تحذف الـ Buckets.</span><span class=\"lang-en\">AWS doesn't delete buckets.</span>", "<span class=\"lang-ar\">BPA لا يُحدث أخطاء كتابيّة.</span><span class=\"lang-en\">BPA doesn't cause syntax errors.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق ويب (https://app.acme.com) يحاول جلب صور من <span dir="ltr" class="font-mono">s3://acme-cdn</span> عبر JavaScript ويفشل بخطأ CORS. ما الحلّ؟</span><span class="lang-en">A web app (https://app.acme.com) fetches images from <span dir="ltr" class="font-mono">s3://acme-cdn</span> via JavaScript and fails with a CORS error. Solution?</span>",
+        options: [
+          "<span class="lang-ar">إضافة <span dir="ltr" class="font-mono">Access-Control-Allow-Origin: https://app.acme.com</span> في إعدادات CORS للـ Bucket.</span><span class="lang-en">Add <span dir="ltr" class="font-mono">Access-Control-Allow-Origin: https://app.acme.com</span> in bucket CORS configuration.</span>",
+          "<span class="lang-ar">تعطيل HTTPS على التطبيق.</span><span class="lang-en">Disable HTTPS on the app.</span>",
+          "<span class="lang-ar">تغيير Bucket Policy إلى عامّة.</span><span class="lang-en">Make the bucket policy public.</span>",
+          "<span class="lang-ar">تفعيل CloudFront بدلاً من S3.</span><span class="lang-en">Use CloudFront instead of S3.</span>"
+        ],
+        correct: 0,
+        explanation: "<span class="lang-ar">CORS مسؤوليّة <em>الخادم</em> الذي يستقبل الطلب (S3 هنا). تُكتَب إعدادات CORS في الـ Bucket بصيغة JSON وتحدّد <span dir="ltr" class="font-mono">AllowedOrigins</span>. فتح الـ Bucket عامّاً لا يحلّ CORS — هما طبقتان مختلفتان.</span><span class="lang-en">CORS is the responsibility of the <em>server</em> receiving the request (S3). Write bucket CORS as JSON specifying <span dir="ltr" class="font-mono">AllowedOrigins</span>. Making the bucket public doesn't fix CORS — they're independent layers.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ CORS وخطر أمنيّ.</span><span class=\"lang-en\">Doesn't fix CORS and is insecure.</span>", "", "<span class=\"lang-ar\">لا يحلّ CORS، ومخاطرة كبيرة.</span><span class=\"lang-en\">Doesn't fix CORS and is insecure.</span>", "<span class=\"lang-ar\">CloudFront يضيف طبقة لكن لا يبدّل الحاجة لـ CORS.</span><span class=\"lang-en\">CloudFront adds a layer but doesn't replace CORS config.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">ما ميزة <strong>S3 Bucket Key</strong> مع SSE-KMS؟</span><span class="lang-en">What does <strong>S3 Bucket Key</strong> give you with SSE-KMS?</span>",
+        options: [
+          "<span class="lang-ar">تشفير أقوى.</span><span class="lang-en">Stronger encryption.</span>",
+          "<span class="lang-ar">تقليل عدد استدعاءات KMS وتكاليفها بنسبة تصل إلى ٩٩٪.</span><span class="lang-en">Reduces KMS API calls and cost by up to 99%.</span>",
+          "<span class="lang-ar">تسريع الـ Upload.</span><span class="lang-en">Speeds up uploads.</span>",
+          "<span class="lang-ar">لا حاجة لـ IAM.</span><span class="lang-en">No IAM needed.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">S3 Bucket Key مفتاح بيانات وسيط (DEK) يُنشَأ مرّة ويُستخدم لتشفير كثير من الكائنات بدلاً من استدعاء KMS لكلّ كائن. التشفير الفعليّ لا يختلف، لكنّ عدد الطلبات على KMS يقلّ ≈ ٩٩٪ مع وفر مالي واضح وتقليل احتكاك حصّة KMS.</span><span class="lang-en">S3 Bucket Key is an intermediate DEK created once and used to encrypt many objects instead of calling KMS per object. Encryption strength is the same, but KMS calls drop ≈99% with clear cost savings and less KMS quota pressure.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">القوّة ذاتها (AES-256).</span><span class=\"lang-en\">Same strength (AES-256).</span>", "", "<span class=\"lang-ar\">الأداء مشابه.</span><span class=\"lang-en\">Perf similar.</span>", "<span class=\"lang-ar\">IAM مطلوب.</span><span class=\"lang-en\">IAM still required.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">تريد السماح لحساب آخر بالقراءة من Bucket لديك. ما الآليّة المعياريّة؟</span><span class="lang-en">You want to allow another AWS account to read from your bucket. Standard mechanism?</span>",
+        options: [
+          "<span class="lang-ar">إضافة حساب آخر كـ IAM User.</span><span class="lang-en">Create the other account as an IAM User.</span>",
+          "<span class="lang-ar">Bucket Policy تحدّد <span dir="ltr" class="font-mono">Principal: "arn:aws:iam::OTHER_ACCT:root"</span> مع صلاحيّات قراءة.</span><span class="lang-en">Bucket Policy with <span dir="ltr" class="font-mono">Principal: "arn:aws:iam::OTHER_ACCT:root"</span> and read perms.</span>",
+          "<span class="lang-ar">تغيير ownership.</span><span class="lang-en">Change ownership.</span>",
+          "<span class="lang-ar">تفعيل S3 Replication فقط.</span><span class="lang-en">Enable S3 Replication only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Bucket Policy تدعم Cross-Account بتحديد <span dir="ltr" class="font-mono">Principal</span> صريحاً (الحساب الآخر أو Role فيه). الحساب الآخر يحتاج IAM policy أيضاً تسمح للمستخدمين/الأدوار الوصول. لا تُنشِئ مستخدمين في حساب لست مالكاً له.</span><span class="lang-en">Bucket Policy supports cross-account with an explicit <span dir="ltr" class="font-mono">Principal</span> (the other account or a role within it). The other account also needs an IAM policy allowing its users/roles. You never create users in an account you don't own.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تنشئ مستخدمين في حساب الغير.</span><span class=\"lang-en\">Don't create users in another account.</span>", "", "<span class=\"lang-ar\">Ownership غير مطلوب.</span><span class=\"lang-en\">Ownership change isn't needed.</span>", "<span class=\"lang-ar\">Replication للنسخ، لا للقراءة.</span><span class=\"lang-en\">Replication is for copying, not reading.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">كيف تضمن أنّ كلّ كائن جديد في Bucket يُرفع مشفّراً بـ SSE-KMS مفتاح محدّد؟</span><span class="lang-en">How do you ensure every new object is uploaded with SSE-KMS using a specific key?</span>",
+        options: [
+          "<span class="lang-ar">الاعتماد على التشفير الافتراضيّ فقط.</span><span class="lang-en">Rely solely on default encryption.</span>",
+          "<span class="lang-ar">Bucket Policy بـ Deny على PutObject دون <span dir="ltr" class="font-mono">x-amz-server-side-encryption: aws:kms</span> و <span dir="ltr" class="font-mono">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;</span>.</span><span class="lang-en">Bucket Policy with Deny on PutObject missing <span dir="ltr" class="font-mono">x-amz-server-side-encryption: aws:kms</span> and <span dir="ltr" class="font-mono">x-amz-server-side-encryption-aws-kms-key-id = &lt;keyId&gt;</span>.</span>",
+          "<span class="lang-ar">MFA على كلّ رفع.</span><span class="lang-en">MFA on every upload.</span>",
+          "<span class="lang-ar">Versioning.</span><span class="lang-en">Versioning.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">التشفير الافتراضيّ في الـ Bucket يشفّر الكائنات بدون تحديد المفتاح إن لم يُرسَل Header. لفرض مفتاح محدّد، أضف Bucket Policy تُفشل أيّ Put بدون الـ Headers الصحيحة. هذا النمط أساسيّ لأيّ compliance (SOC 2, PCI).</span><span class="lang-en">Default bucket encryption encrypts objects without specifying a key if no header is sent. To force a specific key, add a Bucket Policy that fails any Put lacking correct headers. Essential pattern for compliance (SOC 2, PCI).</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يضمن استخدام مفتاح محدّد.</span><span class=\"lang-en\">Doesn't guarantee specific key.</span>", "", "<span class=\"lang-ar\">MFA لا علاقة لها.</span><span class=\"lang-en\">MFA irrelevant.</span>", "<span class=\"lang-ar\">Versioning للإصدارات، لا للتشفير.</span><span class=\"lang-en\">Versioning is for versions, not encryption.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">Presigned URL يُصدر بواسطة مستخدم IAM <span dir="ltr" class="font-mono">alice</span> لديها <span dir="ltr" class="font-mono">s3:PutObject</span>. بعد مشاركة الرابط، أُلغيت صلاحيّات <span dir="ltr" class="font-mono">alice</span>. هل يبقى الرابط صالحاً؟</span><span class="lang-en">A Presigned URL is generated by IAM user <span dir="ltr" class="font-mono">alice</span> with <span dir="ltr" class="font-mono">s3:PutObject</span>. After sharing, alice's permissions are revoked. Does the URL still work?</span>",
+        options: [
+          "<span class="lang-ar">نعم — الرابط يعيش ما لم تنتهِ مدّته.</span><span class="lang-en">Yes — the URL lives until its expiry.</span>",
+          "<span class="lang-ar">لا — الرابط يُصبح غير صالح فوراً لأنّه يعتمد على صلاحيّات الموقِّع في لحظة الاستخدام.</span><span class="lang-en">No — the URL is invalidated instantly; it relies on the signer's current permissions at request time.</span>",
+          "<span class="lang-ar">يصبح للقراءة فقط.</span><span class="lang-en">Becomes read-only.</span>",
+          "<span class="lang-ar">يعمل لكن ببطء.</span><span class="lang-en">Works but slowly.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Presigned URL يوقَّع بمفاتيح الموقِّع لكن عند الاستخدام يتحقّق S3 من صلاحيّات الموقِّع <em>في لحظة الطلب</em>. إلغاء الصلاحيّات أو حذف المستخدم يُفشل الرابط فوراً. لا يعتمد على <em>دائمية</em> الصلاحيّات وقت التوقيع.</span><span class="lang-en">A Presigned URL is signed with the signer's keys, but on use S3 verifies the signer's <em>current</em> permissions at request time. Revoking perms or deleting the user invalidates the URL instantly. It doesn't rely on permissions being <em>permanent</em> at sign time.</span>",
+        wrongExplanations: ["", "", "<span class=\"lang-ar\">لا يتغيّر إلى قراءة فقط.</span><span class=\"lang-en\">Doesn't become read-only.</span>", "<span class=\"lang-ar\">الأداء لا يتأثّر.</span><span class=\"lang-en\">Performance unaffected.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">أيّ سياسة نوع SCP (Service Control Policy) على Organization يمكن أن تمنع إنشاء Buckets عامّة في كلّ الحسابات؟</span><span class="lang-en">Which Organization SCP (Service Control Policy) can prevent public bucket creation across all accounts?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Allow</span> للـ Admins فقط.</span><span class="lang-en"><span dir="ltr" class="font-mono">Allow</span> only admins.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">Deny</span> على <span dir="ltr" class="font-mono">s3:PutBucketPublicAccessBlock</span> عند محاولة تعطيل BPA.</span><span class="lang-en"><span dir="ltr" class="font-mono">Deny</span> on <span dir="ltr" class="font-mono">s3:PutBucketPublicAccessBlock</span> attempts to disable BPA.</span>",
+          "<span class="lang-ar">لا حاجة — BPA يكفي.</span><span class="lang-en">Not needed — BPA is enough.</span>",
+          "<span class="lang-ar">تفعيل MFA.</span><span class="lang-en">Enable MFA.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">SCP مثاليّة لفرض حواجز على مستوى المنظّمة: منع تعطيل BPA، منع فتح Buckets للعموم، منع حذف CloudTrail، إلخ. الـ SCP لا تمنح صلاحيّات (تقيّد ما هو مسموح فقط). مفعّلة مع Organizations.</span><span class="lang-en">SCPs are ideal for org-wide guardrails: prevent BPA disabling, prevent public-bucket policies, prevent CloudTrail deletion, etc. SCPs don't grant — they only cap what's allowed. Work with AWS Organizations.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا تقيّد العمليّة نفسها.</span><span class=\"lang-en\">Doesn't cap the action itself.</span>", "", "<span class=\"lang-ar\">يكفي محليّاً لكن SCP يفرض ذلك تنظيمياً.</span><span class=\"lang-en\">BPA helps locally; SCP enforces org-wide.</span>", "<span class=\"lang-ar\">MFA لا تمنع الإنشاء.</span><span class=\"lang-en\">MFA doesn't block creation.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد أن يُقيّد الوصول إلى Bucket بحيث يأتي <strong>فقط</strong> من VPC Endpoint محدّد. ما الشرط؟</span><span class="lang-en">A developer wants to restrict access so the bucket is reachable <strong>only</strong> through a specific VPC Endpoint. Condition?</span>",
+        options: [
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceIp</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceIp</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceVpce</span> مع ID الـ Endpoint.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceVpce</span> with the Endpoint ID.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:PrincipalArn</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:PrincipalArn</span>.</span>",
+          "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:UserAgent</span>.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:UserAgent</span>.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">aws:SourceVpce</span> يحتوي ID الـ VPC Endpoint الذي مرّ به الطلب. باستخدامه في Bucket Policy مع Deny، يمكن رفض كلّ طلب لا يمرّ عبر endpoint مسجّل — ممارسة أمنيّة لمنع exfiltration من الإنترنت.</span><span class="lang-en"><span dir="ltr" class="font-mono">aws:SourceVpce</span> holds the VPC Endpoint ID through which the request arrived. With Deny in Bucket Policy, you can reject requests not coming through a whitelisted endpoint — security practice to block exfil over the internet.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحدّد VPC Endpoint.</span><span class=\"lang-en\">Doesn't identify a VPC Endpoint.</span>", "", "<span class=\"lang-ar\">للهويّات لا للشبكة.</span><span class=\"lang-en\">For identities, not network.</span>", "<span class=\"lang-ar\">يمكن تزويره — غير آمن.</span><span class=\"lang-en\">User-Agent is spoofable — insecure.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Java Spring Boot يرفع ملفات كبيرة (5GB) إلى S3. أيّ طريقة تمنع الاستهلاك الكبير لـ KMS مع SSE-KMS؟</span><span class="lang-en">A Java Spring Boot app uploads large (5GB) files to S3. Which prevents heavy KMS consumption with SSE-KMS?</span>",
+        options: [
+          "<span class="lang-ar">استخدام SSE-C مع مفتاح محلّي.</span><span class="lang-en">Use SSE-C with a local key.</span>",
+          "<span class="lang-ar">تفعيل <strong>S3 Bucket Key</strong> على الـ Bucket.</span><span class="lang-en">Enable <strong>S3 Bucket Key</strong> on the bucket.</span>",
+          "<span class="lang-ar">تعطيل التشفير.</span><span class="lang-en">Disable encryption.</span>",
+          "<span class="lang-ar">استخدام Multipart Upload فقط.</span><span class="lang-en">Use only Multipart Upload.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">S3 Bucket Key يحلّ مشكلة الضغط على KMS تحديداً: بدلاً من استدعاء KMS لكلّ part أو كائن، يُنشَأ مفتاح وسيط يشفّر عدّة كائنات. مع Multipart Upload وملفات كبيرة، الوفر يصل إلى ٩٩٪ من طلبات KMS.</span><span class="lang-en">S3 Bucket Key solves exactly the KMS pressure issue: instead of calling KMS per part/object, an intermediate key encrypts many objects. With Multipart Upload on large files, 99% KMS call reduction is typical.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يحلّ مشكلة KMS لكن يتطلّب إدارة مفاتيح يدويّة.</span><span class=\"lang-en\">Solves KMS but needs manual key management.</span>", "", "<span class=\"lang-ar\">مخالف للامتثال.</span><span class=\"lang-en\">Violates compliance.</span>", "<span class=\"lang-ar\">Multipart لا يغيّر عدد استدعاءات KMS.</span><span class=\"lang-en\">Multipart doesn't reduce KMS calls.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(19, QUESTIONS);
+      if (isChapterComplete(19)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

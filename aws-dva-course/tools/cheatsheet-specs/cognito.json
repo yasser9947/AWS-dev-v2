@@ -1,0 +1,46 @@
+{
+  "slug": "cognito",
+  "name": "Amazon Cognito",
+  "icon": "users",
+  "color": "red",
+  "tagline_ar": "مصادقة وترخيص للتطبيقات الويب والموبايل عبر User Pools و Identity Pools.",
+  "tagline_en": "Auth and authorization for web/mobile apps via User Pools and Identity Pools.",
+  "key_concepts": [
+    {"concept": "User Pool vs Identity Pool", "desc_ar": "User Pool = مصادقة (Authentication) تُصدر JWT. Identity Pool = ترخيص (Authorization) يعطي بيانات اعتماد AWS.", "desc_en": "User Pool = Authentication (returns JWTs). Identity Pool = Authorization (returns AWS creds)."},
+    {"concept": "3 JWT Tokens", "desc_ar": "ID Token (هوية)، Access Token (صلاحيات API)، Refresh Token (تجديد الجلسة).", "desc_en": "ID Token (identity), Access Token (API permissions), Refresh Token (renew session)."},
+    {"concept": "Federated Identity", "desc_ar": "تسجيل عبر Google، Facebook، Apple، SAML، أو IdP مخصّص.", "desc_en": "Sign-in via Google, Facebook, Apple, SAML, or custom IdP."},
+    {"concept": "Lambda Triggers", "desc_ar": "PreSignup، PostConfirmation، PreAuthentication، PreTokenGeneration، CustomMessage لتخصيص التدفّق.", "desc_en": "PreSignup, PostConfirmation, PreAuthentication, PreTokenGeneration, CustomMessage customize flows."},
+    {"concept": "OAuth2 Flows", "desc_ar": "Authorization Code + PKCE (الموصى به)، Implicit (لا يُنصح)، Client Credentials (خادم-خادم).", "desc_en": "Authorization Code + PKCE (recommended), Implicit (discouraged), Client Credentials (server-to-server)."},
+    {"concept": "MFA & Adaptive Auth", "desc_ar": "MFA إلزاميّ أو اختياريّ (SMS/TOTP)، وAdaptive تقيّم المخاطر على كل محاولة دخول.", "desc_en": "Mandatory or optional MFA (SMS/TOTP); Adaptive assesses risk per login attempt."},
+    {"concept": "Identity Pool Roles", "desc_ar": "دور للمصادَقين (Auth) ودور للضيوف (Unauth) يُعطي بيانات AWS عبر STS.", "desc_en": "Auth + Unauth role hand out AWS creds via STS."},
+    {"concept": "Fine-Grained S3 via IAM", "desc_ar": "استخدم ${cognito-identity.amazonaws.com:sub} في سياسة S3 لعزل ملفات كل مستخدم.", "desc_en": "Use ${cognito-identity.amazonaws.com:sub} in S3 policy to isolate each user's files."}
+  ],
+  "limits": [
+    {"limit": "عدد المستخدمين لكل User Pool", "limit_en": "Users per User Pool", "value": "40M (soft)", "note_ar": "قابل للزيادة.", "note_en": "Can be raised."},
+    {"limit": "معدّل الطلبات", "limit_en": "API rate", "value": "120-400 RPS", "note_ar": "يختلف حسب نوع الـ API.", "note_en": "Varies per API category."},
+    {"limit": "مدّة ID/Access Token", "limit_en": "ID/Access Token validity", "value": "5 min – 24 h", "note_ar": "الافتراضي ساعة.", "note_en": "Default 1h."},
+    {"limit": "مدّة Refresh Token", "limit_en": "Refresh Token validity", "value": "60 min – 10 years", "note_ar": "الافتراضي 30 يومًا.", "note_en": "Default 30 days."},
+    {"limit": "App Clients لكل User Pool", "limit_en": "App Clients per Pool", "value": "10,000", "note_ar": "عادة واحد لكل منصّة (web، mobile).", "note_en": "Usually one per platform."},
+    {"limit": "Lambda Trigger timeout", "limit_en": "Lambda Trigger timeout", "value": "5 seconds", "note_ar": "حدّ صلب — Lambda يجب أن تردّ خلالها.", "note_en": "Hard limit — Lambda must respond within this."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء User Pool.", "desc_en": "Create a User Pool.", "cmd": "aws cognito-idp create-user-pool --pool-name AcmeUsers --policies file://pwd-policy.json"},
+    {"desc_ar": "إنشاء App Client.", "desc_en": "Create App Client.", "cmd": "aws cognito-idp create-user-pool-client --user-pool-id us-east-1_XXX --client-name web --generate-secret"},
+    {"desc_ar": "تسجيل مستخدم جديد.", "desc_en": "Sign up a user.", "cmd": "aws cognito-idp sign-up --client-id abc --username yasir@acme.com --password Secret!1"},
+    {"desc_ar": "تأكيد تسجيل (رمز الإيميل).", "desc_en": "Confirm signup.", "cmd": "aws cognito-idp confirm-sign-up --client-id abc --username yasir@acme.com --confirmation-code 123456"},
+    {"desc_ar": "مصادقة المستخدم.", "desc_en": "Authenticate user.", "cmd": "aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id abc --auth-parameters USERNAME=yasir,PASSWORD=Secret!1"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تطبيق ويب/موبايل يحتاج تسجيل دخول.", "scenario_en": "Web/mobile app needing sign-in.", "choice": "Cognito User Pool"},
+    {"scenario_ar": "رفع ملفات المستخدم مباشرة إلى S3.", "scenario_en": "Users uploading directly to S3.", "choice": "Identity Pool + fine-grained S3 policy"},
+    {"scenario_ar": "تسجيل دخول عبر Google/Facebook.", "scenario_en": "Social login (Google/Facebook).", "choice": "User Pool + Federated Identity Providers"},
+    {"scenario_ar": "SSO شركة عبر SAML.", "scenario_en": "Enterprise SSO via SAML.", "choice": "User Pool with SAML IdP"}
+  ],
+  "exam_tips": [
+    {"ar": "User Pool = JWT. Identity Pool = AWS Credentials.", "en": "User Pool = JWT. Identity Pool = AWS Credentials."},
+    {"ar": "استخدم Authorization Code + PKCE دائمًا للـ SPA.", "en": "Always use Authorization Code + PKCE for SPAs."},
+    {"ar": "API Gateway يدعم Cognito Authorizer مباشرة عبر الـ ID Token.", "en": "API Gateway supports Cognito Authorizer directly via ID Token."},
+    {"ar": "PreTokenGeneration Lambda يُضيف claims مخصّصة للـ JWT.", "en": "PreTokenGeneration Lambda adds custom claims to the JWT."},
+    {"ar": "Identity Pool وحده لا يصادق — يحتاج مصدر مصادقة (User Pool أو خارجي).", "en": "Identity Pool alone doesn't authenticate — needs an auth source (User Pool or external)."}
+  ]
+}

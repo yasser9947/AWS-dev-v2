@@ -1,0 +1,369 @@
+{
+  "n": 25,
+  "domain": "deployment",
+  "title_ar": "Containers على AWS — ECS، ECR، Fargate، EKS",
+  "title_en": "Containers on AWS — ECS, ECR, Fargate, EKS",
+  "pages": "317-358",
+  "subtitle_ar": "تشغيل Docker على AWS: ECS (منصّة AWS الأصليّة) و EKS (Kubernetes مُدار). Fargate يحذف الحاجة إلى خوادم. ECR لتخزين الصور.",
+  "subtitle_en": "Running Docker on AWS: ECS (AWS-native) and EKS (managed Kubernetes). Fargate removes the server layer. ECR stores images.",
+  "tags": ["ECS", "Fargate", "ECR", "EKS", "Task Definition", "Task Placement"],
+  "objectives": [
+    {"concept": "ECS EC2 vs Fargate", "tested_ar": "النطاق الثالث — متى أختار كلاً منهما.", "tested_en": "Domain 3 — when to pick which."},
+    {"concept": "Task Definition & Task Role", "tested_ar": "النطاق الثالث — الفرق بين executionRoleArn و taskRoleArn.", "tested_en": "Domain 3 — executionRoleArn vs taskRoleArn."},
+    {"concept": "Task Placement", "tested_ar": "النطاق الثالث — binpack، spread، random، constraints.", "tested_en": "Domain 3 — binpack, spread, random, constraints."},
+    {"concept": "ECR", "tested_ar": "النطاق الثالث — Docker login، push/pull، IAM.", "tested_en": "Domain 3 — Docker login, push/pull, IAM."}
+  ],
+  "sections": [
+    {
+      "title_ar": "Docker على AWS — نظرة عامّة",
+      "title_en": "Docker on AWS — overview",
+      "blocks": [
+        {"type": "p",
+         "ar": "Docker يغلّف التطبيق مع كل اعتماديّاته داخل <strong>Container</strong> يعمل بنفس الطريقة على أيّ نظام. على AWS، لك ثلاث طرق لتشغيل Docker: <strong>ECS</strong>، <strong>EKS</strong>، و <strong>Fargate</strong>. ECR هو Registry لتخزين الصور.",
+         "en": "Docker packages an app with all its dependencies in a <strong>container</strong> that runs the same on any OS. On AWS you have three ways to run Docker: <strong>ECS</strong>, <strong>EKS</strong>, and <strong>Fargate</strong>. ECR is the image registry."},
+        {"type": "table",
+         "headers": {"ar": ["الخدمة", "ماذا تقدّم"], "en": ["Service", "What it provides"]},
+         "rows": [
+           [{"mono": true, "value": "ECS"}, {"ar": "منصّة Docker الأصليّة من Amazon. EC2 Launch Type (تُدير EC2) أو Fargate (Serverless).", "en": "Amazon's native Docker platform. EC2 Launch Type (you manage EC2) or Fargate (serverless)."}],
+           [{"mono": true, "value": "Fargate"}, {"ar": "Serverless — يعمل مع ECS أو EKS. بدون إدارة خوادم. ادفع بالـ vCPU/memory.", "en": "Serverless — works with ECS or EKS. No server management. Pay per vCPU/memory."}],
+           [{"mono": true, "value": "EKS"}, {"ar": "Kubernetes مُدار. مفتوح المصدر، cloud-agnostic. استخدمه لو فريقك يعرف k8s.", "en": "Managed Kubernetes. Open source, cloud-agnostic. Use if your team knows k8s."}],
+           [{"mono": true, "value": "ECR"}, {"ar": "Registry لتخزين الصور. Private أو Public (gallery.ecr.aws).", "en": "Registry for images. Private or Public (gallery.ecr.aws)."}]
+         ]
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "<strong>Task</strong> = instance of Docker container. <strong>Service</strong> = عدد من Tasks لها load balancing و auto-scaling. <strong>Cluster</strong> = مجموعة Tasks/Services.",
+         "en": "<strong>Task</strong> = instance of a Docker container. <strong>Service</strong> = N tasks with load balancing and auto-scaling. <strong>Cluster</strong> = a group of tasks/services."}
+      ]
+    },
+    {
+      "title_ar": "ECS EC2 Launch Type vs Fargate",
+      "title_en": "ECS EC2 Launch Type vs Fargate",
+      "blocks": [
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "server", "title_ar": "EC2 Launch Type", "title_en": "EC2 Launch Type",
+                  "body_ar": "أنت تُدير EC2 Instances وعليك تثبيت <strong>ECS Agent</strong>. أرخص للأحمال الثابتة، تحكّم كامل بالـ OS والـ instance types.",
+                  "body_en": "You manage EC2 instances and install the <strong>ECS Agent</strong>. Cheaper for steady workloads, full control over OS and instance types."},
+         "right": {"tone": "emerald", "icon": "zap", "title_ar": "Fargate", "title_en": "Fargate",
+                   "body_en": "Serverless. You define CPU/memory — AWS runs it. No servers to patch. Per-second billing. Pricier per unit but zero ops.",
+                   "body_ar": "Serverless. تُعرّف CPU/memory — AWS تشغّل. لا خوادم للصيانة. فوترة بالثانية. أغلى للوحدة، لكن بصفر عمليّات."}
+        },
+        {"type": "callout", "tone": "key",
+         "ar": "الاختيار في الامتحان: <strong>Fargate</strong> للأحمال المتقطّعة، الإقلاع السريع، أو تجنّب إدارة الخوادم. <strong>EC2 Launch Type</strong> للتحكّم الكامل (مثل GPU instances)، أو لأحمال ٢٤/٧ كبيرة بتكلفة أقلّ مع Reserved Instances.",
+         "en": "Exam pick: <strong>Fargate</strong> for spiky workloads, fast start, or avoiding server management. <strong>EC2 Launch Type</strong> for full control (GPU instances) or 24/7 heavy workloads at lower cost with Reserved Instances."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "server", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "EC2 Launch Type", "title_en": "EC2 Launch Type", "body_ar": "تحتاج: EC2 + ECS Agent + Capacity Provider لإدارة التوسّع.", "body_en": "Needs: EC2 + ECS Agent + Capacity Provider for scaling."},
+          {"icon": "sparkles", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Fargate", "title_en": "Fargate", "body_ar": "تحتاج: Task Definition فقط. AWS تُدير كل شيء.", "body_en": "Needs: just a Task Definition. AWS manages everything."}
+        ]}
+      ]
+    },
+    {
+      "title_ar": "Task Definition و IAM Roles (نقطة حرجة في الامتحان)",
+      "title_en": "Task Definition & IAM Roles (exam hotspot)",
+      "blocks": [
+        {"type": "p",
+         "ar": "Task Definition هو JSON يصف كيف تُشغَّل الـ Containers: الصورة، CPU، Memory، Networking، Ports، Volumes، Environment Variables، و <strong>نوعان من IAM Roles</strong>.",
+         "en": "Task Definition is a JSON describing how to run containers: image, CPU, memory, networking, ports, volumes, env vars, and <strong>two types of IAM roles</strong>."},
+        {"type": "table",
+         "headers": {"ar": ["الدور", "من يستخدمه", "الغرض"], "en": ["Role", "Who uses it", "Purpose"]},
+         "rows": [
+           [{"mono": true, "value": "executionRoleArn"}, {"ar": "ECS Agent / Fargate infrastructure", "en": "ECS Agent / Fargate infra"}, {"ar": "سحب صورة من ECR، إرسال Logs لـ CloudWatch، قراءة Secrets Manager/SSM عند بدء التشغيل", "en": "Pull image from ECR, send logs to CloudWatch, read Secrets/SSM at startup"}],
+           [{"mono": true, "value": "taskRoleArn"}, {"ar": "كود التطبيق داخل Container", "en": "App code inside the container"}, {"ar": "صلاحيات التطبيق (S3، DynamoDB، SQS، ...)", "en": "App permissions (S3, DynamoDB, SQS, ...)"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "<strong>فخّ الامتحان</strong>: خلط بين <span dir=\"ltr\" class=\"font-mono\">executionRoleArn</span> و <span dir=\"ltr\" class=\"font-mono\">taskRoleArn</span>. التطبيق Java داخل Container يستخدم <strong>taskRoleArn</strong> للوصول إلى S3 مثلاً. لكنّ Fargate نفسه يستخدم <strong>executionRoleArn</strong> لسحب الصورة من ECR.",
+         "en": "<strong>Exam trap</strong>: confusing <span dir=\"ltr\" class=\"font-mono\">executionRoleArn</span> and <span dir=\"ltr\" class=\"font-mono\">taskRoleArn</span>. A Java app inside a container uses <strong>taskRoleArn</strong> to access S3 or similar. But Fargate itself uses <strong>executionRoleArn</strong> to pull the image from ECR."},
+        {"type": "code", "lang": "json",
+         "code": "{\n  \"family\": \"acme-api\",\n  \"networkMode\": \"awsvpc\",\n  \"requiresCompatibilities\": [\"FARGATE\"],\n  \"cpu\": \"512\",\n  \"memory\": \"1024\",\n  \"executionRoleArn\": \"arn:aws:iam::123:role/ecsTaskExecutionRole\",\n  \"taskRoleArn\":      \"arn:aws:iam::123:role/AcmeAppRole\",\n  \"containerDefinitions\": [\n    {\n      \"name\": \"api\",\n      \"image\": \"123.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1.4.2\",\n      \"essential\": true,\n      \"portMappings\": [{\"containerPort\": 8080, \"protocol\": \"tcp\"}],\n      \"environment\": [\n        {\"name\": \"SPRING_PROFILES_ACTIVE\", \"value\": \"prod\"}\n      ],\n      \"secrets\": [\n        {\"name\": \"DB_PASSWORD\", \"valueFrom\": \"arn:aws:secretsmanager:us-east-1:123:secret:prod/db-AbCdEf\"}\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"/ecs/acme-api\",\n          \"awslogs-region\": \"us-east-1\",\n          \"awslogs-stream-prefix\": \"api\"\n        }\n      }\n    }\n  ]\n}"}
+      ]
+    },
+    {
+      "title_ar": "Task Placement (EC2 Launch Type فقط)",
+      "title_en": "Task Placement (EC2 Launch Type only)",
+      "blocks": [
+        {"type": "p",
+         "ar": "عند تشغيل Tasks على <strong>EC2 Launch Type</strong>، ECS يحتاج اختيار EC2 Instance لوضع الـ Task فيها. Fargate لا يحتاج هذا لأنّه Serverless.",
+         "en": "With <strong>EC2 Launch Type</strong>, ECS must choose an EC2 instance to place each task. Fargate doesn't need this because it's serverless."},
+        {"type": "table",
+         "headers": {"ar": ["الاستراتيجيّة", "السلوك", "الاستخدام"], "en": ["Strategy", "Behavior", "Use case"]},
+         "rows": [
+           [{"mono": true, "value": "binpack"}, {"ar": "يضع Tasks على أقل Instances متاحة (ضغط). يُقلّل عدد EC2.", "en": "Packs tasks on the fewest instances. Minimizes EC2 count."}, {"ar": "توفير التكلفة", "en": "Cost savings"}],
+           [{"mono": true, "value": "spread"}, {"ar": "توزيع متساوٍ على قيمة (AZ، instanceId).", "en": "Even spread by a value (AZ, instanceId)."}, {"ar": "عالي التوفّر، AZ diversification", "en": "High availability, AZ diversification"}],
+           [{"mono": true, "value": "random"}, {"ar": "اختيار عشوائيّ.", "en": "Random placement."}, {"ar": "بسيط، بلا إعدادات", "en": "Simple, no tuning"}]
+         ]
+        },
+        {"type": "code", "lang": "json",
+         "code": "// Mix strategies for HA + cost-efficient cluster\n\"placementStrategy\": [\n  { \"type\": \"spread\", \"field\": \"attribute:ecs.availability-zone\" },\n  { \"type\": \"binpack\", \"field\": \"memory\" }\n]\n\n// Constraints — hard rules\n\"placementConstraints\": [\n  { \"type\": \"distinctInstance\" },                                // no two tasks on same EC2\n  { \"type\": \"memberOf\", \"expression\": \"attribute:ecs.instance-type =~ t3.*\" }\n]"},
+        {"type": "callout", "tone": "senior",
+         "ar": "الأمر الذي يحدث فعلياً: ECS يختار Instances بالترتيب التالي: ١) تُرضي CPU/memory/port، ٢) Constraints، ٣) Strategies. الـ Strategies <em>best effort</em>، Constraints صارمة.",
+         "en": "What actually happens: ECS picks instances in this order: 1) CPU/memory/port requirements, 2) constraints, 3) strategies. Strategies are <em>best effort</em>; constraints are strict."}
+      ]
+    },
+    {
+      "title_ar": "ECR، Service Discovery، و EKS",
+      "title_en": "ECR, Service Discovery & EKS",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>ECR (Elastic Container Registry)</strong> لتخزين صور Docker على AWS. مدعوم بـ S3، مشفّر، مع vulnerability scanning و lifecycle policies.",
+         "en": "<strong>ECR (Elastic Container Registry)</strong> stores Docker images on AWS. Backed by S3, encrypted, with vulnerability scanning and lifecycle policies."},
+        {"type": "code", "lang": "bash",
+         "code": "# Login (AWS CLI v2)\naws ecr get-login-password --region us-east-1 | \\\n  docker login --username AWS \\\n  --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com\n\n# Build and push\ndocker build -t acme-api:v1 .\ndocker tag  acme-api:v1 \\\n  123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1\ndocker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1\n\n# Pull on another machine\ndocker pull 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1"},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "خطأ شائع: <em>\"No such image\"</em> أو <em>\"pull access denied\"</em> عند تشغيل Task. السبب ٩٠٪: الـ <strong>executionRoleArn</strong> لا يملك <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy</span> (التي تتضمّن أذونات ECR + CloudWatch Logs).",
+         "en": "Common error: <em>\"No such image\"</em> or <em>\"pull access denied\"</em> on task start. 90% cause: <strong>executionRoleArn</strong> is missing <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy</span> (which includes ECR + CloudWatch Logs permissions)."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "history", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "ECR Lifecycle Policies", "title_en": "ECR Lifecycle Policies", "body_ar": "قواعد لحذف الصور القديمة (بالوقت أو العدد) لتوفير التكلفة.", "body_en": "Rules to delete old images (by age or count) to save cost."},
+          {"icon": "shield", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Image Scanning", "title_en": "Image scanning", "body_ar": "ECR يفحص الصور لاكتشاف الثغرات الأمنيّة عند Push أو عند طلب يدويّ.", "body_en": "ECR scans images for vulnerabilities on push or on demand."},
+          {"icon": "compass", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Service Discovery", "title_en": "Service Discovery", "body_ar": "ECS + Cloud Map = إعطاء Tasks DNS names قابلة للكشف بدون Load Balancer للـ microservices.", "body_en": "ECS + Cloud Map = give tasks discoverable DNS names — no ALB needed for internal microservices."},
+          {"icon": "kubernetes", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "EKS (Kubernetes)", "title_en": "EKS (Kubernetes)", "body_ar": "للشركات التي تستخدم k8s. EKS يُدير Control Plane، أنت تُدير Worker Nodes (EC2 أو Fargate).", "body_en": "For companies using k8s. EKS manages the control plane; you manage worker nodes (EC2 or Fargate)."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "الأمور المهمّة للامتحان في EKS: يدعم <strong>EC2 worker nodes</strong> أو <strong>Fargate</strong>، <strong>cloud-agnostic</strong> (تطبيق k8s يعمل في Azure/GCP)، مناسب للشركات التي تملك خبرة k8s محلياً وتريد الترحيل.",
+         "en": "EKS exam essentials: supports <strong>EC2 worker nodes</strong> or <strong>Fargate</strong>, is <strong>cloud-agnostic</strong> (k8s app runs on Azure/GCP), ideal for companies with existing k8s skills migrating to AWS."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "بناء صورة Docker لتطبيق Spring Boot، رفعها إلى ECR، وتشغيلها على Fargate خلف ALB.",
+    "goal_en": "Build a Docker image for a Spring Boot app, push to ECR, and run on Fargate behind an ALB.",
+    "steps": [
+      {"title_ar": "أنشئ Dockerfile لـ Spring Boot", "title_en": "Create Dockerfile for Spring Boot",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "# Dockerfile\nFROM eclipse-temurin:17-jre\nCOPY target/acme-*.jar /app/app.jar\nEXPOSE 8080\nENTRYPOINT [\"java\", \"-jar\", \"/app/app.jar\"]"},
+      {"title_ar": "أنشئ ECR Repository", "title_en": "Create ECR repository",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "aws ecr create-repository --repository-name acme-api"},
+      {"title_ar": "Login و Push", "title_en": "Login and push",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "aws ecr get-login-password --region us-east-1 | \\\n  docker login --username AWS --password-stdin \\\n  123456789012.dkr.ecr.us-east-1.amazonaws.com\n\ndocker build -t acme-api .\ndocker tag acme-api 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1\ndocker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/acme-api:v1"},
+      {"title_ar": "أنشئ ECS Cluster", "title_en": "Create ECS cluster",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "aws ecs create-cluster --cluster-name acme-cluster"},
+      {"title_ar": "سجّل Task Definition", "title_en": "Register task definition",
+       "body_ar": "احفظ JSON (من القسم ٣) في task-def.json، ثمّ:",
+       "body_en": "Save the JSON from section 3 as task-def.json, then:",
+       "lang": "bash",
+       "code": "aws ecs register-task-definition --cli-input-json file://task-def.json"},
+      {"title_ar": "أنشئ Service مع ALB", "title_en": "Create Service with ALB",
+       "body_ar": "من Console: Create Service → Fargate → Task Definition → ALB → 2 tasks. Service Auto Scaling على CPU > 70٪.",
+       "body_en": "In Console: Create Service → Fargate → Task Definition → ALB → 2 tasks. Service Auto Scaling on CPU > 70%."},
+      {"title_ar": "تنظيف", "title_en": "Cleanup",
+       "body_ar": "",
+       "body_en": "",
+       "lang": "bash",
+       "code": "# Delete service → cluster → ECR repo\naws ecs delete-service --cluster acme-cluster --service acme-api --force\naws ecs delete-cluster --cluster acme-cluster\naws ecr delete-repository --repository-name acme-api --force"}
+    ],
+    "warning_ar": "Fargate و ALB لديهما تكلفة ثابتة ولو صغيرة. احذف كل شيء بعد الاختبار. تحقّق من عدم وجود ECR images في Public gallery محمّلة عليها بيانات حسّاسة.",
+    "warning_en": "Fargate and ALB have a small ongoing cost. Delete everything after testing. Never push sensitive data to public ECR gallery images."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "تطبيق Java Spring Boot داخل ECS Task يحتاج الوصول إلى DynamoDB Table. أيّ Role المناسب؟",
+      "question_en": "A Java Spring Boot app inside an ECS task needs DynamoDB access. Which role is appropriate?",
+      "options_ar": ["executionRoleArn", "taskRoleArn", "EC2 Instance Profile", "ECS Cluster Role"],
+      "options_en": ["executionRoleArn", "taskRoleArn", "EC2 Instance Profile", "ECS Cluster Role"],
+      "correct": 1,
+      "explanation_ar": "<strong>taskRoleArn</strong> هو المخصّص لصلاحيات كود التطبيق داخل Container. الـ SDK يأخذها تلقائياً. <strong>executionRoleArn</strong> لـ ECS Agent / Fargate infrastructure (سحب الصورة، إرسال Logs).",
+      "explanation_en": "<strong>taskRoleArn</strong> is for the app code inside the container. The SDK picks it up automatically. <strong>executionRoleArn</strong> is for ECS Agent / Fargate infra (pulling images, sending logs).",
+      "wrong_ar": ["هذا لـ Fargate/ECS infrastructure.", "", "لـ EC2 لا للـ Container.", "لا يوجد دور بهذا الاسم."],
+      "wrong_en": ["That's for Fargate/ECS infra.", "", "For the EC2 instance, not the container.", "No such role."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "Task يفشل عند البدء مع خطأ <em>\"CannotPullContainerError\"</em> من ECR. ما السبب الأرجح؟",
+      "question_en": "A task fails on start with <em>\"CannotPullContainerError\"</em> from ECR. Most likely cause?",
+      "options_ar": ["كود التطبيق خاطئ.", "executionRoleArn ناقصه أذونات ECR و CloudWatch Logs.", "Security Group يمنع الخروج.", "ECR Repository محذوف."],
+      "options_en": ["App code is buggy.", "executionRoleArn missing ECR + CloudWatch Logs permissions.", "Security Group blocks egress.", "ECR repository deleted."],
+      "correct": 1,
+      "explanation_ar": "سحب الصورة من ECR عمليّة <strong>infrastructure</strong> لا <strong>application</strong>. يحتاج <span dir=\"ltr\" class=\"font-mono\">executionRoleArn</span> أن يحوي <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy</span>. الخطأ شائع جداً عند نسيانه.",
+      "explanation_en": "Pulling from ECR is an <strong>infrastructure</strong> operation, not application. <span dir=\"ltr\" class=\"font-mono\">executionRoleArn</span> needs <span dir=\"ltr\" class=\"font-mono\">AmazonECSTaskExecutionRolePolicy</span>. Very common oversight.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "شركة تريد تشغيل ECS بدون إدارة EC2 Instances أو تحديثات OS. ما اللانش تايب؟",
+      "question_en": "A company wants to run ECS without managing EC2 or OS patches. Which launch type?",
+      "options_ar": ["EC2 Launch Type", "Fargate", "EKS", "Lambda"],
+      "options_en": ["EC2 Launch Type", "Fargate", "EKS", "Lambda"],
+      "correct": 1,
+      "explanation_ar": "<strong>Fargate</strong> هو Serverless: تُعرّف Task Definition فقط، AWS تُدير كل شيء. لا EC2، لا OS patches. الفوترة بالـ vCPU/memory بالثانية. أغلى من EC2 للوحدة لكنّ zero-ops.",
+      "explanation_en": "<strong>Fargate</strong> is serverless: you only define a task definition, AWS runs everything. No EC2, no patches. Billed per vCPU/memory per second. More expensive per unit than EC2 but zero-ops.",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "شركة تملك ECS Cluster (EC2 Launch Type) وتريد تقليل عدد EC2 Instances قدر الإمكان (ضغط Tasks على أقلّ Instances). ما الـ Placement Strategy؟",
+      "question_en": "A company has an ECS cluster (EC2 Launch Type) and wants to minimize EC2 instance count (pack tasks tightly). Which placement strategy?",
+      "options_ar": ["random", "spread", "binpack", "distinctInstance"],
+      "options_en": ["random", "spread", "binpack", "distinctInstance"],
+      "correct": 2,
+      "explanation_ar": "<strong>binpack</strong> يضغط Tasks على أقلّ Instances ممكنة حتى تمتلئ. يُقلّل تكلفة EC2. <strong>spread</strong> على العكس يُوزّع للعالي التوفّر. <strong>distinctInstance</strong> Constraint ليست Strategy.",
+      "explanation_en": "<strong>binpack</strong> compacts tasks onto the fewest instances until full. Minimizes EC2 cost. <strong>spread</strong> does the opposite for HA. <strong>distinctInstance</strong> is a constraint, not a strategy.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "تطبيق microservices يحتاج عالي توفّر بتوزيع Tasks عبر كل AZs. ما الإعداد؟",
+      "question_en": "A microservices app needs HA by spreading tasks across all AZs. Configuration?",
+      "options_ar": ["placementStrategy: binpack", "placementStrategy: spread, field: availability-zone", "placementStrategy: random", "placementConstraints: distinctInstance"],
+      "options_en": ["placementStrategy: binpack", "placementStrategy: spread, field: availability-zone", "placementStrategy: random", "placementConstraints: distinctInstance"],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">spread</span> مع <span dir=\"ltr\" class=\"font-mono\">attribute:ecs.availability-zone</span> يوزّع Tasks بالتساوي عبر AZs. <span dir=\"ltr\" class=\"font-mono\">distinctInstance</span> constraint يمنع وضع أكثر من Task على نفس EC2 (حالة مختلفة).",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">spread</span> with <span dir=\"ltr\" class=\"font-mono\">attribute:ecs.availability-zone</span> distributes tasks evenly across AZs. <span dir=\"ltr\" class=\"font-mono\">distinctInstance</span> prevents more than one task on the same EC2 (different case).",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "شركة Acme تستخدم Kubernetes على premises وتريد الترحيل إلى AWS مع أقلّ تغيير في الكود. ما الخيار المناسب؟",
+      "question_en": "Acme uses Kubernetes on-premises and wants to migrate to AWS with minimal code change. Best fit?",
+      "options_ar": ["ECS EC2 Launch Type", "ECS Fargate", "EKS", "Lambda"],
+      "options_en": ["ECS EC2 Launch Type", "ECS Fargate", "EKS", "Lambda"],
+      "correct": 2,
+      "explanation_ar": "<strong>EKS</strong> هو Kubernetes مُدار في AWS. كل YAML manifests الحاليّة تعمل كما هي. ECS مختلف تماماً — API خاصّ بـ AWS. EKS <em>cloud-agnostic</em> لذلك يمكن تشغيل نفس التطبيق عبر clouds.",
+      "explanation_en": "<strong>EKS</strong> is managed Kubernetes on AWS. All existing YAML manifests work as-is. ECS is totally different — an AWS-specific API. EKS is <em>cloud-agnostic</em>, so the same app runs across clouds.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "تطبيق ECS يحتاج تخزين مشترك بين عدّة Tasks عبر AZs. ما الخيار؟",
+      "question_en": "An ECS app needs shared storage across multiple tasks in different AZs. Option?",
+      "options_ar": ["EBS Volume", "EFS File System mounted on tasks", "Instance Store", "S3 mounted as file system"],
+      "options_en": ["EBS Volume", "EFS File System mounted on tasks", "Instance Store", "S3 mounted as file system"],
+      "correct": 1,
+      "explanation_ar": "<strong>EFS</strong> هو نظام ملفات مُدار متعدّد AZ، يمكن ربطه بـ Tasks (EC2 و Fargate). <strong>EBS</strong> مرتبط بـ AZ واحدة فقط. <strong>S3</strong> لا يُركَّب كنظام ملفّات (object store).",
+      "explanation_en": "<strong>EFS</strong> is a managed multi-AZ file system mountable on tasks (EC2 and Fargate). <strong>EBS</strong> is single-AZ. <strong>S3</strong> isn't mountable as a filesystem (object store).",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q8", "type": "multi",
+      "question_ar": "أيّ من الآتي صحيح عن ECR؟ اختر كل ما ينطبق.",
+      "question_en": "Which are TRUE about ECR? Select all that apply.",
+      "options_ar": ["ECR يدعم Private و Public repositories.", "ECR يفحص الصور للكشف عن ثغرات أمنيّة.", "الوصول إلى ECR يُتحكَّم فيه بـ IAM.", "ECR يدعم Docker فقط، ليس OCI."],
+      "options_en": ["ECR supports Private and Public repositories.", "ECR scans images for vulnerabilities.", "ECR access is IAM-controlled.", "ECR supports Docker only, not OCI."],
+      "correct": [0, 1, 2],
+      "explanation_ar": "ECR يدعم Private و Public (Amazon ECR Public Gallery). يقدّم Vulnerability Scanning. الوصول يُتحكَّم فيه بـ IAM. ويدعم أيضاً OCI (Open Container Initiative) standards، لا Docker فقط.",
+      "explanation_en": "ECR supports Private and Public (Amazon ECR Public Gallery). Provides vulnerability scanning. Access is IAM-controlled. Also supports OCI (Open Container Initiative) standards, not just Docker.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "Service ECS تحتاج التوسّع التلقائيّ بناءً على عدد الطلبات على ALB. ما المقياس؟",
+      "question_en": "An ECS service needs auto-scaling based on ALB request count. Which metric?",
+      "options_ar": ["CPUUtilization", "MemoryUtilization", "ALBRequestCountPerTarget", "NetworkIn"],
+      "options_en": ["CPUUtilization", "MemoryUtilization", "ALBRequestCountPerTarget", "NetworkIn"],
+      "correct": 2,
+      "explanation_ar": "<strong>ALBRequestCountPerTarget</strong> هو مقياس مخصّص للتوسّع على حمل الطلبات لكل Target. ECS Service Auto Scaling يدعم: CPU، Memory، ALB Request Count Per Target. الأخير أدقّ لتطبيقات REST.",
+      "explanation_en": "<strong>ALBRequestCountPerTarget</strong> is the right metric for request-volume scaling. ECS Service Auto Scaling supports: CPU, Memory, ALBRequestCountPerTarget. The last one is most accurate for REST apps.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "Task Definition يحتوي حاويتين: أوّل للتطبيق، والثاني (sidecar) لإرسال metrics. كيف يتشاركان البيانات؟",
+      "question_en": "A task has two containers: main app and a metrics sidecar. How do they share data?",
+      "options_ar": ["EFS mount", "Bind Mount (shared volume داخل Task)", "S3 bucket", "API calls"],
+      "options_en": ["EFS mount", "Bind mount (shared volume inside task)", "S3 bucket", "API calls"],
+      "correct": 1,
+      "explanation_ar": "<strong>Bind Mount</strong> يُنشئ حجم تخزين مشترك داخل Task، مرئي لكل الحاويات. مناسب للـ <em>sidecar pattern</em>: التطبيق يكتب logs في <span dir=\"ltr\" class=\"font-mono\">/var/log/</span> و sidecar يقرأها ويرسلها إلى CloudWatch/Datadog.",
+      "explanation_en": "<strong>Bind Mount</strong> creates a shared volume inside a task, visible to all its containers. Fits the <em>sidecar pattern</em>: app writes logs to <span dir=\"ltr\" class=\"font-mono\">/var/log/</span> and the sidecar reads and ships them to CloudWatch/Datadog.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q11", "type": "single",
+      "question_ar": "عند تشغيل Service على Fargate مع ALB، كيف يتمّ توجيه الترافيك إلى كل Task؟",
+      "question_en": "On Fargate with ALB, how is traffic routed to each task?",
+      "options_ar": ["Dynamic Host Port Mapping (كما EC2 Launch Type).", "كل Task لها private IP فريد، ALB يستخدم port الـ container مباشرةً.", "NAT Gateway.", "لا يدعم ALB."],
+      "options_en": ["Dynamic host port mapping (like EC2 Launch Type).", "Each task has a unique private IP; ALB uses the container port directly.", "NAT Gateway.", "ALB not supported."],
+      "correct": 1,
+      "explanation_ar": "Fargate يعطي كل Task <strong>ENI مستقلاً مع private IP فريد</strong>. ALB يستخدم Container Port مباشرةً (مثل 8080). لا Dynamic Host Port Mapping (تلك ميزة EC2 Launch Type حيث عدّة Tasks تتشارك نفس EC2).",
+      "explanation_en": "Fargate gives each task its own <strong>ENI with a unique private IP</strong>. ALB uses the container port directly (e.g. 8080). No dynamic host port mapping (that's EC2 Launch Type, where multiple tasks share the same EC2).",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "شركة تريد تشغيل ECS Task كل ساعة لمعالجة ملفات S3 (Batch Job). ما الطريقة الأنظف؟",
+      "question_en": "A company wants an ECS task run every hour to process S3 files (batch job). Cleanest approach?",
+      "options_ar": ["Service مع Auto Scaling.", "EventBridge Schedule مع Rule: Run ECS Task.", "Lambda يُطلق ECS Task.", "Cron job على EC2."],
+      "options_en": ["Service with Auto Scaling.", "EventBridge Schedule with Rule: Run ECS Task.", "Lambda triggering ECS Task.", "Cron job on EC2."],
+      "correct": 1,
+      "explanation_ar": "<strong>EventBridge Schedule</strong> يدعم رفع ECS Task مباشرةً بجدول زمنيّ (Cron expression) دون كود إضافيّ. Service للأحمال الدائمة لا المهامّ المؤقّتة. Lambda حلّ ممكن لكنّه يضيف طبقة.",
+      "explanation_en": "<strong>EventBridge Schedule</strong> can directly launch an ECS task on a cron, no extra code. Service is for persistent workloads, not one-shot jobs. Lambda works but adds a layer.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "أيّ عبارة صحيحة عن <span dir=\"ltr\" class=\"font-mono\">networkMode: awsvpc</span> في Task Definition؟",
+      "question_en": "Which statement is TRUE about <span dir=\"ltr\" class=\"font-mono\">networkMode: awsvpc</span> in a task definition?",
+      "options_ar": ["كل Task تتشارك شبكة EC2.", "كل Task تحصل على ENI مستقل مع private IP فريد. هذا هو الوضع الإلزاميّ لـ Fargate.", "متاح فقط لـ EC2 Launch Type.", "يمنع استخدام Security Groups."],
+      "options_en": ["All tasks share the EC2 network.", "Each task gets its own ENI and unique private IP. This is the required mode for Fargate.", "Only available for EC2 Launch Type.", "Prevents Security Group usage."],
+      "correct": 1,
+      "explanation_ar": "<span dir=\"ltr\" class=\"font-mono\">awsvpc</span> يمنح كل Task شبكتها المستقلّة (ENI + private IP). إلزاميّ لـ Fargate، ومتاح اختيارياً لـ EC2 Launch Type. يُسمَح بـ Security Groups و Service Mesh.",
+      "explanation_en": "<span dir=\"ltr\" class=\"font-mono\">awsvpc</span> gives each task its own network (ENI + private IP). Required for Fargate, optional for EC2 Launch Type. Security Groups and Service Mesh are supported.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "أين تُخزَّن الأسرار (DB password) في Task Definition بطريقة آمنة؟",
+      "question_en": "Where should secrets (DB password) be stored in a task definition securely?",
+      "options_ar": ["في environment مباشرة.", "في secrets مع valueFrom يشير إلى Secrets Manager أو SSM Parameter Store.", "في Docker image.", "في EFS."],
+      "options_en": ["Directly in environment.", "In secrets with valueFrom pointing to Secrets Manager or SSM Parameter Store.", "In the Docker image.", "In EFS."],
+      "correct": 1,
+      "explanation_ar": "قسم <span dir=\"ltr\" class=\"font-mono\">secrets</span> في Task Definition يسمح بمرجع إلى Secrets Manager أو SSM Parameter Store. ECS/Fargate تسحب القيمة عند البدء وتحقنها كـ environment variable. يتطلّب executionRoleArn أن يمتلك صلاحيّة قراءة.",
+      "explanation_en": "The <span dir=\"ltr\" class=\"font-mono\">secrets</span> block in a task definition references Secrets Manager or SSM Parameter Store. ECS/Fargate fetches the value on startup and injects it as an env var. Requires executionRoleArn to have read permission.",
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "عمليّة ECS Rolling Update بإعدادات Min 50%، Max 100%. خدمة بها ٤ Tasks. ما السلوك؟",
+      "question_en": "ECS rolling update with Min 50%, Max 100%. Service has 4 tasks. Behavior?",
+      "options_ar": ["كل الـ ٤ تُحدَّث في آن.", "٢ Tasks تتوقف (تبقى ٢ = 50%) ثمّ تُستبدَل بـ V2، ثمّ الـ ٢ الأخرى. لا يمكن تجاوز ٤ (Max 100%).", "٨ Tasks يعملان معاً.", "Downtime دائماً."],
+      "options_en": ["All 4 update at once.", "2 tasks stop (2 remain = 50%) then are replaced with V2, then the other 2. Never exceeds 4 (Max 100%).", "8 tasks run together.", "Always downtime."],
+      "correct": 1,
+      "explanation_ar": "Min 50% يعني ألّا تقلّ السعة عن ٥٠٪ (٢ Tasks). Max 100% يعني عدم تجاوز السعة الأساسيّة (٤). النتيجة: يُنهي ٢ V1 (تبقى ٢ V1)، يُشغّل ٢ V2، ثم يُنهي ٢ V1 الأخرى ويُشغّل ٢ V2. لا Downtime.",
+      "explanation_en": "Min 50% = capacity never below 50% (2 tasks). Max 100% = never exceed base capacity (4). Flow: kill 2 V1 (2 V1 left), start 2 V2; then kill the other 2 V1 and start 2 V2. No downtime.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    }
+  ],
+  "summary": [
+    {"icon": "package", "title_ar": "ECS أو EKS أو Fargate", "title_en": "ECS or EKS or Fargate",
+     "body_ar": "ECS منصّة AWS الأصليّة، EKS Kubernetes، Fargate Serverless.",
+     "body_en": "ECS is AWS-native, EKS is Kubernetes, Fargate is serverless."},
+    {"icon": "key", "title_ar": "TaskRole للتطبيق، ExecutionRole للـ Infra", "title_en": "TaskRole for app, ExecutionRole for infra",
+     "body_ar": "خلط بينهما خطأ امتحان شائع جداً.",
+     "body_en": "Mixing them up is a very common exam trap."},
+    {"icon": "layout-grid", "title_ar": "binpack للتكلفة، spread للتوفّر", "title_en": "binpack for cost, spread for availability",
+     "body_ar": "Task Placement فقط لـ EC2 Launch Type، Fargate لا يحتاجه.",
+     "body_en": "Task placement is EC2-only; Fargate doesn't need it."},
+    {"icon": "archive", "title_ar": "ECR = Registry مع IAM", "title_en": "ECR = registry with IAM",
+     "body_ar": "Pull Errors ⇒ executionRoleArn ناقصة ECR policy.",
+     "body_en": "Pull errors ⇒ missing ECR policy on executionRoleArn."}
+  ],
+  "mnemonic_ar": "<strong>\"ExecPulls، TaskAccesses\"</strong>: <strong>Exec</strong>utionRole يسحب الصورة من ECR؛ <strong>Task</strong>Role هو ما يستخدمه التطبيق للوصول إلى S3/DynamoDB. للـ Placement: <strong>\"Bpack = Cheap، Spread = Safe\"</strong>.",
+  "mnemonic_en": "<strong>\"ExecPulls, TaskAccesses\"</strong>: <strong>Exec</strong>utionRole pulls the image from ECR; <strong>Task</strong>Role is what the app uses to access S3/DynamoDB. For placement: <strong>\"Bpack = Cheap, Spread = Safe\"</strong>.",
+  "prev": 24,
+  "next": 26
+}

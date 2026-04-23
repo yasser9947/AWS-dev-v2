@@ -1,0 +1,47 @@
+{
+  "slug": "ec2",
+  "name": "Amazon EC2",
+  "icon": "server",
+  "color": "orange",
+  "tagline_ar": "سيرفرات افتراضية قابلة للتوسعة في السحابة مع أنواع instance متعدّدة وخيارات دفع مرنة.",
+  "tagline_en": "Scalable virtual servers with multiple instance types and flexible pricing.",
+  "key_concepts": [
+    {"concept": "Instance Types", "desc_ar": "T/M (عام)، C (حوسبة)، R/X (ذاكرة)، I (IOPS)، G/P (GPU)، Mac (macOS).", "desc_ar_note": "", "desc_en": "T/M (general), C (compute), R/X (memory), I (I/O), G/P (GPU), Mac (macOS)."},
+    {"concept": "Pricing Models", "desc_ar": "On-Demand، Reserved (1y/3y)، Savings Plan، Spot (حتى 90% توفير)، Dedicated Host، Dedicated Instance.", "desc_en": "On-Demand, Reserved, Savings Plan, Spot (up to 90% off), Dedicated Host, Dedicated Instance."},
+    {"concept": "AMI", "desc_ar": "صورة قالب للـ instance تحتوي OS + تطبيقات مُسبّقة — خاصة/عامة/Marketplace.", "desc_en": "Image template with pre-installed OS + apps — private/public/marketplace."},
+    {"concept": "Placement Groups", "desc_ar": "Cluster (أداء عالي)، Spread (موزّع على hardware)، Partition (لتقسيم Hadoop/Kafka).", "desc_en": "Cluster (perf), Spread (across hardware), Partition (for Hadoop/Kafka)."},
+    {"concept": "User Data & Metadata", "desc_ar": "User Data = سكريبت يعمل عند أول تشغيل. Metadata = http://169.254.169.254 لجلب معلومات الـ instance.", "desc_en": "User Data = script on first boot. Metadata = http://169.254.169.254 for instance info."},
+    {"concept": "IMDSv2", "desc_ar": "الإصدار الآمن — يتطلّب session token ويمنع SSRF attacks.", "desc_en": "Secure version — requires session token, prevents SSRF."},
+    {"concept": "ENI & Elastic IP", "desc_ar": "ENI = بطاقة شبكة افتراضية، Elastic IP = IPv4 عام ثابت.", "desc_en": "ENI = virtual NIC; Elastic IP = static public IPv4."},
+    {"concept": "Security Groups & NACLs", "desc_ar": "SG على مستوى الـ instance (stateful)، NACL على subnet (stateless).", "desc_en": "SG at instance-level (stateful); NACL at subnet-level (stateless)."}
+  ],
+  "limits": [
+    {"limit": "Instances قيد التشغيل", "limit_en": "Running on-demand instances", "value": "vCPU-based (soft)", "note_ar": "حسب vCPU — قابل للزيادة.", "note_en": "vCPU-based, can be raised."},
+    {"limit": "Elastic IPs", "limit_en": "Elastic IPs per region", "value": "5 (soft)", "note_ar": "الحدّ الافتراضي 5 ويمكن رفعه.", "note_en": "Default 5, can be raised."},
+    {"limit": "User Data size", "limit_en": "User Data size", "value": "16 KB", "note_ar": "قبل الترميز Base64.", "note_en": "Before Base64 encoding."},
+    {"limit": "EBS Volumes per instance", "limit_en": "EBS Volumes per instance", "value": "~28 (Nitro)", "note_ar": "يختلف حسب نوع الـ instance.", "note_en": "Varies by instance type."},
+    {"limit": "IAM Role per instance", "limit_en": "IAM Role per instance", "value": "1", "note_ar": "instance profile واحد فقط.", "note_en": "One instance profile only."},
+    {"limit": "Security Groups per ENI", "limit_en": "Security Groups per ENI", "value": "5 (soft, up to 16)", "note_ar": "قابل للزيادة.", "note_en": "Can be raised."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "تشغيل instance جديد.", "desc_en": "Launch a new instance.", "cmd": "aws ec2 run-instances --image-id ami-xxx --count 1 --instance-type t3.micro --key-name my-key --security-group-ids sg-xxx"},
+    {"desc_ar": "عرض instances قيد التشغيل.", "desc_en": "List running instances.", "cmd": "aws ec2 describe-instances --filters Name=instance-state-name,Values=running"},
+    {"desc_ar": "إيقاف instance.", "desc_en": "Stop instance.", "cmd": "aws ec2 stop-instances --instance-ids i-xxx"},
+    {"desc_ar": "إنشاء AMI من instance.", "desc_en": "Create AMI from instance.", "cmd": "aws ec2 create-image --instance-id i-xxx --name acme-web-v1"},
+    {"desc_ar": "تطبيق Instance Profile (IAM Role).", "desc_en": "Attach instance profile.", "cmd": "aws ec2 associate-iam-instance-profile --iam-instance-profile Name=AcmeAppRole --instance-id i-xxx"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "أعباء غير ثابتة/مفاجئة (dev/test).", "scenario_en": "Bursty unpredictable workloads (dev/test).", "choice": "On-Demand"},
+    {"scenario_ar": "أعباء مستقرّة لأكثر من سنة.", "scenario_en": "Steady workloads > 1 year.", "choice": "Reserved / Savings Plan"},
+    {"scenario_ar": "مهام قابلة للمقاطعة (Batch، CI).", "scenario_en": "Interruptible jobs (Batch, CI).", "choice": "Spot"},
+    {"scenario_ar": "HPC أو ML منخفض زمن الاستجابة.", "scenario_en": "Low-latency HPC or ML.", "choice": "Cluster Placement Group + enhanced networking"},
+    {"scenario_ar": "امتثال يتطلّب hardware مخصّص.", "scenario_en": "Compliance requiring dedicated hardware.", "choice": "Dedicated Host"}
+  ],
+  "exam_tips": [
+    {"ar": "Stop يحفظ البيانات على EBS، Terminate يحذفها (ما لم تُضبط DeleteOnTermination=false).", "en": "Stop preserves EBS; Terminate deletes (unless DeleteOnTermination=false)."},
+    {"ar": "IMDSv2 إلزامي لمنع SSRF — اضبط HttpTokens=required.", "en": "Enforce IMDSv2 to prevent SSRF — set HttpTokens=required."},
+    {"ar": "Spot + On-Demand Base = مزيج فعّال للتوفير.", "en": "Spot + On-Demand Base = cost-effective blend."},
+    {"ar": "Cluster PG للأداء، Spread للاستقلالية، Partition لبيانات كبيرة.", "en": "Cluster for perf, Spread for independence, Partition for big data."},
+    {"ar": "لا تُخزّن مفاتيح AWS على الـ instance — استخدم IAM Role.", "en": "Never store AWS keys on instance — use IAM Role."}
+  ]
+}

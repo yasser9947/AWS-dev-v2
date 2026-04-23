@@ -1,0 +1,442 @@
+{
+  "n": 12,
+  "domain": "development",
+  "title_ar": "Amazon DynamoDB",
+  "title_en": "Amazon DynamoDB",
+  "pages": "608-661",
+  "subtitle_ar": "قاعدة بيانات NoSQL مُدارة بالكامل و serverless، توفّر زمن استجابة بالأجزاء من الألف من الثانية على أيّ مقياس. فهم مفاتيح التقسيم والفهارس وأنماط القراءة/الكتابة حجر الأساس للامتحان.",
+  "subtitle_en": "A fully managed, serverless NoSQL database with single-digit millisecond latency at any scale. Mastering partition keys, indexes, and read/write patterns is the exam's bedrock.",
+  "tags": ["DynamoDB", "NoSQL", "GSI", "LSI", "DAX", "Streams", "TTL"],
+  "objectives": [
+    {"concept": "Partition Keys & Hot Partitions", "tested_ar": "النطاق الأول في اختيار المفتاح الصحيح لتوزيع الحِمل وتجنّب الاختناق.", "tested_en": "Domain 1 — pick the right key to distribute load and avoid throttling."},
+    {"concept": "GSI vs LSI", "tested_ar": "النطاق الأول في أسئلة متى نستخدم كل واحد، وتأثير الـ WCU/RCU.", "tested_en": "Domain 1 — when to use each, and their capacity implications."},
+    {"concept": "DAX & Caching", "tested_ar": "النطاق الأول والرابع في حلّ مشاكل الـ Hot Keys.", "tested_en": "Domains 1 & 4 — solving hot key problems."},
+    {"concept": "Streams & Event-Driven", "tested_ar": "النطاق الأول في تكامل DynamoDB مع Lambda و Kinesis.", "tested_en": "Domain 1 — integrating DynamoDB with Lambda & Kinesis."},
+    {"concept": "Transactions & Conditional Writes", "tested_ar": "النطاق الأول في ضمان اتّساق البيانات (ACID).", "tested_en": "Domain 1 — ensuring data consistency (ACID)."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هي DynamoDB ومفاهيم أساسية",
+      "title_en": "What is DynamoDB & core concepts",
+      "blocks": [
+        {"type": "p",
+         "ar": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">DynamoDB</span> قاعدة بيانات <strong>NoSQL</strong> مُدارة بالكامل من AWS، تدعم النسخ التلقائي بين مناطق التوفّر، وتقدّم زمن استجابة ثابت بأجزاء من الألف من الثانية على أيّ مقياس — ملايين الطلبات في الثانية وتريليونات الصفوف ومئات التيرابايت. هي الخيار المعياريّ لتطبيقات Lambda + API Gateway لأنّها serverless بطبيعتها.",
+         "en": "<span dir=\"ltr\" class=\"font-mono text-brand-700\">DynamoDB</span> is AWS's fully managed <strong>NoSQL</strong> database with automatic multi-AZ replication. It offers consistent single-digit millisecond latency at any scale — millions of requests/sec, trillions of rows, 100s of TB. It's the default pick for Lambda + API Gateway stacks because it's inherently serverless."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "database", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "جداول (Tables)", "title_en": "Tables", "body_ar": "كل جدول يحتاج <strong>Primary Key</strong> يُحدّد عند الإنشاء. عدد العناصر غير محدود.", "body_en": "Every table needs a <strong>Primary Key</strong> defined at creation. Items per table are unlimited."},
+          {"icon": "file", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "عناصر (Items)", "title_en": "Items", "body_ar": "يعادل الصف في SQL. الحدّ الأقصى لحجم العنصر <strong>٤٠٠ كيلوبايت</strong>.", "body_en": "Equivalent to a row in SQL. Max item size is <strong>400 KB</strong>."},
+          {"icon": "tag", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "سمات (Attributes)", "title_en": "Attributes", "body_ar": "كل عنصر يحتوي سمات قابلة للإضافة بمرور الوقت. Schema-less بعد المفتاح.", "body_en": "Each item has attributes you can add over time. Schema-less beyond the key."},
+          {"icon": "layers", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "أنواع البيانات", "title_en": "Data Types", "body_ar": "Scalar: <span class=\"font-mono\">String, Number, Binary, Boolean, Null</span>. Document: <span class=\"font-mono\">List, Map</span>. Set: <span class=\"font-mono\">String/Number/Binary Set</span>.", "body_en": "Scalar: <span class=\"font-mono\">String, Number, Binary, Boolean, Null</span>. Document: <span class=\"font-mono\">List, Map</span>. Set: <span class=\"font-mono\">String/Number/Binary Set</span>."}
+        ]},
+        {"type": "callout", "tone": "key",
+         "ar": "DynamoDB <strong>لا تدعم joins</strong> ولا <strong>aggregations (SUM/AVG)</strong>. يجب تصميم البيانات بحيث تكون كل بيانات الاستعلام في صفّ واحد. هذا مفهوم single-table design.",
+         "en": "DynamoDB has <strong>no joins</strong> and <strong>no aggregations (SUM/AVG)</strong>. Model your data so all data for a query lives in one row — that's single-table design."}
+      ]
+    },
+    {
+      "title_ar": "Primary Keys و Partitions والـ Hot Keys",
+      "title_en": "Primary Keys, Partitions, and Hot Keys",
+      "blocks": [
+        {"type": "p",
+         "ar": "للـ Primary Key خياران: <strong>Partition Key وحده (HASH)</strong> حيث يجب أن يكون فريداً لكل عنصر، أو <strong>Partition Key + Sort Key (HASH + RANGE)</strong> حيث يجب أن تكون الـ combination فريدة. البيانات تُجمَّع فيزيائياً حسب الـ Partition Key ويتم فرزها داخلياً حسب الـ Sort Key.",
+         "en": "Primary Key has two options: <strong>Partition Key alone (HASH)</strong> which must be unique per item, or <strong>Partition Key + Sort Key (HASH + RANGE)</strong> where the combination must be unique. Data is physically grouped by Partition Key and sorted internally by Sort Key."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "key", "title_ar": "Partition Key جيّد", "title_en": "Good Partition Key",
+                  "body_ar": "قيمة ذات cardinality عالية وتوزيع متساوٍ. مثال: <span dir=\"ltr\" class=\"font-mono\">user_id</span>, <span dir=\"ltr\" class=\"font-mono\">order_id</span>, UUID. توزّع الحِمل بين الـ partitions بالتساوي.",
+                  "body_en": "High cardinality, evenly distributed. Example: <span dir=\"ltr\" class=\"font-mono\">user_id</span>, <span dir=\"ltr\" class=\"font-mono\">order_id</span>, UUID. Spreads load evenly across partitions."},
+         "right": {"tone": "red", "icon": "flame", "title_ar": "Partition Key سيّئ (Hot Key)", "title_en": "Bad Partition Key (Hot Key)",
+                   "body_ar": "قيم قليلة أو منحازة. مثال: <span dir=\"ltr\" class=\"font-mono\">country</span> (معظم الطلبات سيضرب US)، <span dir=\"ltr\" class=\"font-mono\">status</span> (قيم قليلة). يسبّب <strong>ProvisionedThroughputExceededException</strong>.",
+                   "body_en": "Low-cardinality or skewed. Example: <span dir=\"ltr\" class=\"font-mono\">country</span> (most hit US), <span dir=\"ltr\" class=\"font-mono\">status</span> (few values). Causes <strong>ProvisionedThroughputExceededException</strong>."}
+        },
+        {"type": "p",
+         "ar": "البيانات تُخزَّن في <strong>partitions</strong> داخلية تديرها AWS. الـ Partition Key يمر على hashing algorithm ليُحدَّد الـ partition الذي سيخزَّن فيه. الـ WCU و RCU توزَّعان بالتساوي بين الـ partitions، فإن ضربت كل الطلبات partition واحد ستحصل على throttling حتى لو كانت الـ capacity الكلّية كبيرة.",
+         "en": "Data is stored in internal <strong>partitions</strong> managed by AWS. The Partition Key is hashed to determine which partition holds the item. WCU and RCU are split evenly across partitions — if all your traffic hits one partition, you'll be throttled even when total capacity is high."},
+        {"type": "callout", "tone": "pitfall",
+         "ar": "حلول الـ Hot Partition: (١) <strong>Write Sharding</strong> — أضف suffix عشوائي أو محسوب للـ Partition Key لتوزيع الكتابة. (٢) <strong>DAX</strong> لحلّ Hot Keys في القراءة. (٣) <strong>Exponential backoff</strong> في الـ SDK (موجود تلقائياً). (٤) استخدم On-Demand mode إن كانت الأحمال غير متوقّعة.",
+         "en": "Hot Partition fixes: (1) <strong>Write Sharding</strong> — add random or calculated suffix to the Partition Key to spread writes. (2) <strong>DAX</strong> for read-side Hot Keys. (3) <strong>Exponential backoff</strong> in SDK (already built-in). (4) Switch to On-Demand mode for unpredictable workloads."},
+        {"type": "code", "lang": "java",
+         "code": "// Java SDK v2 — Enhanced DynamoDB Client with partition + sort key\nimport software.amazon.awssdk.enhanced.dynamodb.*;\nimport software.amazon.awssdk.services.dynamodb.DynamoDbClient;\n\nDynamoDbEnhancedClient enhanced = DynamoDbEnhancedClient.builder()\n    .dynamoDbClient(DynamoDbClient.create())\n    .build();\n\nDynamoDbTable<Order> orders = enhanced.table(\"Orders\",\n    TableSchema.fromBean(Order.class));\n\n// Query items for a given userId (partition key) with orderId > 100 (sort key)\nQueryConditional q = QueryConditional.sortGreaterThan(\n    Key.builder().partitionValue(\"user-42\").sortValue(100).build());\n\norders.query(r -> r.queryConditional(q).limit(25))\n      .items().forEach(System.out::println);"}
+      ]
+    },
+    {
+      "title_ar": "Capacity Modes: Provisioned vs On-Demand",
+      "title_en": "Capacity Modes: Provisioned vs On-Demand",
+      "blocks": [
+        {"type": "p",
+         "ar": "لكل جدول وضعان لإدارة الإنتاجية. <strong>Provisioned</strong>: تحدّد RCU/WCU مقدّماً وتدفع للـ capacity المحجوز. <strong>On-Demand</strong>: تدفع مقابل الاستخدام الفعلي (RRU/WRU). يمكن التبديل بينهما مرّة كل ٢٤ ساعة.",
+         "en": "Each table has two capacity modes. <strong>Provisioned</strong>: specify RCU/WCU upfront, pay for reserved capacity. <strong>On-Demand</strong>: pay for actual use (RRU/WRU). Switching modes is allowed once every 24 hours."},
+        {"type": "table",
+         "headers": {"ar": ["البُعد", "Provisioned", "On-Demand"], "en": ["Dimension", "Provisioned", "On-Demand"]},
+         "rows": [
+           [{"ar": "التسعير", "en": "Pricing"}, {"ar": "أرخص للأحمال الثابتة", "en": "Cheaper for steady load"}, {"ar": "٢.٥× أغلى لكل وحدة", "en": "2.5× more per unit"}],
+           [{"ar": "التخطيط", "en": "Planning"}, {"ar": "يتطلّب تقدير الحِمل", "en": "Requires estimation"}, {"ar": "بدون تخطيط", "en": "Zero planning"}],
+           [{"ar": "Auto Scaling", "en": "Auto Scaling"}, {"ar": "متاح، يرفع/يخفّض RCU/WCU", "en": "Available, scales RCU/WCU"}, {"ar": "تلقائي بلا حدود", "en": "Automatic, unlimited"}],
+           [{"ar": "Throttling", "en": "Throttling"}, {"ar": "ممكن عند تجاوز الـ burst", "en": "Possible when burst exhausted"}, {"ar": "لا throttling (نظرياً)", "en": "No throttling (practically)"}],
+           [{"ar": "الاستخدام المثالي", "en": "Best for"}, {"ar": "أحمال متوقّعة", "en": "Predictable traffic"}, {"ar": "أحمال متقلّبة/غير معلومة", "en": "Spiky/unknown traffic"}]
+         ]
+        },
+        {"type": "callout", "tone": "warn",
+         "ar": "<strong>١ WCU</strong> = كتابة واحدة بالثانية لعنصر حتى ١ KB. <strong>١ RCU</strong> = قراءة متّسقة قوية (Strongly Consistent) لعنصر حتى ٤ KB بالثانية، أو قراءتان Eventually Consistent. الأحجام تُقرَّب للأعلى. القراءة المتّسقة قوية تستهلك <strong>ضعف</strong> الـ RCU.",
+         "en": "<strong>1 WCU</strong> = 1 write/sec for items up to 1 KB. <strong>1 RCU</strong> = 1 Strongly Consistent read/sec up to 4 KB, or 2 Eventually Consistent reads. Sizes round up. Strongly Consistent reads cost <strong>2×</strong> the RCU."},
+        {"type": "code", "lang": "java",
+         "code": "// Strongly Consistent Read — pass consistentRead(true)\nGetItemResponse resp = ddb.getItem(b -> b\n    .tableName(\"Orders\")\n    .key(Map.of(\"orderId\", AttributeValue.fromS(\"o-42\")))\n    .consistentRead(true));      // doubles RCU cost\n\n// Eventually Consistent Read (default) — ~half the cost\nGetItemResponse eventual = ddb.getItem(b -> b\n    .tableName(\"Orders\")\n    .key(Map.of(\"orderId\", AttributeValue.fromS(\"o-42\"))));"}
+      ]
+    },
+    {
+      "title_ar": "Queries و Scans و Conditional Writes و PartiQL",
+      "title_en": "Queries, Scans, Conditional Writes & PartiQL",
+      "blocks": [
+        {"type": "p",
+         "ar": "عمليات القراءة الأساسية: <strong>GetItem</strong> (على الـ Primary Key)، <strong>Query</strong> (على Partition Key + شرط Sort Key)، <strong>Scan</strong> (يقرأ الجدول كله — مكلف). <strong>BatchGetItem</strong> يقرأ حتى ١٠٠ عنصر من جداول متعدّدة.",
+         "en": "Core read operations: <strong>GetItem</strong> (on Primary Key), <strong>Query</strong> (on Partition Key + Sort Key condition), <strong>Scan</strong> (reads entire table — expensive). <strong>BatchGetItem</strong> reads up to 100 items across multiple tables."},
+        {"type": "compare",
+         "left": {"tone": "emerald", "icon": "search", "title_ar": "Query (مُفضَّل)", "title_en": "Query (preferred)",
+                  "body_ar": "يتطلّب Partition Key (<span dir=\"ltr\" class=\"font-mono\">=</span> operator)، مع شرط اختياري على Sort Key (<span dir=\"ltr\" class=\"font-mono\">=, &lt;, &gt;, between, begins_with</span>). يعيد حتى ١ MB أو حسب <span dir=\"ltr\" class=\"font-mono\">Limit</span>.",
+                  "body_en": "Requires Partition Key (<span dir=\"ltr\" class=\"font-mono\">=</span> operator), optional Sort Key condition (<span dir=\"ltr\" class=\"font-mono\">=, &lt;, &gt;, between, begins_with</span>). Returns up to 1 MB or per <span dir=\"ltr\" class=\"font-mono\">Limit</span>."},
+         "right": {"tone": "amber", "icon": "scan", "title_ar": "Scan (مكلف)", "title_en": "Scan (expensive)",
+                   "body_ar": "يقرأ الجدول كلّه ثم يفلتر. يستهلك RCU كثيراً. استخدم <strong>Parallel Scan</strong> للسرعة، و <span dir=\"ltr\" class=\"font-mono\">Limit</span>/<span dir=\"ltr\" class=\"font-mono\">FilterExpression</span> للتحكّم.",
+                   "body_en": "Reads whole table then filters. Burns RCU. Use <strong>Parallel Scan</strong> for speed, <span dir=\"ltr\" class=\"font-mono\">Limit</span>/<span dir=\"ltr\" class=\"font-mono\">FilterExpression</span> for control."}
+        },
+        {"type": "p",
+         "ar": "<strong>Conditional Writes</strong>: تقبل الـ Put/Update/Delete فقط إذا تحقّق شرط (<span dir=\"ltr\" class=\"font-mono\">attribute_exists, attribute_not_exists, contains, begins_with, size, IN, between</span>). تُستخدم لـ <strong>Optimistic Locking</strong> ومنع استبدال البيانات غير المقصود.",
+         "en": "<strong>Conditional Writes</strong>: accept Put/Update/Delete only if a condition holds (<span dir=\"ltr\" class=\"font-mono\">attribute_exists, attribute_not_exists, contains, begins_with, size, IN, between</span>). Used for <strong>Optimistic Locking</strong> and preventing accidental overwrites."},
+        {"type": "code", "lang": "java",
+         "code": "// Conditional Update — only decrement stock if current > 0\nUpdateItemResponse resp = ddb.updateItem(b -> b\n    .tableName(\"Inventory\")\n    .key(Map.of(\"sku\", AttributeValue.fromS(\"ABC-123\")))\n    .updateExpression(\"SET stock = stock - :qty\")\n    .conditionExpression(\"stock >= :qty\")\n    .expressionAttributeValues(Map.of(\n        \":qty\", AttributeValue.fromN(\"1\"))));\n\n// Optimistic Locking pattern — only update if version matches\nddb.updateItem(b -> b\n    .tableName(\"Orders\").key(key)\n    .updateExpression(\"SET #s = :new, version = version + :one\")\n    .conditionExpression(\"version = :current\")\n    .expressionAttributeNames(Map.of(\"#s\", \"status\"))\n    .expressionAttributeValues(Map.of(\n        \":new\",     AttributeValue.fromS(\"SHIPPED\"),\n        \":current\", AttributeValue.fromN(\"3\"),\n        \":one\",     AttributeValue.fromN(\"1\"))));"},
+        {"type": "callout", "tone": "tip",
+         "ar": "<strong>PartiQL</strong> هو SQL-compatible query language لـ DynamoDB. يدعم <span dir=\"ltr\" class=\"font-mono\">SELECT, INSERT, UPDATE, DELETE</span> (لا يدعم كل SQL). مفيد للمطوّرين القادمين من عالم SQL مثلك.",
+         "en": "<strong>PartiQL</strong> is a SQL-compatible query language for DynamoDB. Supports <span dir=\"ltr\" class=\"font-mono\">SELECT, INSERT, UPDATE, DELETE</span> (not full SQL). Useful for devs coming from SQL backgrounds like yours."}
+      ]
+    },
+    {
+      "title_ar": "الفهارس: GSI vs LSI",
+      "title_en": "Indexes: GSI vs LSI",
+      "blocks": [
+        {"type": "p",
+         "ar": "الفهارس تُمكّنك من الاستعلام بأنماط مختلفة عن الـ Primary Key. نوعان: <strong>LSI</strong> (Local Secondary Index) و <strong>GSI</strong> (Global Secondary Index). الفرق بينهما من أهمّ مواضيع الامتحان.",
+         "en": "Indexes let you query using patterns other than the Primary Key. Two types: <strong>LSI</strong> (Local Secondary Index) and <strong>GSI</strong> (Global Secondary Index). Their differences are heavily exam-tested."},
+        {"type": "table",
+         "headers": {"ar": ["الخاصّية", "LSI", "GSI"], "en": ["Property", "LSI", "GSI"]},
+         "rows": [
+           [{"ar": "Partition Key", "en": "Partition Key"}, {"ar": "نفس مفتاح الجدول", "en": "Same as table"}, {"ar": "أيّ attribute", "en": "Any attribute"}],
+           [{"ar": "Sort Key", "en": "Sort Key"}, {"ar": "Sort Key بديل", "en": "Alternate sort key"}, {"ar": "اختياري مختلف", "en": "Optional, different"}],
+           [{"ar": "وقت الإنشاء", "en": "When created"}, {"ar": "<strong>عند إنشاء الجدول فقط</strong>", "en": "<strong>At table creation only</strong>"}, {"ar": "في أيّ وقت (add/modify)", "en": "Anytime (add/modify)"}],
+           [{"ar": "العدد الأقصى", "en": "Max count"}, {"ar": "٥ لكل جدول", "en": "5 per table"}, {"ar": "٢٠ (افتراضي)", "en": "20 (default)"}],
+           [{"ar": "الـ Capacity", "en": "Capacity"}, {"ar": "يشارك WCU/RCU مع الجدول", "en": "Shares table WCU/RCU"}, {"ar": "<strong>WCU/RCU مستقلّة</strong>", "en": "<strong>Independent WCU/RCU</strong>"}],
+           [{"ar": "Consistency", "en": "Consistency"}, {"ar": "Eventual أو Strong", "en": "Eventual or Strong"}, {"ar": "<strong>Eventual فقط</strong>", "en": "<strong>Eventual only</strong>"}]
+         ]
+        },
+        {"type": "callout", "tone": "pitfall",
+         "ar": "خطر GSI: لو كانت الكتابات على الـ GSI مختنقة (throttled)، فإنّ <strong>الجدول الرئيسي كله سيختنق</strong> أيضاً — حتى لو كانت WCU للجدول كافية. اختر Partition Key للـ GSI بعناية وخصّص WCU كافية. الـ LSI يستخدم نفس الـ capacity بلا مشاكل.",
+         "en": "GSI gotcha: if writes to the GSI are throttled, the <strong>main table throttles too</strong> — even if table WCU is fine. Choose your GSI partition key carefully and provision enough WCU. LSI uses the table's capacity without this problem."},
+        {"type": "code", "lang": "bash",
+         "code": "# Create a GSI on an existing table (no downtime)\naws dynamodb update-table \\\n  --table-name Orders \\\n  --attribute-definitions \\\n      AttributeName=customerId,AttributeType=S \\\n      AttributeName=orderDate,AttributeType=S \\\n  --global-secondary-index-updates \\\n    '[{\"Create\":{\"IndexName\":\"byCustomer\",\n        \"KeySchema\":[{\"AttributeName\":\"customerId\",\"KeyType\":\"HASH\"},\n                     {\"AttributeName\":\"orderDate\",\"KeyType\":\"RANGE\"}],\n        \"Projection\":{\"ProjectionType\":\"ALL\"},\n        \"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}}]'"}
+      ]
+    },
+    {
+      "title_ar": "DAX و Streams و TTL و Transactions",
+      "title_en": "DAX, Streams, TTL & Transactions",
+      "blocks": [
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "zap", "icon_bg": "bg-yellow-100", "icon_color": "text-yellow-700", "title_ar": "DAX — كاش DynamoDB", "title_en": "DAX — DynamoDB cache", "body_ar": "in-memory cache بـ microseconds latency. متوافق ١٠٠٪ مع DynamoDB API (بدون تغيير الكود). TTL افتراضي ٥ دقائق. يحلّ مشكلة Hot Keys في القراءة. حتى ١٠ nodes في الـ cluster.", "body_en": "In-memory cache with microseconds latency. 100% DynamoDB-API compatible (no code changes). Default TTL 5 minutes. Solves read-side Hot Keys. Up to 10 nodes per cluster."},
+          {"icon": "activity", "icon_bg": "bg-rose-100", "icon_color": "text-rose-700", "title_ar": "Streams — تدفّق التعديلات", "title_en": "Streams — change feed", "body_ar": "تدفّق مُرتَّب لكل create/update/delete. يُقرأ بواسطة Lambda أو KCL. خيارات: KEYS_ONLY / NEW_IMAGE / OLD_IMAGE / NEW_AND_OLD_IMAGES. احتفاظ ٢٤ ساعة.", "body_en": "Ordered feed of create/update/delete. Read via Lambda or KCL. Options: KEYS_ONLY / NEW_IMAGE / OLD_IMAGE / NEW_AND_OLD_IMAGES. 24-hour retention."},
+          {"icon": "clock", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "TTL — حذف تلقائي", "title_en": "TTL — auto delete", "body_ar": "يحذف العناصر بعد timestamp محدّد (Unix epoch). لا يستهلك WCU. يحذف من الـ indexes أيضاً. مفيد للجلسات والبيانات المؤقتة.", "body_en": "Deletes items after a given timestamp (Unix epoch). Consumes <strong>no WCU</strong>. Also deletes from indexes. Great for sessions and temp data."},
+          {"icon": "shield-check", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Transactions — ACID", "title_en": "Transactions — ACID", "body_ar": "All-or-nothing عبر عدّة جداول. <span dir=\"ltr\" class=\"font-mono\">TransactGetItems</span> و <span dir=\"ltr\" class=\"font-mono\">TransactWriteItems</span>. تستهلك <strong>ضعف</strong> الـ WCU/RCU (prepare + commit).", "body_en": "All-or-nothing across tables. <span dir=\"ltr\" class=\"font-mono\">TransactGetItems</span> and <span dir=\"ltr\" class=\"font-mono\">TransactWriteItems</span>. Consumes <strong>2×</strong> WCU/RCU (prepare + commit)."}
+        ]},
+        {"type": "callout", "tone": "senior",
+         "ar": "كمطوّر Spring Boot سينيور: عند حاجتك لـ <strong>SAGA pattern</strong> أو تزامن عبر microservices، استخدم DynamoDB Streams مع Lambda بدل Kafka لتوفير البنية التحتية. وللـ <strong>Idempotency</strong> (مطلب شائع في المدفوعات)، استخدم Conditional Writes بـ <span dir=\"ltr\" class=\"font-mono\">attribute_not_exists(idempotency_key)</span>.",
+         "en": "Senior Spring Boot dev tip: for <strong>SAGA patterns</strong> or microservice synchronization, use DynamoDB Streams + Lambda instead of Kafka — zero infra. For <strong>idempotency</strong> (common in payments), use Conditional Writes with <span dir=\"ltr\" class=\"font-mono\">attribute_not_exists(idempotency_key)</span>."},
+        {"type": "code", "lang": "java",
+         "code": "// TransactWriteItems: atomically move money between two accounts\nTransactWriteItemsRequest tx = TransactWriteItemsRequest.builder()\n  .transactItems(\n    TransactWriteItem.builder().update(Update.builder()\n      .tableName(\"Accounts\").key(Map.of(\"id\", AttributeValue.fromS(\"A\")))\n      .updateExpression(\"SET balance = balance - :amt\")\n      .conditionExpression(\"balance >= :amt\")\n      .expressionAttributeValues(Map.of(\":amt\", AttributeValue.fromN(\"100\")))\n      .build()).build(),\n    TransactWriteItem.builder().update(Update.builder()\n      .tableName(\"Accounts\").key(Map.of(\"id\", AttributeValue.fromS(\"B\")))\n      .updateExpression(\"SET balance = balance + :amt\")\n      .expressionAttributeValues(Map.of(\":amt\", AttributeValue.fromN(\"100\")))\n      .build()).build())\n  .build();\n\nddb.transactWriteItems(tx);  // atomic — both succeed or both fail"}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء جدول DynamoDB مع GSI و TTL و Streams، ومعالجة التغييرات بـ Lambda.",
+    "goal_en": "Create a DynamoDB table with GSI, TTL, and Streams, and process changes with Lambda.",
+    "steps": [
+      {"title_ar": "أنشئ جدولاً مع مفتاح composite", "title_en": "Create a table with composite key",
+       "body_ar": "Partition Key: <span dir=\"ltr\" class=\"font-mono\">userId (String)</span>، Sort Key: <span dir=\"ltr\" class=\"font-mono\">orderId (String)</span>. Capacity: On-Demand.",
+       "body_en": "Partition Key: <span dir=\"ltr\" class=\"font-mono\">userId (String)</span>, Sort Key: <span dir=\"ltr\" class=\"font-mono\">orderId (String)</span>. Capacity: On-Demand.",
+       "code": "aws dynamodb create-table --table-name Orders \\\n  --attribute-definitions AttributeName=userId,AttributeType=S AttributeName=orderId,AttributeType=S \\\n  --key-schema AttributeName=userId,KeyType=HASH AttributeName=orderId,KeyType=RANGE \\\n  --billing-mode PAY_PER_REQUEST"},
+      {"title_ar": "فعّل Streams", "title_en": "Enable Streams",
+       "body_ar": "اختر <span dir=\"ltr\" class=\"font-mono\">NEW_AND_OLD_IMAGES</span> لرؤية التغييرات كاملةً.",
+       "body_en": "Choose <span dir=\"ltr\" class=\"font-mono\">NEW_AND_OLD_IMAGES</span> to see full change record.",
+       "code": "aws dynamodb update-table --table-name Orders \\\n  --stream-specification StreamEnabled=true,StreamViewType=NEW_AND_OLD_IMAGES"},
+      {"title_ar": "فعّل TTL على حقل expiresAt", "title_en": "Enable TTL on expiresAt attribute",
+       "body_ar": "يجب أن يكون Number type بصيغة Unix epoch بالثواني.",
+       "body_en": "Must be Number type in Unix epoch seconds.",
+       "code": "aws dynamodb update-time-to-live --table-name Orders \\\n  --time-to-live-specification Enabled=true,AttributeName=expiresAt"},
+      {"title_ar": "أنشئ Lambda واربطها بالـ Stream", "title_en": "Create Lambda and wire it to the Stream",
+       "body_ar": "أضف صلاحية <span dir=\"ltr\" class=\"font-mono\">AWSLambdaDynamoDBExecutionRole</span> للـ Lambda. استخدم Event Source Mapping.",
+       "body_en": "Attach <span dir=\"ltr\" class=\"font-mono\">AWSLambdaDynamoDBExecutionRole</span> to Lambda. Use Event Source Mapping."},
+      {"title_ar": "اختبر بإدراج عنصر", "title_en": "Test by inserting an item",
+       "body_ar": "",
+       "body_en": "",
+       "code": "aws dynamodb put-item --table-name Orders --item '{\n  \"userId\":{\"S\":\"u-1\"},\n  \"orderId\":{\"S\":\"o-1\"},\n  \"total\":{\"N\":\"99.9\"},\n  \"expiresAt\":{\"N\":\"1800000000\"}\n}'"}
+    ],
+    "warning_ar": "احذف Streams والجدول بعد التجربة. Streams لها تكلفة صغيرة على read requests حتى لو كان الجدول خامل.",
+    "warning_en": "Delete Streams and the table after testing. Streams have a small cost per read request even on idle tables."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "مطوّر يصمّم جدول DynamoDB لتطبيق أفلام. أيّ الحقول التالية أفضل كـ Partition Key لتوزيع البيانات بشكل متساوٍ؟",
+      "question_en": "A developer designs a DynamoDB table for a movies app. Which field makes the best Partition Key for even data distribution?",
+      "options_ar": ["<span class=\"font-mono\">movie_language</span>", "<span class=\"font-mono\">producer_name</span>", "<span class=\"font-mono\">movie_id (UUID)</span>", "<span class=\"font-mono\">release_year</span>"],
+      "options_en": ["<span class=\"font-mono\">movie_language</span>", "<span class=\"font-mono\">producer_name</span>", "<span class=\"font-mono\">movie_id (UUID)</span>", "<span class=\"font-mono\">release_year</span>"],
+      "correct": 2,
+      "explanation_ar": "أفضل Partition Key هو الذي له <strong>cardinality عالية</strong> وتوزيع متساوٍ. <span class=\"font-mono\">movie_id</span> (UUID) يضمن مفاتيح فريدة وتوزيع مثالي. الـ language منحاز للإنجليزية، والـ year يُركّز الأحمال على السنة الحالية، و <span class=\"font-mono\">producer_name</span> له منتجين مشهورين أكثر من غيرهم.",
+      "explanation_en": "Best Partition Key = <strong>high cardinality</strong> and even distribution. <span class=\"font-mono\">movie_id</span> (UUID) guarantees uniqueness and perfect spread. Language is skewed to English, year concentrates current-year load, and <span class=\"font-mono\">producer_name</span> has popular producers dominating.",
+      "wrong_ar": ["قيم قليلة ومنحازة للإنجليزية — hot partition.", "منتجون مشهورون يستقطبون معظم الطلبات.", "", "الأحمال تتركّز على آخر سنة."],
+      "wrong_en": ["Few values, skewed to English — hot partition.", "Popular producers dominate traffic.", "", "Latest year captures most load."],
+      "reference_ar": "القسم ٢ — Partition Keys و Hot Keys",
+      "reference_en": "Section 2 — Partition Keys & Hot Keys"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "تطبيق يقرأ نفس عنصر DynamoDB ملايين المرّات في الثانية (Hot Key) ويواجه <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span>. ما الحلّ الأمثل <u>دون تغيير كود التطبيق</u>؟",
+      "question_en": "An app reads the same DynamoDB item millions of times/sec (Hot Key) and hits <span dir=\"ltr\" class=\"font-mono\">ProvisionedThroughputExceededException</span>. Best fix <u>without code changes</u>?",
+      "options_ar": ["إضافة DAX أمام الجدول.", "رفع RCU بشكل كبير.", "تحويل الجدول إلى Scan بدل Query.", "تقليل حجم العنصر."],
+      "options_en": ["Add DAX in front of the table.", "Massively increase RCU.", "Switch from Query to Scan.", "Reduce item size."],
+      "correct": 0,
+      "explanation_ar": "<strong>DAX</strong> (DynamoDB Accelerator) هو in-memory cache متوافق ١٠٠٪ مع DynamoDB API — يعمل دون تغيير الكود ويحلّ Hot Keys مباشرة بـ microseconds latency. رفع RCU لن يحلّ مشكلة الـ hot partition لأنّ الـ capacity موزّعة بين الـ partitions. Scan أسوأ في هذا السيناريو.",
+      "explanation_en": "<strong>DAX</strong> is an in-memory cache 100% API-compatible with DynamoDB — no code changes, fixes Hot Keys with microsecond latency. Raising RCU won't help since capacity is per-partition. Scan is worse here.",
+      "wrong_ar": ["", "الـ capacity موزّعة على الـ partitions، وزيادتها لا تحلّ hot partition.", "Scan يضاعف المشكلة (يقرأ الجدول كله).", "حجم العنصر ليس السبب الرئيسي للـ hot key."],
+      "wrong_en": ["", "Capacity is per-partition; scaling RCU doesn't fix hot partition.", "Scan makes it worse (reads whole table).", "Item size isn't the root cause."],
+      "reference_ar": "القسم ٦ — DAX",
+      "reference_en": "Section 6 — DAX"
+    },
+    {
+      "id": "q3", "type": "multi",
+      "question_ar": "أيّ العبارات التالية صحيحة عن <strong>GSI</strong> (Global Secondary Index)؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which are true about <strong>GSI</strong> (Global Secondary Index)? Select all that apply.",
+      "options_ar": ["يمكن إضافته/تعديله بعد إنشاء الجدول.", "يدعم Strongly Consistent Reads.", "له RCU/WCU مستقلّة عن الجدول.", "إذا اختنقت كتابة GSI، يختنق الجدول الرئيسي معه.", "يستخدم نفس Partition Key للجدول الأصلي."],
+      "options_en": ["Can be added/modified after table creation.", "Supports Strongly Consistent Reads.", "Has independent RCU/WCU from the table.", "If GSI writes throttle, main table throttles too.", "Uses the same Partition Key as the base table."],
+      "correct": [0, 2, 3],
+      "explanation_ar": "GSI يمكن إنشاؤه في أيّ وقت ويملك capacity مستقلّة. <strong>الاختناق في الـ GSI يُسبّب اختناق الجدول الرئيسي</strong> — فخّ مشهور في الامتحان. GSI يدعم <strong>Eventually Consistent Reads فقط</strong>. Partition Key يمكن أن يكون أيّ attribute (على عكس LSI).",
+      "explanation_en": "GSI can be created anytime and has independent capacity. <strong>GSI write throttling cascades to the main table</strong> — common exam trap. GSI supports <strong>Eventually Consistent Reads only</strong>. Its Partition Key can be any attribute (unlike LSI).",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "ما الفرق بين <span dir=\"ltr\" class=\"font-mono\">FilterExpression</span> و <span dir=\"ltr\" class=\"font-mono\">ConditionExpression</span> في DynamoDB؟",
+      "question_en": "What's the difference between <span dir=\"ltr\" class=\"font-mono\">FilterExpression</span> and <span dir=\"ltr\" class=\"font-mono\">ConditionExpression</span>?",
+      "options_ar": ["FilterExpression للـ reads (Query/Scan)؛ ConditionExpression للـ writes (Put/Update/Delete).", "كلاهما يعمل على writes فقط.", "FilterExpression أسرع من ConditionExpression.", "ConditionExpression يُستخدم في Scan فقط."],
+      "options_en": ["FilterExpression is for reads (Query/Scan); ConditionExpression is for writes (Put/Update/Delete).", "Both are for writes only.", "FilterExpression is faster.", "ConditionExpression is for Scan only."],
+      "correct": 0,
+      "explanation_ar": "<strong>FilterExpression</strong> يفلتر نتائج القراءة <u>بعد</u> جلبها من الجدول (لا يوفّر RCU — يُطبَّق على البيانات القادمة). <strong>ConditionExpression</strong> يمنع عمليات الكتابة (Put/Update/Delete/BatchWriteItem) من الحدوث إذا لم يتحقّق الشرط — يُستخدم للـ Optimistic Locking.",
+      "explanation_en": "<strong>FilterExpression</strong> filters read results <u>after</u> fetching (saves no RCU — applied post-retrieval). <strong>ConditionExpression</strong> prevents write ops (Put/Update/Delete/BatchWriteItem) when the condition fails — used for Optimistic Locking.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "شركة فنتك تريد تنفيذ تحويل نقود بين حسابين في جدولين مختلفين. العملية يجب أن تكون all-or-nothing. ما الخيار الأمثل؟",
+      "question_en": "A fintech needs to transfer money between two accounts in two tables atomically (all-or-nothing). Best option?",
+      "options_ar": ["PutItem مرّتين متتاليتين.", "BatchWriteItem.", "TransactWriteItems.", "Optimistic Locking باستخدام Conditional Writes على كل عنصر منفصلاً."],
+      "options_en": ["Two sequential PutItems.", "BatchWriteItem.", "TransactWriteItems.", "Optimistic Locking with separate Conditional Writes per item."],
+      "correct": 2,
+      "explanation_ar": "<strong>TransactWriteItems</strong> يوفّر ACID عبر جداول متعدّدة: إمّا تنجح كل العمليات أو لا شيء. BatchWriteItem ليس atomic — كل عنصر مستقلّ وقد ينجح بعضها ويفشل الآخر. العمليات المتتابعة ليست atomic وتترك البيانات في حالة غير متّسقة عند الفشل. ملاحظة: Transactions تستهلك ٢× WCU.",
+      "explanation_en": "<strong>TransactWriteItems</strong> gives ACID across multiple tables: all succeed or all fail. BatchWriteItem isn't atomic — items are independent. Sequential ops aren't atomic either. Note: transactions cost 2× WCU.",
+      "wrong_ar": ["ليس atomic — أحدهما قد يفشل.", "كل عنصر مستقلّ؛ ليس transactional.", "", "معقّد ولا يوفّر atomicity عبر العنصرين."],
+      "wrong_en": ["Not atomic — one can fail.", "Each item independent; not transactional.", "", "Complex; not atomic across both items."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "تطبيق يحتاج ١٠ Strongly Consistent Reads بالثانية لعناصر حجم ٦ KB. ما عدد الـ RCU المطلوب؟",
+      "question_en": "An app needs 10 Strongly Consistent Reads/sec for 6 KB items. How many RCU?",
+      "options_ar": ["١٠", "٢٠", "٤٠", "٥"],
+      "options_en": ["10", "20", "40", "5"],
+      "correct": 1,
+      "explanation_ar": "١ RCU = Strongly Consistent Read واحدة لعنصر حتى ٤ KB. عنصر ٦ KB يُقرّب لـ ٨ KB، فيحتاج ٢ RCU لكل قراءة. إذن: <strong>١٠ × ٢ = ٢٠ RCU</strong>. لو كانت Eventually Consistent لكانت النتيجة ١٠.",
+      "explanation_en": "1 RCU = 1 Strongly Consistent Read up to 4 KB. A 6 KB item rounds to 8 KB = 2 RCU per read. So <strong>10 × 2 = 20 RCU</strong>. Eventually Consistent would be 10.",
+      "wrong_ar": ["هذا حساب Eventually Consistent (ضعف سرعة Strong).", "", "محسوب على أساس ٤× بدل ٢×.", "غير كافٍ لـ Strong Consistency."],
+      "wrong_en": ["That's Eventually Consistent math (2× Strong's rate).", "", "Computed as 4× instead of 2×.", "Insufficient for Strong Consistency."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "مطوّر يريد حذف جلسات المستخدمين تلقائياً بعد ٣٠ يوماً بدون استهلاك WCU. ما الحلّ؟",
+      "question_en": "A developer needs to auto-delete user sessions after 30 days without consuming WCU. Solution?",
+      "options_ar": ["تشغيل Lambda مجدولة بـ EventBridge لحذف الجلسات.", "استخدام DynamoDB TTL مع attribute Unix epoch.", "Scan + DeleteItem يومياً.", "تعيين <span class=\"font-mono\">expiresAt</span> في Conditional Expression."],
+      "options_en": ["Schedule a Lambda via EventBridge to delete sessions.", "Use DynamoDB TTL with a Unix epoch attribute.", "Daily Scan + DeleteItem.", "Set <span class=\"font-mono\">expiresAt</span> in a Conditional Expression."],
+      "correct": 1,
+      "explanation_ar": "<strong>DynamoDB TTL</strong> مصمّم بالضبط لهذا الغرض: سمة من نوع Number بصيغة Unix epoch seconds، وتُحذَف العناصر تلقائياً خلال بضعة أيام بعد الـ timestamp — <u>بدون استهلاك WCU</u>. الحذف يمرّ عبر Streams أيضاً. Scan + DeleteItem مكلف جداً.",
+      "explanation_en": "<strong>DynamoDB TTL</strong> is designed exactly for this: a Number attribute in Unix epoch seconds, items auto-delete within a few days of the timestamp — <u>without consuming WCU</u>. Deletes also flow through Streams. Scan + DeleteItem is very expensive.",
+      "wrong_ar": ["يعمل لكنّه يستهلك WCU ويكلّف أكثر.", "", "مكلف جداً (Scan يقرأ كل الجدول).", "Conditional Expression لا يحذف — يمنع فقط."],
+      "wrong_en": ["Works but consumes WCU and costs more.", "", "Very expensive (Scan reads everything).", "Condition Expressions don't delete — just gate."],
+      "reference_ar": "القسم ٦ — TTL",
+      "reference_en": "Section 6 — TTL"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "أيّ العبارات صحيحة عن DynamoDB Streams؟",
+      "question_en": "Which is true about DynamoDB Streams?",
+      "options_ar": ["Streams يحتفظ بالبيانات لمدّة ٧ أيام.", "يمكن قراءته عبر Lambda Event Source Mapping و KCL.", "يملأ نفسه تلقائياً بالبيانات القديمة عند التفعيل.", "يُرسل بيانات مضغوطة فقط."],
+      "options_en": ["Streams retains data for 7 days.", "Can be read via Lambda Event Source Mapping or KCL.", "Backfills with old data on enable.", "Only sends compressed data."],
+      "correct": 1,
+      "explanation_ar": "DynamoDB Streams يُقرَأ بواسطة: Lambda (عبر Event Source Mapping — synchronous)، KCL apps، أو يمكن إرساله لـ Kinesis Data Streams. الاحتفاظ <strong>٢٤ ساعة فقط</strong>. لا يملأ نفسه بالبيانات السابقة عند التفعيل — فقط التغييرات الجديدة.",
+      "explanation_en": "DynamoDB Streams is consumed by: Lambda (via Event Source Mapping — synchronous), KCL apps, or piped to Kinesis Data Streams. Retention is <strong>24 hours only</strong>. No backfill — only new changes after enable.",
+      "wrong_ar": ["٢٤ ساعة فقط وليس ٧ أيام.", "", "التغييرات السابقة لا تظهر عند التفعيل.", "لا توجد صيغة مضغوطة خاصة."],
+      "wrong_en": ["24 hours only, not 7 days.", "", "Prior changes don't appear after enable.", "No special compressed mode."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q9", "type": "single",
+      "question_ar": "شركة Acme تطوّر تطبيق Spring Boot على Lambda يحتاج استعلام المستخدمين <u>حسب البريد الإلكتروني</u>، لكن الـ Primary Key هو userId. ما الحلّ الأمثل؟",
+      "question_en": "Acme's Spring Boot Lambda needs to query users <u>by email</u>, but Primary Key is userId. Best solution?",
+      "options_ar": ["Scan مع FilterExpression على email.", "إنشاء GSI على email كـ Partition Key.", "إنشاء LSI على email.", "تغيير الـ Primary Key ليصبح email."],
+      "options_en": ["Scan with FilterExpression on email.", "Create a GSI with email as Partition Key.", "Create an LSI on email.", "Change Primary Key to email."],
+      "correct": 1,
+      "explanation_ar": "<strong>GSI</strong> هو الحلّ المعياري لإضافة نمط استعلام جديد بعد إنشاء الجدول. email سيصبح Partition Key للـ GSI. LSI يتطلّب نفس Partition Key للجدول الأصلي (userId) لذا لا يناسب. تغيير Primary Key يتطلّب إعادة بناء الجدول كاملاً. Scan مكلف جداً.",
+      "explanation_en": "<strong>GSI</strong> is the canonical way to add a new query pattern after table creation. Email becomes the GSI Partition Key. LSI requires the same partition key as the table (userId), so it doesn't apply. Changing Primary Key requires rebuilding the table. Scan is very expensive.",
+      "wrong_ar": ["مكلف — يقرأ الجدول كلّه.", "", "LSI يشترط نفس Partition Key للجدول.", "يتطلّب إعادة بناء الجدول كاملاً."],
+      "wrong_en": ["Expensive — reads whole table.", "", "LSI needs the same partition key as the table.", "Requires full table rebuild."],
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "متى يجب استخدام <strong>On-Demand</strong> capacity mode بدل Provisioned؟",
+      "question_en": "When should you pick <strong>On-Demand</strong> over Provisioned capacity?",
+      "options_ar": ["دائماً — أرخص.", "أحمال مُتوقَّعة مستقرّة ٢٤/٧.", "أحمال جديدة غير معلومة أو متقلّبة بشدّة.", "جداول بأقلّ من ١ GB حجم."],
+      "options_en": ["Always — cheaper.", "Predictable, steady 24/7 workloads.", "New/unknown or highly spiky workloads.", "Tables under 1 GB."],
+      "correct": 2,
+      "explanation_ar": "On-Demand مناسب لـ: أحمال غير متوقّعة، تطبيقات جديدة، اختبار/dev، ذروات مفاجئة. الثمن ٢.٥× Provisioned لكل وحدة، لكنّه يُلغي خطر الـ throttling ويوفّر تكاليف التخطيط. Provisioned أرخص للأحمال الثابتة ٢٤/٧.",
+      "explanation_en": "On-Demand suits: unpredictable workloads, new apps, dev/test, sudden spikes. It's 2.5× per-unit price but eliminates throttling risk and planning overhead. Provisioned is cheaper for steady 24/7 load.",
+      "wrong_ar": ["أغلى ٢.٥× للوحدة.", "استخدم Provisioned + RI هنا.", "", "الحجم ليس المعيار."],
+      "wrong_en": ["2.5× more per unit.", "Use Provisioned + RI here.", "", "Size isn't the criterion."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q11", "type": "multi",
+      "question_ar": "أيّ العمليات التالية تُعدّ <strong>Conditional Writes</strong> في DynamoDB؟ اختر كلّ ما ينطبق.",
+      "question_en": "Which operations can be <strong>Conditional Writes</strong>? Select all that apply.",
+      "options_ar": ["PutItem", "GetItem", "UpdateItem", "DeleteItem", "BatchWriteItem", "Scan"],
+      "options_en": ["PutItem", "GetItem", "UpdateItem", "DeleteItem", "BatchWriteItem", "Scan"],
+      "correct": [0, 2, 3, 4],
+      "explanation_ar": "Conditional Writes تنطبق على عمليات <u>الكتابة</u>: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> و <strong>Scan</strong> عمليات قراءة — تستخدم FilterExpression بدل ConditionExpression.",
+      "explanation_en": "Conditional Writes apply to <u>write</u> ops: PutItem, UpdateItem, DeleteItem, BatchWriteItem. <strong>GetItem</strong> and <strong>Scan</strong> are reads — use FilterExpression instead.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q12", "type": "single",
+      "question_ar": "حجم عنصر DynamoDB <strong>الأقصى</strong>؟",
+      "question_en": "What's the <strong>maximum</strong> DynamoDB item size?",
+      "options_ar": ["٦٤ KB", "٢٥٦ KB", "٤٠٠ KB", "١ MB"],
+      "options_en": ["64 KB", "256 KB", "400 KB", "1 MB"],
+      "correct": 2,
+      "explanation_ar": "الحدّ الأقصى <strong>٤٠٠ KB</strong> لكل عنصر. للبيانات الأكبر (صور/فيديوهات) استخدم pattern <strong>S3 + DynamoDB</strong>: خزّن الـ blob في S3 واحفظ الـ URL والـ metadata في DynamoDB.",
+      "explanation_en": "Max is <strong>400 KB</strong> per item. For larger data (images/videos), use the <strong>S3 + DynamoDB</strong> pattern: store the blob in S3, keep URL and metadata in DynamoDB.",
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q13", "type": "single",
+      "question_ar": "اثنان من العملاء يحاولان تحديث نفس العنصر في نفس الوقت. كيف تضمن أنّ التحديث الأحدث لا يدمر تحديث الأقدم (Optimistic Locking)؟",
+      "question_en": "Two clients update the same item concurrently. How do you ensure the later write doesn't clobber the earlier one (Optimistic Locking)?",
+      "options_ar": ["استخدام Strongly Consistent Reads فقط.", "استخدام ConditionExpression على حقل <span class=\"font-mono\">version</span> يُزاد مع كل تحديث.", "رفع RCU.", "استخدام DAX."],
+      "options_en": ["Use Strongly Consistent Reads only.", "ConditionExpression on a <span class=\"font-mono\">version</span> attribute that increments with each update.", "Increase RCU.", "Use DAX."],
+      "correct": 1,
+      "explanation_ar": "<strong>Optimistic Locking</strong> في DynamoDB يُنفَّذ عبر <strong>Conditional Writes</strong>: اقرأ العنصر مع الـ version، ثم حدّث مع <span class=\"font-mono\">conditionExpression: 'version = :oldVersion'</span> وزد الـ version في الـ update. إن تغيّرت النسخة بين القراءة والكتابة، العملية تفشل ويعيد التطبيق المحاولة.",
+      "explanation_en": "<strong>Optimistic Locking</strong> in DynamoDB uses <strong>Conditional Writes</strong>: read the item with its version, then update with <span class=\"font-mono\">conditionExpression: 'version = :oldVersion'</span> and increment version. If the version changed between read/write, the op fails and the app retries.",
+      "wrong_ar": ["لا يمنع السباق إذا قرأ الاثنان قبل الكتابة.", "", "RCU لا يحلّ قضايا التزامن.", "DAX للقراءة فقط."],
+      "wrong_en": ["Doesn't prevent the race if both read first.", "", "RCU doesn't solve concurrency.", "DAX is read-only."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q14", "type": "single",
+      "question_ar": "ما حدّ BatchGetItem؟",
+      "question_en": "What's BatchGetItem's limit?",
+      "options_ar": ["٢٥ عنصر، ١٦ MB", "١٠٠ عنصر، ١٦ MB", "٥٠٠ عنصر، ٤٠٠ KB", "١٠٠٠ عنصر، ١ MB"],
+      "options_en": ["25 items, 16 MB", "100 items, 16 MB", "500 items, 400 KB", "1000 items, 1 MB"],
+      "correct": 1,
+      "explanation_ar": "<strong>BatchGetItem</strong>: حتى ١٠٠ عنصر أو ١٦ MB إجمالي. <strong>BatchWriteItem</strong>: حتى ٢٥ عنصر (PutItem/DeleteItem) أو ١٦ MB. البطء/الفشل يعود في <span class=\"font-mono\">UnprocessedKeys</span> — استخدم exponential backoff.",
+      "explanation_en": "<strong>BatchGetItem</strong>: up to 100 items or 16 MB total. <strong>BatchWriteItem</strong>: up to 25 items (PutItem/DeleteItem) or 16 MB. Failures return in <span class=\"font-mono\">UnprocessedKeys</span> — apply exponential backoff.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q15", "type": "single",
+      "question_ar": "تطبيق يصوّت على مرشحَين فقط (A و B)، ويستخدم <span dir=\"ltr\" class=\"font-mono\">candidateId</span> كـ Partition Key. النتيجة hot partition. ما الحلّ الأنسب للكتابة؟",
+      "question_en": "A voting app has only two candidates (A, B) using <span dir=\"ltr\" class=\"font-mono\">candidateId</span> as Partition Key — hot partition. Best write-side fix?",
+      "options_ar": ["إضافة DAX.", "تحويل إلى On-Demand mode.", "Write Sharding: إضافة suffix عشوائي للـ Partition Key (<span class=\"font-mono\">A_1, A_2, ...</span>).", "رفع عدد الـ partitions يدوياً."],
+      "options_en": ["Add DAX.", "Switch to On-Demand mode.", "Write Sharding: add random suffix to Partition Key (<span class=\"font-mono\">A_1, A_2, ...</span>).", "Manually raise partition count."],
+      "correct": 2,
+      "explanation_ar": "<strong>Write Sharding</strong> هو الحلّ المعياري لـ hot partition في الكتابة: أضف suffix (عشوائي أو محسوب) لتحويل Partition Key واحد إلى عشرات الـ partitions. DAX للـ reads فقط. On-Demand يساعد لكنّه لا يحلّ hot partition في الأساس. عدد الـ partitions تديره AWS تلقائياً.",
+      "explanation_en": "<strong>Write Sharding</strong> is the standard write-hot-partition fix: append a suffix (random or calculated) to turn one Partition Key into many. DAX is read-only. On-Demand helps but doesn't fundamentally fix hot partitions. Partition count is auto-managed by AWS.",
+      "wrong_ar": ["DAX للقراءة فقط.", "يساعد لكن لا يحلّ جذر المشكلة.", "", "لا يمكن التحكّم اليدوي."],
+      "wrong_en": ["DAX is read-only.", "Helps but doesn't fix the root cause.", "", "Can't manually control count."],
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q16", "type": "single",
+      "question_ar": "مطوّر يريد حفظ ملفات صور للمنتجات تصل إلى ٢ MB لكل صورة مع بياناتها. ما النمط الأمثل؟",
+      "question_en": "A developer needs to store product images up to 2 MB each with metadata. Best pattern?",
+      "options_ar": ["حفظ الصورة كـ Binary attribute في DynamoDB.", "تقسيم الصورة لعدّة عناصر.", "حفظ الصورة في S3 والـ metadata والرابط في DynamoDB.", "استخدام Instance Store."],
+      "options_en": ["Store image as a Binary attribute in DynamoDB.", "Split across multiple items.", "Store image in S3, metadata & URL in DynamoDB.", "Use Instance Store."],
+      "correct": 2,
+      "explanation_ar": "نمط <strong>Large Objects</strong>: S3 للـ blobs (أرخص، لا قيود حجم عمليّة)، DynamoDB للـ metadata والـ URL. حدّ عنصر DynamoDB ٤٠٠ KB، فصورة ٢ MB لا تدخل. تقسيمها يُعقّد التطبيق.",
+      "explanation_en": "<strong>Large Objects</strong> pattern: S3 for blobs (cheaper, no practical size limit), DynamoDB for metadata and URL. DynamoDB item max is 400 KB — 2 MB won't fit. Splitting adds complexity.",
+      "wrong_ar": ["يتجاوز حدّ ٤٠٠ KB للعنصر.", "يُعقّد الكود بدون فائدة.", "", "ليس مخصّصاً للتخزين المشترك."],
+      "wrong_en": ["Exceeds 400 KB item limit.", "Unnecessary complexity.", "", "Not for shared storage."],
+      "reference_ar": "القسم ١",
+      "reference_en": "Section 1"
+    },
+    {
+      "id": "q17", "type": "single",
+      "question_ar": "كم تستهلك عملية Transactional Write لعنصر حجم ٥ KB من الـ WCU؟",
+      "question_en": "How many WCU does a Transactional Write for a 5 KB item consume?",
+      "options_ar": ["٥ WCU", "٦ WCU", "١٠ WCU", "١٢ WCU"],
+      "options_en": ["5 WCU", "6 WCU", "10 WCU", "12 WCU"],
+      "correct": 2,
+      "explanation_ar": "Transactional Writes تستهلك <strong>ضعف</strong> الـ WCU العادية (prepare + commit). عنصر ٥ KB يحتاج ٥ WCU عادية (١ WCU لكل KB) فيصبح <strong>٥ × ٢ = ١٠ WCU</strong> للـ Transactional Write. نفس المبدأ للـ RCU.",
+      "explanation_en": "Transactional Writes cost <strong>2×</strong> regular WCU (prepare + commit). A 5 KB item needs 5 WCU regular (1 WCU/KB) → <strong>5 × 2 = 10 WCU</strong> transactional. Same logic for RCU.",
+      "wrong_ar": ["هذه تكلفة الكتابة العادية.", "حسبة خاطئة.", "", "أكثر من اللازم."],
+      "wrong_en": ["That's the non-transactional cost.", "Wrong math.", "", "Too high."],
+      "reference_ar": "القسم ٦",
+      "reference_en": "Section 6"
+    },
+    {
+      "id": "q18", "type": "single",
+      "question_ar": "تطبيق يحتاج قراءة ميزانية مستخدم فوراً بعد الكتابة (لا تأخير). ما الإعداد الصحيح في DynamoDB؟",
+      "question_en": "An app needs to read a user's balance immediately after a write — no lag tolerated. Correct DynamoDB setting?",
+      "options_ar": ["الإعداد الافتراضي (Eventually Consistent).", "ConsistentRead = true (Strongly Consistent).", "إضافة DAX.", "استخدام Scan بدل GetItem."],
+      "options_en": ["Default (Eventually Consistent).", "ConsistentRead = true (Strongly Consistent).", "Add DAX.", "Use Scan instead of GetItem."],
+      "correct": 1,
+      "explanation_ar": "<strong>Strongly Consistent Read</strong> يعيد دائماً آخر قيمة مكتوبة (بعد تأكيد كل الـ replicas). اضبط <span class=\"font-mono\">ConsistentRead=true</span> في GetItem/BatchGetItem/Query/Scan. التكلفة: ٢× RCU. الـ Eventually Consistent قد يعطي بيانات قديمة بسبب الـ replication. DAX قد يخفي الكتابة الأحدث.",
+      "explanation_en": "<strong>Strongly Consistent Read</strong> always returns the latest committed value (after all replicas ack). Set <span class=\"font-mono\">ConsistentRead=true</span> on GetItem/BatchGetItem/Query/Scan. Cost: 2× RCU. Eventually Consistent may return stale data due to replication. DAX can hide newer writes.",
+      "wrong_ar": ["قد يعطي بيانات قديمة.", "", "قد يخفي آخر كتابة (cache lag).", "Scan مكلف ولا يضمن consistency أكثر."],
+      "wrong_en": ["May return stale data.", "", "May hide latest write (cache lag).", "Scan is expensive; doesn't help consistency."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    }
+  ],
+  "summary": [
+    {"icon": "key", "title_ar": "اختر Partition Key بعناية", "title_en": "Pick Partition Keys wisely",
+     "body_ar": "cardinality عالية وتوزيع متساوٍ لتجنّب hot partitions.",
+     "body_en": "High cardinality, even distribution — avoid hot partitions."},
+    {"icon": "layers", "title_ar": "GSI vs LSI", "title_en": "GSI vs LSI",
+     "body_ar": "GSI مرن (أيّ وقت، capacity مستقلّ). LSI عند الإنشاء فقط (٥ أقصى).",
+     "body_en": "GSI flexible (anytime, own capacity). LSI at creation only (max 5)."},
+    {"icon": "zap", "title_ar": "DAX للـ Hot Reads", "title_en": "DAX for hot reads",
+     "body_ar": "in-memory cache بدون تغيير كود، يحلّ مشكلة Hot Keys القرائية.",
+     "body_en": "In-memory cache, zero code changes, fixes read Hot Keys."},
+    {"icon": "shield-check", "title_ar": "Transactions & TTL", "title_en": "Transactions & TTL",
+     "body_ar": "Transactions تعطي ACID (٢× capacity). TTL يحذف تلقائياً بدون WCU.",
+     "body_en": "Transactions give ACID (2× capacity). TTL auto-deletes at no WCU cost."}
+  ],
+  "mnemonic_ar": "للتفريق بين Query و Scan: <strong>Query = Precise (مفتاح مُحدَّد)</strong>، <strong>Scan = Sweep (يقرأ كل شيء)</strong>. إذا رأيت كلمة \"Scan\" في حلّ مقترح — غالباً هو الإجابة الخاطئة في الامتحان.",
+  "mnemonic_en": "Query vs Scan: <strong>Query = Precise (keyed)</strong>, <strong>Scan = Sweep (reads all)</strong>. If you see \"Scan\" as a proposed solution — it's usually the wrong exam answer.",
+  "prev": 11,
+  "next": 13
+}

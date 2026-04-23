@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 11 — AWS Lambda Advanced — Concurrency, Layers, Versions, Deployment | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-blue-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الأول — 32%</span>
+          <span class="lang-en">Domain 1 — 32%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١١ من ٣٠</span>
+        <span class="lang-en">Chapter 11 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.576-607</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">AWS Lambda — المتقدّم: التزامن والـ Layers والنشر</span>
+        <span class="lang-en">AWS Lambda Advanced — Concurrency, Layers, Versions, Deployment</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">الفصل الثاني لـ Lambda: Cold Starts و Provisioned Concurrency و Reserved Concurrency، ربط VPC، Lambda Layers، EFS، Container Images، Versions & Aliases للـ blue-green، ونشر مع CodeDeploy. هنا تُتقن إدارة إنتاجيّة حقيقية.</span>
+        <span class="lang-en">Lambda part 2: cold starts, Provisioned & Reserved Concurrency, VPC networking, Layers, EFS, container images, Versions & Aliases for blue-green, and CodeDeploy. This is where you learn real production mastery.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Concurrency</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Cold Starts</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Provisioned Concurrency</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Layers</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">EFS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Versions</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Aliases</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CodeDeploy</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Concurrency & Cold Starts</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاقان الأول والثالث — ضبط الأداء ومنع الـ throttling.</span>
+      <span class="lang-en">Domains 1 & 3 — performance tuning and throttle prevention.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Versions & Aliases</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — blue-green و canary deployments.</span>
+      <span class="lang-en">Domain 3 — blue-green and canary deployments.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Layers & Container Images</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الثالث — تنظيم الحزم وإدارة التبعيّات.</span>
+      <span class="lang-en">Domain 3 — packaging and dependency management.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">VPC & EFS Integration</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول — الوصول إلى موارد خاصّة وتخزين مشترك.</span>
+      <span class="lang-en">Domain 1 — private resources and shared storage.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Concurrency و Throttling و Cold Starts</span>
+      <span class="lang-en">Concurrency, Throttling, and Cold Starts</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Concurrency</strong> = عدد الـ instances التي تُشغَّل في نفس اللحظة. الحد الافتراضيّ للحساب = <strong>١٠٠٠ تنفيذ متزامن</strong> لكل Region (قابل للرفع). عند التجاوز: sync = <span dir="ltr" class="font-mono">ThrottleError (429)</span>، async = retry تلقائيّ لمدّة ٦ ساعات ثم DLQ.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Concurrency</strong> = how many instances run simultaneously. Default account limit = <strong>1000 concurrent executions</strong> per region (raisable). On overage: sync = <span dir="ltr" class="font-mono">ThrottleError (429)</span>, async = auto-retry for 6 hours then DLQ.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Reserved Concurrency</span><span class="lang-en">Reserved Concurrency</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">سقف صارم على دالة معيّنة + يحجز لها السعة من الـ pool المشترك. يمنعها من ابتلاع كلّ الحصّة، ويضمن لها حدّاً أدنى.</p>
+      <p class="text-sm text-surface-700 lang-en">Hard cap on a function + reserves capacity from the shared pool. Prevents it from eating all account concurrency, guarantees a floor.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Provisioned Concurrency</span><span class="lang-en">Provisioned Concurrency</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">تهيئة instances مُحمَّلة مسبقاً — بدون cold starts. أغلى لكنّه ضروريّ للزمن الحرج. يمكن ربطه بـ Application Auto Scaling.</p>
+      <p class="text-sm text-surface-700 lang-en">Pre-initialized instances — zero cold starts. More expensive but necessary for latency-critical paths. Integrates with Application Auto Scaling.</p>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="snowflake" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ما هو Cold Start؟</span><span class="lang-en">What is a cold start?</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">عند إنشاء instance جديدة: تحميل الكود، تشغيل init (خارج الـ handler)، ثم المعالجة. Java ‌و‌ .NET أبطأ لأنّ JVM تحتاج تحميل classes.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">When a fresh instance spins up: code load, init (outside handler), then processing. Java and .NET are slower because JVM needs class loading.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">حدود الـ init</span><span class="lang-en">Init limits</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">الـ init time ليس ضمن duration المفوتَرة لكن يؤثّر على المستخدم. بَسّط التبعيّات واستخدم GraalVM للـ Java عند الحاجة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Init time isn't billed as duration but affects users. Trim dependencies and consider GraalVM for Java.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">ذاكرة CPU linked</span><span class="lang-en">Memory-CPU coupling</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">١٢٨MB→١٠GB. زيادة RAM = زيادة vCPU. كامل vCPU عند ١٧٩٢MB. أكثر من ذلك = multi-threading مطلوب (حتى ٦ vCPU).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">128MB→10GB. More RAM = more vCPU. Full vCPU at 1792MB. Beyond that needs multi-threading (up to 6 vCPU).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Timeout</span><span class="lang-en">Timeout</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">افتراضيّ ٣ ثوانٍ، أقصى ٩٠٠ ثانية (١٥ دقيقة). للمهام الأطول استخدم Step Functions أو ECS/Fargate.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Default 3s, max 900s (15 min). For longer jobs use Step Functions or ECS/Fargate.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> قاعدة إنتاجيّة: <strong>Reserved Concurrency</strong> لعزل دالة حساسة عن باقي الحساب، و<strong>Provisioned Concurrency</strong> عندما يكون cold start غير مقبول (مثلاً login endpoint). قيسها بـ CloudWatch metric <span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span>.</span>
+      <span class="lang-en"> Prod rule: use <strong>Reserved Concurrency</strong> to isolate a critical function from the rest of the account, and <strong>Provisioned Concurrency</strong> when cold start is unacceptable (e.g., login endpoint). Tune with CloudWatch metric <span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span>.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// GOOD: init clients OUTSIDE the handler — reused across warm invocations
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import com.amazonaws.services.lambda.runtime.*;
+
+public class OrderHandler implements RequestHandler&lt;APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    // Static = loaded once per execution context (warm start reuses this)
+    private static final DynamoDbClient ddb = DynamoDbClient.builder()
+        .httpClientBuilder(software.amazon.awssdk.http.apache.ApacheHttpClient.builder())
+        .build();
+
+    private static final String TABLE = System.getenv("ORDERS_TABLE");
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent evt, Context ctx) {
+        // Just request-specific logic here — no heavy init
+        return new APIGatewayProxyResponseEvent().withStatusCode(200);
+    }
+}</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Lambda داخل VPC و الوصول للإنترنت</span>
+      <span class="lang-en">Lambda in a VPC & Internet Access</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">افتراضياً Lambda تعمل في شبكة AWS المُدارة. لتصل إلى موارد خاصّة (RDS، ElastiCache، EC2 داخل VPC) عرّف <strong>VPC ID</strong> و <strong>Subnets</strong> و <strong>Security Groups</strong>. Lambda ينشئ <strong>ENI</strong> في الـ subnets لتنفيذ الاستدعاءات.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">By default Lambda runs in AWS-managed networking. To reach private resources (RDS, ElastiCache, EC2 in VPC), specify <strong>VPC ID</strong>, <strong>Subnets</strong>, and <strong>Security Groups</strong>. Lambda creates <strong>ENIs</strong> in the subnets for invocations.</p>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> <strong>نشر Lambda في public subnet لا يعطيه إنترنت</strong>. لا يملك Public IP. الحل الصحيح: subnet خاصّ مع NAT Gateway لإخراج الطلبات، أو VPC Endpoints للوصول لخدمات AWS بشكل خاص. CloudWatch Logs يعمل حتى بدون أيّ endpoint.</span>
+      <span class="lang-en"> <strong>Deploying Lambda in a public subnet does NOT give it internet</strong>. It has no public IP. Correct: private subnet + NAT Gateway for outbound, or VPC Endpoints for private AWS access. CloudWatch Logs works even with no endpoint.</span>
+    </div>
+  </div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوصول إلى</span><span class="lang-en">To reach</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الأداة المطلوبة</span><span class="lang-en">What you need</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">RDS في subnet خاصّ</span><span class="lang-en">RDS in private subnet</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda داخل نفس VPC + SG يسمح بالمنفذ</span><span class="lang-en">Lambda in same VPC + SG allowing the port</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الإنترنت (API خارجي)</span><span class="lang-en">Internet (external API)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">NAT Gateway في public subnet + route</span><span class="lang-en">NAT Gateway in public subnet + route</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">DynamoDB/S3 بدون إنترنت</span><span class="lang-en">DynamoDB/S3 without internet</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Gateway VPC Endpoint</span><span class="lang-en">Gateway VPC Endpoint</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">خدمات AWS الأخرى</span><span class="lang-en">Other AWS services</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Interface VPC Endpoint (PrivateLink)</span><span class="lang-en">Interface VPC Endpoint (PrivateLink)</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> Managed Policy <strong>AWSLambdaVPCAccessExecutionRole</strong> ضروريّ لنشر Lambda في VPC (يسمح بإنشاء/حذف ENIs).</span>
+      <span class="lang-en"> The managed policy <strong>AWSLambdaVPCAccessExecutionRole</strong> is required for VPC-deployed Lambdas (allows ENI create/delete).</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Lambda Layers و EFS و ‎/tmp</span>
+      <span class="lang-en">Lambda Layers, EFS, and /tmp</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Lambda Layers</strong> = أرشيفات zip تحتوي على مكتبات/runtimes مشتركة تُضاف إلى عدّة دوالّ. حتى <strong>٥ layers لكلّ دالة</strong>، الحجم الإجماليّ المفكوك ≤ ٢٥٠MB. تُقلّل حجم حزمة كل دالة وتُسرّع النشر.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Lambda Layers</strong> = zip archives of shared libraries/runtimes attached to multiple functions. Up to <strong>5 layers per function</strong>, total unpacked ≤ 250MB. Reduces per-function package size and speeds deployments.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="folder" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">‎/tmp (ephemeral)</span><span class="lang-en">/tmp (ephemeral)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">٥١٢MB-١٠GB. تُمسَح عند إعادة الـ instance. مفيدة للتحميل المؤقّت (ZIP، صور) أو cache بين استدعاءات warm.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">512MB-10GB. Wiped on instance rebuild. Good for transient download (ZIP, images) or cache across warm invocations.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Layers (immutable)</span><span class="lang-en">Layers (immutable)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">حد أقصى ٥ لكل دالة. ٢٥٠MB إجماليّ مفكوك. غير قابلة للتعديل بعد النشر — تُنشَأ إصدارة جديدة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Max 5 per function. 250MB total unpacked. Immutable after publish — create a new version instead.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="server" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">S3</span><span class="lang-en">S3</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تخزين دائم أو لحفظ checkpoints و نتائج نهائية. يتطلّب IAM. Object storage، ليس filesystem.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Durable storage for checkpoints and final results. Needs IAM. Object storage, not filesystem.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="hard-drive" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EFS</span><span class="lang-en">EFS</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Network filesystem مشترك. يحتاج VPC. مناسب لبيانات كبيرة مشتركة بين دوالّ (ML models). اعتنِ بـ connection limits.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Shared network filesystem. Needs VPC. Good for large shared data across functions (ML models). Mind connection limits.</p>
+  </div>
+</div>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخيار</span><span class="lang-en">Option</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحجم</span><span class="lang-en">Size</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الثبات</span><span class="lang-en">Persistence</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المشاركة</span><span class="lang-en">Sharing</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السرعة</span><span class="lang-en">Speed</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">/tmp</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">512MB - 10GB</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عابر</span><span class="lang-en">Ephemeral</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا</span><span class="lang-en">No</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأسرع</span><span class="lang-en">Fastest</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Layers</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">250MB (5 layers)</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">دائم (immutable)</span><span class="lang-en">Durable (immutable)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأسرع</span><span class="lang-en">Fastest</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">S3</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مرن</span><span class="lang-en">Elastic</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">دائم</span><span class="lang-en">Durable</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">سريع</span><span class="lang-en">Fast</span></td></tr><tr><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">EFS</td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مرن</span><span class="lang-en">Elastic</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">دائم</span><span class="lang-en">Durable</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">سريع جداً</span><span class="lang-en">Very Fast</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للتطبيقات الكبيرة، ادمج <strong>Layers</strong> (للـ AWS SDK و dependencies الثقيلة) + <strong>/tmp</strong> (للتحميل الديناميكيّ) + <strong>EFS</strong> (للبيانات المشتركة عبر دوالّ). هذا النمط يقلّل الـ cold start ويحسّن الـ reuse.</span>
+      <span class="lang-en"> For large apps, combine <strong>Layers</strong> (for AWS SDK and heavy deps) + <strong>/tmp</strong> (for dynamic downloads) + <strong>EFS</strong> (for data shared across functions). This pattern trims cold starts and maximizes reuse.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Create a Lambda Layer from a zipped jars directory
+zip -r dependencies.zip java/lib/
+
+aws lambda publish-layer-version \
+  --layer-name common-aws-sdk \
+  --description "AWS SDK v2 + Jackson" \
+  --zip-file fileb://dependencies.zip \
+  --compatible-runtimes java17 java21 \
+  --compatible-architectures arm64
+
+# Attach to a function
+aws lambda update-function-configuration \
+  --function-name OrderProcessor \
+  --layers arn:aws:lambda:eu-west-1:123456789012:layer:common-aws-sdk:3</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">نشر Lambda: Zip و Container Images و CloudFormation</span>
+      <span class="lang-en">Deploying Lambda: Zip, Container Images, CloudFormation</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">هناك ثلاث طرق لنشر Lambda: <strong>Zip</strong> (حتى ٥٠MB مضغوط، ٢٥٠MB مفكوك)، <strong>Container Image</strong> (حتى ١٠GB من ECR)، و<strong>CloudFormation/SAM</strong> للبنية كاملةً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Three ways to deploy Lambda: <strong>Zip</strong> (up to 50MB zipped, 250MB unzipped), <strong>Container Image</strong> (up to 10GB from ECR), and <strong>CloudFormation/SAM</strong> for full IaC.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحدّ</span><span class="lang-en">Limit</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Zip</span><span class="lang-en">Zip</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Container Image</span><span class="lang-en">Container Image</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حجم الحزمة</span><span class="lang-en">Package size</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">50MB zipped / 250MB unzipped</td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">10GB</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">المصدر</span><span class="lang-en">Source</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">رفع مباشر أو S3</span><span class="lang-en">Direct upload or S3</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Amazon ECR</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Runtime</span><span class="lang-en">Runtime</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">مُدار من AWS</span><span class="lang-en">AWS-managed</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يجب أن تنفّذ Lambda Runtime API</span><span class="lang-en">Must implement Lambda Runtime API</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الأنسب لـ</span><span class="lang-en">Best for</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">كود عاديّ + تبعيات مقبولة</span><span class="lang-en">Normal code + reasonable deps</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تبعيّات ضخمة، ML models، أدوات نظام</span><span class="lang-en">Huge deps, ML models, system tooling</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># SAM template for a Lambda with inline Java code and a layer
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  OrderProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./target/order-processor-1.0.0.jar
+      Handler: com.acme.OrderHandler::handleRequest
+      Runtime: java17
+      MemorySize: 1024
+      Timeout: 30
+      Tracing: Active                     # X-Ray on
+      ReservedConcurrentExecutions: 50   # cap concurrency
+      Layers:
+        - !Ref CommonLayer
+      Environment:
+        Variables:
+          ORDERS_TABLE: !Ref OrdersTable
+      Events:
+        Api:
+          Type: Api
+          Properties: { Path: /orders, Method: POST }
+
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: common-sdk
+      ContentUri: ./layer
+      CompatibleRuntimes: [java17]
+
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: orderId, AttributeType: S }
+      KeySchema:
+        - { AttributeName: orderId, KeyType: HASH }</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> في CloudFormation مع S3 source: إذا غيّرت الـ code في S3 لكن لم تغيّر <span dir="ltr" class="font-mono">S3Bucket</span> أو <span dir="ltr" class="font-mono">S3Key</span> أو <span dir="ltr" class="font-mono">S3ObjectVersion</span>، <strong>CloudFormation لن يحدّث الدالة</strong>. استخدم versioned bucket ومرّر الـ version.</span>
+      <span class="lang-en"> In CloudFormation with S3 source: if you change the code in S3 but not the <span dir="ltr" class="font-mono">S3Bucket</span>, <span dir="ltr" class="font-mono">S3Key</span>, or <span dir="ltr" class="font-mono">S3ObjectVersion</span>, <strong>CloudFormation won't update</strong>. Use a versioned bucket and pass the version.</span>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Container Image Lambda — Dockerfile building from AWS base image
+FROM public.ecr.aws/lambda/java:17
+
+COPY target/classes/ ${LAMBDA_TASK_ROOT}/
+COPY target/dependency/ ${LAMBDA_TASK_ROOT}/lib/
+
+CMD [ "com.acme.OrderHandler::handleRequest" ]
+
+# Build, push to ECR, create the function
+docker build -t order-processor .
+aws ecr create-repository --repository-name order-processor
+docker tag order-processor:latest 123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1
+docker push 123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1
+
+aws lambda create-function --function-name OrderProcessor \
+  --package-type Image \
+  --code ImageUri=123456789012.dkr.ecr.eu-west-1.amazonaws.com/order-processor:v1 \
+  --role arn:aws:iam::123456789012:role/lambda-exec</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Versions و Aliases و CodeDeploy</span>
+      <span class="lang-en">Versions, Aliases & CodeDeploy</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">عند التطوير، أنت تعمل على <strong>$LATEST</strong> (mutable). عند النشر، تُنشِئ <strong>Version</strong> (snapshot غير قابل للتعديل، رقم متزايد، ARN خاصّ). <strong>Alias</strong> = pointer قابل للتعديل إلى إصدار، ويُستخدَم لفصل البيئات (dev/test/prod) ولتوزيع الترافيك.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Development happens on <strong>$LATEST</strong> (mutable). To release, publish a <strong>Version</strong> (immutable snapshot, incrementing number, own ARN). An <strong>Alias</strong> = mutable pointer to a version, used to separate environments (dev/test/prod) and to split traffic.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="git-branch" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Version (immutable)</span><span class="lang-en">Version (immutable)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">Code + configuration كاملاً. ARN محدّد. لا يتغيّر. مناسب لإطلاق إنتاجيّ موثوق.</p>
+      <p class="text-sm text-surface-700 lang-en">Code + full config. Specific ARN. Never changes. For reliable production releases.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="tag" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Alias (mutable pointer)</span><span class="lang-en">Alias (mutable pointer)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">"prod" يشير إلى V12، يمكن تحديثه ليشير إلى V13. يدعم توزيع الترافيك (٩٥٪ V12 / ٥٪ V13 للـ canary).</p>
+      <p class="text-sm text-surface-700 lang-en">"prod" points at V12; flip it to V13. Supports weighted routing (95% V12 / 5% V13 for canary).</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Publish a new version from $LATEST
+aws lambda publish-version \
+  --function-name OrderProcessor \
+  --description "Add idempotency guard"
+# → returns Version: "4"
+
+# Point the 'prod' alias at v3 with 10% traffic on v4 (canary)
+aws lambda create-alias --function-name OrderProcessor \
+  --name prod --function-version 3 \
+  --routing-config AdditionalVersionWeights={"4"=0.10}
+
+# Later, flip alias 100% to v4
+aws lambda update-alias --function-name OrderProcessor \
+  --name prod --function-version 4</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>Aliases لا يمكن أن تشير إلى Aliases أخرى</strong> — فقط إلى versions. هذا قيد تصميميّ لمنع الحلقات.</span>
+      <span class="lang-en"> <strong>Aliases cannot reference other aliases</strong> — only versions. A design constraint to prevent cycles.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="git-merge" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">AllAtOnce</span><span class="lang-en">AllAtOnce</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">نقل ١٠٠٪ من الترافيك فوراً. الأسرع لكنّ الأكثر خطورة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Shift 100% immediately. Fastest but riskiest.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="activity" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Linear</span><span class="lang-en">Linear</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Linear10PercentEvery3Minutes، Linear10PercentEvery10Minutes.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Linear10PercentEvery3Minutes, Linear10PercentEvery10Minutes.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="bird" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Canary</span><span class="lang-en">Canary</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">جرّب X٪ لفترة ثم ١٠٠٪: Canary10Percent5Minutes، Canary10Percent30Minutes.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Try X% for a window then 100%: Canary10Percent5Minutes, Canary10Percent30Minutes.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-yaml"># CodeDeploy AppSpec for Lambda blue-green via alias
+version: 0.0
+
+Resources:
+  - myLambdaFunction:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: OrderProcessor
+        Alias: prod                           # the alias being shifted
+        CurrentVersion: 3                     # where traffic is now
+        TargetVersion: 4                      # where to shift it
+
+# Pre & Post traffic hooks run another Lambda to validate health
+Hooks:
+  - BeforeAllowTraffic: pre-validate-function
+  - AfterAllowTraffic: post-validate-function</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> نمط مؤسّسيّ: (١) أنشِئ alias واحد لكلّ بيئة (<span dir="ltr" class="font-mono">dev</span>، <span dir="ltr" class="font-mono">staging</span>، <span dir="ltr" class="font-mono">prod</span>). (٢) API Gateway و EventBridge يشيرون إلى ARN الـ alias لا إلى $LATEST. (٣) النشر يغيّر الـ alias فقط — rollback لحظيّ عبر إعادة الـ alias إلى نسخة سابقة.</span>
+      <span class="lang-en"> Enterprise pattern: (1) one alias per env (<span dir="ltr" class="font-mono">dev</span>, <span dir="ltr" class="font-mono">staging</span>, <span dir="ltr" class="font-mono">prod</span>). (2) API Gateway and EventBridge point to the alias ARN, never $LATEST. (3) Deployment only flips the alias — rollback is instant by pointing the alias back.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Lambda Function URL و CodeGuru Profiling و الحدود</span>
+      <span class="lang-en">Lambda Function URL, CodeGuru Profiling & Limits</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Lambda Function URL</strong> = endpoint HTTPS جاهز لدالة دون API Gateway أو ALB. الـ URL ثابت بصيغة <span dir="ltr" class="font-mono">https://&lt;url-id&gt;.lambda-url.&lt;region&gt;.on.aws</span>. يدعم CORS و AuthType (NONE للعامّ، AWS_IAM للمحمي).</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Lambda Function URL</strong> = ready-made HTTPS endpoint for a function without API Gateway or ALB. URL format: <span dir="ltr" class="font-mono">https://&lt;url-id&gt;.lambda-url.&lt;region&gt;.on.aws</span>. Supports CORS and AuthType (NONE for public, AWS_IAM for auth).</p>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> Function URL لا يدعم PrivateLink — يعمل عبر الإنترنت العامّ فقط. إن احتجت خصوصيّة شبكيّة استخدم API Gateway VPC Endpoint أو ALB داخليّ.</span>
+      <span class="lang-en"> Function URL doesn't support PrivateLink — it's public-internet only. For network privacy use API Gateway VPC endpoint or internal ALB.</span>
+    </div>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>CodeGuru Profiler</strong> يعطي رؤى أداء تشغيلية لـ Lambda (Java و Python). فعّله من console؛ يضيف layer خاصّ و AmazonCodeGuruProfilerAgentAccess policy تلقائياً. مفيد لتحديد طرق تستهلك الـ CPU أو تسبّب cold starts طويلة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CodeGuru Profiler</strong> gives runtime perf insights for Lambda (Java and Python). Enable from console; it adds a layer and the AmazonCodeGuruProfilerAgentAccess policy automatically. Pinpoints hot methods and long cold starts.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحد</span><span class="lang-en">Limit</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">القيمة</span><span class="lang-en">Value</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الذاكرة</span><span class="lang-en">Memory</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">128MB - 10GB (1MB increments)</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">timeout أقصى</span><span class="lang-en">Max timeout</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">900 seconds (15 min)</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">متغيّرات البيئة</span><span class="lang-en">Environment variables</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">4 KB total</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">/tmp size</span><span class="lang-en">/tmp size</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">512 MB - 10 GB</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">التزامن الافتراضيّ</span><span class="lang-en">Default concurrency</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">1000 (raisable)</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حجم zip package (compressed)</span><span class="lang-en">Zip package (compressed)</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">50 MB</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حجم uncompressed</span><span class="lang-en">Uncompressed code+deps</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">250 MB</td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">container image</span><span class="lang-en">Container image</span></td><td class="px-4 py-2 font-mono text-brand-700" dir="ltr">10 GB</td></tr></tbody>
+    </table>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> أفضل الممارسات السبع: (١) حمل الـ init خارج الـ handler، (٢) استخدم env vars لكل config، (٣) قلّل حجم الحزمة، (٤) قسّم الدوالّ الكبيرة، (٥) استخدم Layers عند التكرار، (٦) تجنّب الاستدعاءات التكرارية (recursive)، (٧) Idempotency في async.</span>
+      <span class="lang-en"> Seven best practices: (1) heavy init outside handler, (2) env vars for all config, (3) minimize package size, (4) split large functions, (5) use Layers where repeated, (6) avoid recursive self-invocation, (7) idempotency in async.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> نشر Lambda Java مع canary deployment عبر alias، Provisioned Concurrency، و Layer مشترك.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Deploy a Java Lambda with canary deployment via alias, Provisioned Concurrency, and shared Layer.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ابنِ Layer للمكتبات المشتركة</span>
+      <span class="lang-en">Build a Layer with shared libs</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">mkdir -p layer/java/lib
+cp ~/.m2/repository/**/jackson-core-2.*.jar layer/java/lib/
+cp ~/.m2/repository/**/aws-sdk-java-v2-*.jar layer/java/lib/
+
+cd layer && zip -r ../common.zip . && cd ..
+
+aws lambda publish-layer-version --layer-name common \
+  --zip-file fileb://common.zip \
+  --compatible-runtimes java17</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">ارفع الدالة مع Reserved Concurrency</span>
+      <span class="lang-en">Deploy the function with reserved concurrency</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda create-function --function-name OrderProcessor \
+  --runtime java17 --handler com.acme.OrderHandler::handleRequest \
+  --role arn:aws:iam::123456789012:role/lambda-exec \
+  --zip-file fileb://function.jar \
+  --memory-size 1024 --timeout 30 \
+  --layers arn:aws:lambda:eu-west-1:123456789012:layer:common:1
+
+aws lambda put-function-concurrency --function-name OrderProcessor \
+  --reserved-concurrent-executions 100</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ version و alias prod</span>
+      <span class="lang-en">Publish version & create prod alias</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda publish-version --function-name OrderProcessor
+# returns version 1
+
+aws lambda create-alias --function-name OrderProcessor \
+  --name prod --function-version 1</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">فعّل Provisioned Concurrency على alias</span>
+      <span class="lang-en">Enable Provisioned Concurrency on alias</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">هذا يضمن cold start صفر على المسار الإنتاجيّ.</p><p class="text-surface-600 leading-relaxed lang-en">Guarantees zero cold starts on the production path.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws lambda put-provisioned-concurrency-config \
+  --function-name OrderProcessor \
+  --qualifier prod \
+  --provisioned-concurrent-executions 10</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أطلق canary من v1 إلى v2 عبر CodeDeploy</span>
+      <span class="lang-en">Roll canary from v1 to v2 via CodeDeploy</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">نشر v2، ثم CodeDeploy يحوّل ١٠٪ من الـ traffic لمدّة ٥ دقائق، يختبر، ثم يكمل إلى ١٠٠٪.</p><p class="text-surface-600 leading-relaxed lang-en">Publish v2, then CodeDeploy shifts 10% for 5 min, validates, then completes to 100%.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash"># After uploading v2 code:
+aws lambda publish-version --function-name OrderProcessor
+
+# Deploy via SAM (auto-configures CodeDeploy)
+sam deploy --stack-name order-processor \
+  --capabilities CAPABILITY_IAM \
+  --parameter-overrides DeploymentPreference=Canary10Percent5Minutes</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Provisioned Concurrency يُفوَّتَر حتى إذا لم يُستخدَم. قِس utilization دائماً قبل زيادة العدد. للدوالّ غير الحسّاسة للـ latency اتركها بدون provisioned.</span>
+    <span class="lang-en"> Provisioned Concurrency is billed even when idle. Always measure utilization before scaling up. For latency-tolerant functions, skip it entirely.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">RAM = CPU</span>
+        <span class="lang-en">RAM = CPU</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">زيادة الذاكرة ترفع vCPU. Java يستفيد كثيراً. كامل vCPU عند ١٧٩٢MB.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">More memory = more vCPU. Java gains hugely. Full vCPU at 1792MB.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="snowflake" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Cold start حَكِّم!</span>
+        <span class="lang-en">Control cold starts</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">init خارج الـ handler. Provisioned Concurrency للزمن الحرج. Layers لإعادة الاستخدام.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Init outside handler. Provisioned Concurrency for latency-critical. Layers for reuse.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="git-branch" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Versions + Aliases = blue-green</span>
+        <span class="lang-en">Versions + Aliases = blue-green</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">$LATEST للتطوير، Version immutable للإنتاج، Alias قابل للتحويل. Aliases لا تُشير لـ Aliases.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">$LATEST for dev, immutable Version for prod, mutable Alias to switch. Aliases cannot point to other aliases.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="network" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">VPC = NAT للإنترنت</span>
+        <span class="lang-en">VPC = NAT for internet</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Public subnet لا يعطي إنترنت. Private subnet + NAT Gateway، أو VPC Endpoints لخدمات AWS.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Public subnet doesn't grant internet. Use private subnet + NAT Gateway, or VPC Endpoints for AWS services.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">للذاكرة/CPU في Lambda: <strong>١٧٩٢</strong> = رقم سحريّ = vCPU كامل. اقرأها "ألف سبعمائة اثنان وتسعون" وتذكّر: قبل = جزء CPU، بعد = multi-threading مطلوب. للنشر: <strong>V</strong>ersion محفور، <strong>A</strong>lias قابل للتحويل، <strong>C</strong>odeDeploy يوتمت التحوّل.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">For Lambda memory/CPU: <strong>1792</strong> MB = magic full-vCPU threshold. Below = fractional CPU, above = multi-threading needed (up to 6 vCPU). For deployment: <strong>V</strong>ersion frozen, <strong>A</strong>lias mutable, <strong>C</strong>odeDeploy automates the swap.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch10.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(11, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch12.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق الجوهريّ بين Reserved Concurrency و Provisioned Concurrency؟</span><span class="lang-en">Key difference between Reserved and Provisioned Concurrency?</span>",
+        options: [
+          "<span class="lang-ar">لا يوجد فرق.</span><span class="lang-en">No difference.</span>",
+          "<span class="lang-ar">Reserved = سقف + حجز سعة من الحساب (لا يمنع cold start). Provisioned = instances مُحمَّلة مسبقاً (يمنع cold start). يُدفَع لها حتى لو لم تُستخدم.</span><span class="lang-en">Reserved = cap + reserves account capacity (doesn't eliminate cold starts). Provisioned = pre-initialized instances (eliminates cold starts). Paid even when idle.</span>",
+          "<span class="lang-ar">Provisioned مجاني.</span><span class="lang-en">Provisioned is free.</span>",
+          "<span class="lang-ar">Reserved يعطي cold start أسرع.</span><span class="lang-en">Reserved improves cold starts.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Reserved يحدّد سقفاً على الدالة ويحجز لها السعة. Provisioned يحضّر instances جاهزة للاستقبال دون cold start — مكلِف لكنّه ضروريّ للزمن الحرج.</span><span class="lang-en">Reserved caps & reserves capacity. Provisioned pre-warms instances, eliminating cold starts — costly but essential for latency-critical paths.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">دالة Lambda داخل VPC تحتاج استدعاء API خارجيّ. ما الإعداد المطلوب؟</span><span class="lang-en">A Lambda in a VPC needs to call an external API. What's required?</span>",
+        options: [
+          "<span class="lang-ar">نشر الدالة في public subnet.</span><span class="lang-en">Deploy in a public subnet.</span>",
+          "<span class="lang-ar">إرفاق Elastic IP.</span><span class="lang-en">Attach an Elastic IP.</span>",
+          "<span class="lang-ar">نشر الدالة في private subnet مع route إلى NAT Gateway في public subnet.</span><span class="lang-en">Deploy in a private subnet with a route to a NAT Gateway in a public subnet.</span>",
+          "<span class="lang-ar">استخدام IGW مباشرةً.</span><span class="lang-en">Use an IGW directly.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">Lambda لا يحصل على Public IP حتى في public subnet. الحل الصحيح: private subnet + NAT Gateway في public subnet للخروج. Internet Gateway لا يكفي لأنّ Lambda بلا Public IP.</span><span class="lang-en">Lambda gets no public IP even in a public subnet. Correct: private subnet + NAT Gateway in public subnet for egress. IGW alone insufficient because Lambda has no public IP.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يعطي إنترنت تلقائياً.</span><span class=\"lang-en\">Doesn't auto-grant internet.</span>", "<span class=\"lang-ar\">Lambda لا يقبل Elastic IP.</span><span class=\"lang-en\">Lambda can't have Elastic IP.</span>", "", "<span class=\"lang-ar\">IGW بحاجة Public IP.</span><span class=\"lang-en\">IGW needs a public IP.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">Java Lambda لديه timeout ٣ ثوانٍ ومستوى RAM ١٢٨MB. يحدث timeout في كلّ استدعاء. الحل الأوّل المجدي؟</span><span class="lang-en">A Java Lambda with 3s timeout and 128MB RAM times out every invocation. First fix to try?</span>",
+        options: [
+          "<span class="lang-ar">زيادة timeout إلى ١٥ دقيقة.</span><span class="lang-en">Raise timeout to 15 min.</span>",
+          "<span class="lang-ar">زيادة RAM (الذاكرة مرتبطة بـ vCPU — زيادتها تزيد سرعة JVM بشكل كبير).</span><span class="lang-en">Increase RAM (memory is coupled to vCPU — JVM runs dramatically faster).</span>",
+          "<span class="lang-ar">الانتقال إلى container image.</span><span class="lang-en">Switch to container image.</span>",
+          "<span class="lang-ar">إلغاء Active Tracing.</span><span class="lang-en">Disable Active Tracing.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">في Lambda، زيادة الـ RAM تزيد vCPU تلقائياً. JVM تستفيد كثيراً من الـ CPU الإضافيّ — رفع الذاكرة من ١٢٨ إلى ٥١٢MB قد يقلّص الـ duration بنسبة ٧٠٪+. الـ timeout قد يكون حلاً أخيراً.</span><span class="lang-en">In Lambda, more RAM = more vCPU. JVM benefits hugely from extra CPU — raising 128→512MB can cut duration by 70%+. Timeout is a last resort.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يُعالج العرض لا السبب الجذريّ (بطء JVM).</span><span class=\"lang-en\">Treats symptom, not root (slow JVM).</span>", "", "<span class=\"lang-ar\">لا يحلّ مشكلة CPU-bound.</span><span class=\"lang-en\">Doesn't solve CPU-bound issue.</span>", "<span class=\"lang-ar\">قد يقلل شيئاً، لكن ليس السبب الرئيسيّ.</span><span class=\"lang-en\">Might help a bit, but not the main cause.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q4",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من هذه الإعدادات صحيحة لـ Lambda Layers؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which are true about Lambda Layers? Select all.</span>",
+        options: [
+          "<span class="lang-ar">أقصى ٥ layers لكل دالة.</span><span class="lang-en">Max 5 layers per function.</span>",
+          "<span class="lang-ar">الحجم الإجماليّ المفكوك ≤ ٢٥٠MB (يشمل الكود).</span><span class="lang-en">Total unpacked ≤ 250MB (includes code).</span>",
+          "<span class="lang-ar">Layer immutable بعد النشر — لا يمكن تعديله.</span><span class="lang-en">Layer is immutable after publish — cannot be edited.</span>",
+          "<span class="lang-ar">يمكن أن تشير Layer إلى Layer أخرى بشكل متسلسل.</span><span class="lang-en">A Layer can reference another Layer (chaining).</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">٥ layers، ٢٥٠MB مفكوك، immutable (أنشئ إصدارة جديدة بدلاً من التعديل). لا يوجد chaining للـ Layers.</span><span class="lang-en">5 layers, 250MB unpacked, immutable (publish a new version instead). No Layer chaining.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد إطلاق نسخة جديدة من Lambda لكن بنقل ١٠٪ من الترافيك لـ ٥ دقائق أوّلاً، ثم الكامل إذا نجح الاختبار. أسرع طريقة؟</span><span class="lang-en">A company wants to roll a new Lambda version with 10% traffic for 5 min, then 100% if healthy. Fastest path?</span>",
+        options: [
+          "<span class="lang-ar">نشر بأمر AllAtOnce.</span><span class="lang-en">Deploy AllAtOnce.</span>",
+          "<span class="lang-ar">استخدام Alias مع Routing Config AdditionalVersionWeights يدوياً.</span><span class="lang-en">Manually set Alias Routing Config AdditionalVersionWeights.</span>",
+          "<span class="lang-ar">AWS CodeDeploy مع Canary10Percent5Minutes deployment preference.</span><span class="lang-en">AWS CodeDeploy with Canary10Percent5Minutes preference.</span>",
+          "<span class="lang-ar">إعادة النشر كلّياً.</span><span class="lang-en">Full redeploy.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>CodeDeploy مع deployment preference Canary10Percent5Minutes</strong> يوتمت هذا تماماً مع dashboards و rollback. SAM يدعمها مباشرةً بـ property واحد. الإعداد اليدويّ ممكن لكنّه أبطأ وأعرضة للخطأ.</span><span class="lang-en"><strong>CodeDeploy + Canary10Percent5Minutes</strong> automates this end-to-end with dashboards and rollback. SAM supports it with one property. Manual routing works but is slower and error-prone.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">بدون canary = مخاطرة.</span><span class=\"lang-en\">No canary = risky.</span>", "<span class=\"lang-ar\">ممكن لكن يدويّ.</span><span class=\"lang-en\">Possible but manual.</span>", "", "<span class=\"lang-ar\">إنهاء كامل، لا canary.</span><span class=\"lang-en\">Full cutover, no canary.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">Lambda لديها PROD alias يشير إلى V3. تمّ نشر V4. كيف يُجرى rollback فوريّ إذا اكتُشف خطأ في V4؟</span><span class="lang-en">A Lambda's PROD alias points to V3. V4 is deployed. How to instantly roll back if V4 breaks?</span>",
+        options: [
+          "<span class="lang-ar">حذف V4.</span><span class="lang-en">Delete V4.</span>",
+          "<span class="lang-ar">تحديث الـ alias ليشير إلى V3 مرّة أخرى — عمليّة ذريّة (atomic).</span><span class="lang-en">Update the alias to point to V3 again — atomic operation.</span>",
+          "<span class="lang-ar">إعادة نشر الكود القديم.</span><span class="lang-en">Redeploy the old code.</span>",
+          "<span class="lang-ar">إعادة تشغيل الحساب.</span><span class="lang-en">Restart the account.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الـ alias pointer قابل للتحديث فوراً. <span dir="ltr" class="font-mono">update-alias --function-version 3</span> يعيد الترافيك إلى V3 فوراً دون إعادة نشر الكود. V4 يبقى متاحاً للفحص.</span><span class="lang-en">Alias is a mutable pointer updatable instantly. <span dir="ltr" class="font-mono">update-alias --function-version 3</span> swings traffic back immediately without redeploying. V4 remains for investigation.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يُعيد الترافيك — فقط يحذف نسخة.</span><span class=\"lang-en\">Doesn't flip traffic — just deletes.</span>", "", "<span class=\"lang-ar\">بطيء جداً عند حاجة فوريّة.</span><span class=\"lang-en\">Too slow for urgency.</span>", "<span class=\"lang-ar\">لا قيمة له.</span><span class=\"lang-en\">Meaningless.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">دالة ML Lambda تحتاج تحميل model ٢GB من S3 في كلّ cold start، وتعمل على ٥٠ request/ثانية. الحل الأمثل؟</span><span class="lang-en">An ML Lambda downloads a 2GB model from S3 on every cold start, at 50 req/s. Best fix?</span>",
+        options: [
+          "<span class="lang-ar">رفع الـ RAM إلى الحد الأقصى.</span><span class="lang-en">Max out RAM.</span>",
+          "<span class="lang-ar">تخزين الـ model في Lambda Layer (إذا <250MB) أو EFS واستخدام EFS من Lambda في VPC (مناسب لـ 2GB).</span><span class="lang-en">Store the model in a Lambda Layer (if <250MB) or EFS and mount EFS from Lambda in VPC (fits 2GB).</span>",
+          "<span class="lang-ar">تقسيم الـ model إلى أجزاء.</span><span class="lang-en">Split the model into parts.</span>",
+          "<span class="lang-ar">زيادة timeout.</span><span class="lang-en">Increase timeout.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">٢GB أكبر من حد Layer. EFS مثاليّ: ينشر في VPC، يُقَرَأ كـ local filesystem، مشترك بين instances، لا cold-start download. /tmp يمكن أن يُستخدم كـ cache ثانوي على warm invocations.</span><span class="lang-en">2GB exceeds Layer limit. EFS is ideal: VPC-deployed, read as local filesystem, shared across instances, no cold-start download. /tmp can act as secondary warm cache.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">Java Lambda يفتح DB connection داخل الـ handler. ما الخطأ المعماريّ الأساسيّ؟</span><span class="lang-en">A Java Lambda opens a DB connection inside the handler. Core architectural mistake?</span>",
+        options: [
+          "<span class="lang-ar">عدم تسجيل الاتصال.</span><span class="lang-en">Not logging the connection.</span>",
+          "<span class="lang-ar">الاتصال يُنشَأ في كلّ استدعاء — يضرب الأداء بشدّة ويستنزف aggregate connections. الصحيح: إنشاء الـ client static خارج الـ handler.</span><span class="lang-en">Connection created on every invocation — destroys perf and blows aggregate DB connections. Correct: static client outside handler.</span>",
+          "<span class="lang-ar">استخدام Java.</span><span class="lang-en">Using Java.</span>",
+          "<span class="lang-ar">عدم تشفير الاتصال.</span><span class="lang-en">No encryption.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الـ execution context يُعاد استخدامه بين warm invocations — استغلها. عميل DB، SDK، HTTP client كلّها يجب أن تُنشَأ مرّة واحدة (static/module-level). هذا من أشيع أخطاء الـ Lambda.</span><span class="lang-en">Execution context is reused across warm invocations — leverage it. DB client, SDK, HTTP client should be created once (static/module-level). One of the most common Lambda mistakes.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">ما الحدّ الأقصى لحجم Lambda container image من ECR؟</span><span class="lang-en">Max Lambda container image size from ECR?</span>",
+        options: [
+          "<span class="lang-ar">٥٠ MB</span><span class="lang-en">50 MB</span>",
+          "<span class="lang-ar">٢٥٠ MB</span><span class="lang-en">250 MB</span>",
+          "<span class="lang-ar">١ GB</span><span class="lang-en">1 GB</span>",
+          "<span class="lang-ar">١٠ GB</span><span class="lang-en">10 GB</span>"
+        ],
+        correct: 3,
+        explanation: "<span class="lang-ar">Container images حتى ١٠GB من ECR — الطريقة الموصى بها لـ ML workloads و تبعيّات ضخمة. Zip محدود بـ ٥٠MB مضغوط/٢٥٠MB مفكوك.</span><span class="lang-en">Container images up to 10GB from ECR — the recommended path for ML workloads and massive dependencies. Zip is limited to 50MB zipped/250MB unzipped.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q10",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من هذه الإجراءات تُحسِّن cold start لـ Java Lambda؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which improve cold start for Java Lambda? Select all.</span>",
+        options: [
+          "<span class="lang-ar">Provisioned Concurrency على الـ alias.</span><span class="lang-en">Provisioned Concurrency on alias.</span>",
+          "<span class="lang-ar">تقليل عدد classes في الحزمة وإزالة التبعيّات غير المستخدمة.</span><span class="lang-en">Trim classes and remove unused dependencies.</span>",
+          "<span class="lang-ar">زيادة RAM (أسرع JVM start).</span><span class="lang-en">More RAM (faster JVM start).</span>",
+          "<span class="lang-ar">وضع init للـ SDK clients داخل الـ handler.</span><span class="lang-en">Put SDK client init inside the handler.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">Provisioned Concurrency يقضي على cold start. تقليل الـ classpath يسرّع تحميل JVM. زيادة RAM = CPU أكثر = JVM أسرع. إنشاء الـ client داخل الـ handler يزيد الـ cold start ويُهدر الـ execution context.</span><span class="lang-en">Provisioned Concurrency eliminates cold starts. Smaller classpath = faster JVM load. More RAM = more CPU = faster JVM. Initializing clients inside the handler worsens cold start and wastes context reuse.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">Lambda Function URL يحتاج حمايته بحيث لا يستطيع الوصول إليه إلّا مستخدمو IAM في حساب آخر. ما AuthType؟</span><span class="lang-en">Lambda Function URL must only be reachable by IAM users in another account. Which AuthType?</span>",
+        options: [
+          "<span class="lang-ar">NONE مع Bucket Policy.</span><span class="lang-en">NONE with Bucket Policy.</span>",
+          "<span class="lang-ar">AWS_IAM — مع resource-based policy تسمح للحساب الآخر + identity policy في الحساب الآخر تسمح بـ lambda:InvokeFunctionUrl.</span><span class="lang-en">AWS_IAM — resource-based policy allowing other account + identity policy in the other account allowing lambda:InvokeFunctionUrl.</span>",
+          "<span class="lang-ar">Cognito only.</span><span class="lang-en">Cognito only.</span>",
+          "<span class="lang-ar">لا يمكن.</span><span class="lang-en">Not possible.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">AuthType AWS_IAM يفرض التوقيع بـ SigV4. للـ cross-account تحتاج: (١) resource-based policy على الـ function URL تسمح للـ principal من الحساب B، (٢) identity-based policy في الحساب B تسمح بـ lambda:InvokeFunctionUrl.</span><span class="lang-en">AuthType AWS_IAM requires SigV4. For cross-account: (1) resource-based policy on Function URL allowing principal from account B, (2) identity-based policy in account B allowing lambda:InvokeFunctionUrl.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يلاحظ أنّ CloudFormation لا يحدِّث الدالة رغم تغيير الكود في S3. السبب؟</span><span class="lang-en">A dev notices CloudFormation isn't updating the function even though S3 code changed. Cause?</span>",
+        options: [
+          "<span class="lang-ar">Bug في CloudFormation.</span><span class="lang-en">CloudFormation bug.</span>",
+          "<span class="lang-ar">لم يتغيّر S3Bucket أو S3Key أو S3ObjectVersion في template — CloudFormation يكتشف التغيير عبر هذه الحقول فقط.</span><span class="lang-en">Neither S3Bucket, S3Key, nor S3ObjectVersion changed in the template — CloudFormation only detects updates through those fields.</span>",
+          "<span class="lang-ar">لم يُرفَع الكود.</span><span class="lang-en">Code not uploaded.</span>",
+          "<span class="lang-ar">الـ role غير صالح.</span><span class="lang-en">Invalid role.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">CloudFormation لا يفحص محتوى S3 — يعتمد على تغيير التعريف في الـ template. الحلّ: versioned bucket ومرّر <span dir="ltr" class="font-mono">S3ObjectVersion</span> جديد في كلّ نشر. أو استخدم SAM الذي يدير ذلك تلقائياً.</span><span class="lang-en">CloudFormation doesn't inspect S3 content — it relies on template changes. Fix: use a versioned bucket and pass a new <span dir="ltr" class="font-mono">S3ObjectVersion</span> each deploy. Or use SAM, which handles this automatically.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">فريق يشغّل Lambda في حساب A ويريد أن يستدعيه Lambda في حساب B. ما أبسط إعداد؟</span><span class="lang-en">Team runs Lambda in Account A and wants a Lambda in Account B to invoke it. Simplest setup?</span>",
+        options: [
+          "<span class="lang-ar">جعل الدالة عامّة.</span><span class="lang-en">Make the function public.</span>",
+          "<span class="lang-ar">إضافة resource policy على Lambda A تسمح لـ Lambda B's execution role، و Lambda B تستدعي ARN الـ Lambda A عبر SDK.</span><span class="lang-en">Add resource policy on Lambda A allowing Lambda B's exec role; Lambda B invokes Lambda A's ARN via SDK.</span>",
+          "<span class="lang-ar">مشاركة execution role.</span><span class="lang-en">Share execution roles.</span>",
+          "<span class="lang-ar">استخدام S3 بالوسط.</span><span class="lang-en">S3 as a middle layer.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Cross-account Lambda invoke: (١) resource policy على A تسمح لـ role من B، (٢) role من B يحتوي على lambda:InvokeFunction على ARN A. SDK invoke العاديّ يعمل بعد ذلك.</span><span class="lang-en">Cross-account Lambda invoke: (1) resource policy on A allowing B's role, (2) B's role has lambda:InvokeFunction on A's ARN. Standard SDK invoke works after that.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر أمنيّ.</span><span class=\"lang-en\">Security risk.</span>", "", "<span class=\"lang-ar\">ممنوع، لا يمكن مشاركة execution roles.</span><span class=\"lang-en\">Can't share exec roles.</span>", "<span class=\"lang-ar\">تعقيد غير مبرّر.</span><span class=\"lang-en\">Needless complexity.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٦ + ch10</span><span class=\"lang-en\">Section 6 + ch10</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">أيّ metric في CloudWatch تستخدمها لضبط Provisioned Concurrency؟</span><span class="lang-en">Which CloudWatch metric do you use to tune Provisioned Concurrency?</span>",
+        options: [
+          "<span class="lang-ar">Duration</span><span class="lang-en">Duration</span>",
+          "<span class="lang-ar">Invocations</span><span class="lang-en">Invocations</span>",
+          "<span class="lang-ar">ProvisionedConcurrencyUtilization</span><span class="lang-en">ProvisionedConcurrencyUtilization</span>",
+          "<span class="lang-ar">Errors</span><span class="lang-en">Errors</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span> = (used / provisioned). أبقِها ٧٠-٨٠٪. أعلى = نقص، أقل = دفع مبالغ فيه. يمكن أتمتتها عبر Application Auto Scaling.</span><span class="lang-en"><span dir="ltr" class="font-mono">ProvisionedConcurrencyUtilization</span> = used / provisioned. Target 70-80%. Higher = under-provisioned, lower = overpay. Automate via Application Auto Scaling.</span>",
+        reference: "<span class=\"lang-ar\">القسم ١</span><span class=\"lang-en\">Section 1</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Lambda يحتاج مكتبة C++ ضخمة غير متوفّرة في runtime افتراضيّ. الأنسب؟</span><span class="lang-en">A Lambda needs a huge C++ library unavailable in default runtimes. Best option?</span>",
+        options: [
+          "<span class="lang-ar">Zip package عادي.</span><span class="lang-en">Normal zip package.</span>",
+          "<span class="lang-ar">Custom Runtime API + layer.</span><span class="lang-en">Custom Runtime API + layer.</span>",
+          "<span class="lang-ar">Container Image مع base image تُنفِّذ Lambda Runtime API.</span><span class="lang-en">Container Image with base image implementing Lambda Runtime API.</span>",
+          "<span class="lang-ar">EC2 مع Docker.</span><span class="lang-en">EC2 with Docker.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">Container Image = المرونة القصوى. يصل إلى ١٠GB، تنتخب أيّ distro، تجمع system dependencies. يجب أن تنفّذ الـ base image الـ Lambda Runtime API (AWS يوفّر صور base). Custom Runtime بديل لكن أصعب في التغليف.</span><span class="lang-en">Container Image = maximum flexibility. Up to 10GB, any distro, bundle system deps. Base image must implement Lambda Runtime API (AWS provides bases). Custom Runtime is an alternative but harder to package.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">الحد ٢٥٠MB ولا يناسب C++ الضخم.</span><span class=\"lang-en\">250MB cap can't fit big C++.</span>", "<span class=\"lang-ar\">ممكن لكن Container Image أسهل للـ C++.</span><span class=\"lang-en\">Possible but Container is easier for C++.</span>", "", "<span class=\"lang-ar\">ليس Lambda.</span><span class=\"lang-en\">Not Lambda.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(11, QUESTIONS);
+      if (isChapterComplete(11)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

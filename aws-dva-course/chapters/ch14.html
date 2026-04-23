@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 14 — SQS, SNS, Kinesis & EventBridge | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-blue-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="code-2" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الأول — 32%</span>
+          <span class="lang-en">Domain 1 — 32%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١٤ من ٣٠</span>
+        <span class="lang-en">Chapter 14 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.432-473</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">SQS، SNS، Kinesis و EventBridge</span>
+        <span class="lang-en">SQS, SNS, Kinesis & EventBridge</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">فكّ اقتران الخدمات: قوائم رسائل (SQS)، نشر واشتراك (SNS)، تدفّق البيانات الفوري (Kinesis)، وناقل الأحداث (EventBridge). هذه الخدمات تعطي serverless طابعه التفاعلي.</span>
+        <span class="lang-en">Decoupling services: message queues (SQS), pub/sub (SNS), real-time streams (Kinesis), and an event bus (EventBridge). These services give serverless its reactive nature.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">SQS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">SNS</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Kinesis</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">EventBridge</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">FIFO</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Fan-out</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">DLQ</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SQS Standard vs FIFO</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في اختيار نوع الطابور وضمانات التسليم.</span>
+      <span class="lang-en">Domain 1 — queue type and delivery guarantees.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Visibility Timeout & DLQ</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول والرابع في معالجة الرسائل الفاشلة.</span>
+      <span class="lang-en">Domains 1 & 4 — handling failed messages.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">SNS Fan-out & Filter Policies</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في أنماط pub/sub.</span>
+      <span class="lang-en">Domain 1 — pub/sub patterns.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Kinesis Streams vs Firehose vs Analytics</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في تدفّق البيانات الفوري.</span>
+      <span class="lang-en">Domain 1 — real-time data streaming.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">EventBridge Rules & Schemas</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الأول في ربط خدمات AWS بأحداث.</span>
+      <span class="lang-en">Domain 1 — event-driven AWS integrations.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">لماذا فكّ الاقتران ومتى تستخدم أيّ خدمة</span>
+      <span class="lang-en">Why decouple and when to use each service</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">بدلاً من اتّصال synchronous (تطبيق يستدعي آخر مباشرة)، نستخدم وسيطاً بينهما. الفائدة: الخدمتان تتوسّعان مستقلّتَين، والفشل في إحداهما لا يسقط الأخرى، والنمط الأول يناسب البنى event-driven الحديثة. AWS تُقدّم أربع أدوات لهذا الغرض، وكلٌّ له استخدامه.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Instead of synchronous calls (app A directly invokes app B), insert a middleman. Benefits: both scale independently, failure in one doesn't cascade, and the pattern fits modern event-driven designs. AWS offers four tools, each with its niche.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخدمة</span><span class="lang-en">Service</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">النمط</span><span class="lang-en">Pattern</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاحتفاظ</span><span class="lang-en">Retention</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الاستخدام</span><span class="lang-en">Use case</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SQS</span><span class="lang-en">SQS</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Queue (١ منتج → ١ مستهلك)</span><span class="lang-en">Queue (1 producer → 1 consumer)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حتى ١٤ يوماً</span><span class="lang-en">Up to 14 days</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فكّ اقتران خدمات غير متزامنة</span><span class="lang-en">Decouple async services</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SNS</span><span class="lang-en">SNS</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Pub/Sub (١ منتج → N مستهلك)</span><span class="lang-en">Pub/Sub (1 → N)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">لا يخزّن (push فوري)</span><span class="lang-en">No storage (instant push)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إشعارات وfan-out</span><span class="lang-en">Notifications & fan-out</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Stream (N منتج → N مستهلك مكرّرون)</span><span class="lang-en">Stream (replayable)</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">من يوم إلى ٣٦٥ يوم</span><span class="lang-en">1 day – 365 days</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">big data في الوقت الفوري</span><span class="lang-en">Real-time big data</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EventBridge</span><span class="lang-en">EventBridge</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Event bus مع rules</span><span class="lang-en">Event bus with rules</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تمرير فوري</span><span class="lang-en">Immediate routing</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ربط خدمات AWS بأحداث</span><span class="lang-en">AWS service event glue</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Amazon SQS — القائمة المعيارية</span>
+      <span class="lang-en">Amazon SQS — the standard queue</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">SQS خدمة queue مُدارة بالكامل. المنتج يرسل رسائل بحجم حتى <strong>٢٥٦ KB</strong> (١ KB في الفوترة، ١٠٢٤ KB حدّ الإرسال)، وتُحفَظ لمدّة افتراضية ٤ أيام (حتى ١٤). المستهلك يسحب (pull) الرسائل ويحذفها بعد المعالجة.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">SQS is a fully managed queue. Producers send messages up to <strong>256 KB</strong> (1 KB billing unit, 1024 KB send limit), retained 4 days by default (up to 14). Consumers poll messages and delete after processing.</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="list" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Standard Queue</span><span class="lang-en">Standard Queue</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">إنتاجية <strong>غير محدودة</strong>. At-least-once delivery (قد تتكرّر الرسائل). Best-effort ordering (قد تأتي خارج الترتيب). الأكثر استخداماً.</p>
+      <p class="text-sm text-surface-700 lang-en"><strong>Unlimited</strong> throughput. At-least-once delivery (possible duplicates). Best-effort ordering. The default choice.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="arrow-down-up" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">FIFO Queue</span><span class="lang-en">FIFO Queue</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">إنتاجية ٣٠٠ رسالة/ثانية (٣٠٠٠ مع batching، عالية الإنتاجية). <strong>Exactly-once</strong> و <strong>strict ordering</strong>. الاسم ينتهي بـ <span dir="ltr" class="font-mono">.fifo</span>.</p>
+      <p class="text-sm text-surface-700 lang-en">300 msg/sec (3000 batched, high-throughput). <strong>Exactly-once</strong> and <strong>strict ordering</strong>. Queue name must end with <span dir="ltr" class="font-mono">.fifo</span>.</p>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="eye-off" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Visibility Timeout</span><span class="lang-en">Visibility Timeout</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">بعد pull، الرسالة تختفي لمدّة ٣٠ ثانية (افتراضي، ٠ – ١٢ ساعة). إن لم تُحذَف خلال الوقت، تعود للقائمة. <span dir="ltr" class="font-mono">ChangeMessageVisibility</span> لتمديد الوقت.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">After polling, message is hidden for 30s (default, 0 – 12h). If not deleted in time, it returns to the queue. Use <span dir="ltr" class="font-mono">ChangeMessageVisibility</span> to extend.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center"><i data-lucide="skull" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Dead Letter Queue</span><span class="lang-en">Dead Letter Queue</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">بعد <span dir="ltr" class="font-mono">MaxReceives</span> محاولات فاشلة، الرسالة تنتقل لـ DLQ. DLQ لـ FIFO يجب أن تكون FIFO أيضاً. يُفضَّل احتفاظ ١٤ يوماً للتحقيق.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">After <span dir="ltr" class="font-mono">MaxReceives</span> failed attempts, the message moves to DLQ. FIFO DLQ must also be FIFO. Set 14-day retention for investigation.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="hourglass" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Delay Queue</span><span class="lang-en">Delay Queue</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">تأخير ظهور الرسائل للمستهلك حتى ١٥ دقيقة (queue level)، أو per-message بـ <span dir="ltr" class="font-mono">DelaySeconds</span>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Delay message visibility up to 15 min (queue level), or per-message via <span dir="ltr" class="font-mono">DelaySeconds</span>.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Long Polling</span><span class="lang-en">Long Polling</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">بدل short polling الذي يُهدر API calls، الـ <span dir="ltr" class="font-mono">ReceiveMessageWaitTimeSeconds</span> ينتظر حتى ٢٠ ثانية لوصول رسالة. <strong>مفضَّل دائماً</strong>.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Instead of short polling (wasteful), <span dir="ltr" class="font-mono">ReceiveMessageWaitTimeSeconds</span> waits up to 20s for a message. <strong>Always preferred</strong>.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — send & receive from SQS
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.*;
+
+SqsClient sqs = SqsClient.create();
+String url = "https://sqs.us-east-1.amazonaws.com/123/orders";
+
+// Send
+sqs.sendMessage(b -> b.queueUrl(url)
+    .messageBody("{\"orderId\":42}")
+    .delaySeconds(10));          // delay up to 900s
+
+// Receive with long polling + batch of 10
+ReceiveMessageResponse resp = sqs.receiveMessage(b -> b
+    .queueUrl(url)
+    .maxNumberOfMessages(10)       // 1-10
+    .waitTimeSeconds(20));         // long poll
+
+for (Message m : resp.messages()) {
+    process(m.body());
+    sqs.deleteMessage(d -> d.queueUrl(url).receiptHandle(m.receiptHandle()));
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> <strong>SQS Extended Client Library (Java)</strong> يحلّ مشكلة الـ ٢٥٦ KB limit: يضع الـ payload الكبير في S3 ويرسل مرجعاً في SQS. لكن الامتحان يسأل عادة عن الحدّ الأصلي.</span>
+      <span class="lang-en"> <strong>SQS Extended Client Library (Java)</strong> solves the 256 KB limit by storing large payloads in S3 and sending a reference via SQS. Exam usually asks about the raw limit.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Amazon SNS — النشر والاشتراك</span>
+      <span class="lang-en">Amazon SNS — publish & subscribe</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">SNS هو pub/sub: ناشر يرسل رسالة إلى <strong>Topic</strong>، والخدمة تُسلّمها إلى كل <strong>Subscribers</strong>. كل subscriber يستقبل نسخة. الاستخدام الشهير: <strong>fan-out pattern</strong> مع عدّة SQS queues.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">SNS is pub/sub: a publisher sends to a <strong>Topic</strong>, and the service delivers to every <strong>Subscriber</strong>. Each subscriber gets a copy. Classic use: <strong>fan-out pattern</strong> with multiple SQS queues.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center"><i data-lucide="mail" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">أنواع المشتركين</span><span class="lang-en">Subscriber types</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">SQS، Lambda، HTTP/HTTPS endpoint، Email، SMS، Mobile push، Kinesis Data Firehose.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">SQS, Lambda, HTTP/HTTPS endpoint, Email, SMS, Mobile push, Kinesis Data Firehose.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="git-fork" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Fan-out Pattern</span><span class="lang-en">Fan-out Pattern</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">SNS Topic → عدّة SQS queues. كل queue يعالج بشكل مستقلّ ومتوازٍ. نمط شائع جداً في الامتحان.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">SNS Topic → multiple SQS queues. Each queue processes independently, in parallel. Very common exam pattern.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="filter" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Filter Policies</span><span class="lang-en">Filter Policies</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">كل subscriber يستقبل فقط الرسائل التي تطابق filter policy بناءً على message attributes. JSON format.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Each subscriber receives only messages matching its filter policy on message attributes. JSON format.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">FIFO Topics</span><span class="lang-en">FIFO Topics</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">ترتيب صارم، مثل SQS FIFO. فقط subscribers من نوع SQS FIFO. <span dir="ltr" class="font-mono">.fifo</span> suffix.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Strict ordering, like SQS FIFO. Only SQS FIFO subscribers. <span dir="ltr" class="font-mono">.fifo</span> suffix.</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// SNS Filter Policy — subscriber gets messages only for 'premium' customers in 'US'
+{
+  "customerType": ["premium"],
+  "region":       ["US", "CA"]
+}
+
+// Publisher sends with message attributes:
+// { "customerType": "premium", "region": "US" } → delivered
+// { "customerType": "free",    "region": "US" } → filtered out</code></pre>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Amazon Kinesis — تدفّق البيانات الفوري</span>
+      <span class="lang-en">Amazon Kinesis — real-time data streaming</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">Kinesis عائلة من ٣ خدمات للتدفّق: <strong>Data Streams</strong> (streaming خام)، <strong>Data Firehose</strong> (تحميل لـ S3/Redshift/OpenSearch)، <strong>Data Analytics</strong> (حالياً Managed Service for Apache Flink). الاختيار بينها سؤال متكرّر في الامتحان.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">Kinesis is a 3-service family: <strong>Data Streams</strong> (raw streaming), <strong>Data Firehose</strong> (load to S3/Redshift/OpenSearch), <strong>Data Analytics</strong> (now Managed Service for Apache Flink). Picking among them is a frequent exam question.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخدمة</span><span class="lang-en">Service</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الوصف</span><span class="lang-en">Description</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">التسعير</span><span class="lang-en">Pricing</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">Real-time?</span><span class="lang-en">Real-time?</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Data Streams</span><span class="lang-en">Data Streams</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">shards تدويّة، احتفاظ حتى سنة، KCL للقراءة</span><span class="lang-en">Manual shards, up to 1-year retention, KCL consumers</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">per shard/hour</span><span class="lang-en">Per shard/hour</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم (٢٠٠ ms)</span><span class="lang-en">Yes (~200 ms)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Data Firehose</span><span class="lang-en">Data Firehose</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تحميل مُدار إلى S3 / Redshift / OpenSearch / HTTP</span><span class="lang-en">Managed load to S3 / Redshift / OpenSearch / HTTP</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">per GB محمّل</span><span class="lang-en">Per GB loaded</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Near real-time (٦٠ s buffer)</span><span class="lang-en">Near real-time (60s buffer)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Managed Flink</span><span class="lang-en">Managed Flink</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تحليل الـ stream بـ SQL/Apache Flink</span><span class="lang-en">Stream analytics with SQL/Apache Flink</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">per KPU</span><span class="lang-en">Per KPU</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">نعم</span><span class="lang-en">Yes</span></td></tr></tbody>
+    </table>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar">في <strong>Data Streams</strong>: البيانات تنقسم على <strong>shards</strong>. كل shard يدعم ١ MB/s ingest و ٢ MB/s read، أو ١٠٠٠ rec/s. المنتج يستخدم <strong>Partition Key</strong> يُحدّد الـ shard. عدّة مستهلكين يقرأون نفس البيانات (replayable). <strong>KCL (Kinesis Client Library)</strong> يسهّل بناء consumer موزّع.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">In <strong>Data Streams</strong>: data is sharded. Each shard supports 1 MB/s ingest, 2 MB/s read, or 1000 rec/s. Producers use a <strong>Partition Key</strong> to pick a shard. Multiple consumers can read the same data (replayable). <strong>KCL (Kinesis Client Library)</strong> simplifies building distributed consumers.</p>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> خطأ <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span> في Kinesis غالباً بسبب <strong>hot shard</strong> — partition key سيّئ. الحلول: توزيع أفضل للـ partition keys، أو زيادة الـ shards (resharding)، أو التحوّل إلى <strong>On-Demand</strong> mode.</span>
+      <span class="lang-en"> <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span> in Kinesis usually = <strong>hot shard</strong> from a bad partition key. Fixes: better key distribution, reshard (split), or switch to <strong>On-Demand</strong> mode.</span>
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="waves" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">للبيانات الخام: تطبيقات تحتاج replay، تعدّد المستهلكين، معالجة مخصّصة. أنت تديره (shards).</p>
+      <p class="text-sm text-surface-700 lang-en">For raw data: apps needing replay, multiple consumers, custom processing. You manage (shards).</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Kinesis Data Firehose</span><span class="lang-en">Kinesis Data Firehose</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">للتحميل التلقائي: S3 أو Redshift أو OpenSearch. لا shards، لا KCL. يحوّل ويضغط البيانات تلقائياً.</p>
+      <p class="text-sm text-surface-700 lang-en">For auto-load: S3, Redshift, OpenSearch. No shards, no KCL. Transforms/compresses automatically.</p>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Amazon EventBridge — ناقل الأحداث</span>
+      <span class="lang-en">Amazon EventBridge — event bus</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">EventBridge (سابقاً CloudWatch Events) هو <strong>event bus</strong> بيانيّ بين خدمات AWS، تطبيقاتك، وبرامج SaaS. خدمات AWS ترسل أحداثها تلقائياً للـ <strong>default event bus</strong>. القواعد (<strong>Rules</strong>) تحدّد أيّ أحداث تُرسل إلى أيّ <strong>targets</strong> (Lambda, SQS, SNS, Step Functions, Kinesis...).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">EventBridge (formerly CloudWatch Events) is a graph-shaped <strong>event bus</strong> between AWS services, your apps, and SaaS. AWS services auto-publish events to the <strong>default event bus</strong>. <strong>Rules</strong> match events and route to <strong>targets</strong> (Lambda, SQS, SNS, Step Functions, Kinesis...).</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="bus" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">أنواع Event Buses</span><span class="lang-en">Bus types</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar"><strong>Default</strong> (أحداث AWS)، <strong>Custom</strong> (أحداث تطبيقك)، <strong>Partner</strong> (SaaS مثل Shopify, Datadog).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en"><strong>Default</strong> (AWS events), <strong>Custom</strong> (your app), <strong>Partner</strong> (SaaS: Shopify, Datadog).</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="filter" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Event Pattern</span><span class="lang-en">Event Pattern</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">JSON يطابق الأحداث بناءً على source, detail-type, fields. دعم operators (exists, prefix, numeric, anything-but).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">JSON matching events by source, detail-type, fields. Operators: exists, prefix, numeric, anything-but.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Schedule Expressions</span><span class="lang-en">Schedule Expressions</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">cron (<span class="font-mono">cron(0 12 * * ? *)</span>) أو rate (<span class="font-mono">rate(5 minutes)</span>). بديل لـ cron jobs التقليدية.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">cron (<span class="font-mono">cron(0 12 * * ? *)</span>) or rate (<span class="font-mono">rate(5 minutes)</span>). Replaces traditional cron jobs.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="book" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Schema Registry</span><span class="lang-en">Schema Registry</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">EventBridge يكتشف schemas للأحداث تلقائياً ويولّد code bindings (Java/Python/TypeScript).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">EventBridge auto-discovers event schemas and generates code bindings (Java/Python/TypeScript).</p>
+  </div>
+</div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// EventBridge rule: trigger Lambda on S3 object creation in 'uploads/' prefix
+{
+  "source": ["aws.s3"],
+  "detail-type": ["Object Created"],
+  "detail": {
+    "bucket": { "name": ["my-uploads"] },
+    "object": { "key": [{ "prefix": "uploads/" }] }
+  }
+}
+
+// Custom event sent by your app via PutEvents
+{
+  "Source": "com.acme.orders",
+  "DetailType": "OrderPlaced",
+  "Detail": "{\"orderId\":\"o-42\",\"total\":199.0}",
+  "EventBusName": "acme-orders"
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للسينيور: EventBridge بديل أنظف من SNS لـ event-driven microservices داخل AWS — يوفّر schema discovery، filtering بـ JSON pattern بدلاً من attributes، و archive/replay مدمج. اختر SNS للـ fan-out البسيط والـ Email/SMS، و EventBridge للنمط event-driven الحقيقي.</span>
+      <span class="lang-en"> Senior take: EventBridge is a cleaner SNS alternative for event-driven microservices inside AWS — schema discovery, JSON-pattern filtering (vs attributes), and built-in archive/replay. Pick SNS for simple fan-out or Email/SMS, EventBridge for proper event-driven design.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">مقارنة نهائية والأنماط الشائعة</span>
+      <span class="lang-en">Final comparison & common patterns</span>
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">السيناريو</span><span class="lang-en">Scenario</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الحلّ</span><span class="lang-en">Solution</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">فكّ اقتران خدمتين، غير متزامن</span><span class="lang-en">Decouple two services, async</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SQS Standard</span><span class="lang-en">SQS Standard</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ترتيب صارم ورسائل لا تتكرّر</span><span class="lang-en">Strict order + no duplicates</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SQS FIFO</span><span class="lang-en">SQS FIFO</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">إشعار كثير مستقبلين بحدث واحد</span><span class="lang-en">Notify many consumers of one event</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SNS (أو EventBridge للخدمات)</span><span class="lang-en">SNS (or EventBridge for services)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">حدث واحد → عدّة queues مستقلّة للمعالجة</span><span class="lang-en">One event → multiple queues</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">SNS Fan-out + SQS</span><span class="lang-en">SNS Fan-out + SQS</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تدفّق بيانات فوري مع replay</span><span class="lang-en">Real-time stream with replay</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تحميل تدفّق إلى S3 بدون كود</span><span class="lang-en">Load stream to S3 code-free</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Kinesis Data Firehose</span><span class="lang-en">Kinesis Data Firehose</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تشغيل Lambda كل ٥ دقائق</span><span class="lang-en">Run Lambda every 5 min</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EventBridge rule (rate)</span><span class="lang-en">EventBridge rule (rate)</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">رد فعل على حدث من Shopify</span><span class="lang-en">React to a Shopify event</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EventBridge Partner Bus</span><span class="lang-en">EventBridge Partner Bus</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> بناء نمط fan-out: SNS يوزّع الأحداث لـ SQS standard و SQS FIFO ومعالجتهما بـ Lambda.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Build a fan-out: SNS distributes events to SQS standard and SQS FIFO, processed by Lambda.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ SNS Topic</span>
+      <span class="lang-en">Create SNS Topic</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">نوع Standard. سمّه <span dir="ltr" class="font-mono">orders-events</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Type Standard. Name it <span dir="ltr" class="font-mono">orders-events</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ طابورَي SQS</span>
+      <span class="lang-en">Create two SQS queues</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">orders-standard</span> و <span dir="ltr" class="font-mono">orders-high-value.fifo</span> (ContentBasedDeduplication).</p><p class="text-surface-600 leading-relaxed lang-en"><span dir="ltr" class="font-mono">orders-standard</span> and <span dir="ltr" class="font-mono">orders-high-value.fifo</span> (with ContentBasedDeduplication).</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اشترك الطابورين في الـ Topic مع Filter Policy</span>
+      <span class="lang-en">Subscribe both to the topic with a filter policy</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">طابور high-value يتلقّى الرسائل مع <span dir="ltr" class="font-mono">total > 1000</span> فقط.</p><p class="text-surface-600 leading-relaxed lang-en">high-value queue gets only <span dir="ltr" class="font-mono">total > 1000</span>.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">{ "total": [{ "numeric": [">", 1000] }] }</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اربط Lambda بكل طابور عبر Event Source Mapping</span>
+      <span class="lang-en">Wire Lambda to each queue via Event Source Mapping</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">Lambda تحتاج صلاحية <span dir="ltr" class="font-mono">SQS: ReceiveMessage / DeleteMessage</span>.</p><p class="text-surface-600 leading-relaxed lang-en">Lambda needs <span dir="ltr" class="font-mono">SQS: ReceiveMessage / DeleteMessage</span>.</p>
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">انشر رسالة اختبار</span>
+      <span class="lang-en">Publish a test message</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws sns publish \
+  --topic-arn arn:aws:sns:us-east-1:111:orders-events \
+  --message '{"orderId":"o-42","total":1500}' \
+  --message-attributes '{"total":{"DataType":"Number","StringValue":"1500"}}'</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٦</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أضف DLQ على الطابورين</span>
+      <span class="lang-en">Add DLQs to both queues</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">MaxReceiveCount ٣. احتفاظ ١٤ يوماً في الـ DLQ.</p><p class="text-surface-600 leading-relaxed lang-en">MaxReceiveCount 3. 14-day retention in the DLQ.</p>
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> Filter Policy يعمل على <u>message attributes</u>، لا على الـ body. تأكّد من إرسال الـ attributes مع الرسالة.</span>
+    <span class="lang-en"> Filter Policy works on <u>message attributes</u>, not on the body. Make sure to send attributes with the message.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٥ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (15 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="list" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">SQS للـ queues</span>
+        <span class="lang-en">SQS for queues</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Standard = unlimited + دوبليكات. FIFO = order + exactly-once.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Standard = unlimited + dupes. FIFO = order + exactly-once.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="git-fork" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">SNS للـ fan-out</span>
+        <span class="lang-en">SNS for fan-out</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Topic → عدّة subscribers. Filter policies تُقلّل الضجيج.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Topic → multiple subscribers. Filter policies reduce noise.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="waves" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Kinesis للـ streaming</span>
+        <span class="lang-en">Kinesis for streaming</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Streams = replayable. Firehose = auto-load.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Streams = replayable. Firehose = auto-load.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="bus" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">EventBridge للـ events</span>
+        <span class="lang-en">EventBridge for events</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">Rules + schemas لربط خدمات AWS و SaaS و cron jobs.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Rules + schemas to glue AWS services, SaaS, cron jobs.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">اختر الخدمة: <strong>Q</strong>ueue → S<strong>Q</strong>S. <strong>N</strong>otify → S<strong>N</strong>S. stream<strong>ing</strong> → K<strong>ing</strong>sis. <strong>E</strong>vent glue → <strong>E</strong>ventBridge. واحد queue = SQS، واحد إلى كثير = SNS.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Pick the service: <strong>Q</strong>ueue → S<strong>Q</strong>S. <strong>N</strong>otify → S<strong>N</strong>S. Stream<strong>ing</strong> → K<strong>in</strong>esis. <strong>E</strong>vent glue → <strong>E</strong>ventBridge. One-to-one = SQS, one-to-many = SNS.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch13.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(14, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch15.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق يحتاج ضمان أنّ رسائل المدفوعات تصل <strong>بالترتيب</strong> ولا تُعالج مرّتين. أيّ نوع SQS يختار؟</span><span class="lang-en">Payment messages must be processed <strong>in order</strong> and never duplicated. Which SQS queue type?</span>",
+        options: [
+          "<span class="lang-ar">SQS Standard</span><span class="lang-en">SQS Standard</span>",
+          "<span class="lang-ar">SQS FIFO</span><span class="lang-en">SQS FIFO</span>",
+          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
+          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>SQS FIFO</strong> يضمن ترتيب صارم و exactly-once delivery. Standard يعطي best-effort ordering وat-least-once (قد تتكرّر). SNS pub/sub ليس queue. Kinesis يعطي ترتيب داخل shard لكنّه أعقد بكثير. ملاحظة: اسم FIFO queue يجب أن ينتهي بـ <span class="font-mono">.fifo</span>.</span><span class="lang-en"><strong>SQS FIFO</strong> guarantees strict order and exactly-once delivery. Standard is best-effort ordering + at-least-once (possible dupes). SNS is pub/sub, not a queue. Kinesis orders per-shard but is overkill. Note: FIFO queue name must end with <span class="font-mono">.fifo</span>.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يقبل التكرار والترتيب غير مضمون.</span><span class=\"lang-en\">Allows duplicates; no order guarantee.</span>", "", "<span class=\"lang-ar\">pub/sub ليس queue.</span><span class=\"lang-en\">Pub/sub, not a queue.</span>", "<span class=\"lang-ar\">مبالغ فيه لهذه الحالة.</span><span class=\"lang-en\">Overkill here.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">مستهلك SQS يستغرق أحياناً أكثر من ٣٠ ثانية لمعالجة رسالة، فتظهر الرسالة مرّتين في logs. ما الحلّ الأفضل؟</span><span class="lang-en">An SQS consumer sometimes takes over 30s to process a message, causing duplicate processing. Best fix?</span>",
+        options: [
+          "<span class="lang-ar">حذف الرسالة قبل المعالجة.</span><span class="lang-en">Delete the message before processing.</span>",
+          "<span class="lang-ar">زيادة Visibility Timeout أو استدعاء <span class="font-mono">ChangeMessageVisibility</span>.</span><span class="lang-en">Raise Visibility Timeout or call <span class="font-mono">ChangeMessageVisibility</span>.</span>",
+          "<span class="lang-ar">استخدام FIFO queue.</span><span class="lang-en">Use a FIFO queue.</span>",
+          "<span class="lang-ar">Short polling.</span><span class="lang-en">Short polling.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Visibility Timeout الافتراضي ٣٠ ثانية. لو المعالجة أطول، الرسالة تعود للقائمة ويُعالجها مستهلك آخر (تكرار). ارفع الـ timeout عند إنشاء الطابور، أو استدع <span class="font-mono">ChangeMessageVisibility</span> أثناء المعالجة لتمديد الوقت. حذف الرسالة قبل المعالجة يفقدها عند الفشل.</span><span class="lang-en">Default Visibility Timeout is 30s. If processing takes longer, the message returns and another consumer re-processes it (duplicate). Raise the timeout at queue-create, or call <span class="font-mono">ChangeMessageVisibility</span> mid-processing. Deleting before processing loses data on failure.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">خطر فقدان الرسائل عند الفشل.</span><span class=\"lang-en\">Risky — lost messages on failure.</span>", "", "<span class=\"lang-ar\">FIFO لا يحلّ المشكلة الأساسية (مدة المعالجة).</span><span class=\"lang-en\">FIFO doesn't fix processing duration.</span>", "<span class=\"lang-ar\">لا يؤثر على visibility.</span><span class=\"lang-en\">Unrelated to visibility.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">شركة تجارة إلكترونية تريد عند كل طلب: (أ) إرسال بريد تأكيد، (ب) تحديث المخزون، (ج) تسجيل السجلّ في DWH. ما النمط الأمثل؟</span><span class="lang-en">E-commerce: on each order, (a) send email, (b) update inventory, (c) log to DWH. Best pattern?</span>",
+        options: [
+          "<span class="lang-ar">٣ استدعاءات synchronous من التطبيق.</span><span class="lang-en">3 synchronous calls from the app.</span>",
+          "<span class="lang-ar">SNS Topic + ٣ SQS subscribers (Fan-out).</span><span class="lang-en">SNS Topic + 3 SQS subscribers (Fan-out).</span>",
+          "<span class="lang-ar">DynamoDB Streams.</span><span class="lang-en">DynamoDB Streams.</span>",
+          "<span class="lang-ar">EventBridge فقط.</span><span class="lang-en">EventBridge only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Fan-out Pattern</strong>: SNS يستقبل الحدث مرّة واحدة ويوزّعه على عدّة SQS queues (أو Lambda). كل queue تعالج بشكل مستقلّ — إن فشل DWH لا يتأثر البريد. الـ synchronous يخلق تبعيّات هشّة. EventBridge بديل جيّد لكن SNS+SQS هو النمط المعياري المعروف للامتحان.</span><span class="lang-en"><strong>Fan-out Pattern</strong>: SNS receives the event once and distributes to several SQS queues (or Lambdas). Each processes independently — DWH failure doesn't hurt email. Sync creates brittle coupling. EventBridge is a good alt but SNS+SQS is the classic exam pattern.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">هشّ — فشل واحد يُوقف الكل.</span><span class=\"lang-en\">Brittle — one failure halts all.</span>", "", "<span class=\"lang-ar\">لا علاقة بالأحداث العامّة.</span><span class=\"lang-en\">Not for general events.</span>", "<span class=\"lang-ar\">بديل جيّد لكن ليس الإجابة الأكثر شيوعاً هنا.</span><span class=\"lang-en\">Good alt but SNS+SQS is the canonical answer.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q4",
+        type: "single",
+        question: "<span class="lang-ar">نظام IoT يستقبل ملايين القياسات في الثانية، ويحتاج تحليلها فوراً مع حفظها لـ ٧ أيام ويمكن reprocessing. أيّ خدمة؟</span><span class="lang-en">IoT system ingests millions of metrics/sec, needs instant analysis + 7-day replay. Which service?</span>",
+        options: [
+          "<span class="lang-ar">SQS Standard</span><span class="lang-en">SQS Standard</span>",
+          "<span class="lang-ar">SNS</span><span class="lang-en">SNS</span>",
+          "<span class="lang-ar">Kinesis Data Streams</span><span class="lang-en">Kinesis Data Streams</span>",
+          "<span class="lang-ar">EventBridge</span><span class="lang-en">EventBridge</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar"><strong>Kinesis Data Streams</strong> مصمّم للتدفّق الفوري على نطاق واسع: shards تتوسّع للتدفّق العالي، بيانات قابلة للإعادة (replay) حتى ٣٦٥ يوماً، عدّة مستهلكين يقرأون نفس البيانات. SQS يخزّن حتى ١٤ يوماً بلا replay. SNS لا يخزّن. EventBridge لتكامل الخدمات لا للـ streaming.</span><span class="lang-en"><strong>Kinesis Data Streams</strong> is built for high-volume real-time streaming: shards scale, data replayable for up to 365 days, multiple consumers read same data. SQS: 14-day max, no replay. SNS: no storage. EventBridge: service integration, not streaming.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا replay ولا consumers متعدّدين.</span><span class=\"lang-en\">No replay or multi-consumer.</span>", "<span class=\"lang-ar\">لا يخزّن البيانات.</span><span class=\"lang-en\">No storage.</span>", "", "<span class=\"lang-ar\">ليس للـ streaming.</span><span class=\"lang-en\">Not for streaming.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تحميل أحداث التطبيق إلى S3 لأغراض data lake بدون كتابة كود مستهلك. ما الخيار الأمثل؟</span><span class="lang-en">A dev wants to load app events to S3 for a data lake with no consumer code. Best option?</span>",
+        options: [
+          "<span class="lang-ar">Kinesis Data Streams + Lambda consumer.</span><span class="lang-en">Kinesis Data Streams + Lambda consumer.</span>",
+          "<span class="lang-ar">Kinesis Data Firehose مع S3 destination.</span><span class="lang-en">Kinesis Data Firehose with S3 destination.</span>",
+          "<span class="lang-ar">SQS + EC2 consumer.</span><span class="lang-en">SQS + EC2 consumer.</span>",
+          "<span class="lang-ar">S3 event notifications.</span><span class="lang-en">S3 event notifications.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Kinesis Data Firehose</strong> هو الأبسط: managed service يجمع الأحداث ويحمّلها مباشرة إلى S3/Redshift/OpenSearch بدون shards أو كود استهلاك. يدعم buffering (حجم + وقت)، compression، format conversion (JSON → Parquet). Data Streams يتطلّب KCL/Lambda. SQS غير مناسب. S3 event notifications عكس الاتجاه.</span><span class="lang-en"><strong>Kinesis Data Firehose</strong> is simplest: managed service that batches events and loads to S3/Redshift/OpenSearch with no shards or consumer code. Supports buffering (size + time), compression, format conversion (JSON → Parquet). Data Streams needs KCL/Lambda. SQS doesn't fit. S3 events are the reverse direction.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يتطلّب كود مستهلك.</span><span class=\"lang-en\">Needs consumer code.</span>", "", "<span class=\"lang-ar\">غير مصمّم لـ data lake.</span><span class=\"lang-en\">Not for data lake.</span>", "<span class=\"lang-ar\">الاتجاه المعاكس.</span><span class=\"lang-en\">Opposite direction.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر يريد تشغيل Lambda تلقائياً كل يوم الساعة ٣ صباحاً لتوليد تقارير. ما الأداة؟</span><span class="lang-en">A dev wants to trigger a Lambda daily at 3am for reports. Tool?</span>",
+        options: [
+          "<span class="lang-ar">SQS delay queue.</span><span class="lang-en">SQS delay queue.</span>",
+          "<span class="lang-ar">EventBridge rule مع cron expression.</span><span class="lang-en">EventBridge rule with cron expression.</span>",
+          "<span class="lang-ar">SNS subscription.</span><span class="lang-en">SNS subscription.</span>",
+          "<span class="lang-ar">S3 lifecycle.</span><span class="lang-en">S3 lifecycle.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>EventBridge</strong> يدعم schedule expressions — cron (<span class="font-mono">cron(0 3 * * ? *)</span>) أو rate (<span class="font-mono">rate(1 day)</span>). أضف Lambda كـ target. أبسط من أيّ شيء آخر. SQS delay queue لرسالة واحدة حتى ١٥ دقيقة. SNS ليست scheduler. S3 lifecycle للـ objects.</span><span class="lang-en"><strong>EventBridge</strong> supports schedule expressions — cron (<span class="font-mono">cron(0 3 * * ? *)</span>) or rate (<span class="font-mono">rate(1 day)</span>). Add Lambda as target. Simplest. SQS delay queue is a single message up to 15 min. SNS isn't a scheduler. S3 lifecycle is for objects.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">١٥ دقيقة فقط ولا يتكرّر.</span><span class=\"lang-en\">Only 15 min, not recurring.</span>", "", "<span class=\"lang-ar\">ليس scheduler.</span><span class=\"lang-en\">Not a scheduler.</span>", "<span class=\"lang-ar\">للـ objects فقط.</span><span class=\"lang-en\">For objects only.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">طابور SQS يحتوي رسائل فاشلة بعد ٥ محاولات معالجة. كيف تمنع إعادة المحاولة اللا نهائية مع الاحتفاظ بالرسائل للتحقيق؟</span><span class="lang-en">An SQS queue has messages failing after 5 processing attempts. How to stop the infinite loop and keep them for investigation?</span>",
+        options: [
+          "<span class="lang-ar">حذف الرسائل الفاشلة فوراً.</span><span class="lang-en">Delete failed messages immediately.</span>",
+          "<span class="lang-ar">تكوين Dead Letter Queue مع <span class="font-mono">maxReceiveCount=5</span>.</span><span class="lang-en">Configure a DLQ with <span class="font-mono">maxReceiveCount=5</span>.</span>",
+          "<span class="lang-ar">زيادة Visibility Timeout.</span><span class="lang-en">Raise Visibility Timeout.</span>",
+          "<span class="lang-ar">Short polling.</span><span class="lang-en">Short polling.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Dead Letter Queue (DLQ)</strong> هو الحلّ المعياري: بعد <span class="font-mono">maxReceiveCount</span> محاولات، الرسالة تنتقل للـ DLQ. تحافظ على الرسائل للتحقيق (اعدّ احتفاظ ١٤ يوماً). DLQ لـ FIFO يجب أن تكون FIFO أيضاً. ميزة <strong>Redrive to Source</strong> تُعيد الرسائل بعد إصلاح الكود.</span><span class="lang-en"><strong>Dead Letter Queue (DLQ)</strong> is the canonical fix: after <span class="font-mono">maxReceiveCount</span> attempts, the message moves to DLQ. Keep it for debug (14-day retention). FIFO DLQ must also be FIFO. <strong>Redrive to Source</strong> feature returns messages after code fix.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يفقد البيانات.</span><span class=\"lang-en\">Loses data.</span>", "", "<span class=\"lang-ar\">لا يحلّ الأخطاء المتكرّرة.</span><span class=\"lang-en\">Doesn't stop repeat failures.</span>", "<span class=\"lang-ar\">لا يؤثر.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">SNS Topic يوزّع رسائل الطلبات. فريق التسويق يريد فقط الطلبات <span dir="ltr" class="font-mono">premium</span> في منطقة <span dir="ltr" class="font-mono">US</span>. كيف؟</span><span class="lang-en">An SNS Topic distributes order events. Marketing wants only <span dir="ltr" class="font-mono">premium</span> orders in the <span dir="ltr" class="font-mono">US</span>. How?</span>",
+        options: [
+          "<span class="lang-ar">إنشاء topic منفصل.</span><span class="lang-en">Create a separate topic.</span>",
+          "<span class="lang-ar">Subscription Filter Policy على message attributes.</span><span class="lang-en">Subscription Filter Policy on message attributes.</span>",
+          "<span class="lang-ar">تصفية داخل Lambda المستهلك.</span><span class="lang-en">Filter inside consumer Lambda.</span>",
+          "<span class="lang-ar">SNS FIFO.</span><span class="lang-en">SNS FIFO.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>SNS Filter Policy</strong> يسمح لكل subscriber بتلقّي الرسائل المطابقة فقط (JSON policy على message attributes). يوفّر تكلفة الـ Lambda invocations للرسائل غير المطلوبة. فصل الـ topic يُضاعف العمل. الفلترة داخل Lambda مكلفة.</span><span class="lang-en"><strong>SNS Filter Policy</strong> lets each subscriber receive only matching messages (JSON policy on attributes). Saves Lambda invocations for irrelevant messages. Separate topic doubles work. In-Lambda filtering wastes invocations.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يضاعف العمل والتكلفة.</span><span class=\"lang-en\">Doubles work and cost.</span>", "", "<span class=\"lang-ar\">يهدر Lambda invocations.</span><span class=\"lang-en\">Wastes Lambda invocations.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">Kinesis Data Streams يُرجع <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. ما السبب الأرجح والحلّ؟</span><span class="lang-en">Kinesis Data Streams throws <span dir="ltr" class="font-mono">ProvisionedThroughputExceededException</span>. Cause and fix?</span>",
+        options: [
+          "<span class="lang-ar">VPC غير صحيح؛ أصلح route.</span><span class="lang-en">Wrong VPC; fix routing.</span>",
+          "<span class="lang-ar">hot shard من partition key ضعيف؛ حسّن الـ key أو reshard أو حوّل إلى On-Demand.</span><span class="lang-en">Hot shard from poor partition key; improve key or reshard or switch to On-Demand.</span>",
+          "<span class="lang-ar">IAM permissions ناقصة.</span><span class="lang-en">Missing IAM permissions.</span>",
+          "<span class="lang-ar">نوع consumer خاطئ.</span><span class="lang-en">Wrong consumer type.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>hot shard</strong>: كلّ shard يدعم ١ MB/s ingest أو ١٠٠٠ records. لو جميع الرسائل تذهب لنفس shard بسبب partition key ضعيف، يختنق رغم أنّ الإنتاجية الكلّية كافية. الحلول: partition key أفضل توزيعاً، split shards (resharding)، أو <strong>On-Demand mode</strong> يتوسّع تلقائياً.</span><span class="lang-en"><strong>Hot shard</strong>: each shard handles 1 MB/s or 1000 rec/s. If all traffic hits one shard due to a bad partition key, it throttles even when aggregate capacity is fine. Fixes: better-distributed key, reshard (split), or <strong>On-Demand mode</strong> which auto-scales.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">ليس خطأ VPC.</span><span class=\"lang-en\">Not a VPC issue.</span>", "", "<span class=\"lang-ar\">يُرجع AccessDenied لا Provisioned exception.</span><span class=\"lang-en\">Would be AccessDenied, not Provisioned.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">ما الفرق الجوهري بين SNS و EventBridge؟</span><span class="lang-en">Core difference between SNS and EventBridge?</span>",
+        options: [
+          "<span class="lang-ar">EventBridge أغلى.</span><span class="lang-en">EventBridge is pricier.</span>",
+          "<span class="lang-ar">SNS pub/sub سريع وبسيط (fan-out, Email/SMS)؛ EventBridge event bus مع rules و schemas ومحفوظات ومشاركة من خدمات AWS وSaaS.</span><span class="lang-en">SNS is simple pub/sub (fan-out, Email/SMS); EventBridge is an event bus with rules, schemas, archive, and native AWS/SaaS events.</span>",
+          "<span class="lang-ar">SNS يدعم JSON؛ EventBridge XML.</span><span class="lang-en">SNS uses JSON; EventBridge XML.</span>",
+          "<span class="lang-ar">EventBridge للـ mobile فقط.</span><span class="lang-en">EventBridge is mobile-only.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>SNS</strong>: pub/sub سريع مع filter على attributes. يدعم Email/SMS/Push وSQS وLambda. <strong>EventBridge</strong>: event bus أقوى مع JSON pattern matching، schema registry، archive/replay، Partner Buses للـ SaaS (Shopify, Datadog)، وأحداث AWS native. ترى EventBridge في event-driven microservices، SNS في simple fan-out/notifications.</span><span class="lang-en"><strong>SNS</strong>: fast pub/sub with attribute filters. Supports Email/SMS/Push, SQS, Lambda. <strong>EventBridge</strong>: richer event bus with JSON pattern matching, schema registry, archive/replay, Partner Buses (Shopify, Datadog), native AWS events. EventBridge for event-driven microservices, SNS for simple fan-out/notifications.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">التسعير غير المحدّد.</span><span class=\"lang-en\">Pricing varies, unclear.</span>", "", "<span class=\"lang-ar\">الاثنان يدعمان JSON.</span><span class=\"lang-en\">Both use JSON.</span>", "<span class=\"lang-ar\">لا، للخدمات العامّة.</span><span class=\"lang-en\">No, it's general-purpose.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">حدّ حجم رسالة SQS القياسي؟</span><span class="lang-en">SQS standard max message size?</span>",
+        options: [
+          "<span class="lang-ar">٦٤ KB</span><span class="lang-en">64 KB</span>",
+          "<span class="lang-ar">٢٥٦ KB</span><span class="lang-en">256 KB</span>",
+          "<span class="lang-ar">١ MB</span><span class="lang-en">1 MB</span>",
+          "<span class="lang-ar">١٠ MB</span><span class="lang-en">10 MB</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الحدّ <strong>٢٥٦ KB</strong>. للرسائل الأكبر استخدم <strong>SQS Extended Client Library</strong> الذي يخزّن الـ payload في S3 ويرسل مرجعه في SQS.</span><span class="lang-en">Limit is <strong>256 KB</strong>. For larger, use <strong>SQS Extended Client Library</strong> which stores payload in S3 and sends an S3 reference via SQS.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">شركة تستخدم Auto Scaling Group من EC2 لمعالجة SQS. كيف تجعل الـ ASG يتوسّع بناءً على حجم الطابور؟</span><span class="lang-en">A company runs ASG of EC2 consuming SQS. How to scale ASG based on queue size?</span>",
+        options: [
+          "<span class="lang-ar">CPU utilization metric.</span><span class="lang-en">CPU utilization metric.</span>",
+          "<span class="lang-ar">CloudWatch Alarm على <span class="font-mono">ApproximateNumberOfMessages</span> يُشغّل ASG scaling policy.</span><span class="lang-en">CloudWatch Alarm on <span class="font-mono">ApproximateNumberOfMessages</span> triggers ASG scaling policy.</span>",
+          "<span class="lang-ar">Lambda مجدولة.</span><span class="lang-en">Scheduled Lambda.</span>",
+          "<span class="lang-ar">SNS notification.</span><span class="lang-en">SNS notification.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">الـ <strong>ApproximateNumberOfMessages</strong> هو المقياس المعياري لتدرّج SQS consumers. أنشئ CloudWatch Alarm يطلق ASG policy عند تجاوز عتبة. CPU مضلّل — الـ EC2 قد يستهلك CPU قليلاً بينما الطابور يتراكم.</span><span class="lang-en"><strong>ApproximateNumberOfMessages</strong> is the canonical metric for scaling SQS consumers. Create a CloudWatch Alarm → ASG policy on threshold. CPU is misleading — EC2 may be CPU-idle while queue grows.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">قد تكون CPU منخفضة والطابور يتراكم.</span><span class=\"lang-en\">CPU can be low while queue grows.</span>", "", "<span class=\"lang-ar\">Lambda لا تتحكّم بـ ASG مباشرة.</span><span class=\"lang-en\">Lambda doesn't drive ASG directly.</span>", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q13",
+        type: "single",
+        question: "<span class="lang-ar">SQS Long Polling ينصح به لأنّه:</span><span class="lang-en">SQS Long Polling is recommended because:</span>",
+        options: [
+          "<span class="lang-ar">يزيد سرعة الـ network.</span><span class="lang-en">Increases network speed.</span>",
+          "<span class="lang-ar">يُقلّل عدد API calls ويقلّل الـ latency عند عدم وجود رسائل.</span><span class="lang-en">Reduces API calls and latency when queue is empty.</span>",
+          "<span class="lang-ar">يُمكّن FIFO.</span><span class="lang-en">Enables FIFO.</span>",
+          "<span class="lang-ar">يُضاعف Visibility Timeout.</span><span class="lang-en">Doubles Visibility Timeout.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>Long Polling</strong> (<span class="font-mono">ReceiveMessageWaitTimeSeconds=20</span>) ينتظر حتى ٢٠ ثانية لوصول رسالة، بدلاً من short polling الذي يطلب باستمرار. النتائج: API calls أقلّ (أرخص)، و latency أقلّ لأنّ الاستجابة تأتي فوراً عند وصول الرسالة، و CPU مستهلك أقل في العميل.</span><span class="lang-en"><strong>Long Polling</strong> (<span class="font-mono">ReceiveMessageWaitTimeSeconds=20</span>) waits up to 20s for a message instead of short polling's constant requesting. Result: fewer API calls (cheaper), lower latency (response arrives as soon as a message does), less client CPU.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا علاقة بالـ network.</span><span class=\"lang-en\">Unrelated to network.</span>", "", "<span class=\"lang-ar\">غير ذي صلة.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">لا يؤثر على visibility.</span><span class=\"lang-en\">Doesn't affect visibility.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q14",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Spring Boot يستهلك رسائل من Kinesis Data Streams لعدّة مستهلكين. ما الأداة التي تبسّط بناء الـ consumer الموزّع؟</span><span class="lang-en">A Spring Boot app consumes Kinesis Data Streams across multiple consumers. Which tool simplifies distributed consumption?</span>",
+        options: [
+          "<span class="lang-ar">Kinesis Producer Library (KPL).</span><span class="lang-en">Kinesis Producer Library (KPL).</span>",
+          "<span class="lang-ar">Kinesis Client Library (KCL).</span><span class="lang-en">Kinesis Client Library (KCL).</span>",
+          "<span class="lang-ar">Kinesis Agent.</span><span class="lang-en">Kinesis Agent.</span>",
+          "<span class="lang-ar">AWS CLI polling.</span><span class="lang-en">AWS CLI polling.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><strong>KCL (Kinesis Client Library)</strong> يتعامل مع: تتبّع الـ shards، توزيع الـ shards على المستهلكين، checkpointing في DynamoDB (تعرف من أين تكمل)، handle load balancing عند انضمام/انسحاب مستهلك. مثالي لتطبيقات Java/Spring Boot. KPL للإنتاج. Agent لإرسال ملفات.</span><span class="lang-en"><strong>KCL (Kinesis Client Library)</strong> handles: shard tracking, distributing shards across consumers, checkpointing to DynamoDB (resume from position), load balancing on consumer join/leave. Ideal for Java/Spring Boot. KPL is for producing. Agent is for file streaming.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">KPL للإنتاج (مستهلك ≠ منتج).</span><span class=\"lang-en\">KPL is for producing.</span>", "", "<span class=\"lang-ar\">Agent لإرسال الملفات.</span><span class=\"lang-en\">Agent ships files.</span>", "<span class=\"lang-ar\">غير قابل للتطوير.</span><span class=\"lang-en\">Doesn't scale.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q15",
+        type: "single",
+        question: "<span class="lang-ar">يريد مطوّر أن يستجيب تلقائياً لأحداث تغيير حالة EC2 instances (أيّ instance يُصبح <span class="font-mono">terminated</span>). ما الحلّ؟</span><span class="lang-en">A dev wants to auto-react to EC2 instance state changes (any instance that becomes <span class="font-mono">terminated</span>). Solution?</span>",
+        options: [
+          "<span class="lang-ar">Polling EC2 API يدوياً.</span><span class="lang-en">Manually poll EC2 API.</span>",
+          "<span class="lang-ar">EventBridge rule على <span class="font-mono">aws.ec2</span> source مع <span class="font-mono">detail-type = 'EC2 Instance State-change Notification'</span> و Lambda target.</span><span class="lang-en">EventBridge rule on <span class="font-mono">aws.ec2</span> source with <span class="font-mono">detail-type = 'EC2 Instance State-change Notification'</span> and Lambda target.</span>",
+          "<span class="lang-ar">S3 event.</span><span class="lang-en">S3 event.</span>",
+          "<span class="lang-ar">SQS polling.</span><span class="lang-en">SQS polling.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">EventBridge هو المسار المعياري لأحداث خدمات AWS: كل خدمة تنشر أحداثها على الـ default bus. أنشئ rule يُطابق <span class="font-mono">aws.ec2</span> + state-change event، وأضف Lambda target. polling يدوي مضيعة للموارد.</span><span class="lang-en">EventBridge is the standard path for AWS service events: each service publishes to the default bus. Create a rule matching <span class="font-mono">aws.ec2</span> + state-change event, add Lambda target. Manual polling wastes resources.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">مضيعة للموارد.</span><span class=\"lang-en\">Wasteful.</span>", "", "<span class=\"lang-ar\">غير متعلّق.</span><span class=\"lang-en\">Unrelated.</span>", "<span class=\"lang-ar\">غير متعلّق.</span><span class=\"lang-en\">Unrelated.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(14, QUESTIONS);
+      if (isChapterComplete(14)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+{
+  "n": 29,
+  "domain": "troubleshoot",
+  "title_ar": "Amazon CloudFront وخدمات مساعدة للامتحان",
+  "title_en": "Amazon CloudFront & exam-relevant extras",
+  "pages": "286-316, 882-898",
+  "subtitle_ar": "CloudFront هو CDN العالميّ في AWS: يسرّع الموقع، يحمي من DDoS، ويقدّم محتوى خاصّ عبر Signed URLs/Cookies. بعدها نختم بمسح سريع لخدمات تظهر في الامتحان: AppConfig، Amplify، SES، Athena، Macie، ACM.",
+  "subtitle_en": "CloudFront is AWS's global CDN: accelerates sites, absorbs DDoS, and serves private content via Signed URLs/Cookies. We close with a whirlwind tour of exam-relevant extras: AppConfig, Amplify, SES, Athena, Macie, ACM.",
+  "tags": ["CloudFront", "CDN", "Signed URLs", "OAC", "Lambda@Edge", "AppConfig", "Amplify", "SES"],
+  "objectives": [
+    {"concept": "CloudFront Distributions, Origins, Behaviors", "tested_ar": "النطاق الرابع في تسريع القراءة وتقليل الكلفة.", "tested_en": "Domain 4 — read acceleration & cost reduction."},
+    {"concept": "Signed URLs vs Signed Cookies", "tested_ar": "النطاق الثاني والرابع في توزيع محتوى مدفوع/خاصّ.", "tested_en": "Domains 2 & 4 — paid/private content distribution."},
+    {"concept": "OAC (Origin Access Control) for S3", "tested_ar": "النطاق الثاني في تأمين S3 خلف CloudFront.", "tested_en": "Domain 2 — securing S3 behind CloudFront."},
+    {"concept": "AppConfig / Amplify / SES / Athena", "tested_ar": "أسئلة \"أيّ خدمة تناسب؟\" في الامتحان.", "tested_en": "\"Which service fits?\" exam questions."}
+  ],
+  "sections": [
+    {
+      "title_ar": "ما هو CloudFront؟",
+      "title_en": "What is CloudFront?",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Amazon CloudFront</strong> شبكة توصيل محتوى عالميّة (CDN) بمئات من نقاط الحضور (Edge Locations). تخزّن المحتوى مؤقّتاً قرب المستخدمين لتسريع القراءة، وتحمي من DDoS (بالتكامل مع Shield و WAF). تعتمد عليها خدمات AWS نفسها في نقل البيانات.",
+         "en": "<strong>Amazon CloudFront</strong> is AWS's global CDN with hundreds of Edge Locations. It caches content close to users to accelerate reads, and absorbs DDoS (integrates with Shield and WAF). AWS services themselves rely on it for data transfer."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "globe", "title_ar": "CloudFront", "title_en": "CloudFront",
+                  "body_ar": "Edge عالميّ. يخزّن مؤقّتاً لـ TTL (يوم مثلاً). مثاليّ لمحتوى <strong>ساكن</strong> يجب أن يكون متاحاً في كلّ مكان.",
+                  "body_en": "Global edge network. Caches per TTL (maybe a day). Ideal for <strong>static</strong> content that must be available everywhere."},
+         "right": {"tone": "emerald", "icon": "refresh-cw", "title_ar": "S3 Cross-Region Replication", "title_en": "S3 Cross-Region Replication",
+                   "body_ar": "إعداد لكلّ منطقة مستهدفة. تحديث <strong>قريب من الفوريّ</strong>. مناسب لمحتوى <strong>ديناميكيّ</strong> في عدد محدود من المناطق.",
+                   "body_en": "Configured per destination region. Updates <strong>near real-time</strong>. Suits <strong>dynamic</strong> content in a few regions."}
+        },
+        {"type": "table",
+         "headers": {"ar": ["نوع الـ Origin", "متى؟"], "en": ["Origin type", "When?"]},
+         "rows": [
+           [{"mono": true, "value": "S3 bucket"}, {"ar": "توزيع ملفّات ساكنة ورفعها عبر CloudFront. يُؤَمَّن بـ <strong>OAC</strong>.", "en": "Distribute static files / upload through CloudFront. Secured with <strong>OAC</strong>."}],
+           [{"mono": true, "value": "VPC Origin"}, {"ar": "تطبيقات داخل subnets خاصّة (Private ALB / NLB / EC2) بدون كشفها للإنترنت.", "en": "Apps in private subnets (Private ALB/NLB/EC2) without Internet exposure."}],
+           [{"mono": true, "value": "Custom Origin (HTTP)"}, {"ar": "أيّ خادم HTTP عام — ALB عام، S3 Website، أو خادم خارج AWS.", "en": "Any public HTTP backend — public ALB, S3 static-website, or non-AWS server."}]
+         ]
+        }
+      ]
+    },
+    {
+      "title_ar": "Cache Keys و Policies و Behaviors",
+      "title_en": "Cache Keys, Policies & Behaviors",
+      "blocks": [
+        {"type": "p",
+         "ar": "المفتاح الذي يحدّد \"هل هذا الطلب موجود في الكاش؟\" هو <strong>Cache Key</strong>. افتراضياً يتألّف من <span dir=\"ltr\" class=\"font-mono\">hostname + URL path</span>. يمكن عبر <strong>Cache Policy</strong> إضافة HTTP headers أو cookies أو query strings إلى المفتاح (للتنويع حسب مستخدم/لغة/جهاز).",
+         "en": "The <strong>Cache Key</strong> determines \"is this request cached?\". By default it's <span dir=\"ltr\" class=\"font-mono\">hostname + URL path</span>. Using a <strong>Cache Policy</strong> you can include HTTP headers, cookies, or query strings in the key (to vary per user/language/device)."},
+        {"type": "callout", "tone": "key",
+         "ar": "مفهوم مهمّ: <strong>Cache Policy vs Origin Request Policy</strong>. الأولى تحدّد ما يدخل في Cache Key (يتحكّم بالتنويع). الثانية تحدّد ما يُمرَّر إلى Origin <em>دون</em> دخوله في المفتاح (مفيد لمعلومات تُوثِّق لكن لا تفرّق الكاش).",
+         "en": "Key distinction: <strong>Cache Policy vs Origin Request Policy</strong>. First = what enters the Cache Key (controls cache variance). Second = what is forwarded to origin <em>without</em> entering the key (useful for auth info that shouldn't fragment cache)."},
+        {"type": "p",
+         "ar": "<strong>Cache Behaviors</strong> توجّه كلّ path pattern إلى origin وسلوك مختلف. مثلاً <span dir=\"ltr\" class=\"font-mono\">/api/*</span> → ALB (بدون كاش)، <span dir=\"ltr\" class=\"font-mono\">/images/*</span> → S3 (بكاش طويل)، <span dir=\"ltr\" class=\"font-mono\">/*</span> → الافتراضيّ. الـ <span dir=\"ltr\" class=\"font-mono\">/*</span> دائماً آخر ما يُقيَّم.",
+         "en": "<strong>Cache Behaviors</strong> route path patterns to different origins and rules. E.g., <span dir=\"ltr\" class=\"font-mono\">/api/*</span> → ALB (no cache), <span dir=\"ltr\" class=\"font-mono\">/images/*</span> → S3 (long cache), <span dir=\"ltr\" class=\"font-mono\">/*</span> → default. The <span dir=\"ltr\" class=\"font-mono\">/*</span> default is always last to evaluate."},
+        {"type": "code", "lang": "bash",
+         "code": "# Invalidate a path after a deployment (forces cache refresh)\naws cloudfront create-invalidation \\\n  --distribution-id E123ABC \\\n  --paths '/index.html' '/images/*'\n\n# Invalidations cost: first 1000 paths/month free, then $0.005 each\n# Design to minimize invalidations (use versioned URLs instead)"}
+      ]
+    },
+    {
+      "title_ar": "تأمين المحتوى الخاصّ: OAC و Signed URLs/Cookies",
+      "title_en": "Securing private content: OAC, Signed URLs/Cookies",
+      "blocks": [
+        {"type": "p",
+         "ar": "لربط S3 بـ CloudFront بشكل آمن، استخدم <strong>OAC (Origin Access Control)</strong> — البديل الحديث لـ OAI الذي صار deprecated. OAC يحقن signing توقيع SigV4 ويتكامل مع Bucket Policy لتخصيص S3 فقط لـ CloudFront. هو الإجابة الصحيحة في الامتحان اليوم.",
+         "en": "To securely link S3 to CloudFront, use <strong>OAC (Origin Access Control)</strong> — the modern replacement for the now-deprecated OAI. OAC injects SigV4 signing and integrates with the Bucket Policy so S3 only accepts CloudFront. This is the current-exam right answer."},
+        {"type": "compare",
+         "left": {"tone": "blue", "icon": "link", "title_ar": "Signed URL", "title_en": "Signed URL",
+                  "body_ar": "رابط واحد لكلّ ملف. مناسب للتنزيل الفرديّ مثل مقاطع فيديو مدفوعة.",
+                  "body_en": "One URL per file. Good for single-item downloads like premium videos."},
+         "right": {"tone": "emerald", "icon": "cookie", "title_ar": "Signed Cookies", "title_en": "Signed Cookies",
+                   "body_ar": "كوكي واحد يفتح عدّة ملفّات (مجلّد أو نمط). مناسب لبوّابة موقع تتطلّب اشتراكاً.",
+                   "body_en": "One cookie unlocks many files (folder / pattern). Ideal for a subscription-gated site."}
+        },
+        {"type": "table",
+         "headers": {"ar": ["CloudFront Signed URL", "S3 Pre-Signed URL"], "en": ["CloudFront Signed URL", "S3 Pre-Signed URL"]},
+         "rows": [
+           [{"ar": "يعمل بغضّ النظر عن الـ origin (S3, EC2, ALB...).", "en": "Works regardless of origin (S3, EC2, ALB...)."}, {"ar": "يعمل مباشرة مع S3 فقط.", "en": "Works directly with S3 only."}],
+           [{"ar": "يفلتر بـ IP أو Path أو التاريخ أو Expiration.", "en": "Filter by IP, path, date, expiration."}, {"ar": "عمر قصير، مرتبط بـ IAM key للموقّع.", "en": "Short-lived, tied to signing IAM principal's key."}],
+           [{"ar": "يستفيد من الكاش.", "en": "Uses CloudFront caching."}, {"ar": "لا يستفيد من الكاش.", "en": "No caching benefit."}],
+           [{"ar": "يدار بـ <strong>Trusted Key Group</strong> (الموصى به) أو Root.", "en": "Managed via <strong>Trusted Key Group</strong> (recommended) or Root."}, {"ar": "أيّ IAM User/Role بصلاحيّة كافية.", "en": "Any IAM user/role with enough permission."}]
+         ]
+        },
+        {"type": "callout", "tone": "senior",
+         "ar": "لمدّة الصلاحية: محتوى مشترك (فيلم، أغنية) → دقائق قليلة. محتوى خاصّ بمستخدم واحد (فواتيره، ملفّاته) → يمكن جعل الصلاحية أطول بأمان.",
+         "en": "Expiration guidance: shared content (movie, song) → a few minutes. User-private content (their invoices/files) → can safely last longer."}
+      ]
+    },
+    {
+      "title_ar": "Lambda@Edge و ميّزات أخرى",
+      "title_en": "Lambda@Edge & other features",
+      "blocks": [
+        {"type": "p",
+         "ar": "<strong>Lambda@Edge</strong> يشغّل دوالّ Node.js/Python عند ٤ نقاط في دورة الطلب: Viewer Request (قبل فحص الكاش)، Origin Request (قبل الذهاب للـ origin)، Origin Response (بعد عودة الـ origin)، Viewer Response (قبل الإرجاع للمستخدم). يُستخدم لتعديل headers، A/B testing، auth، تحويل URL.",
+         "en": "<strong>Lambda@Edge</strong> runs Node.js/Python functions at 4 hooks in the request cycle: Viewer Request (before cache check), Origin Request (before origin), Origin Response (after origin), Viewer Response (before sending to viewer). Used for header manipulation, A/B testing, auth, URL rewriting."},
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "map-pin", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "Geographic Restriction", "title_en": "Geographic Restriction", "body_ar": "Allowlist/Blocklist للدول للامتثال لحقوق النشر. Geo-IP من مزوّد خارجيّ.", "body_en": "Country allowlist/blocklist for copyright compliance. 3rd-party Geo-IP."},
+          {"icon": "dollar-sign", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "Price Classes", "title_en": "Price Classes", "body_ar": "All (كلّ المناطق، أغلى)، ٢٠٠ (بدون الأغلى)، ١٠٠ (الأرخص فقط: أمريكا/أوروبا).", "body_en": "All (everywhere, priciest), 200 (exclude costliest), 100 (cheapest only: US/EU)."},
+          {"icon": "copy", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Origin Groups", "title_en": "Origin Groups", "body_ar": "أصل أساسي + احتياطي. فشل الأوّل → الثاني. high availability.", "body_en": "Primary + secondary origin. Fail first → second. High availability."},
+          {"icon": "lock", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Field-Level Encryption", "title_en": "Field-Level Encryption", "body_ar": "تشفير حقول محدّدة في POST (حتى ١٠) بمفتاح عامّ على الـ edge. طبقة أمان إضافيّة فوق HTTPS.", "body_en": "Encrypt specific POST fields (up to 10) with a public key at the edge. Extra layer above HTTPS."}
+        ]},
+        {"type": "p",
+         "ar": "<strong>CloudFront Real-time Logs</strong> تبثّ الطلبات إلى Kinesis Data Streams للتحليل الفوريّ بـ Lambda أو Firehose. مختلفة عن Standard Logs في S3 التي تصل بتأخير.",
+         "en": "<strong>CloudFront Real-time Logs</strong> push requests to Kinesis Data Streams for instant analysis via Lambda or Firehose. Different from Standard Logs in S3 which are delayed."}
+      ]
+    },
+    {
+      "title_ar": "خدمات أخرى تظهر في الامتحان",
+      "title_en": "Other exam-relevant services",
+      "blocks": [
+        {"type": "cards", "cols": 2, "items": [
+          {"icon": "settings", "icon_bg": "bg-blue-100", "icon_color": "text-blue-700", "title_ar": "AWS AppConfig", "title_en": "AWS AppConfig", "body_ar": "إدارة feature flags وتكوينات ديناميكيّة بدون إعادة نشر. يتحقّق من الـ JSON Schema أو بـ Lambda، مع نشر تدريجيّ و rollback تلقائيّ.", "body_en": "Manage feature flags & dynamic config without redeploys. Validates via JSON Schema or Lambda, with gradual rollout + auto-rollback."},
+          {"icon": "cloud-upload", "icon_bg": "bg-emerald-100", "icon_color": "text-emerald-700", "title_ar": "AWS Amplify", "title_en": "AWS Amplify", "body_ar": "استضافة مواقع ساكنة (SPA/SSR) + CI/CD مدمج. مناسب لتطبيقات React/Angular/Vue — الخيار المعياريّ لـ front-end serverless.", "body_en": "Static site hosting (SPA/SSR) + built-in CI/CD. Fits React/Angular/Vue — the default for serverless front-ends."},
+          {"icon": "mail", "icon_bg": "bg-red-100", "icon_color": "text-red-700", "title_ar": "Amazon SES", "title_en": "Amazon SES", "body_ar": "إرسال/استقبال بريد إلكترونيّ بحجم كبير. يدعم DKIM و SPF، ويقدّم إحصاءات تسليم وارتداد. للمعاملات و التسويق.", "body_en": "Send/receive email at scale. Supports DKIM & SPF, delivery/bounce stats. For transactional and marketing."},
+          {"icon": "search", "icon_bg": "bg-purple-100", "icon_color": "text-purple-700", "title_ar": "Amazon Athena", "title_en": "Amazon Athena", "body_ar": "SQL Serverless على ملفّات S3. $5/TB مسح. استخدم Parquet/ORC و Partitioning لتقليل الكلفة. الخيار الأمثل لتحليل CloudTrail و VPC Flow Logs.", "body_en": "Serverless SQL over S3 files. $5/TB scanned. Use Parquet/ORC + partitioning to cut cost. Go-to for analyzing CloudTrail and VPC Flow Logs."},
+          {"icon": "shield-alert", "icon_bg": "bg-amber-100", "icon_color": "text-amber-700", "title_ar": "Amazon Macie", "title_en": "Amazon Macie", "body_ar": "ML لاكتشاف PII (بطاقات ائتمان، بيانات طبّية) في S3 والتنبيه عبر EventBridge.", "body_en": "ML to find PII (credit cards, medical data) in S3 and alert via EventBridge."},
+          {"icon": "award", "icon_bg": "bg-indigo-100", "icon_color": "text-indigo-700", "title_ar": "AWS Certificate Manager (ACM)", "title_en": "AWS Certificate Manager (ACM)", "body_ar": "شهادات SSL/TLS مجّانيّة وتجديد تلقائيّ. للـ ALB، CloudFront، API Gateway. Private CA لشهادات داخليّة.", "body_en": "Free, auto-renewing SSL/TLS certs. For ALB, CloudFront, API Gateway. Private CA for internal certs."}
+        ]},
+        {"type": "callout", "tone": "tip",
+         "ar": "Amazon OpenSearch (خلف Amazon ElasticSearch سابقاً): بحث نصّيّ في أيّ حقل — استخدمه مع DynamoDB Streams + Lambda لفهرسة العناصر. يتكامل مع CloudWatch Logs عبر Subscription Filter لتحليل السجلّات بصريّاً.",
+         "en": "Amazon OpenSearch (successor to Elasticsearch): full-text search on any field — use with DynamoDB Streams + Lambda to index items. Integrates with CloudWatch Logs via Subscription Filter for visual log analysis."},
+        {"type": "callout", "tone": "key",
+         "ar": "Amazon MSK (Managed Streaming for Kafka) مقابل Kinesis Data Streams: Kafka Topics/Partitions بدل Shards، رسالة حتى ١٠MB (مقابل ١MB في Kinesis)، لا يدعم Shard splitting — فقط إضافة partitions. اختر MSK عند وجود ecosystem Kafka جاهز.",
+         "en": "Amazon MSK (Managed Streaming for Kafka) vs Kinesis: Kafka Topics/Partitions instead of Shards, up to 10MB messages (vs 1MB Kinesis), no shard splitting — only partition add. Pick MSK when you already have a Kafka ecosystem."}
+      ]
+    },
+    {
+      "title_ar": "ربط CloudFront بـ Java/Spring Boot",
+      "title_en": "Wiring CloudFront to a Spring Boot API",
+      "blocks": [
+        {"type": "p",
+         "ar": "نمط معياريّ: CloudFront أمام ALB عام يوجّه إلى Auto Scaling Group من خوادم Spring Boot. <span dir=\"ltr\" class=\"font-mono\">/static/*</span> يذهب إلى S3، و <span dir=\"ltr\" class=\"font-mono\">/api/*</span> إلى ALB. هذا يسرّع الموقع ويحمي API من DDoS.",
+         "en": "Canonical pattern: CloudFront in front of a public ALB routing to an Auto Scaling Group of Spring Boot instances. <span dir=\"ltr\" class=\"font-mono\">/static/*</span> → S3, <span dir=\"ltr\" class=\"font-mono\">/api/*</span> → ALB. Speeds up the site and protects API from DDoS."},
+        {"type": "code", "lang": "java",
+         "code": "// Spring Boot: trust CloudFront's X-Forwarded headers\n@Configuration\npublic class ForwardedHeaderConfig {\n\n    @Bean\n    public FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {\n        FilterRegistrationBean<ForwardedHeaderFilter> bean =\n            new FilterRegistrationBean<>(new ForwardedHeaderFilter());\n        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);\n        return bean;\n    }\n}\n\n// application.yml\n// server.forward-headers-strategy: framework"},
+        {"type": "callout", "tone": "warn",
+         "ar": "عند استخدام Public ALB أصلاً: اقيّد Security Group بحيث يقبل فقط IPs الخاصّة بـ CloudFront Edge (AWS تنشر هذه القائمة في managed prefix list <span dir=\"ltr\" class=\"font-mono\">com.amazonaws.global.cloudfront.origin-facing</span>) لمنع التجاوز المباشر للـ CloudFront.",
+         "en": "When using a public ALB as origin: restrict the SG to CloudFront's edge IPs (AWS provides a managed prefix list <span dir=\"ltr\" class=\"font-mono\">com.amazonaws.global.cloudfront.origin-facing</span>) to prevent bypassing CloudFront directly."}
+      ]
+    }
+  ],
+  "lab": {
+    "goal_ar": "إنشاء CloudFront distribution أمام S3 bucket باستخدام OAC، وتوزيع ملفّ خاصّ عبر Signed URL بمفتاح عمومي/خاصّ.",
+    "goal_en": "Create a CloudFront distribution in front of an S3 bucket using OAC, and serve a private file through a Signed URL with a public/private key pair.",
+    "steps": [
+      {"title_ar": "أنشئ زوج مفاتيح لـ Signed URL", "title_en": "Generate a key pair for Signed URLs",
+       "body_ar": "",
+       "body_en": "",
+       "code": "openssl genrsa -out private_key.pem 2048\nopenssl rsa -pubout -in private_key.pem -out public_key.pem"},
+      {"title_ar": "ارفع المفتاح العامّ كـ CloudFront Public Key", "title_en": "Upload the public key as a CloudFront Public Key",
+       "body_ar": "من الـ Console: CloudFront → Key Management → Public Keys → Create. ثمّ Key Group يحتوي هذا المفتاح.",
+       "body_en": "Console: CloudFront → Key Management → Public Keys → Create. Then a Key Group referencing it.",
+       "code": ""},
+      {"title_ar": "أنشئ Distribution مع Origin = S3 و OAC", "title_en": "Create a distribution with Origin = S3 + OAC",
+       "body_ar": "اختر \"Yes, update the bucket policy\" ليُضاف الشرط تلقائياً.",
+       "body_en": "Pick \"Yes, update the bucket policy\" so the condition is auto-added.",
+       "code": "# Generated bucket policy (reviewed snippet)\n{\n  \"Effect\": \"Allow\",\n  \"Principal\": { \"Service\": \"cloudfront.amazonaws.com\" },\n  \"Action\": \"s3:GetObject\",\n  \"Resource\": \"arn:aws:s3:::acme-media/*\",\n  \"Condition\": {\n    \"StringEquals\": {\n      \"AWS:SourceArn\": \"arn:aws:cloudfront::111:distribution/E123ABC\"\n    }\n  }\n}"},
+      {"title_ar": "اربط الـ Key Group بالـ Cache Behavior المحميّ", "title_en": "Attach the Key Group to the protected Cache Behavior",
+       "body_ar": "في إعدادات الـ Behavior: \"Restrict Viewer Access = Yes\"، Trusted Key Group المُنشأ.",
+       "body_en": "Behavior settings: \"Restrict Viewer Access = Yes\", Trusted Key Group just created.",
+       "code": ""},
+      {"title_ar": "ولّد Signed URL من Java", "title_en": "Generate a Signed URL from Java",
+       "body_ar": "",
+       "body_en": "",
+       "code": "// AWS SDK v2 — CloudFrontUtilities\nvar utils = CloudFrontUtilities.create();\nvar url = utils.getSignedUrlWithCannedPolicy(r -> r\n    .resourceUrl(\"https://d123.cloudfront.net/movies/premium.mp4\")\n    .keyPairId(\"K2EXAMPLE\")\n    .privateKey(Paths.get(\"private_key.pem\"))\n    .expirationDate(Instant.now().plus(Duration.ofMinutes(10))));\nSystem.out.println(url.url());"}
+    ],
+    "warning_ar": "Invalidations: أوّل ١٠٠٠ مسار شهرياً مجّاناً، ثمّ ٠٫٠٠٥ دولار لكلّ مسار. فضّل URLs إصداريّة (مثلاً <span dir=\"ltr\" class=\"font-mono\">app.v7.js</span>) بدلاً من invalidations متكرّرة.",
+    "warning_en": "Invalidations: first 1000 paths/month free, then $0.005 each. Prefer versioned URLs (e.g., <span dir=\"ltr\" class=\"font-mono\">app.v7.js</span>) over repeated invalidations."
+  },
+  "quiz": [
+    {
+      "id": "q1", "type": "single",
+      "question_ar": "فريق يستضيف ملفّات على S3 ويريد تسريع قراءتها عالمياً مع منع الوصول المباشر إلى الـ bucket. الحلّ؟",
+      "question_en": "Team hosts files on S3 and wants to accelerate global reads while preventing direct bucket access. Solution?",
+      "options_ar": ["جعل الـ bucket عام.", "CloudFront + <strong>Origin Access Control (OAC)</strong> مع تعديل Bucket Policy.", "S3 Transfer Acceleration فقط.", "استخدام IAM Role على المستخدمين."],
+      "options_en": ["Make the bucket public.", "CloudFront + <strong>Origin Access Control (OAC)</strong> with updated Bucket Policy.", "S3 Transfer Acceleration alone.", "IAM Role for users."],
+      "correct": 1,
+      "explanation_ar": "OAC هو البديل الحديث لـ OAI. يمنح CloudFront وحده حقّ قراءة S3 عبر Bucket Policy مع <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn</span>. Transfer Acceleration لرفع الملفّات، لا للقراءة المُسرَّعة.",
+      "explanation_en": "OAC is the modern OAI replacement. Restricts S3 read to CloudFront via Bucket Policy with <span dir=\"ltr\" class=\"font-mono\">aws:SourceArn</span>. Transfer Acceleration is for uploads, not read acceleration.",
+      "wrong_ar": ["يلغي الأمان.", "", "يسرّع الرفع لا القراءة الموزّعة.", "لا يحلّ إخفاء S3."],
+      "wrong_en": ["Destroys security.", "", "Accelerates uploads, not distributed reads.", "Doesn't hide S3."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q2", "type": "single",
+      "question_ar": "خدمة فيديو مدفوعة تسمح لكلّ مشترك بمشاهدة مئات الملفّات أثناء اشتراكه الشهريّ. أيّ آليّة؟",
+      "question_en": "A paid video service lets each subscriber watch hundreds of files during their monthly subscription. Which mechanism?",
+      "options_ar": ["Signed URL لكلّ ملفّ.", "Signed Cookies بعمر شهر.", "Public distribution.", "S3 Pre-Signed URL."],
+      "options_en": ["A Signed URL per file.", "Signed Cookies valid for a month.", "Public distribution.", "S3 Pre-Signed URL."],
+      "correct": 1,
+      "explanation_ar": "Signed Cookies = كوكي واحد يفتح نمط أو مجلّد كامل — مثاليّ للاشتراكات. Signed URL لكلّ ملفّ مجهد. Pre-Signed URL يعمل مع S3 مباشرة فقط ولا يستفيد من كاش CloudFront.",
+      "explanation_en": "Signed Cookies = one cookie unlocks a pattern/folder — ideal for subscriptions. Per-file Signed URLs are tedious. S3 Pre-Signed URL bypasses CloudFront caching.",
+      "wrong_ar": ["غير عمليّ لمئات الملفّات.", "", "يلغي الحماية.", "لا يستفيد من CloudFront."],
+      "wrong_en": ["Impractical for hundreds of files.", "", "No protection.", "Bypasses CloudFront."],
+      "reference_ar": "القسم ٣",
+      "reference_en": "Section 3"
+    },
+    {
+      "id": "q3", "type": "single",
+      "question_ar": "مطوّر يريد تعديل الـ HTTP Headers قبل وصول الطلب إلى الـ origin دون تعديل التطبيق. ما الخيار؟",
+      "question_en": "A dev wants to rewrite HTTP headers before the request reaches the origin without changing the app. What to use?",
+      "options_ar": ["Lambda@Edge على حدث <strong>Origin Request</strong>.", "CloudTrail Lambda Function.", "API Gateway Mapping Template.", "CloudFront Real-time Logs."],
+      "options_en": ["Lambda@Edge on the <strong>Origin Request</strong> trigger.", "A CloudTrail Lambda.", "API Gateway mapping template.", "CloudFront Real-time Logs."],
+      "correct": 0,
+      "explanation_ar": "Lambda@Edge Origin Request يُشغَّل بعد فحص الكاش وقبل الذهاب للـ origin — مثالي لإضافة/تعديل headers، auth، URL rewriting. CloudTrail للتدقيق، mapping templates لـ API Gateway فقط.",
+      "explanation_en": "Lambda@Edge Origin Request fires after cache check and before origin — perfect for header rewrites, auth, URL rewriting. CloudTrail is audit; mapping templates belong to API Gateway only.",
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q4", "type": "single",
+      "question_ar": "شركة تريد تقليل تكلفة CloudFront دون التضحية بأداء أمريكا وأوروبا. ما الحلّ؟",
+      "question_en": "A company wants to cut CloudFront cost without hurting US/EU performance. Option?",
+      "options_ar": ["استخدام Price Class 100 (أمريكا + أوروبا فقط).", "إلغاء HTTPS.", "تمكين Field-Level Encryption.", "حذف Cache Policies."],
+      "options_en": ["Use Price Class 100 (US + EU only).", "Disable HTTPS.", "Enable Field-Level Encryption.", "Delete Cache Policies."],
+      "correct": 0,
+      "explanation_ar": "Price Class 100 يحصر Edge Locations بأمريكا وأوروبا — أقلّ تكلفة مع أداء ممتاز فيهما. الخيارات الأخرى إمّا تضعف الأمان أو لا تخفض التكلفة.",
+      "explanation_en": "Price Class 100 limits edges to US and EU — cheaper with great performance there. Other options either weaken security or don't reduce cost.",
+      "wrong_ar": ["خطر أمنيّ.", "", "تزيد التكلفة.", "يكسر الكاش."],
+      "wrong_en": ["Security risk.", "", "Increases cost.", "Breaks caching."],
+      "reference_ar": "القسم ٤",
+      "reference_en": "Section 4"
+    },
+    {
+      "id": "q5", "type": "single",
+      "question_ar": "تطبيق بحاجة لتبديل قيمة feature flag بدون إعادة نشر. أيّ خدمة؟",
+      "question_en": "App needs to flip a feature flag without redeploy. Which service?",
+      "options_ar": ["AWS AppConfig", "AWS Systems Manager Run Command", "AWS Config", "CloudFormation StackSets"],
+      "options_en": ["AWS AppConfig", "AWS Systems Manager Run Command", "AWS Config", "CloudFormation StackSets"],
+      "correct": 0,
+      "explanation_ar": "AppConfig صُمِّم خصّيصاً لـ feature flags ونشر تكوين ديناميكيّ مع rollback تلقائيّ. AWS Config لمراقبة الامتثال. Run Command لتنفيذ أوامر على الخوادم.",
+      "explanation_en": "AppConfig is purpose-built for feature flags & dynamic config with auto-rollback. AWS Config is compliance; Run Command executes commands on instances.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q6", "type": "single",
+      "question_ar": "فريق front-end يبني تطبيق React ويريد استضافته مع CI/CD تلقائيّ من GitHub. الخدمة المثالية؟",
+      "question_en": "Front-end team builds a React app and wants hosting + auto CI/CD from GitHub. Ideal service?",
+      "options_ar": ["S3 Static Website فقط.", "AWS Amplify.", "Elastic Beanstalk.", "Lambda@Edge."],
+      "options_en": ["S3 Static Website alone.", "AWS Amplify.", "Elastic Beanstalk.", "Lambda@Edge."],
+      "correct": 1,
+      "explanation_ar": "Amplify يقدّم استضافة + CI/CD من Git + تكامل مع Cognito/AppSync/GraphQL للـ back-end serverless. S3 يقدّم الاستضافة فقط دون CI/CD. Beanstalk لتطبيقات الخادم لا SPAs.",
+      "explanation_en": "Amplify bundles hosting + Git CI/CD + Cognito/AppSync/GraphQL serverless back-end. S3 only hosts (no CI/CD). Beanstalk is for server apps, not SPAs.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q7", "type": "single",
+      "question_ar": "شركة تريد إرسال مليون رسالة بريد بحجم كبير مع إدارة smart للارتداد. الخدمة؟",
+      "question_en": "Company needs to send a million bulk emails with bounce management. Service?",
+      "options_ar": ["Amazon SNS", "Amazon SES", "Amazon SQS", "AWS Pinpoint SMS فقط"],
+      "options_en": ["Amazon SNS", "Amazon SES", "Amazon SQS", "AWS Pinpoint SMS only"],
+      "correct": 1,
+      "explanation_ar": "SES خاصّة بالبريد الإلكترونيّ: تدعم DKIM و SPF وإحصاءات الارتداد والتسليم. SNS للـ push/SMS لكنّها ليست الأنسب للـ bulk email. SQS للرسائل بين التطبيقات.",
+      "explanation_en": "SES is email-specific: DKIM, SPF, bounce/delivery stats. SNS handles push/SMS but isn't ideal for bulk email. SQS is app-to-app messaging.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q8", "type": "single",
+      "question_ar": "تحليل سجلّات CloudTrail (ملفّات JSON في S3) باستعلامات SQL. الأداة الأمثل؟",
+      "question_en": "Analyzing CloudTrail logs (JSON files in S3) with SQL queries. Best tool?",
+      "options_ar": ["Redshift فقط.", "Amazon Athena.", "RDS MySQL.", "ElastiCache Redis."],
+      "options_en": ["Redshift only.", "Amazon Athena.", "RDS MySQL.", "ElastiCache Redis."],
+      "correct": 1,
+      "explanation_ar": "Athena = SQL serverless على S3 مباشرة. مثاليّ لتحليل CloudTrail و VPC Flow Logs و ALB Logs. Redshift للبيانات الكبيرة المستمرّة (data warehouse). RDS ليست لـ object-store.",
+      "explanation_en": "Athena = serverless SQL directly over S3. Perfect for CloudTrail, VPC Flow Logs, ALB Logs. Redshift is for persistent big-data warehouses. RDS isn't for object storage.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    },
+    {
+      "id": "q9", "type": "multi",
+      "question_ar": "أيّ من التالي صحيح حول Cache Behaviors في CloudFront؟",
+      "question_en": "Which are true about CloudFront Cache Behaviors?",
+      "options_ar": ["يمكن توجيه <span dir=\"ltr\" class=\"font-mono\">/api/*</span> إلى ALB و <span dir=\"ltr\" class=\"font-mono\">/images/*</span> إلى S3 في نفس الـ distribution.", "المسار الافتراضيّ <span dir=\"ltr\" class=\"font-mono\">/*</span> يُقيَّم أوّلاً.", "كلّ Behavior له Cache Policy خاصّ به.", "يمكن ربط دوال Lambda@Edge لكلّ Behavior."],
+      "options_en": ["Route <span dir=\"ltr\" class=\"font-mono\">/api/*</span> to ALB and <span dir=\"ltr\" class=\"font-mono\">/images/*</span> to S3 in the same distribution.", "The default <span dir=\"ltr\" class=\"font-mono\">/*</span> behavior is evaluated first.", "Each Behavior has its own Cache Policy.", "Lambda@Edge functions can attach per-Behavior."],
+      "correct": [0, 2, 3],
+      "explanation_ar": "Behaviors تدعم الـ multi-origin routing، كلّ Behavior يحمل Cache Policy، و Lambda@Edge تُربَط بـ Behavior محدّد. المسار <span dir=\"ltr\" class=\"font-mono\">/*</span> دائماً آخر ما يُقيَّم (catch-all).",
+      "explanation_en": "Behaviors support multi-origin routing, each has its own Cache Policy, and Lambda@Edge attaches per-Behavior. The <span dir=\"ltr\" class=\"font-mono\">/*</span> default is always evaluated LAST (catch-all).",
+      "reference_ar": "القسم ٢",
+      "reference_en": "Section 2"
+    },
+    {
+      "id": "q10", "type": "single",
+      "question_ar": "فريق أمن يريد اكتشاف معلومات حسّاسة (بطاقات ائتمان) مخزّنة في S3 buckets. الخدمة؟",
+      "question_en": "Security team wants to find sensitive data (credit cards) in S3 buckets. Which service?",
+      "options_ar": ["Amazon Macie", "AWS Config", "Amazon GuardDuty", "CloudTrail"],
+      "options_en": ["Amazon Macie", "AWS Config", "Amazon GuardDuty", "CloudTrail"],
+      "correct": 0,
+      "explanation_ar": "Macie يستخدم ML لاكتشاف PII في S3 (بطاقات، أرقام ضمان، بيانات طبّية) وينبّه عبر EventBridge. GuardDuty لاكتشاف التهديدات (network/IAM). Config للامتثال التكوينيّ.",
+      "explanation_en": "Macie uses ML to find PII in S3 (cards, SSNs, medical data) and alerts via EventBridge. GuardDuty is threat detection (network/IAM). Config is config-compliance.",
+      "reference_ar": "القسم ٥",
+      "reference_en": "Section 5"
+    }
+  ],
+  "summary": [
+    {"icon": "globe", "title_ar": "CloudFront = CDN عالميّ", "title_en": "CloudFront = global CDN",
+     "body_ar": "Origins (S3/ALB/Custom) + Behaviors + Cache Key. Invalidations مكلفة — استخدم versioned URLs.",
+     "body_en": "Origins (S3/ALB/Custom) + Behaviors + Cache Key. Invalidations cost — prefer versioned URLs."},
+    {"icon": "key", "title_ar": "OAC بديل OAI", "title_en": "OAC replaces OAI",
+     "body_ar": "الطريقة المعياريّة لحماية S3 خلف CloudFront اليوم.",
+     "body_en": "Modern standard to protect S3 behind CloudFront."},
+    {"icon": "link", "title_ar": "Signed URL vs Signed Cookie", "title_en": "Signed URL vs Signed Cookie",
+     "body_ar": "URL لملفّ واحد. Cookie لعدّة ملفّات (اشتراك).",
+     "body_en": "URL = one file. Cookie = many files (subscription)."},
+    {"icon": "boxes", "title_ar": "\"أيّ خدمة؟\"", "title_en": "\"Which service?\"",
+     "body_ar": "AppConfig = feature flags. Amplify = SPA hosting. SES = email. Athena = S3 SQL. Macie = PII.",
+     "body_en": "AppConfig = flags. Amplify = SPA hosting. SES = email. Athena = S3 SQL. Macie = PII."}
+  ],
+  "mnemonic_ar": "طبقات CloudFront من الخارج للداخل: <strong>V</strong>iewer Request → <strong>C</strong>ache lookup → <strong>O</strong>rigin Request → Origin → Origin Response → Cache store → Viewer Response. Lambda@Edge يستهدف أربعاً من هذه الست: <strong>VR, OR, OResp, VResp</strong>.",
+  "mnemonic_en": "CloudFront layers outside-in: <strong>V</strong>iewer Request → <strong>C</strong>ache lookup → <strong>O</strong>rigin Request → Origin → Origin Response → Cache store → Viewer Response. Lambda@Edge hooks 4 of these 6: <strong>VR, OR, OResp, VResp</strong>.",
+  "prev": 28,
+  "next": 30
+}

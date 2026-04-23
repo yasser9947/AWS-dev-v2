@@ -1,0 +1,54 @@
+{
+  "slug": "ebs",
+  "name": "Amazon EBS",
+  "icon": "hard-drive",
+  "color": "slate",
+  "tagline_ar": "تخزين كتلي دائم يرتبط بمثيلات EC2 داخل نفس نطاق التوفّر مع لقطات آمنة في S3.",
+  "tagline_en": "Persistent block storage attached to EC2 within an AZ, with snapshots backed by S3.",
+  "key_concepts": [
+    {"concept": "Volume Types", "desc_ar": "gp3/gp2 (SSD عام)، io2/io1 (SSD عالي الأداء)، st1 (HDD متسلسل)، sc1 (HDD بارد).", "desc_en": "gp3/gp2 (general SSD), io2/io1 (provisioned IOPS), st1 (throughput HDD), sc1 (cold HDD)."},
+    {"concept": "AZ-Scoped", "desc_ar": "حجم EBS يعيش داخل AZ واحدة ولا يمكن ربطه بمثيل في AZ أخرى مباشرة.", "desc_en": "An EBS volume lives in a single AZ; cannot attach to an instance in another AZ directly."},
+    {"concept": "Snapshots", "desc_ar": "لقطات تفاضلية تُخزّن في S3، يمكن نسخها عبر المناطق والحسابات.", "desc_en": "Incremental snapshots stored in S3; copyable across Regions and accounts."},
+    {"concept": "Encryption", "desc_ar": "تشفير الحجم والبيانات أثناء الراحة والنقل عبر KMS؛ اللقطات الناتجة مشفّرة أيضًا.", "desc_en": "Volume & data encryption at rest and in transit via KMS; resulting snapshots also encrypted."},
+    {"concept": "Multi-Attach", "desc_ar": "يدعم io1/io2 ربط نفس الحجم بمثيلات Nitro متعدّدة داخل نفس AZ.", "desc_en": "io1/io2 support attaching the same volume to multiple Nitro instances in one AZ."},
+    {"concept": "Elastic Volumes", "desc_ar": "تعديل الحجم والنوع والـ IOPS بدون إيقاف المثيل.", "desc_en": "Modify size, type, and IOPS without stopping the instance."},
+    {"concept": "Data Lifecycle Manager", "desc_ar": "أتمتة إنشاء اللقطات والاحتفاظ بها ومسحها وفق جدول محدّد.", "desc_en": "Automate snapshot creation, retention, and deletion on a schedule."},
+    {"concept": "Fast Snapshot Restore", "desc_ar": "تفعيل الاستعادة الفورية للقطة دون تأخير أوّل قراءة.", "desc_en": "Eliminate first-touch latency when restoring from a snapshot."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم حجم gp3/gp2", "limit_en": "Max gp3/gp2 volume size", "value": "16 TiB", "note_ar": "نفس الحدّ لـ io1/io2 وst1 وsc1.", "note_en": "Same for io1/io2, st1, sc1."},
+    {"limit": "أقصى IOPS لـ gp3", "limit_en": "Max gp3 IOPS", "value": "16,000", "note_ar": "تكوين مستقل عن الحجم حتى 16k.", "note_en": "Provisioned independently of size up to 16k."},
+    {"limit": "أقصى IOPS لـ io2 Block Express", "limit_en": "Max io2 Block Express IOPS", "value": "256,000", "note_ar": "على مثيلات R5b/X2idn المدعومة.", "note_en": "Supported on R5b/X2idn instances."},
+    {"limit": "أقصى Throughput لـ gp3", "limit_en": "Max gp3 throughput", "value": "1,000 MiB/s", "note_ar": "يتدرّج مستقلاً عن IOPS.", "note_en": "Scales independently of IOPS."},
+    {"limit": "نسبة IOPS:GiB لـ io1", "limit_en": "io1 IOPS:GiB ratio", "value": "50:1", "note_ar": "io2 يصل إلى 500:1.", "note_en": "io2 supports up to 500:1."},
+    {"limit": "Multi-Attach نطاق", "limit_en": "Multi-Attach scope", "value": "Up to 16 Nitro instances", "note_ar": "داخل AZ واحدة فقط.", "note_en": "Within a single AZ."},
+    {"limit": "اللقطات لكل منطقة", "limit_en": "Snapshots per Region", "value": "100,000 (default)", "note_ar": "حدّ ناعم قابل للزيادة.", "note_en": "Soft limit, can be increased."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء حجم gp3 بحجم 100 GiB في AZ.", "desc_en": "Create a 100 GiB gp3 volume in an AZ.", "cmd": "aws ec2 create-volume --volume-type gp3 --size 100 --availability-zone us-east-1a --encrypted"},
+    {"desc_ar": "ربط الحجم بمثيل EC2.", "desc_en": "Attach the volume to an EC2 instance.", "cmd": "aws ec2 attach-volume --volume-id vol-0abcd --instance-id i-0abcd --device /dev/sdf"},
+    {"desc_ar": "إنشاء لقطة من حجم EBS.", "desc_en": "Create a snapshot from an EBS volume.", "cmd": "aws ec2 create-snapshot --volume-id vol-0abcd --description \"nightly\""},
+    {"desc_ar": "نسخ لقطة إلى منطقة أخرى.", "desc_en": "Copy a snapshot to another region.", "cmd": "aws ec2 copy-snapshot --source-region us-east-1 --source-snapshot-id snap-0abcd --destination-region eu-west-1"},
+    {"desc_ar": "تعديل حجم gp2 وترقيته إلى gp3.", "desc_en": "Modify a gp2 volume and upgrade to gp3.", "cmd": "aws ec2 modify-volume --volume-id vol-0abcd --volume-type gp3 --iops 6000 --throughput 250"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "قاعدة بيانات عالية الأداء على EC2.", "scenario_en": "High-performance database on EC2.", "choice": "io2 Block Express"},
+    {"scenario_ar": "تطبيق عام بتكلفة وأداء متوازنين.", "scenario_en": "General-purpose workloads with balanced cost.", "choice": "gp3"},
+    {"scenario_ar": "أحمال تسلسلية كبيرة مثل Big Data.", "scenario_en": "Large sequential workloads like Big Data.", "choice": "st1 (Throughput-optimized HDD)"},
+    {"scenario_ar": "أرشفة بوصول نادر وسعر منخفض.", "scenario_en": "Infrequent-access archival at low cost.", "choice": "sc1 (Cold HDD)"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Scope", "feature_ar": "النطاق", "this": "Single AZ (block)", "alt": "Single AZ, ephemeral", "alt_name": "Instance Store"},
+    {"feature": "Persistence", "feature_ar": "الاستمرارية", "this": "Persists beyond instance stop", "alt": "Lost on stop/terminate", "alt_name": "Instance Store"},
+    {"feature": "Snapshots", "feature_ar": "اللقطات", "this": "Incremental to S3", "alt": "Not supported", "alt_name": "Instance Store"},
+    {"feature": "Shared access", "feature_ar": "المشاركة", "this": "Multi-Attach (io1/io2)", "alt": "Not shareable", "alt_name": "Instance Store"},
+    {"feature": "Performance ceiling", "feature_ar": "أقصى أداء", "this": "io2 BX 256k IOPS", "alt": "Millions of IOPS (NVMe)", "alt_name": "Instance Store"}
+  ],
+  "exam_tips": [
+    {"ar": "لا يمكن ربط حجم EBS بمثيل في AZ مختلفة؛ الحلّ إنشاء لقطة ثمّ استعادتها في AZ الهدف.", "en": "You cannot attach EBS across AZs; snapshot and restore it in the target AZ."},
+    {"ar": "gp3 ترقية مباشرة لـ gp2 مع IOPS و Throughput قابلَين للتكوين المستقل.", "en": "gp3 replaces gp2 and lets you provision IOPS and throughput independently."},
+    {"ar": "اللقطات تفاضلية وتُخزّن في S3 المُدار من AWS (لا يظهر في حسابك).", "en": "Snapshots are incremental and stored in AWS-managed S3 (not visible in your account)."},
+    {"ar": "تشفير حجم غير مشفّر يتطلّب: لقطة → نسخة مشفّرة → حجم جديد منها.", "en": "To encrypt an unencrypted volume: snapshot → encrypted copy → new volume from copy."},
+    {"ar": "Multi-Attach يتطلّب نظام ملفّات متوافق مع المشاركة مثل GFS2 أو Lustre.", "en": "Multi-Attach requires a clustered filesystem such as GFS2 or Lustre."}
+  ]
+}

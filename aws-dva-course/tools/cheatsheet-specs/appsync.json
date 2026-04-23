@@ -1,0 +1,53 @@
+{
+  "slug": "appsync",
+  "name": "AWS AppSync",
+  "icon": "git-branch",
+  "color": "purple",
+  "tagline_ar": "خدمة GraphQL مُدارة مع اشتراكات فورية ومصادر بيانات متعدّدة (DynamoDB، Lambda، RDS، OpenSearch، HTTP).",
+  "tagline_en": "Managed GraphQL service with real-time subscriptions and multiple data sources (DynamoDB, Lambda, RDS, OpenSearch, HTTP).",
+  "key_concepts": [
+    {"concept": "GraphQL Schema", "desc_ar": "مخطّط موحّد يصف الأنواع والاستعلامات (Query) والتعديلات (Mutation) والاشتراكات (Subscription).", "desc_en": "Single schema describing types, queries, mutations, and subscriptions."},
+    {"concept": "Resolvers", "desc_ar": "ربط كل حقل بمصدر بيانات عبر VTL أو JavaScript Resolvers.", "desc_en": "Map each field to a data source via VTL or JavaScript resolvers."},
+    {"concept": "Data Sources", "desc_ar": "DynamoDB، Lambda، RDS (Data API)، OpenSearch، HTTP، EventBridge، None.", "desc_en": "DynamoDB, Lambda, RDS (Data API), OpenSearch, HTTP, EventBridge, None."},
+    {"concept": "Subscriptions", "desc_ar": "WebSocket تلقائي لتلقّي التحديثات الفورية عند تشغيل Mutation.", "desc_en": "Auto-managed WebSocket to receive real-time updates when mutations fire."},
+    {"concept": "Authorization Modes", "desc_ar": "API Key، IAM، Cognito User Pools، OIDC، Lambda؛ يمكن تفعيل أكثر من وضع معًا.", "desc_en": "API Key, IAM, Cognito User Pools, OIDC, Lambda; multiple modes supported."},
+    {"concept": "Caching", "desc_ar": "كاش على مستوى الحلّ (Resolver) أو كامل الـ API مع TTL قابل للتكوين.", "desc_en": "Per-resolver or full-API caching with configurable TTL."},
+    {"concept": "Pipeline Resolvers", "desc_ar": "تنفيذ سلسلة وظائف (functions) قبل/بعد مصدر البيانات.", "desc_en": "Chain multiple functions before/after a data source."},
+    {"concept": "Delta Sync", "desc_ar": "مزامنة تفاضلية لتطبيقات الجوّال مع DynamoDB.", "desc_en": "Differential sync for mobile/offline clients with DynamoDB."}
+  ],
+  "limits": [
+    {"limit": "أقصى حجم استعلام", "limit_en": "Max query payload", "value": "1 MB", "note_ar": "للاستعلام أو الاستجابة.", "note_en": "Applies to query or response."},
+    {"limit": "أقصى زمن تنفيذ Resolver", "limit_en": "Resolver timeout", "value": "30 s", "note_ar": "للنداء الواحد.", "note_en": "Per invocation."},
+    {"limit": "اتصالات WebSocket المتزامنة", "limit_en": "Concurrent WS subscriptions", "value": "500,000 / API", "note_ar": "حدّ ناعم قابل للزيادة.", "note_en": "Soft limit, can be raised."},
+    {"limit": "أقصى Mutation في الثانية", "limit_en": "Max mutation rate", "value": "~2,000 / s", "note_ar": "لكل API افتراضيًا.", "note_en": "Per API by default."},
+    {"limit": "Resolvers لكل API", "limit_en": "Resolvers per API", "value": "10,000", "note_ar": "شامل Pipeline functions.", "note_en": "Includes pipeline functions."},
+    {"limit": "Cache TTL", "limit_en": "Cache TTL range", "value": "1 s – 3600 s", "note_ar": "على مستوى API أو Resolver.", "note_en": "At API or resolver level."}
+  ],
+  "cli_commands": [
+    {"desc_ar": "إنشاء GraphQL API.", "desc_en": "Create a GraphQL API.", "cmd": "aws appsync create-graphql-api --name OrdersGraphQL --authentication-type API_KEY"},
+    {"desc_ar": "إنشاء Data Source من DynamoDB.", "desc_en": "Create a DynamoDB data source.", "cmd": "aws appsync create-data-source --api-id abcd1234 --name OrdersTable --type AMAZON_DYNAMODB --dynamodb-config tableName=Orders,awsRegion=us-east-1 --service-role-arn arn:aws:iam::111:role/AppSyncDDB"},
+    {"desc_ar": "رفع مخطّط GraphQL.", "desc_en": "Upload a GraphQL schema.", "cmd": "aws appsync start-schema-creation --api-id abcd1234 --definition fileb://schema.graphql"},
+    {"desc_ar": "إنشاء Resolver.", "desc_en": "Create a resolver.", "cmd": "aws appsync create-resolver --api-id abcd1234 --type-name Query --field-name getOrder --data-source-name OrdersTable --request-mapping-template file://req.vtl --response-mapping-template file://res.vtl"},
+    {"desc_ar": "تمكين Caching لـ API كاملة.", "desc_en": "Enable full-API caching.", "cmd": "aws appsync create-api-cache --api-id abcd1234 --ttl 300 --api-caching-behavior FULL_REQUEST_CACHING --type SMALL"}
+  ],
+  "when_to_use": [
+    {"scenario_ar": "تطبيق جوال بمزامنة فورية واشتراكات حيّة.", "scenario_en": "Mobile app with offline sync and live subscriptions.", "choice": "AppSync + Delta Sync"},
+    {"scenario_ar": "واجهة موحّدة تقرأ من عدة مصادر في استعلام واحد.", "scenario_en": "Single query aggregating multiple data sources.", "choice": "AppSync Pipeline Resolvers"},
+    {"scenario_ar": "لوحة تحكّم تحتاج تحديثات فورية (Live Dashboard).", "scenario_en": "Live dashboard needing real-time updates.", "choice": "AppSync Subscriptions"},
+    {"scenario_ar": "تقليل over-fetching في REST.", "scenario_en": "Reduce over-fetching compared to REST.", "choice": "GraphQL query"}
+  ],
+  "vs_alternatives": [
+    {"feature": "Query shape", "feature_ar": "شكل الاستعلام", "this": "Flexible GraphQL", "alt": "Fixed endpoints", "alt_name": "API Gateway"},
+    {"feature": "Real-time", "feature_ar": "الزمن الحقيقي", "this": "Native subscriptions", "alt": "WebSocket API", "alt_name": "API Gateway"},
+    {"feature": "Multi-source fan-out", "feature_ar": "دمج مصادر", "this": "Pipeline resolvers", "alt": "Separate routes", "alt_name": "API Gateway"},
+    {"feature": "Offline sync", "feature_ar": "مزامنة بدون اتصال", "this": "Delta Sync", "alt": "Not built-in", "alt_name": "API Gateway"},
+    {"feature": "Pricing", "feature_ar": "التسعير", "this": "Per query + data source", "alt": "Per request", "alt_name": "API Gateway"}
+  ],
+  "exam_tips": [
+    {"ar": "AppSync يوفّر WebSocket subscriptions بشكل أصلي بدون إدارة اتصالات يدويًا.", "en": "AppSync provides native WebSocket subscriptions without manual connection management."},
+    {"ar": "يمكن تفعيل عدّة Authorization Modes في نفس الـ API لمواطن استخدام مختلفة.", "en": "Multiple authorization modes can be enabled on the same API for different use cases."},
+    {"ar": "Resolvers VTL تستخدم Velocity Template؛ بدلاً منها يمكن استخدام JavaScript Resolvers الجديدة.", "en": "VTL resolvers use Velocity; modern alternative is JavaScript resolvers."},
+    {"ar": "للتكامل مع RDS استخدم Data API (بدون إدارة اتصالات).", "en": "For RDS integration use the Data API (no connection management)."},
+    {"ar": "Caching في AppSync يقلّل عمليات Dynamo/Lambda ويحسّن زمن الاستجابة.", "en": "Caching in AppSync reduces Dynamo/Lambda calls and improves latency."}
+  ]
+}

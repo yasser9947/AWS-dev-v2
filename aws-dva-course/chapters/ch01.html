@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 01 — البدء مع AWS | DVA-C02</title>
+
+  <!-- CRITICAL CSS: hide opposite language immediately (no FOUC) -->
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+
+    /* Prism overrides */
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important;
+      font-size: 0.875rem !important;
+      margin: 0 !important;
+      padding: 1.25rem 1.5rem !important;
+      background: #0f172a !important;
+    }
+    code[class*="language-"] {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.85rem !important;
+    }
+
+    /* Scrollbars */
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+    /* Utilities */
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <!-- Top bar -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>
+          <span class="lang-ar">أساسيات</span>
+          <span class="lang-en">Foundations</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ١ من ٣٠</span>
+        <span class="lang-en">Chapter 1 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.11–20</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">البدء مع AWS</span>
+        <span class="lang-en">Getting Started with AWS</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">ما هي AWS؟ نطاقات الخدمة (Regions)، مناطق التوفّر (Availability Zones)، ومواقع الحافة (Edge Locations). كيف تختار نطاقاً مناسباً لتطبيقك، والفرق بين الخدمات العالمية والخدمات الإقليمية.</span>
+        <span class="lang-en">What is AWS? Regions, Availability Zones, and Edge Locations. How to choose a Region, and the difference between Global vs Region-scoped services.</span>
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Regions</span>
+        <span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Availability Zones</span>
+        <span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Edge Locations</span>
+        <span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Global Infrastructure</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+
+    <!-- Exam Objectives Mapping -->
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+      <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+          <h2 class="text-lg font-bold text-surface-800">
+            <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+            <span class="lang-en">Exam Objectives Mapping</span>
+          </h2>
+        </div>
+      </div>
+      <div class="p-6">
+        <p class="text-sm text-surface-600 mb-4 leading-relaxed">
+          <span class="lang-ar">هذا الشابتر تمهيدي، لا يُختبر مباشرةً، لكن فهمه ضروريّ لكل نطاق من نطاقات الامتحان التالية.</span>
+          <span class="lang-en">This chapter is foundational — not directly tested, but required context for every later domain.</span>
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+            <thead class="bg-surface-100 text-surface-700">
+              <tr>
+                <th class="text-start px-4 py-2 font-semibold">
+                  <span class="lang-ar">المفهوم</span>
+                  <span class="lang-en">Concept</span>
+                </th>
+                <th class="text-start px-4 py-2 font-semibold">
+                  <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+                  <span class="lang-en">Tested within</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-200">
+              <tr>
+                <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Regions</td>
+                <td class="px-4 py-2 text-surface-600">
+                  <span class="lang-ar">كل نطاقات الامتحان، لأن الخدمات إمّا عالمية أو إقليمية.</span>
+                  <span class="lang-en">Every domain — services are Global or Regional.</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Availability Zones</td>
+                <td class="px-4 py-2 text-surface-600">
+                  <span class="lang-ar">النطاقان الأول والرابع، في أسئلة التوافرية العالية لـ Lambda و DynamoDB و RDS.</span>
+                  <span class="lang-en">Domain 1 & 4 — HA questions on Lambda, DynamoDB, RDS.</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Edge Locations</td>
+                <td class="px-4 py-2 text-surface-600">
+                  <span class="lang-ar">النطاق الرابع، في أسئلة CloudFront و S3 Transfer Acceleration.</span>
+                  <span class="lang-en">Domain 4 — CloudFront and S3 Transfer Acceleration.</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Global vs Regional</td>
+                <td class="px-4 py-2 text-surface-600">
+                  <span class="lang-ar">النطاق الثاني، في أسئلة IAM (عالمية) مقابل EC2 (إقليمية).</span>
+                  <span class="lang-en">Domain 2 — IAM (Global) vs EC2 (Regional).</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: What is AWS -->
+    <section id="s1" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">ما هي AWS ولماذا نستخدمها؟</span>
+          <span class="lang-en">What is AWS and why use it?</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        AWS هي اختصار لـ <span dir="ltr" class="font-mono text-brand-700 font-semibold">Amazon Web Services</span>، وهي <strong>مزوّد خدمات سحابية</strong> يقدّم أكثر من مئتَي خدمة للحوسبة والتخزين والبرمجيات. انطلقت علنياً عام ٢٠٠٦ مع ثلاث خدمات فقط: SQS و S3 و EC2. اليوم هي اللاعب الأول في سوق السحابة بحصة ٣١٪ (الربع الأول من ٢٠٢٤)، وإيراد سنوي بلغ تسعين مليار دولار عام ٢٠٢٣.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        <strong>AWS (Amazon Web Services)</strong> is a cloud provider offering 200+ compute, storage, and software services. Since its public relaunch in 2006 with SQS, S3, and EC2, it became the market leader with 31% market share (Q1 2024) and $90B annual revenue (2023).
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="check" class="w-4 h-4"></i></div>
+            <h3 class="font-bold text-surface-800">
+              <span class="lang-ar">لماذا AWS؟</span>
+              <span class="lang-en">Why AWS?</span>
+            </h3>
+          </div>
+          <ul class="text-sm space-y-2 text-surface-600">
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">لا شراء مسبق للأجهزة، بل دفع حسب الاستخدام.</span>
+              <span class="lang-en">No upfront hardware cost — pay-as-you-go.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">مرونة وتوسعة خلال ثوانٍ.</span>
+              <span class="lang-en">Elasticity — scale in seconds.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">بنية تحتية عالمية تقلّل زمن الاستجابة للعملاء.</span>
+              <span class="lang-en">Global infrastructure — lower latency for users.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">أمان على مستوى المؤسسات والبنوك.</span>
+              <span class="lang-en">Enterprise-grade security.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4"></i></div>
+            <h3 class="font-bold text-surface-800">
+              <span class="lang-ar">حالات الاستخدام</span>
+              <span class="lang-en">Use Cases</span>
+            </h3>
+          </div>
+          <ul class="text-sm space-y-2 text-surface-600">
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">أنظمة المؤسسات والنسخ الاحتياطي والتخزين.</span>
+              <span class="lang-en">Enterprise IT, backup & storage.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">استضافة المواقع والتطبيقات.</span>
+              <span class="lang-en">Website & app hosting.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">تحليل البيانات الضخمة.</span>
+              <span class="lang-en">Big Data analytics.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="dot" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+              <span class="lang-ar">تطبيقات الجوال والتواصل الاجتماعي والألعاب.</span>
+              <span class="lang-en">Mobile, social apps, gaming.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+        <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+        <div class="text-sm text-brand-800">
+          <strong class="lang-ar">مفهوم أساسي للامتحان:</strong>
+          <strong class="lang-en">Key exam concept:</strong>
+          <span class="lang-ar"> البنية التحتية لـ AWS تتوزّع على أربع طبقات متتالية: نطاق الخدمة، ثم مناطق التوفّر، ثم مراكز البيانات، ثم مواقع الحافة. لكلّ طبقة دور مختلف. والامتحان يحبّ أن يسأل: أيّ خدمة عالمية وأيّ خدمة إقليمية؟</span>
+          <span class="lang-en"> AWS infrastructure is split into four layers: Regions → AZs → Data Centers → Edge Locations. Each has a distinct role — and the exam loves asking which service is Global vs Regional.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: AWS Regions -->
+    <section id="s2" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">نطاقات الخدمة — AWS Regions</span>
+          <span class="lang-en">AWS Regions</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        النطاق (<span dir="ltr" class="font-mono text-brand-700">Region</span>) هو <strong>تجمّع من مراكز البيانات</strong> في منطقة جغرافية محدّدة. كل نطاق معزول تماماً عن غيره على مستوى البيانات والشبكات، إلّا إذا فعّلت أنت صراحةً نسخاً عبر النطاقات. أسماء النطاقات تتبع صيغة موحّدة مثل <span dir="ltr" class="font-mono text-brand-700">us-east-1</span> (ولاية فرجينيا الشمالية)، و <span dir="ltr" class="font-mono text-brand-700">eu-west-3</span> (باريس)، وهكذا.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        A <strong>Region</strong> is a <strong>cluster of data centers</strong> in a specific geographic area. Regions are fully isolated (data, networking) unless you explicitly enable cross-region replication. Region names follow a standard format: <span dir="ltr" class="font-mono text-brand-700">us-east-1</span> (N. Virginia), <span dir="ltr" class="font-mono text-brand-700">eu-west-3</span> (Paris), etc.
+      </p>
+
+      <!-- Diagram: Region codes -->
+      <div class="bg-gradient-to-br from-surface-900 to-surface-800 rounded-2xl p-8 border border-surface-700">
+        <div class="text-center text-surface-300 text-xs mb-4 font-semibold uppercase tracking-wide">
+          <span class="lang-ar">أمثلة على رموز النطاقات</span>
+          <span class="lang-en">Example Region codes</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">N. Virginia</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">us-east-1</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Oregon</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">us-west-2</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Ireland</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">eu-west-1</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Frankfurt</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">eu-central-1</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Paris</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">eu-west-3</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Tokyo</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">ap-northeast-1</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Sydney</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">ap-southeast-2</p>
+          </div>
+          <div class="bg-surface-700/50 border border-surface-600 rounded-xl p-3">
+            <p class="text-xs text-surface-400 mb-1" dir="ltr">Bahrain</p>
+            <p class="font-mono text-brand-300 font-semibold" dir="ltr">me-south-1</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="text-xl font-bold text-surface-800 mt-8">
+        <span class="lang-ar">كيف تختار نطاقاً؟ أربعة معايير</span>
+        <span class="lang-en">How to choose a Region? (4 criteria)</span>
+      </h3>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="scale" class="w-5 h-5 text-purple-600"></i>
+            <h4 class="font-bold text-surface-800">
+              <span class="lang-ar">١. الامتثال التنظيمي</span>
+              <span class="lang-en">1. Compliance</span>
+            </h4>
+          </div>
+          <p class="text-sm text-surface-600 leading-relaxed lang-ar">
+            بعض الدول تشترط ألّا تغادر البيانات أراضيها (مثل لائحة GDPR في أوروبا، ولائحة PDPL في السعودية). البيانات داخل النطاق لا تغادره إلّا بإذن صريح منك.
+          </p>
+          <p class="text-sm text-surface-600 leading-relaxed lang-en">
+            Some countries require data residency (GDPR in EU, PDPL in Saudi Arabia). Data in a Region never leaves it without your permission.
+          </p>
+        </div>
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="zap" class="w-5 h-5 text-amber-600"></i>
+            <h4 class="font-bold text-surface-800">
+              <span class="lang-ar">٢. قرب العملاء</span>
+              <span class="lang-en">2. Proximity to users</span>
+            </h4>
+          </div>
+          <p class="text-sm text-surface-600 leading-relaxed lang-ar">
+            إذا كان عملاؤك في دبي، استخدم نطاق <span dir="ltr" class="font-mono">me-central-1</span> بدلاً من <span dir="ltr" class="font-mono">us-east-1</span>. الفرق في زمن الاستجابة قد يتجاوز مئتي ميلي ثانية.
+          </p>
+          <p class="text-sm text-surface-600 leading-relaxed lang-en">
+            Users in Dubai? Use <span dir="ltr" class="font-mono">me-central-1</span> instead of <span dir="ltr" class="font-mono">us-east-1</span> — latency difference is 200ms+.
+          </p>
+        </div>
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="package" class="w-5 h-5 text-blue-600"></i>
+            <h4 class="font-bold text-surface-800">
+              <span class="lang-ar">٣. توفّر الخدمات</span>
+              <span class="lang-en">3. Service availability</span>
+            </h4>
+          </div>
+          <p class="text-sm text-surface-600 leading-relaxed lang-ar">
+            الخدمات الجديدة تُطلق أوّلاً في <span dir="ltr" class="font-mono">us-east-1</span>. بعض النطاقات الحديثة (كالإمارات) قد ينقصها بعض الخدمات. راجع <a href="https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/" class="text-brand-600 hover:underline" dir="ltr">Region Services Table</a> قبل الاختيار.
+          </p>
+          <p class="text-sm text-surface-600 leading-relaxed lang-en">
+            New services launch first in <span dir="ltr" class="font-mono">us-east-1</span>. Newer Regions (e.g. UAE) may lack some services. Check the <a href="https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/" class="text-brand-600 hover:underline">Region Services Table</a>.
+          </p>
+        </div>
+        <div class="bg-white border border-surface-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="dollar-sign" class="w-5 h-5 text-emerald-600"></i>
+            <h4 class="font-bold text-surface-800">
+              <span class="lang-ar">٤. التسعير</span>
+              <span class="lang-en">4. Pricing</span>
+            </h4>
+          </div>
+          <p class="text-sm text-surface-600 leading-relaxed lang-ar">
+            الخدمة الواحدة قد يختلف سعرها من نطاق لآخر. عادةً <span dir="ltr" class="font-mono">us-east-1</span> هو الأرخص. الأسعار معلنة بشفافية في صفحة كل خدمة.
+          </p>
+          <p class="text-sm text-surface-600 leading-relaxed lang-en">
+            The same service varies in price between Regions. Usually <span dir="ltr" class="font-mono">us-east-1</span> is cheapest. Pricing is transparent on each service page.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Availability Zones -->
+    <section id="s3" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">مناطق التوفّر — Availability Zones</span>
+          <span class="lang-en">Availability Zones (AZs)</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        كل نطاق يحتوي على <strong>ثلاث إلى ست مناطق توفّر</strong>، والحدّ الأدنى ثلاث. كل منطقة توفّر عبارة عن <strong>مركز بيانات مستقلّ</strong> (أو أكثر) له كهرباء وشبكة منفصلة، ومعزول فيزيائياً عن باقي المناطق ليحميك من الكوارث. لكنّ هذه المناطق متّصلة ببعضها بشبكة <strong>عالية الإنتاجية وزمن استجابة قصير جداً</strong> — وهذا هو السرّ خلف التوافرية العالية في AWS.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        Each Region has <strong>3–6 AZs</strong> (minimum 3). An AZ is one or more <strong>discrete data centers</strong> with independent power, networking, and connectivity — physically separated from other AZs for disaster isolation. AZs are connected via <strong>high-bandwidth, ultra-low latency</strong> networking — that's how you get High Availability.
+      </p>
+
+      <div class="bg-gradient-to-br from-brand-50 to-blue-50 border-2 border-brand-200 rounded-2xl p-6 md:p-8">
+        <div class="text-center text-brand-800 font-bold mb-6 text-sm uppercase tracking-wider">
+          <span class="lang-ar">مثال: نطاق سيدني</span>
+          <span class="lang-en">Example: Region = ap-southeast-2 (Sydney)</span>
+        </div>
+        <div class="border-4 border-dashed border-brand-400 rounded-2xl p-4 md:p-6 bg-white/60 relative">
+          <div class="absolute -top-3 right-4 bg-brand-600 text-white px-3 py-1 rounded-full text-xs font-bold font-mono" dir="ltr">ap-southeast-2</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white border-2 border-brand-300 rounded-xl p-4 text-center">
+              <i data-lucide="server" class="w-8 h-8 mx-auto mb-2 text-brand-600"></i>
+              <p class="font-mono text-xs text-brand-700 font-semibold" dir="ltr">ap-southeast-2a</p>
+              <p class="text-xs text-surface-500 mt-1">
+                <span class="lang-ar">منطقة التوفّر الأولى</span>
+                <span class="lang-en">AZ 1</span>
+              </p>
+            </div>
+            <div class="bg-white border-2 border-brand-300 rounded-xl p-4 text-center">
+              <i data-lucide="server" class="w-8 h-8 mx-auto mb-2 text-brand-600"></i>
+              <p class="font-mono text-xs text-brand-700 font-semibold" dir="ltr">ap-southeast-2b</p>
+              <p class="text-xs text-surface-500 mt-1">
+                <span class="lang-ar">منطقة التوفّر الثانية</span>
+                <span class="lang-en">AZ 2</span>
+              </p>
+            </div>
+            <div class="bg-white border-2 border-brand-300 rounded-xl p-4 text-center">
+              <i data-lucide="server" class="w-8 h-8 mx-auto mb-2 text-brand-600"></i>
+              <p class="font-mono text-xs text-brand-700 font-semibold" dir="ltr">ap-southeast-2c</p>
+              <p class="text-xs text-surface-500 mt-1">
+                <span class="lang-ar">منطقة التوفّر الثالثة</span>
+                <span class="lang-en">AZ 3</span>
+              </p>
+            </div>
+          </div>
+          <div class="mt-4 text-center text-xs text-surface-500">
+            <i data-lucide="link" class="inline w-3 h-3"></i>
+            <span class="lang-ar">متّصلة ببعضها بشبكة عالية السرعة وزمن استجابة قصير.</span>
+            <span class="lang-en">Connected via high-bandwidth, low-latency networking.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+        <div class="text-sm text-amber-800">
+          <strong class="lang-ar">نصيحة للامتحان:</strong>
+          <strong class="lang-en">Exam tip:</strong>
+          <span class="lang-ar"> معرّف منطقة التوفّر الثابت (<span dir="ltr" class="font-mono">AZ ID</span>) مثل <span dir="ltr" class="font-mono">use1-az1</span> يختلف عن اسمها (<span dir="ltr" class="font-mono">AZ name</span>) مثل <span dir="ltr" class="font-mono">us-east-1a</span>. الأسماء تختلف بين الحسابات (منطقة <span dir="ltr" class="font-mono">us-east-1a</span> في حسابك قد تكون منطقة <span dir="ltr" class="font-mono">us-east-1b</span> في حساب آخر) لتوزيع الحِمل بين العملاء، بينما المعرّفات الثابتة هي نفسها عبر الحسابات. هذه المعلومة تُسأل في سياق مشاركة شبكات <span dir="ltr" class="font-mono">VPC</span> بين الحسابات.</span>
+          <span class="lang-en"> An AZ ID (e.g. <span dir="ltr" class="font-mono">use1-az1</span>) is not the same as AZ name (<span dir="ltr" class="font-mono">us-east-1a</span>) — names differ between accounts (your <span dir="ltr" class="font-mono">us-east-1a</span> ≠ my <span dir="ltr" class="font-mono">us-east-1a</span>) for load balancing, while IDs are stable. Important when sharing VPCs across accounts.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Edge Locations -->
+    <section id="s4" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">مواقع الحافة — Edge Locations</span>
+          <span class="lang-en">Edge Locations (Points of Presence)</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        مواقع الحافة عبارة عن مواقع صغيرة منتشرة في أكثر من أربع مئة مدينة داخل أربعين دولة، مهمّتها تقريب المحتوى من المستخدم النهائي عبر التخزين المؤقّت. يستخدمها بشكل رئيسي: <span dir="ltr" class="font-mono text-brand-700">CloudFront</span> لتوزيع المحتوى، و <span dir="ltr" class="font-mono text-brand-700">S3 Transfer Acceleration</span> لتسريع الرفع، و <span dir="ltr" class="font-mono text-brand-700">Route 53</span> لخدمة أسماء النطاقات.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        <strong>Edge Locations</strong> are smaller sites spread across 400+ cities in 40+ countries, bringing content closer to end users via caching. They're mainly used by: <span dir="ltr" class="font-mono text-brand-700">CloudFront</span> for content delivery, <span dir="ltr" class="font-mono text-brand-700">S3 Transfer Acceleration</span> for faster uploads, and <span dir="ltr" class="font-mono text-brand-700">Route 53</span> for DNS.
+      </p>
+
+      <div class="bg-white border border-surface-200 rounded-2xl overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3">
+          <div class="p-5 border-b md:border-b-0 md:border-e border-surface-200">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">AZ</div>
+              <p class="font-bold text-surface-800">
+                <span class="lang-ar">منطقة التوفّر</span>
+                <span class="lang-en">Availability Zone</span>
+              </p>
+            </div>
+            <p class="text-sm text-surface-600 leading-relaxed lang-ar">مركز بيانات كامل داخل النطاق. يستضيف الخوادم الفعلية لتطبيقك.</p>
+            <p class="text-sm text-surface-600 leading-relaxed lang-en">Full data center inside a Region. Hosts your actual compute.</p>
+          </div>
+          <div class="p-5 border-b md:border-b-0 md:border-e border-surface-200">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">RE</div>
+              <p class="font-bold text-surface-800">
+                <span class="lang-ar">ذاكرة مؤقّتة إقليمية</span>
+                <span class="lang-en">Regional Edge Cache</span>
+              </p>
+            </div>
+            <p class="text-sm text-surface-600 leading-relaxed lang-ar">أكثر من عشرة مواقع، تعمل كطبقة تخزين مؤقّت بين المصدر الأصلي ومواقع الحافة. تُستخدم للمحتوى الأقلّ شعبيةً.</p>
+            <p class="text-sm text-surface-600 leading-relaxed lang-en">10+ sites — caching tier between origin and Edge Locations. For less-popular content.</p>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">EL</div>
+              <p class="font-bold text-surface-800">
+                <span class="lang-ar">موقع حافة</span>
+                <span class="lang-en">Edge Location</span>
+              </p>
+            </div>
+            <p class="text-sm text-surface-600 leading-relaxed lang-ar">أكثر من أربع مئة موقع صغير، تخزّن المحتوى الشعبي قرب المستخدم. هي نقاط التواجد لخدمة CloudFront.</p>
+            <p class="text-sm text-surface-600 leading-relaxed lang-en">400+ small sites. Caches popular content near users. CloudFront PoPs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Global vs Regional Services -->
+    <section id="s5" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">الخدمات العالمية مقابل الإقليمية</span>
+          <span class="lang-en">Global vs Regional Services</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        هذا من أكثر المواضيع تكراراً في الامتحان: <strong>أيّ خدمة عالمية وأيّ خدمة إقليمية؟</strong> الفرق مهمّ لأنه يؤثّر على نقاط الوصول (endpoints) والتسعير وسلوك النسخ الاحتياطي.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        This is one of the most frequent exam questions: <strong>which service is Global vs Regional?</strong> The difference matters — it affects endpoints, pricing, and replication behavior.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-2xl p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+              <i data-lucide="globe" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-surface-800 text-lg">
+                <span class="lang-ar">خدمات عالمية</span>
+                <span class="lang-en">Global Services</span>
+              </h3>
+              <p class="text-xs text-surface-500">
+                <span class="lang-ar">لا تنتمي إلى نطاق محدّد</span>
+                <span class="lang-en">Not tied to a Region</span>
+              </p>
+            </div>
+          </div>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center gap-2">
+              <i data-lucide="shield" class="w-4 h-4 text-purple-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">IAM</strong>
+              <span>—</span>
+              <span class="lang-ar">إدارة المستخدمين والصلاحيات</span>
+              <span class="lang-en">users and permissions</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="globe-2" class="w-4 h-4 text-purple-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">Route 53</strong>
+              <span>—</span>
+              <span class="lang-ar">خدمة أسماء النطاقات</span>
+              <span class="lang-en">DNS</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="cloud" class="w-4 h-4 text-purple-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">CloudFront</strong>
+              <span>—</span>
+              <span class="lang-ar">شبكة توصيل المحتوى</span>
+              <span class="lang-en">CDN</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-purple-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">WAF</strong>
+              <span>—</span>
+              <span class="lang-ar">جدار حماية تطبيقات الويب</span>
+              <span class="lang-en">Web Application Firewall</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+              <i data-lucide="map-pin" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-surface-800 text-lg">
+                <span class="lang-ar">خدمات إقليمية</span>
+                <span class="lang-en">Regional Services</span>
+              </h3>
+              <p class="text-xs text-surface-500">
+                <span class="lang-ar">مرتبطة بنطاق محدّد</span>
+                <span class="lang-en">Scoped to a specific Region</span>
+              </p>
+            </div>
+          </div>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-center gap-2">
+              <i data-lucide="server" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">EC2</strong>
+              <span>—</span>
+              <span class="lang-ar">بنية تحتية كخدمة</span>
+              <span class="lang-en">IaaS</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">Lambda</strong>
+              <span>—</span>
+              <span class="lang-ar">دوال سحابية</span>
+              <span class="lang-en">FaaS</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="database" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">DynamoDB, RDS, S3*</strong>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="sprout" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+              <strong class="font-mono text-brand-700" dir="ltr">Elastic Beanstalk</strong>
+              <span>—</span>
+              <span class="lang-ar">منصّة كخدمة</span>
+              <span class="lang-en">PaaS</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+        <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+        <div class="text-sm text-red-800">
+          <strong class="lang-ar">فخّ شائع في الامتحان:</strong>
+          <strong class="lang-en">Common pitfall:</strong>
+          <span class="lang-ar"> أسماء <span dir="ltr" class="font-mono">S3 buckets</span> عالمية (يجب أن يكون الاسم فريداً على مستوى AWS كلها)، لكنّ <span dir="ltr" class="font-mono">bucket</span> نفسه إقليمي (البيانات تُخزَّن فعلياً في نطاق واحد). لا تخلط بين الاسم والمورد.</span>
+          <span class="lang-en"> <strong>S3 bucket names are Global</strong> (unique across all of AWS) but <strong>the bucket itself is Regional</strong> (data resides in one Region). Don't confuse the name with the resource.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Shared Responsibility Model -->
+    <section id="s6" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">نموذج المسؤولية المشتركة</span>
+          <span class="lang-en">Shared Responsibility Model</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        AWS وأنت تتقاسمان مسؤوليات الأمان. باختصار: <strong>AWS مسؤولة عن أمان السحابة ذاتها</strong> (الأجهزة، المباني، برامج المحاكاة الافتراضية). و<strong>أنت مسؤول عن الأمان داخل السحابة</strong> (بياناتك، الصلاحيات، التشفير، تحديثات نظام التشغيل على خوادم <span dir="ltr" class="font-mono">EC2</span>).
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        AWS and you share security responsibilities. In short: <strong>AWS secures the Cloud itself</strong> (hardware, facilities, hypervisor), and <strong>you secure what's in the Cloud</strong> (your data, IAM, encryption, OS patches on EC2).
+      </p>
+
+      <div class="overflow-hidden rounded-2xl border border-surface-200">
+        <div class="grid md:grid-cols-2">
+          <div class="bg-gradient-to-br from-orange-500 to-red-600 text-white p-6">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+              <h3 class="font-bold text-xl">AWS</h3>
+            </div>
+            <p class="text-sm font-semibold mb-3 text-orange-100">
+              <span class="lang-ar">مسؤولة عن أمان السحابة</span>
+              <span class="lang-en">Security OF the Cloud</span>
+            </p>
+            <ul class="text-sm space-y-1.5 text-orange-50">
+              <li>
+                <span class="lang-ar">• الأجهزة الفيزيائية</span>
+                <span class="lang-en">• Physical hardware</span>
+              </li>
+              <li>
+                <span class="lang-ar">• الشبكة الفيزيائية</span>
+                <span class="lang-en">• Physical network</span>
+              </li>
+              <li>
+                <span class="lang-ar">• المباني وأمانها</span>
+                <span class="lang-en">• Facilities security</span>
+              </li>
+              <li>
+                <span class="lang-ar">• برامج المحاكاة الافتراضية</span>
+                <span class="lang-en">• Hypervisor (virtualization)</span>
+              </li>
+              <li>
+                <span class="lang-ar">• الخدمات المُدارة مثل RDS و Lambda (التحديثات والنسخ الاحتياطي)</span>
+                <span class="lang-en">• Managed services — patching & backups</span>
+              </li>
+            </ul>
+          </div>
+          <div class="bg-gradient-to-br from-blue-500 to-brand-700 text-white p-6">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="user" class="w-6 h-6"></i>
+              <h3 class="font-bold text-xl">
+                <span class="lang-ar">أنت</span>
+                <span class="lang-en">You</span>
+              </h3>
+            </div>
+            <p class="text-sm font-semibold mb-3 text-blue-100">
+              <span class="lang-ar">مسؤول عن الأمان داخل السحابة</span>
+              <span class="lang-en">Security IN the Cloud</span>
+            </p>
+            <ul class="text-sm space-y-1.5 text-blue-50">
+              <li>
+                <span class="lang-ar">• بياناتك (تشفيرها، تصنيفها)</span>
+                <span class="lang-en">• Your data (encryption, classification)</span>
+              </li>
+              <li>
+                <span class="lang-ar">• الهويات والصلاحيات والأدوار</span>
+                <span class="lang-en">• IAM: users, roles, policies</span>
+              </li>
+              <li>
+                <span class="lang-ar">• نظام التشغيل على خوادم EC2 (التحديثات، الجدار الناري)</span>
+                <span class="lang-en">• OS on EC2 (patching, firewall)</span>
+              </li>
+              <li>
+                <span class="lang-ar">• مجموعات الأمان وقوائم التحكم بالشبكة</span>
+                <span class="lang-en">• Security Groups and Network ACLs</span>
+              </li>
+              <li>
+                <span class="lang-ar">• تطبيقك والكود الذي تكتبه</span>
+                <span class="lang-en">• Your application code</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Code & CLI -->
+    <section id="s7" class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">7</div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">ثلاث طرق رئيسية للتفاعل مع AWS</span>
+          <span class="lang-en">Ways to Interact with AWS</span>
+        </h2>
+      </div>
+
+      <p class="text-surface-700 leading-relaxed lang-ar">
+        أمامك ثلاث طرق للتحكّم في AWS، وجميعها تستدعي في النهاية نفس واجهة البرمجة الأساسية.
+      </p>
+      <p class="text-surface-700 leading-relaxed lang-en">
+        You have 3 main ways to control AWS — all ultimately call the same underlying API.
+      </p>
+
+      <div class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <div class="flex border-b border-surface-200" role="tablist">
+          <button onclick="showTab('tab-console')" id="tab-btn-console" class="tab-btn flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-brand-500 text-brand-700 bg-brand-50 transition-all">
+            <i data-lucide="monitor" class="inline w-4 h-4"></i>
+            <span class="lang-ar">الواجهة</span>
+            <span class="lang-en">Console</span>
+          </button>
+          <button onclick="showTab('tab-cli')" id="tab-btn-cli" class="tab-btn flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-transparent text-surface-500 hover:text-surface-700 transition-all">
+            <i data-lucide="terminal" class="inline w-4 h-4"></i>
+            <span class="font-mono">CLI</span>
+          </button>
+          <button onclick="showTab('tab-sdk')" id="tab-btn-sdk" class="tab-btn flex-1 py-3 px-4 text-sm font-semibold border-b-2 border-transparent text-surface-500 hover:text-surface-700 transition-all">
+            <i data-lucide="code" class="inline w-4 h-4"></i>
+            <span class="font-mono">SDK</span>
+          </button>
+        </div>
+
+        <div id="tab-console" class="tab-content p-6">
+          <h4 class="font-bold text-surface-800 mb-2">AWS Management Console</h4>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-ar">
+            واجهة ويب للتحكّم اليدوي. ممتازة للاستكشاف والتعلّم، لكنها <strong>لا تصلح للإنتاج</strong> لأنها يدوية وصعبة التكرار.
+          </p>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-en">
+            Web UI. Great for exploration and learning, but <strong>not suited for production</strong> — manual and hard to reproduce.
+          </p>
+          <p class="text-xs text-surface-500"><i data-lucide="external-link" class="inline w-3 h-3"></i> <a href="https://console.aws.amazon.com" class="text-brand-600 hover:underline">console.aws.amazon.com</a></p>
+        </div>
+
+        <div id="tab-cli" class="tab-content hidden p-6">
+          <h4 class="font-bold text-surface-800 mb-2">AWS CLI (Command Line Interface)</h4>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-ar">
+            أوامر سطر الأوامر. مثالية لسكربتات الأتمتة وتسلسل الأوامر. مكتوبة بلغة بايثون.
+          </p>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-en">
+            Shell commands. Ideal for scripts and automation. Written in Python.
+          </p>
+          <div class="code-block relative group" dir="ltr">
+            <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span class="lang-ar">نسخ</span>
+              <span class="lang-en">Copy</span>
+            </button>
+            <pre class="scrollbar-thin"><code class="language-bash"># List all S3 buckets in the account
+aws s3 ls
+
+# List EC2 instances in a specific region
+aws ec2 describe-instances --region us-east-1
+
+# Create an S3 bucket
+aws s3 mb s3://acme-app-artifacts-20260423 --region us-east-1
+
+# Invoke a Lambda function
+aws lambda invoke --function-name process-orders \
+  --payload '{"orderId":"12345"}' response.json
+
+# Check your identity (super useful for debugging IAM)
+aws sts get-caller-identity</code></pre>
+          </div>
+        </div>
+
+        <div id="tab-sdk" class="tab-content hidden p-6">
+          <h4 class="font-bold text-surface-800 mb-2">AWS SDKs</h4>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-ar">
+            مكتبات للغات البرمجة: جافا وبايثون (boto3) وجافا سكريبت و Go و C# و Ruby وغيرها. تستدعيها من داخل كود تطبيقك.
+          </p>
+          <p class="text-sm text-surface-600 mb-3 leading-relaxed lang-en">
+            Language-native libraries: Java, Python (boto3), JavaScript, Go, C#, Ruby, and more. Use them from inside your app.
+          </p>
+
+          <div class="code-block relative group" dir="ltr">
+            <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span class="lang-ar">نسخ</span>
+              <span class="lang-en">Copy</span>
+            </button>
+            <pre class="scrollbar-thin"><code class="language-java">// Java SDK v2 — list all S3 buckets
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+
+public class ListBuckets {
+    public static void main(String[] args) {
+        S3Client s3 = S3Client.builder()
+            .region(Region.US_EAST_1)
+            .build();
+
+        ListBucketsResponse response = s3.listBuckets();
+        response.buckets().forEach(bucket ->
+            System.out.println(bucket.name())
+        );
+
+        s3.close();
+    }
+}</code></pre>
+          </div>
+
+          <p class="text-xs text-surface-500 mt-4 mb-2 font-semibold">
+            <span class="lang-ar">نفس المثال بلغة بايثون (boto3):</span>
+            <span class="lang-en">Same example in Python (boto3):</span>
+          </p>
+          <div class="code-block relative group" dir="ltr">
+            <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span class="lang-ar">نسخ</span>
+              <span class="lang-en">Copy</span>
+            </button>
+            <pre class="scrollbar-thin"><code class="language-python">import boto3
+
+s3 = boto3.client('s3', region_name='us-east-1')
+response = s3.list_buckets()
+
+for bucket in response['Buckets']:
+    print(bucket['Name'])</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+        <div class="text-sm text-emerald-800">
+          <strong class="lang-ar">للمطوّر السينيور:</strong>
+          <strong class="lang-en">For the senior dev:</strong>
+          <span class="lang-ar"> كما تتعامل مكتبتا <span dir="ltr" class="font-mono">RestTemplate</span> و <span dir="ltr" class="font-mono">WebClient</span> في Spring مع بروتوكول HTTP، فإنّ <span dir="ltr" class="font-mono">AWS SDK</span> هو عميل HTTP متخصّص: يدير إعادة المحاولة مع التباعد الأسّي تلقائياً، والتوقيع الأمني (<span dir="ltr" class="font-mono">SigV4</span>)، وتجميع الاتّصالات. لا تستخدم HTTP مباشرةً إلّا إذا اضطررت.</span>
+          <span class="lang-en"> Just like Spring's <span dir="ltr" class="font-mono">RestTemplate</span> / <span dir="ltr" class="font-mono">WebClient</span> wrap HTTP, the AWS SDK is a specialized HTTP client handling retries/backoff, SigV4 signing, and connection pooling. Don't hit HTTP directly unless forced to.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hands-on Lab -->
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+          <i data-lucide="flask-conical" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-xl font-bold text-surface-800">
+          <span class="lang-ar">معمل عملي</span>
+          <span class="lang-en">Hands-on Lab</span>
+        </h2>
+      </div>
+
+      <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إنشاء حساب AWS مجاني، ثم تثبيت سطر الأوامر، ثم تنفيذ أوّل أمر.</p>
+      <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Create an AWS Free Tier account + install CLI + run your first command.</p>
+
+      <ol class="space-y-3 text-sm text-surface-700">
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+          <div>
+            <p class="font-semibold mb-1">
+              <span class="lang-ar">أنشئ حساب AWS مجاني (Free Tier)</span>
+              <span class="lang-en">Create an AWS Free Tier account</span>
+            </p>
+            <p class="text-surface-600 leading-relaxed lang-ar">
+              من <a href="https://aws.amazon.com/free" class="text-indigo-600 hover:underline" dir="ltr">aws.amazon.com/free</a>. تحتاج بطاقة ائتمان للتحقّق (لن تُخصم رسوم ضمن حدود الـ Free Tier).
+            </p>
+            <p class="text-surface-600 leading-relaxed lang-en">
+              At <a href="https://aws.amazon.com/free" class="text-indigo-600 hover:underline">aws.amazon.com/free</a>. A credit card is required for verification (no charges within Free Tier limits).
+            </p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+          <div>
+            <p class="font-semibold mb-1">
+              <span class="lang-ar">فعّل التحقّق الثنائي على حساب الجذر</span>
+              <span class="lang-en">Enable MFA on root account</span>
+            </p>
+            <p class="text-surface-600 leading-relaxed lang-ar">
+              من قسم IAM ثم Security Credentials. استخدم تطبيقاً مثل Authy أو Google Authenticator.
+            </p>
+            <p class="text-surface-600 leading-relaxed lang-en">
+              From IAM → Security Credentials. Use an app like Authy or Google Authenticator.
+            </p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+          <div>
+            <p class="font-semibold mb-1">
+              <span class="lang-ar">ثبّت سطر الأوامر (AWS CLI v2)</span>
+              <span class="lang-en">Install AWS CLI v2</span>
+            </p>
+            <div class="code-block relative group mt-2" dir="ltr">
+              <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+              <pre class="!p-3"><code class="language-bash"># macOS (with Homebrew)
+brew install awscli
+
+# Verify installation
+aws --version
+# → aws-cli/2.15.x Python/3.11.x Darwin/23.x.x</code></pre>
+            </div>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+          <div>
+            <p class="font-semibold mb-1">
+              <span class="lang-ar">شغّل أوّل أمر</span>
+              <span class="lang-en">Run your first command</span>
+            </p>
+            <div class="code-block relative group mt-2" dir="ltr">
+              <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10"><i data-lucide="copy" class="w-3 h-3"></i></button>
+              <pre class="!p-3"><code class="language-bash">aws configure
+# AWS Access Key ID: <your-key>
+# AWS Secret Access Key: <your-secret>
+# Default region: us-east-1
+# Default output format: json
+
+aws sts get-caller-identity
+# → should return your account ID + ARN</code></pre>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+        <div class="text-sm text-amber-900">
+          <strong class="lang-ar">تنبيه مهمّ:</strong>
+          <strong class="lang-en">Important:</strong>
+          <span class="lang-ar"> لا تستخدم حساب الجذر للعمل اليومي. أنشئ مستخدماً في IAM بصلاحيات محدودة، وشغّل سطر الأوامر من خلاله (تُشرح التفاصيل في الشابتر ١٧).</span>
+          <span class="lang-en"> Never use the Root Account for daily work. Create an IAM User with scoped permissions and run the CLI from it (covered in Chapter 17).</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٠ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (10 questions)</span>
+        </h2>
+      </div>
+
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية. اقرأ كل سؤال بتأنٍّ قبل الإجابة.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based. Read each carefully before answering.</span>
+      </p>
+
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <!-- Summary -->
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold">
+          <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+          <span class="lang-en">Summary & Key Takeaways</span>
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin" class="w-4 h-4"></i></div>
+            <div>
+              <p class="font-bold mb-1">
+                <span class="lang-ar">النطاق = تجمّع مراكز بيانات</span>
+                <span class="lang-en">Region = Cluster of Data Centers</span>
+              </p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-ar">معزولة تماماً. البيانات لا تغادر النطاق إلّا بطلبك.</p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-en">Fully isolated. Data never leaves a Region without your request.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="server" class="w-4 h-4"></i></div>
+            <div>
+              <p class="font-bold mb-1">
+                <span class="lang-ar">منطقة التوفّر = مركز بيانات منفصل</span>
+                <span class="lang-en">AZ = Discrete Data Center(s)</span>
+              </p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-ar">من ٣ إلى ٦ مناطق في كل نطاق. منفصلة فيزيائياً، متّصلة بشبكة عالية السرعة.</p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-en">3–6 AZs/Region. Physically separate, high-speed interconnect.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+            <div>
+              <p class="font-bold mb-1">
+                <span class="lang-ar">الخدمات العالمية أربع</span>
+                <span class="lang-en">Global Services = 4</span>
+              </p>
+              <p class="text-sm text-brand-100 leading-relaxed font-mono" dir="ltr">IAM · Route 53 · CloudFront · WAF</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+            <div>
+              <p class="font-bold mb-1">
+                <span class="lang-ar">المسؤولية المشتركة</span>
+                <span class="lang-en">Shared Responsibility</span>
+              </p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-ar">AWS مسؤولة عن أمان السحابة، وأنت عن الأمان داخلها.</p>
+              <p class="text-sm text-brand-100 leading-relaxed lang-en">AWS = security OF cloud. You = security IN cloud.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+        <div class="flex items-center gap-2 mb-2">
+          <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+          <p class="font-bold text-amber-100">
+            <span class="lang-ar">وسيلة للحفظ السريع:</span>
+            <span class="lang-en">Mnemonic:</span>
+          </p>
+        </div>
+        <p class="text-sm text-brand-100 leading-relaxed lang-ar">
+          الخدمات العالمية الأربع: <strong class="text-white font-mono bg-white/10 px-2 py-0.5 rounded mx-1">I R C W</strong> — أي IAM و Route 53 و CloudFront و WAF. فكّر فيها كعبارة "I Route Content Worldwide" أي أنا أوجّه المحتوى عبر العالم.
+        </p>
+        <p class="text-sm text-brand-100 leading-relaxed lang-en">
+          The 4 Global services: <strong class="text-white font-mono bg-white/10 px-2 py-0.5 rounded mx-1">I R C W</strong> = <strong>I</strong>AM · <strong>R</strong>oute 53 · <strong>C</strong>loudFront · <strong>W</strong>AF — think "I Route Content Worldwide".
+        </p>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+      <div class="flex-1"></div>
+      <button onclick="toggleComplete(1, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+        <i data-lucide="check" class="w-4 h-4"></i>
+        <span class="btn-label">
+          <span class="lang-ar">وسم كمكتمل</span>
+          <span class="lang-en">Mark complete</span>
+        </span>
+      </button>
+      <a href="ch02.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+        <span class="lang-ar">الشابتر التالي</span>
+        <span class="lang-en">Next chapter</span>
+        <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+      </a>
+    </nav>
+
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <!-- ============ INLINED APP LOGIC ============ -->
+  <script>
+    // ---------- LocalStorage keys ----------
+    const STORAGE_KEYS = {
+      LANG: 'dva_lang',
+      COMPLETED: 'dva_completed_chapters',
+      QUIZ_RESULTS: 'dva_quiz_results',
+    };
+
+    // ---------- Language ----------
+    function getLang() {
+      return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar';
+    }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang;
+      html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      updateLangToggleUI();
+      // Re-render quiz if open (questions contain lang spans too)
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() {
+      setLang(getLang() === 'ar' ? 'en' : 'ar');
+    }
+    function updateLangToggleUI() {
+      const lang = getLang();
+      document.querySelectorAll('[data-lang-toggle]').forEach((el) => {
+        el.textContent = lang === 'ar' ? 'EN' : 'ع';
+      });
+    }
+
+    // ---------- Completion ----------
+    function getCompletedChapters() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; }
+    }
+    function markChapterComplete(n) {
+      const c = getCompletedChapters();
+      if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); }
+    }
+    function unmarkChapterComplete(n) {
+      const c = getCompletedChapters().filter((x) => x !== n);
+      localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c));
+    }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+
+    // ---------- Quiz results ----------
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round((score / total) * 100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+
+    // ---------- Code copy ----------
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      const code = pre.querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) window.lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) window.lucide.createIcons(); }, 1800);
+      });
+    }
+
+    // ---------- Tab switcher ----------
+    function showTab(id) {
+      document.querySelectorAll('.tab-content').forEach((el) => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach((el) => {
+        el.classList.remove('border-brand-500', 'text-brand-700', 'bg-brand-50');
+        el.classList.add('border-transparent', 'text-surface-500');
+      });
+      document.getElementById(id).classList.remove('hidden');
+      const btn = document.getElementById('tab-btn-' + id.replace('tab-', ''));
+      if (btn) {
+        btn.classList.add('border-brand-500', 'text-brand-700', 'bg-brand-50');
+        btn.classList.remove('border-transparent', 'text-surface-500');
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    }
+
+    // ---------- Quiz Engine ----------
+    const QuizEngine = {
+      currentChapter: null,
+      questions: [],
+      answers: {},
+      revealed: {},
+      wrongOnly: false,
+
+      init(ch, qs) {
+        this.currentChapter = ch;
+        this.questions = qs;
+        this.answers = {};
+        this.revealed = {};
+        this.render();
+      },
+      render() {
+        const container = document.getElementById('quiz-container');
+        if (!container) return;
+        container.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            const ans = this.answers[q.id];
+            if (ans === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          container.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعددة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+
+        card.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx + 1}</span>
+            <div class="flex-1 min-w-0">
+              <div class="mb-2">${badge}</div>
+              <p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p>
+            </div>
+          </div>
+          <div class="space-y-2 quiz-options"></div>
+          <div class="feedback hidden"></div>
+        `;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `
+            <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65 + oIdx)}</span>
+            <span class="flex-1 text-sm leading-relaxed">${opt}</span>
+          `;
+          if (revealed) {
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel || []).includes(oIdx) : sel === oIdx;
+            if (correct) {
+              btn.classList.add('!border-emerald-500', '!bg-emerald-50');
+              btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white');
+            } else if (selected) {
+              btn.classList.add('!border-red-500', '!bg-red-50');
+              btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white');
+            }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+
+        if (revealed) {
+          const fb = card.querySelector('.feedback');
+          fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `
+            <div class="flex items-start gap-2">
+              <i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+              <div class="flex-1 space-y-2">
+                <p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p>
+                <p class="text-sm leading-relaxed">${q.explanation}</p>
+                ${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65 + i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}
+                ${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}
+              </div>
+            </div>
+          `;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const arr = this.answers[q.id];
+          const p = arr.indexOf(oIdx);
+          if (p >= 0) arr.splice(p, 1); else arr.push(oIdx);
+        } else {
+          this.answers[q.id] = oIdx;
+        }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard);
+        if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) {
+        this.revealed[q.id] = true;
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard);
+        if (window.lucide) lucide.createIcons();
+        this.checkAll();
+      },
+      isCorrect(q) {
+        const a = this.answers[q.id];
+        if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every((x) => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter((q) => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter((q) => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result');
+        if (!el) return;
+        const pct = Math.round((score / total) * 100);
+        let tone, titleAr, titleEn, adviceAr, adviceEn, icon;
+        if (pct >= 80) {
+          tone = 'from-emerald-500 to-emerald-600'; icon = '🏆';
+          titleAr = 'ممتاز!'; titleEn = 'Excellent!';
+          adviceAr = 'فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.';
+          adviceEn = 'You\'ve mastered this chapter. Review wrong answers and move on.';
+        } else if (pct >= 60) {
+          tone = 'from-amber-500 to-amber-600'; icon = '📚';
+          titleAr = 'جيّد — يحتاج مراجعة'; titleEn = 'Good — needs review';
+          adviceAr = 'فهمك للأساسيات حلو، لكن في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.';
+          adviceEn = 'Solid fundamentals but missed details. Review the sections tied to wrong answers.';
+        } else {
+          tone = 'from-red-500 to-red-600'; icon = '🔁';
+          titleAr = 'أعد الدراسة'; titleEn = 'Restudy recommended';
+          adviceAr = 'الشابتر يحتاج قراءة ثانية. ركّز على الأقسام الأساسية ثم أعد الكويز.';
+          adviceEn = 'This chapter needs a second read. Focus on core sections then retake the quiz.';
+        }
+        el.classList.remove('hidden');
+        el.innerHTML = `
+          <div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p>
+                <p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p>
+              </div>
+              <div class="text-5xl">${icon}</div>
+            </div>
+            <h3 class="text-2xl font-bold"><span class="lang-ar">${titleAr}</span><span class="lang-en">${titleEn}</span></h3>
+            <p class="text-white/90 leading-relaxed"><span class="lang-ar">${adviceAr}</span><span class="lang-en">${adviceEn}</span></p>
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span>
+              </button>
+              <button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span>
+              </button>
+            </div>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() {
+        this.answers = {}; this.revealed = {}; this.wrongOnly = false;
+        const el = document.getElementById('quiz-final-result');
+        if (el) el.classList.add('hidden');
+        this.render();
+        document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' });
+      },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    // ---------- Chapter quiz questions ----------
+    const QUESTIONS = [
+      {
+        id: 'q1', type: 'single',
+        question: '<span class="lang-ar">شركة Acme Corp تطوّر تطبيقاً مصرفياً في السعودية، وهيئة تنظيمية تشترط ألّا تغادر بيانات العملاء الأراضي السعودية. أيّ خيار يضمن الامتثال؟</span><span class="lang-en">Acme Corp is building a banking app in Saudi Arabia, and a regulatory body requires that data never leaves Saudi territory. Which option ensures compliance?</span>',
+        options: [
+          '<span class="lang-ar">استخدام نطاق <span dir="ltr" class="font-mono">me-south-1</span> في البحرين لأنه قريب.</span><span class="lang-en">Use Region <span dir="ltr" class="font-mono">me-south-1</span> (Bahrain) because it\'s close.</span>',
+          '<span class="lang-ar">استخدام نطاق <span dir="ltr" class="font-mono">me-central-1</span> أو أيّ نطاق داخل السعودية.</span><span class="lang-en">Use Region <span dir="ltr" class="font-mono">me-central-1</span> or any Region inside Saudi Arabia.</span>',
+          '<span class="lang-ar">استخدام نطاق <span dir="ltr" class="font-mono">us-east-1</span> مع تشفير البيانات.</span><span class="lang-en">Use <span dir="ltr" class="font-mono">us-east-1</span> with data encryption.</span>',
+          '<span class="lang-ar">استخدام CloudFront لتوزيع المحتوى في السعودية.</span><span class="lang-en">Use CloudFront to distribute content in Saudi Arabia.</span>',
+        ],
+        correct: 1,
+        explanation: '<span class="lang-ar">قوانين سيادة البيانات تتطلّب بقاء البيانات فيزيائياً داخل الحدود الجغرافية. فقط نطاق داخل السعودية يضمن هذا. التشفير وحده لا يُعدّ كافياً قانونياً.</span><span class="lang-en">Data sovereignty rules require data to physically reside within specific borders. Only a Region inside Saudi Arabia guarantees this. Encryption alone is insufficient legally.</span>',
+        wrongExplanations: [
+          '<span class="lang-ar">البحرين قريبة جغرافياً لكنها دولة مختلفة.</span><span class="lang-en">Bahrain is close but a different country.</span>',
+          '',
+          '<span class="lang-ar">التشفير لا يغيّر الموقع الفيزيائي للبيانات.</span><span class="lang-en">Encryption doesn\'t change physical location.</span>',
+          '<span class="lang-ar">البيانات الأصلية تبقى في النطاق الأصلي.</span><span class="lang-en">Origin data stays in the source Region.</span>',
+        ],
+        reference: '<span class="lang-ar">القسم ٢ — كيف تختار نطاقاً</span><span class="lang-en">Section 2 — How to choose a Region</span>',
+      },
+      {
+        id: 'q2', type: 'multi',
+        question: '<span class="lang-ar">أيّ من الخدمات التالية خدمات عالمية؟ اختر كل ما ينطبق.</span><span class="lang-en">Which of the following are Global Services? Select all that apply.</span>',
+        options: [
+          '<span dir="ltr" class="font-mono">AWS IAM</span>',
+          '<span dir="ltr" class="font-mono">Amazon EC2</span>',
+          '<span dir="ltr" class="font-mono">Amazon Route 53</span>',
+          '<span dir="ltr" class="font-mono">Amazon CloudFront</span>',
+          '<span dir="ltr" class="font-mono">Amazon DynamoDB</span>',
+        ],
+        correct: [0, 2, 3],
+        explanation: '<span class="lang-ar">الخدمات العالمية الأربع: IAM و Route 53 و CloudFront و WAF. تذكّر: "I Route Content Worldwide".</span><span class="lang-en">The four Global services: IAM, Route 53, CloudFront, WAF. Remember: "I Route Content Worldwide".</span>',
+        reference: '<span class="lang-ar">القسم ٥ — الخدمات العالمية مقابل الإقليمية</span><span class="lang-en">Section 5</span>',
+      },
+      {
+        id: 'q3', type: 'single',
+        question: '<span class="lang-ar">مطوّر يحاول الوصول إلى <span dir="ltr" class="font-mono">S3 bucket</span> اسمه <span dir="ltr" class="font-mono">acme-logs-2026</span> من نطاق <span dir="ltr" class="font-mono">eu-west-1</span>، لكنّه أُنشئ في <span dir="ltr" class="font-mono">us-east-1</span>. ما الصحيح؟</span><span class="lang-en">A developer tries to access an S3 bucket from eu-west-1, but it was created in us-east-1. What\'s correct?</span>',
+        options: [
+          '<span class="lang-ar">لا يستطيع الوصول.</span><span class="lang-en">Cannot access.</span>',
+          '<span class="lang-ar">يستطيع الوصول لأنّ أسماء <span dir="ltr" class="font-mono">S3 buckets</span> عالمية، وإن كانت البيانات فيزيائياً في <span dir="ltr" class="font-mono">us-east-1</span>.</span><span class="lang-en">Can access because S3 bucket names are Global, though data resides in us-east-1.</span>',
+          '<span class="lang-ar">يجب إنشاء نسخة في <span dir="ltr" class="font-mono">eu-west-1</span> أوّلاً.</span><span class="lang-en">Must create a replica first.</span>',
+          '<span class="lang-ar">يجب تعديل <span dir="ltr" class="font-mono">VPC</span>.</span><span class="lang-en">Must configure VPC.</span>',
+        ],
+        correct: 1,
+        explanation: '<span class="lang-ar">هذا فخّ شائع: أسماء <span dir="ltr" class="font-mono">S3 buckets</span> عالمية، لكنّ الـ bucket نفسه إقليميّ. الوصول ممكن لكن زمن الاستجابة أعلى ورسوم النقل بين النطاقات قد تُطبَّق.</span><span class="lang-en">Common pitfall: S3 bucket names are Global but the bucket is Regional. Access is possible but with higher latency and potential cross-region transfer costs.</span>',
+        wrongExplanations: [
+          '<span class="lang-ar">الوصول ممكن من أيّ نطاق.</span><span class="lang-en">Access is possible from any Region.</span>',
+          '',
+          '<span class="lang-ar">النسخ بين النطاقات اختياري.</span><span class="lang-en">Replication is optional.</span>',
+          '<span class="lang-ar">S3 لا يحتاج VPC.</span><span class="lang-en">S3 doesn\'t require VPC.</span>',
+        ],
+        reference: '<span class="lang-ar">القسم ٥ — الفخّ الشائع</span><span class="lang-en">Section 5</span>',
+      },
+      {
+        id: 'q4', type: 'single',
+        question: '<span class="lang-ar">الحدّ الأدنى لعدد مناطق التوفّر في أيّ نطاق؟</span><span class="lang-en">Minimum number of AZs per Region?</span>',
+        options: ['2', '3', '4', '6'],
+        correct: 1,
+        explanation: '<span class="lang-ar">كل نطاق يحتوي على ثلاث مناطق توفّر على الأقلّ (بحدٍّ أعلى ست). يضمن هذا بناء تطبيقات عالية التوافرية.</span><span class="lang-en">Every Region has minimum 3 AZs (max 6). This guarantees multi-AZ high availability.</span>',
+        reference: '<span class="lang-ar">القسم ٣</span><span class="lang-en">Section 3</span>',
+      },
+      {
+        id: 'q5', type: 'single',
+        question: '<span class="lang-ar">تطبيق Acme يخدم عملاء أوروبا الغربية، وخادمه الأصلي في <span dir="ltr" class="font-mono">eu-west-1</span>. المستخدمون يشتكون من بطء تحميل الصور الثابتة. أيّ حلّ يعالج المشكلة <strong>مباشرةً</strong>؟</span><span class="lang-en">Acme\'s app serves Western European users. Origin is in eu-west-1. Users complain about slow static image loading. Which <strong>directly</strong> fixes this?</span>',
+        options: [
+          '<span class="lang-ar">ترقية حجم الخادم.</span><span class="lang-en">Upgrade instance size.</span>',
+          '<span class="lang-ar">استخدام <span dir="ltr" class="font-mono">CloudFront</span> لتوزيع الصور من مواقع الحافة.</span><span class="lang-en">Use CloudFront to serve images from Edge Locations.</span>',
+          '<span class="lang-ar">نقل التطبيق إلى <span dir="ltr" class="font-mono">us-east-1</span>.</span><span class="lang-en">Move the app to us-east-1.</span>',
+          '<span class="lang-ar">زيادة عدد الخوادم بـ <span dir="ltr" class="font-mono">Auto Scaling</span>.</span><span class="lang-en">Use Auto Scaling.</span>',
+        ],
+        correct: 1,
+        explanation: '<span class="lang-ar">المشكلة هنا زمن استجابة بسبب البُعد الجغرافي، وليست محدودية في السعة. CloudFront يخزّن الصور مؤقّتاً في أكثر من ٤٠٠ موقع قرب المستخدم.</span><span class="lang-en">The issue is latency (geographic distance), not capacity. CloudFront caches images at 400+ PoPs close to users.</span>',
+        wrongExplanations: [
+          '<span class="lang-ar">حجم الخادم يحسّن المعالجة لا زمن استجابة الشبكة.</span><span class="lang-en">Larger instance improves compute, not network latency.</span>',
+          '',
+          '<span class="lang-ar">سيزيد زمن الاستجابة لعملاء أوروبا.</span><span class="lang-en">Would increase latency for European users.</span>',
+          '<span class="lang-ar">التوسعة التلقائية تعالج السعة لا زمن الاستجابة.</span><span class="lang-en">Auto Scaling addresses capacity, not latency.</span>',
+        ],
+        reference: '<span class="lang-ar">القسم ٤ — مواقع الحافة</span><span class="lang-en">Section 4</span>',
+      },
+      {
+        id: 'q6', type: 'single',
+        question: '<span class="lang-ar">ضمن نموذج المسؤولية المشتركة، أيّ مهمّة تقع على عاتق <strong>AWS</strong>؟</span><span class="lang-en">Under the Shared Responsibility Model, which is <strong>AWS\'s</strong> responsibility?</span>',
+        options: [
+          '<span class="lang-ar">تحديثات نظام التشغيل داخل <span dir="ltr" class="font-mono">EC2</span>.</span><span class="lang-en">OS patches inside EC2.</span>',
+          '<span class="lang-ar">إعداد صلاحيات IAM.</span><span class="lang-en">Configuring IAM.</span>',
+          '<span class="lang-ar">صيانة المعدّات الفيزيائية في مراكز البيانات.</span><span class="lang-en">Maintaining physical hardware.</span>',
+          '<span class="lang-ar">تشفير الملفّات قبل رفعها إلى S3.</span><span class="lang-en">Encrypting files before S3 upload.</span>',
+        ],
+        correct: 2,
+        explanation: '<span class="lang-ar">AWS مسؤولة عن "أمان السحابة": البنية التحتية الفيزيائية والأجهزة والمحاكاة الافتراضية. العميل مسؤول عن "الأمان داخل السحابة".</span><span class="lang-en">AWS is responsible for "Security OF the Cloud": physical infrastructure, hardware, hypervisor. Customer handles "Security IN the Cloud".</span>',
+        wrongExplanations: [
+          '<span class="lang-ar">EC2 هي IaaS، نظام التشغيل مسؤولية العميل.</span><span class="lang-en">EC2 is IaaS — OS is customer\'s.</span>',
+          '<span class="lang-ar">IAM دائماً مسؤولية العميل.</span><span class="lang-en">IAM is customer\'s.</span>',
+          '',
+          '<span class="lang-ar">إدارة التشفير مسؤولية العميل.</span><span class="lang-en">Encryption management is customer\'s.</span>',
+        ],
+        reference: '<span class="lang-ar">القسم ٦</span><span class="lang-en">Section 6</span>',
+      },
+      {
+        id: 'q7', type: 'single',
+        question: '<span class="lang-ar">مطوّر جافا يحتاج يقرأ من <span dir="ltr" class="font-mono">S3 bucket</span>. أيّ خيار الأفضل للإنتاج؟</span><span class="lang-en">A Java developer needs to read from S3. Best option for production?</span>',
+        options: [
+          '<span class="lang-ar">الواجهة الرسومية يدوياً.</span><span class="lang-en">Manual Console download.</span>',
+          '<span class="lang-ar">سطر الأوامر في <span dir="ltr" class="font-mono">cron job</span>.</span><span class="lang-en">CLI in cron job.</span>',
+          '<span class="lang-ar">استخدام <span dir="ltr" class="font-mono">AWS SDK for Java v2</span> داخل التطبيق.</span><span class="lang-en">Use AWS SDK for Java v2 inside the app.</span>',
+          '<span class="lang-ar">استدعاء REST API مباشرةً بـ <span dir="ltr" class="font-mono">RestTemplate</span>.</span><span class="lang-en">Call REST API directly with RestTemplate.</span>',
+        ],
+        correct: 2,
+        explanation: '<span class="lang-ar">الـ SDK يدير التوقيع الأمني تلقائياً، وإعادة المحاولة، وتجميع الاتّصالات، والتكامل مع أدوار IAM.</span><span class="lang-en">The SDK handles SigV4 signing, retries, connection pooling, and IAM role integration automatically.</span>',
+        wrongExplanations: [
+          '<span class="lang-ar">الواجهة يدوية.</span><span class="lang-en">Console is manual.</span>',
+          '<span class="lang-ar">CLI للسكربتات لا التطبيقات.</span><span class="lang-en">CLI is for scripts.</span>',
+          '',
+          '<span class="lang-ar">يتطلّب تنفيذ SigV4 يدوياً.</span><span class="lang-en">Requires manual SigV4.</span>',
+        ],
+        reference: '<span class="lang-ar">القسم ٧</span><span class="lang-en">Section 7</span>',
+      },
+      {
+        id: 'q8', type: 'single',
+        question: '<span class="lang-ar">أيّ نوع من المواقع يحوي أكبر عدد حول العالم؟</span><span class="lang-en">Which has the largest number of sites worldwide?</span>',
+        options: [
+          '<span class="lang-ar">النطاقات</span><span class="lang-en">Regions</span>',
+          '<span class="lang-ar">مناطق التوفّر</span><span class="lang-en">Availability Zones</span>',
+          '<span class="lang-ar">الذاكرات المؤقّتة الإقليمية</span><span class="lang-en">Regional Edge Caches</span>',
+          '<span class="lang-ar">مواقع الحافة</span><span class="lang-en">Edge Locations</span>',
+        ],
+        correct: 3,
+        explanation: '<span class="lang-ar">مواقع الحافة (أكثر من ٤٠٠) مقابل النطاقات (~٣٠) ومناطق التوفّر (~١٠٠).</span><span class="lang-en">Edge Locations (400+) vs Regions (~30) and AZs (~100).</span>',
+        reference: '<span class="lang-ar">القسم ٤</span><span class="lang-en">Section 4</span>',
+      },
+      {
+        id: 'q9', type: 'single',
+        question: '<span class="lang-ar">شركة تحتاج خدمة AI جديدة أُعلنت فقط في <span dir="ltr" class="font-mono">us-east-1</span>، لكنها تحتاجها في نطاق أوروبي. ما الصحيح؟</span><span class="lang-en">Company needs a new AI service announced only in us-east-1, but wants it in a European Region. What\'s true?</span>',
+        options: [
+          '<span class="lang-ar">كل الخدمات متوفّرة في كل النطاقات مباشرةً.</span><span class="lang-en">All services are in all Regions immediately.</span>',
+          '<span class="lang-ar">الخدمات الجديدة تُطلق أوّلاً في <span dir="ltr" class="font-mono">us-east-1</span> ثم تُوزَّع لاحقاً.</span><span class="lang-en">New services launch in us-east-1 first, roll out later.</span>',
+          '<span class="lang-ar">يمكن نسخها يدوياً بين النطاقات.</span><span class="lang-en">You can manually copy them.</span>',
+          '<span class="lang-ar">التواصل مع الدعم الفنّي.</span><span class="lang-en">Contact Support.</span>',
+        ],
+        correct: 1,
+        explanation: '<span class="lang-ar">الخدمات الجديدة عادةً تُطلق في <span dir="ltr" class="font-mono">us-east-1</span> (أقدم نطاق) ثم تُنقل تدريجياً لباقي النطاقات.</span><span class="lang-en">New AWS services launch in us-east-1 (oldest Region) first, then roll out.</span>',
+        reference: '<span class="lang-ar">القسم ٢</span><span class="lang-en">Section 2</span>',
+      },
+      {
+        id: 'q10', type: 'multi',
+        question: '<span class="lang-ar">أيّ ممارسات تقع على <strong>العميل</strong> (لا AWS)؟ اختر كل ما ينطبق.</span><span class="lang-en">Which are the <strong>customer\'s</strong> responsibility (NOT AWS)? Select all that apply.</span>',
+        options: [
+          '<span class="lang-ar">ضبط مجموعات الأمان لـ <span dir="ltr" class="font-mono">EC2</span>.</span><span class="lang-en">Configuring Security Groups for EC2.</span>',
+          '<span class="lang-ar">تحديث <span dir="ltr" class="font-mono">BIOS</span> في خوادم AWS.</span><span class="lang-en">Updating BIOS on AWS servers.</span>',
+          '<span class="lang-ar">تشفير الملفّات قبل رفعها إلى S3.</span><span class="lang-en">Encrypting files before S3 upload.</span>',
+          '<span class="lang-ar">الحماية الفيزيائية لمراكز البيانات.</span><span class="lang-en">Physical security of data centers.</span>',
+          '<span class="lang-ar">إنشاء مستخدمين في IAM.</span><span class="lang-en">Creating IAM users.</span>',
+        ],
+        correct: [0, 2, 4],
+        explanation: '<span class="lang-ar">العميل: مجموعات الأمان، التشفير، IAM. أمّا BIOS والحماية الفيزيائية فمسؤولية AWS.</span><span class="lang-en">Customer: Security Groups, encryption, IAM. BIOS and physical security are AWS\'s.</span>',
+        reference: '<span class="lang-ar">القسم ٦</span><span class="lang-en">Section 6</span>',
+      },
+    ];
+
+    // ---------- Init on load ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Language
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach((btn) => {
+        btn.addEventListener('click', toggleLang);
+      });
+
+      // 2. Quiz
+      QuizEngine.init(1, QUESTIONS);
+
+      // 3. Completion state on button
+      if (isChapterComplete(1)) {
+        const btn = document.getElementById('complete-btn');
+        if (btn) {
+          btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+
+      // 4. Lucide + Prism
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>

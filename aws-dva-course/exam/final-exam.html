@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الامتحان الشامل — DVA-C02 Simulation</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .nav-q { transition: all 0.2s; }
+    .nav-q.answered { background: #10b981; color: white; }
+    .nav-q.flagged { border: 2px solid #f59e0b; }
+    .nav-q.current { ring: 2px; ring-color: #0c99e9; background: #0c99e9; color: white; transform: scale(1.1); }
+    @keyframes pulse-danger { 0%,100% { background-color: #fecaca; } 50% { background-color: #fca5a5; } }
+    .timer-danger { animation: pulse-danger 1.5s ease infinite; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { arabic: ['IBM Plex Sans Arabic','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        colors: {
+          brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e' },
+          surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' }
+        }
+      }}
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <!-- =========== SCREEN 1: Intro =========== -->
+  <div id="screen-intro" class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full bg-white rounded-3xl shadow-xl overflow-hidden">
+      <div class="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 text-white p-8 md:p-12">
+        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4">
+          <i data-lucide="target" class="w-8 h-8"></i>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">
+          <span class="lang-ar">الامتحان الشامل</span>
+          <span class="lang-en">Final Exam</span>
+        </h1>
+        <p class="text-lg text-brand-100">
+          <span class="lang-ar">محاكاة كاملة لامتحان DVA-C02</span>
+          <span class="lang-en">Full DVA-C02 simulation</span>
+        </p>
+      </div>
+      <div class="p-8 md:p-10 space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="text-center p-4 bg-surface-50 rounded-xl">
+            <p class="text-3xl font-bold text-brand-600">65</p>
+            <p class="text-xs text-surface-500 mt-1">
+              <span class="lang-ar">سؤال</span>
+              <span class="lang-en">Questions</span>
+            </p>
+          </div>
+          <div class="text-center p-4 bg-surface-50 rounded-xl">
+            <p class="text-3xl font-bold text-brand-600">130</p>
+            <p class="text-xs text-surface-500 mt-1">
+              <span class="lang-ar">دقيقة</span>
+              <span class="lang-en">Minutes</span>
+            </p>
+          </div>
+          <div class="text-center p-4 bg-surface-50 rounded-xl">
+            <p class="text-3xl font-bold text-brand-600">72%</p>
+            <p class="text-xs text-surface-500 mt-1">
+              <span class="lang-ar">للنجاح</span>
+              <span class="lang-en">To pass</span>
+            </p>
+          </div>
+          <div class="text-center p-4 bg-surface-50 rounded-xl">
+            <p class="text-3xl font-bold text-brand-600">4</p>
+            <p class="text-xs text-surface-500 mt-1">
+              <span class="lang-ar">نطاقات</span>
+              <span class="lang-en">Domains</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-2">
+          <div class="flex items-center gap-2 font-bold text-amber-900">
+            <i data-lucide="lightbulb" class="w-5 h-5"></i>
+            <span class="lang-ar">تعليمات</span>
+            <span class="lang-en">Instructions</span>
+          </div>
+          <ul class="text-sm text-amber-900 space-y-1.5 ms-7 list-disc">
+            <li>
+              <span class="lang-ar">١٣٠ دقيقة للإجابة عن ٦٥ سؤال (دقيقتان لكل سؤال تقريباً).</span>
+              <span class="lang-en">130 minutes for 65 questions (~2 minutes each).</span>
+            </li>
+            <li>
+              <span class="lang-ar">يمكنك وضع علامة على الأسئلة (flag) للعودة إليها لاحقاً.</span>
+              <span class="lang-en">You can flag questions to revisit later.</span>
+            </li>
+            <li>
+              <span class="lang-ar">تستطيع التنقّل بين الأسئلة وتعديل إجاباتك قبل التسليم.</span>
+              <span class="lang-en">You can navigate freely and change answers before submit.</span>
+            </li>
+            <li>
+              <span class="lang-ar">التقرير النهائي يبيّن أداءك في كل نطاق.</span>
+              <span class="lang-en">Final report breaks down performance per domain.</span>
+            </li>
+            <li>
+              <span class="lang-ar">عند انتهاء الوقت يُسلَّم الامتحان تلقائياً.</span>
+              <span class="lang-en">Exam auto-submits when time runs out.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5">
+          <p class="text-sm text-brand-800 font-bold mb-2">
+            <span class="lang-ar">توزيع الأسئلة حسب نطاقات الامتحان</span>
+            <span class="lang-en">Question distribution by domain</span>
+          </p>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-surface-700"><span class="lang-ar">التطوير بخدمات AWS</span><span class="lang-en">Development with AWS Services</span></span>
+              <span class="font-mono font-semibold text-blue-600">21 (32%)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-surface-700"><span class="lang-ar">الأمان</span><span class="lang-en">Security</span></span>
+              <span class="font-mono font-semibold text-red-600">17 (26%)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-surface-700"><span class="lang-ar">النشر</span><span class="lang-en">Deployment</span></span>
+              <span class="font-mono font-semibold text-emerald-600">16 (25%)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-surface-700"><span class="lang-ar">المراقبة والتحسين</span><span class="lang-en">Troubleshooting & Optimization</span></span>
+              <span class="font-mono font-semibold text-amber-600">11 (17%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end flex-wrap">
+          <button data-lang-toggle class="px-4 py-2.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-xl font-semibold text-sm">EN</button>
+          <a href="../index.html" class="px-4 py-2.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-xl font-semibold text-sm">
+            <span class="lang-ar">العودة</span>
+            <span class="lang-en">Back</span>
+          </a>
+          <button onclick="startExam()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm flex items-center gap-2">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            <span class="lang-ar">ابدأ الامتحان</span>
+            <span class="lang-en">Start exam</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== SCREEN 2: Exam =========== -->
+  <div id="screen-exam" class="hidden">
+    <!-- Top bar with timer + progress -->
+    <div class="sticky top-0 z-50 bg-white border-b border-surface-200 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-4">
+          <p class="font-bold text-surface-800">
+            <span class="lang-ar">السؤال</span>
+            <span class="lang-en">Question</span>
+            <span id="current-q-num" class="text-brand-600">1</span> / 65
+          </p>
+          <span class="text-surface-400">·</span>
+          <p class="text-sm text-surface-500">
+            <span class="lang-ar">مُجاب:</span>
+            <span class="lang-en">Answered:</span>
+            <span id="answered-count" class="font-semibold text-emerald-600">0</span> / 65
+          </p>
+        </div>
+        <div id="timer" class="px-4 py-2 bg-brand-50 border border-brand-200 rounded-xl font-mono font-bold text-brand-800 text-lg">
+          <i data-lucide="clock" class="inline w-4 h-4"></i>
+          <span id="timer-text">130:00</span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="toggleFlag()" id="flag-btn" class="px-3 py-2 bg-surface-100 hover:bg-amber-100 text-surface-700 rounded-lg font-semibold text-sm flex items-center gap-1">
+            <i data-lucide="flag" class="w-4 h-4"></i>
+            <span class="lang-ar">علامة</span>
+            <span class="lang-en">Flag</span>
+          </button>
+          <button onclick="showReview()" class="px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold text-sm">
+            <span class="lang-ar">مراجعة</span>
+            <span class="lang-en">Review</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question body -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <div id="question-card" class="bg-white rounded-2xl border border-surface-200 p-6 md:p-8 space-y-5 shadow-sm">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Nav buttons -->
+      <div class="mt-6 flex items-center justify-between gap-3">
+        <button onclick="prevQ()" id="prev-btn" class="px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+          <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+          <span class="lang-ar">السابق</span>
+          <span class="lang-en">Previous</span>
+        </button>
+        <button onclick="nextQ()" id="next-btn" class="px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm flex items-center gap-2">
+          <span class="lang-ar">التالي</span>
+          <span class="lang-en">Next</span>
+          <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== SCREEN 3: Review =========== -->
+  <div id="screen-review" class="hidden min-h-screen p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-surface-200 shadow-sm">
+      <div class="p-6 md:p-8 border-b border-surface-200">
+        <h2 class="text-2xl font-bold text-surface-800 mb-2">
+          <span class="lang-ar">مراجعة الإجابات قبل التسليم</span>
+          <span class="lang-en">Review before submitting</span>
+        </h2>
+        <p class="text-sm text-surface-600 leading-relaxed">
+          <span class="lang-ar">اضغط على رقم أيّ سؤال للعودة إليه. الأخضر = مُجاب، الأصفر = عليه علامة، الرمادي = لم يُجَب.</span>
+          <span class="lang-en">Click any number to go back. Green = answered, yellow border = flagged, gray = unanswered.</span>
+        </p>
+      </div>
+      <div class="p-6 md:p-8">
+        <div class="flex gap-4 text-sm mb-4">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500"></span><span class="lang-ar">مُجاب</span><span class="lang-en">Answered</span>: <span id="review-answered" class="font-semibold"></span></span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-400"></span><span class="lang-ar">عليه علامة</span><span class="lang-en">Flagged</span>: <span id="review-flagged" class="font-semibold"></span></span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-surface-300"></span><span class="lang-ar">لم يُجَب</span><span class="lang-en">Unanswered</span>: <span id="review-unanswered" class="font-semibold"></span></span>
+        </div>
+        <div id="nav-grid" class="grid grid-cols-8 md:grid-cols-13 gap-2 mb-6"></div>
+        <div class="flex justify-between gap-3 flex-wrap">
+          <button onclick="hideReview()" class="px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm">
+            <span class="lang-ar">العودة للامتحان</span>
+            <span class="lang-en">Back to exam</span>
+          </button>
+          <button onclick="submitExam()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm">
+            <span class="lang-ar">تسليم نهائي</span>
+            <span class="lang-en">Submit final</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== SCREEN 4: Results =========== -->
+  <div id="screen-results" class="hidden min-h-screen p-4">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- Header -->
+      <div id="results-header" class="rounded-2xl p-8 md:p-10 text-white shadow-xl">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Per-domain breakdown -->
+      <div class="bg-white rounded-2xl border border-surface-200 p-6 md:p-8">
+        <h2 class="text-xl font-bold text-surface-800 mb-4">
+          <span class="lang-ar">الأداء حسب النطاق</span>
+          <span class="lang-en">Performance by domain</span>
+        </h2>
+        <div id="domain-breakdown" class="space-y-3"></div>
+      </div>
+
+      <!-- Wrong answers review -->
+      <div class="bg-white rounded-2xl border border-surface-200 p-6 md:p-8">
+        <h2 class="text-xl font-bold text-surface-800 mb-4 flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-red-600"></i>
+          <span class="lang-ar">مراجعة الأسئلة الخاطئة</span>
+          <span class="lang-en">Wrong answers review</span>
+        </h2>
+        <div id="wrong-answers" class="space-y-4"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-between gap-3 flex-wrap">
+        <a href="../index.html" class="px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm">
+          <span class="lang-ar">الرئيسية</span>
+          <span class="lang-en">Home</span>
+        </a>
+        <button onclick="retakeExam()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm flex items-center gap-2">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span class="lang-ar">امتحان جديد</span>
+          <span class="lang-en">Retake</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========== EXAM QUESTIONS ===========
+    // 65 questions distributed: dev=21, security=17, deployment=16, troubleshoot=11
+    const QUESTIONS = [
+      // ========== DEVELOPMENT (21) ==========
+      { id: 1, domain: 'development', type: 'single',
+        q_ar: 'دالة Lambda في جافا تعاني من cold start طويل (حوالي ٣ ثوانٍ). التطبيق حسّاس للـ latency. ما أفضل حلّ؟',
+        q_en: 'A Java Lambda has long cold starts (~3s). The app is latency-sensitive. Best fix?',
+        options_ar: ['زيادة الذاكرة من ٥١٢ ميغا إلى ٣ جيجا.', 'تفعيل Provisioned Concurrency.', 'الانتقال من جافا إلى Node.js.', 'استخدام Lambda@Edge.'],
+        options_en: ['Increase memory from 512MB to 3GB.', 'Enable Provisioned Concurrency.', 'Switch from Java to Node.js.', 'Use Lambda@Edge.'],
+        correct: 1,
+        explanation_ar: 'Provisioned Concurrency يحافظ على نسخ دافئة من الدالة، فيقضي تماماً على الـ cold start. زيادة الذاكرة تحسّن الأداء لكن لا تُلغي cold start. تغيير اللغة حلّ جذري غير عمليّ.',
+        explanation_en: 'Provisioned Concurrency keeps warm function copies ready, eliminating cold starts entirely. Increasing memory helps but doesn\'t eliminate cold start. Switching language is drastic and impractical.'
+      },
+      { id: 2, domain: 'development', type: 'single',
+        q_ar: 'تطبيق يستقبل ٥٠٠ طلب/ثانية عبر API Gateway، كلّ طلب يُرسَل إلى Lambda. تريد تقييد كلّ عميل (حسب API Key) بـ ١٠٠ طلب/ثانية. كيف؟',
+        q_en: 'An app receives 500 req/s via API Gateway, each hitting Lambda. You want to throttle each client (by API Key) to 100 req/s. How?',
+        options_ar: ['AWS WAF على API Gateway.', 'Usage Plans مع API Keys.', 'Lambda Reserved Concurrency.', 'CloudFront rate limiting.'],
+        options_en: ['AWS WAF on API Gateway.', 'Usage Plans with API Keys.', 'Lambda Reserved Concurrency.', 'CloudFront rate limiting.'],
+        correct: 1,
+        explanation_ar: 'Usage Plans في API Gateway تسمح بربط API Key بحدّ معيّن من الطلبات في الثانية، ومع Rate و Burst و Quota. WAF حماية من الهجمات لا تقييد للعملاء. Reserved Concurrency يقيّد Lambda كاملة لا لكلّ عميل.',
+        explanation_en: 'API Gateway Usage Plans tie an API Key to a specific rate limit (with Rate, Burst, and Quota). WAF protects from attacks, not for client throttling. Reserved Concurrency throttles the whole Lambda, not per client.'
+      },
+      { id: 3, domain: 'development', type: 'single',
+        q_ar: 'جدول DynamoDB يستقبل أحمال قراءة/كتابة غير متوقّعة. ما أفضل نوع سعة (capacity mode)؟',
+        q_en: 'A DynamoDB table has unpredictable read/write loads. Best capacity mode?',
+        options_ar: ['Provisioned مع Auto Scaling.', 'On-Demand.', 'Provisioned ثابت بحدّ أقصى ممكن.', 'DynamoDB Accelerator (DAX).'],
+        options_en: ['Provisioned with Auto Scaling.', 'On-Demand.', 'Provisioned fixed at max possible.', 'DynamoDB Accelerator (DAX).'],
+        correct: 1,
+        explanation_ar: 'On-Demand مثاليّ للأحمال غير المتوقّعة — يتوسّع فوراً بدون تخطيط مسبق، تدفع فقط على ما تستهلك. Auto Scaling أبطأ في الاستجابة للارتفاعات المفاجئة. DAX للتخزين المؤقّت لا للقدرة.',
+        explanation_en: 'On-Demand is ideal for unpredictable workloads — scales instantly with no pre-planning, pay for what you use. Auto Scaling reacts slower to sudden spikes. DAX is for caching, not capacity.'
+      },
+      { id: 4, domain: 'development', type: 'multi',
+        q_ar: 'أيّ من الخيارات التالية ستتسبّب في فشل دالة Lambda لاستدعاء S3؟ اختر كلّ ما ينطبق.',
+        q_en: 'Which of the following would cause a Lambda failing to call S3? Select all that apply.',
+        options_ar: ['Lambda execution role ينقصه إذن s3:GetObject.', 'Bucket Policy يمنع الـ role ARN.', 'Lambda في VPC بدون VPC Endpoint أو NAT.', 'S3 في نطاق مختلف.'],
+        options_en: ['Lambda execution role lacks s3:GetObject.', 'Bucket Policy denies the role ARN.', 'Lambda in VPC with no VPC endpoint or NAT.', 'S3 in a different Region.'],
+        correct: [0, 1, 2],
+        explanation_ar: 'الثلاثة الأولى تمنع الاتّصال: IAM، Bucket Policy، أو غياب الاتّصال من VPC. اختلاف النطاقات لا يمنع الوصول (لأنّ S3 endpoints عامّة)، لكن يزيد التكلفة والـ latency.',
+        explanation_en: 'The first three all block access: IAM, Bucket Policy, or no VPC connectivity. Different Regions don\'t block access (S3 endpoints are public), just add cost and latency.'
+      },
+      { id: 5, domain: 'development', type: 'single',
+        q_ar: 'تريد معالجة ملفّات مرفوعة إلى S3 bucket عبر Lambda. ما أفضل طريقة للربط؟',
+        q_en: 'You want to process files uploaded to S3 via Lambda. Best way to connect them?',
+        options_ar: ['تشغيل Lambda كل دقيقة عبر CloudWatch Events لفحص الـ bucket.', 'S3 Event Notification مباشرة إلى Lambda.', 'SQS queue يقرأها Lambda polling.', 'EventBridge Rule يستمع للـ S3 events.'],
+        options_en: ['Trigger Lambda every minute via CloudWatch Events to scan the bucket.', 'S3 Event Notification directly to Lambda.', 'SQS queue polled by Lambda.', 'EventBridge Rule listening to S3 events.'],
+        correct: 1,
+        explanation_ar: 'S3 Event Notification → Lambda هو الأبسط والأسرع والأرخص. EventBridge ممكن لكنها طبقة إضافية. SQS وسيط غير ضروري هنا. الاستعلام الدوري مكلف وبطيء.',
+        explanation_en: 'S3 Event Notification → Lambda is simplest, fastest, and cheapest. EventBridge works but adds a layer. SQS is unnecessary middleware. Polling is expensive and slow.'
+      },
+      { id: 6, domain: 'development', type: 'single',
+        q_ar: 'Acme Corp تحتاج قائمة انتظار رسائل FIFO صارمة مع معالجة دقيقة لمرّة واحدة. ما الخيار؟',
+        q_en: 'Acme Corp needs a strict FIFO message queue with exactly-once processing. Choose?',
+        options_ar: ['SQS Standard queue.', 'SQS FIFO queue.', 'SNS Standard topic.', 'Kinesis Data Stream.'],
+        options_en: ['SQS Standard queue.', 'SQS FIFO queue.', 'SNS Standard topic.', 'Kinesis Data Stream.'],
+        correct: 1,
+        explanation_ar: 'SQS FIFO يضمن FIFO strict و exactly-once processing (خلال نافذة ٥ دقائق). Standard السرعة أعلى لكن order و exactly-once غير مضمونين. Kinesis مرتّب داخل الـ shard فقط.',
+        explanation_en: 'SQS FIFO guarantees strict FIFO and exactly-once processing (within 5-min window). Standard is faster but order/exactly-once not guaranteed. Kinesis is ordered per shard only.'
+      },
+      { id: 7, domain: 'development', type: 'single',
+        q_ar: 'مطوّر يعدّل سمة جدول DynamoDB ويحتاج يضمن أنّ الكتابة لا تنجح إلّا إذا كانت القيمة الحالية تساوي قيمة متوقّعة. ما الخاصّية المناسبة؟',
+        q_en: 'A developer updates a DynamoDB item and needs the write to succeed only if current value equals an expected value. Which feature?',
+        options_ar: ['Conditional Writes مع ConditionExpression.', 'DynamoDB Transactions.', 'DynamoDB Streams.', 'Global Secondary Index.'],
+        options_en: ['Conditional Writes with ConditionExpression.', 'DynamoDB Transactions.', 'DynamoDB Streams.', 'Global Secondary Index.'],
+        correct: 0,
+        explanation_ar: 'Conditional Writes تسمح بتحديد ConditionExpression (مثل <span dir="ltr" class="font-mono">attribute_exists()</span> أو <span dir="ltr" class="font-mono">price = :expected</span>) وتنجح العملية فقط إذا تحقّق الشرط. Transactions للعمليّات المتعدّدة ACID. Streams لمراقبة التغيّرات لا لشروط الكتابة.',
+        explanation_en: 'Conditional Writes let you specify a ConditionExpression (e.g. attribute_exists() or price = :expected); the write succeeds only if the condition is true. Transactions are for multi-item ACID. Streams observe changes, not enforce write conditions.'
+      },
+      { id: 8, domain: 'development', type: 'single',
+        q_ar: 'دالة Lambda تستغرق وقتاً طويلاً في تحميل مكتبة PDF كبيرة. المكتبة لا تتغيّر. ما الحلّ؟',
+        q_en: 'A Lambda is slow due to loading a large PDF library. The library doesn\'t change. Solution?',
+        options_ar: ['زيادة الذاكرة.', 'نقل المكتبة إلى Lambda Layer.', 'استخدام Provisioned Concurrency.', 'تفعيل SnapStart.'],
+        options_en: ['Increase memory.', 'Move the library to a Lambda Layer.', 'Use Provisioned Concurrency.', 'Enable SnapStart.'],
+        correct: 1,
+        explanation_ar: 'Lambda Layer يسمح بنشر مشترك للمكتبات بين دوال متعدّدة، ويقلّل حجم ملفّ نشر الدالة. الزيادة في الذاكرة أو Provisioned Concurrency تعالج cold start لكن الأولى لاختصار وقت التحميل. SnapStart لجافا فقط ولحفظ حالة الـ runtime.',
+        explanation_en: 'Lambda Layer enables shared library distribution across multiple functions, reducing the function\'s deployment package size. Memory increase or Provisioned Concurrency address cold start, but Layer is the right fix for load time. SnapStart is Java-only for runtime state snapshot.'
+      },
+      { id: 9, domain: 'development', type: 'single',
+        q_ar: 'تريد استقبال طلبات HTTP/HTTPS خارجية في Lambda بأقلّ تكلفة وأبسط إعداد. ما الخيار؟',
+        q_en: 'You want to receive external HTTP/HTTPS requests in Lambda with minimal cost and simplest setup. Choose?',
+        options_ar: ['REST API في API Gateway.', 'HTTP API في API Gateway (أقلّ ميزات، أقلّ تكلفة).', 'Lambda Function URL.', 'Application Load Balancer.'],
+        options_en: ['REST API in API Gateway.', 'HTTP API in API Gateway (fewer features, lower cost).', 'Lambda Function URL.', 'Application Load Balancer.'],
+        correct: 2,
+        explanation_ar: 'Lambda Function URL هو الأبسط والأرخص — عنوان HTTPS مباشر على الدالة بدون API Gateway، مجّاني. HTTP API أرخص من REST API لكنّه ليس مجّاني. ALB مكلف ومناسب لسيناريوهات أعقد.',
+        explanation_en: 'Lambda Function URL is simplest/cheapest — a direct HTTPS endpoint on the function without API Gateway, free. HTTP API is cheaper than REST but not free. ALB is expensive and for more complex scenarios.'
+      },
+      { id: 10, domain: 'development', type: 'single',
+        q_ar: 'في جدول DynamoDB، الـ Partition Key هو <span dir="ltr" class="font-mono">userId</span>. معظم الطلبات على مستخدم واحد شائع جداً. ما المشكلة؟',
+        q_en: 'In a DynamoDB table, Partition Key is <span dir="ltr" class="font-mono">userId</span>. Most traffic targets one very popular user. What\'s the issue?',
+        options_ar: ['لا مشكلة — DynamoDB يوزّع تلقائياً.', 'Hot Partition — توزيع غير متوازن يُنهك قدرة partition واحد.', 'الجدول سيصل حدّ التخزين.', 'GSI غير محدّث.'],
+        options_en: ['No issue — DynamoDB balances automatically.', 'Hot Partition — unbalanced load exhausts one partition\'s capacity.', 'Table hits storage limit.', 'GSI out of sync.'],
+        correct: 1,
+        explanation_ar: 'Hot Partition مشكلة معروفة: عند تمركز الطلبات على قيمة Partition Key واحدة، يُستنزف الحدّ الأقصى لهذا الـ partition (٣٠٠٠ RCU / ١٠٠٠ WCU) حتى لو الجدول كاملاً لديه قدرة كافية. الحلّ: composite key، أو write sharding.',
+        explanation_en: 'Hot Partition is a known issue: when traffic concentrates on one Partition Key value, that partition\'s limits (3000 RCU / 1000 WCU) get exhausted even if the table overall has capacity. Fix: composite key or write sharding.'
+      },
+      { id: 11, domain: 'development', type: 'single',
+        q_ar: 'أيّ من التالي ليس مصدر trigger شرعيّ لـ Lambda (async invocation)؟',
+        q_en: 'Which is NOT a valid async Lambda invocation source?',
+        options_ar: ['S3 Event Notification.', 'SNS Topic.', 'API Gateway REST API.', 'EventBridge Rule.'],
+        options_en: ['S3 Event Notification.', 'SNS Topic.', 'API Gateway REST API.', 'EventBridge Rule.'],
+        correct: 2,
+        explanation_ar: 'API Gateway يستدعي Lambda بطريقة <strong>synchronous</strong> (ينتظر الردّ). الثلاثة الأخرى async. الفرق مهمّ لأنّ async يدعم DLQ وتلقائياً retry، بينما sync يتطلّب من المستدعي معالجة الفشل.',
+        explanation_en: 'API Gateway invokes Lambda <strong>synchronously</strong> (waits for response). The other three are async. The distinction matters because async supports DLQ and auto-retry, while sync requires caller to handle failures.'
+      },
+      { id: 12, domain: 'development', type: 'single',
+        q_ar: 'تطبيق صفحة واحدة (SPA) على S3 يطلب بيانات من API Gateway. المتصفّح يرفض الاستدعاء بخطأ <span dir="ltr" class="font-mono">blocked by CORS policy</span>. ما الحلّ؟',
+        q_en: 'A single-page app on S3 calls API Gateway. Browser throws <span dir="ltr" class="font-mono">blocked by CORS policy</span>. Fix?',
+        options_ar: ['إعداد Bucket Policy للسماح بالوصول.', 'تفعيل CORS في API Gateway وإرجاع Access-Control-Allow-Origin header.', 'إضافة S3 إلى Security Group.', 'استخدام CloudFront بدل S3.'],
+        options_en: ['Set Bucket Policy to allow access.', 'Enable CORS on API Gateway and return Access-Control-Allow-Origin.', 'Add S3 to Security Group.', 'Use CloudFront instead of S3.'],
+        correct: 1,
+        explanation_ar: 'CORS آلية أمان في المتصفّح تتطلّب أن يُرجع الخادم (API Gateway هنا) الـ Access-Control-Allow-Origin header. API Gateway يدعم تفعيل CORS بخاصّية مدمجة. هذا فخّ شائع جداً في الامتحان.',
+        explanation_en: 'CORS is a browser security mechanism that requires the server (API Gateway here) to return Access-Control-Allow-Origin. API Gateway has a built-in Enable CORS feature. This is a very common exam pitfall.'
+      },
+      { id: 13, domain: 'development', type: 'single',
+        q_ar: 'دالة Lambda تريد نتائج متعدّدة في ترتيب محدّد من دوال أخرى. ما الأنسب؟',
+        q_en: 'A Lambda needs ordered multi-step results from other functions. Best fit?',
+        options_ar: ['Lambda يستدعي Lambda مباشرة في سلسلة.', 'AWS Step Functions (Standard workflow).', 'SQS bridge.', 'DynamoDB Streams.'],
+        options_en: ['Lambda calls Lambda directly in chain.', 'AWS Step Functions (Standard workflow).', 'SQS bridge.', 'DynamoDB Streams.'],
+        correct: 1,
+        explanation_ar: 'Step Functions صُمّم تحديداً لتنسيق دوال متعدّدة مع state management و error handling و retries. السلسلة المباشرة هشّة ومكلفة في الـ timeout. SQS غير مرتّب (إلا FIFO).',
+        explanation_en: 'Step Functions is purpose-built for orchestrating multi-step functions with state management, error handling, retries. Direct chaining is fragile and timeout-heavy. SQS isn\'t ordered (except FIFO).'
+      },
+      { id: 14, domain: 'development', type: 'multi',
+        q_ar: 'أيّ من الخيارات التالية صحيحة عن Cognito؟ اختر كلّ ما ينطبق.',
+        q_en: 'Which are correct about Cognito? Select all that apply.',
+        options_ar: ['User Pools توفّر تسجيل دخول وقواعد مستخدمين.', 'Identity Pools تمنح temporary AWS credentials للوصول إلى خدمات AWS.', 'يمكن دمج User Pool مع Identity Pool لمنح صلاحيات AWS بعد تسجيل الدخول.', 'User Pools تخزّن ملفات المستخدمين في S3.'],
+        options_en: ['User Pools provide sign-in and user management.', 'Identity Pools grant temporary AWS credentials for AWS service access.', 'You can chain User Pool with Identity Pool to grant AWS perms after sign-in.', 'User Pools store user files in S3.'],
+        correct: [0, 1, 2],
+        explanation_ar: 'User Pools = إدارة مستخدمين + authentication. Identity Pools = منح AWS credentials (authenticated/unauthenticated). التكامل بينهما شائع: sign in عبر User Pool → احصل على credentials لـ S3/DynamoDB عبر Identity Pool. User Pools لا تخزّن ملفات.',
+        explanation_en: 'User Pools = user management + authentication. Identity Pools = AWS credentials (authenticated/unauthenticated). Chaining them is common: sign in via User Pool → get credentials for S3/DynamoDB via Identity Pool. User Pools don\'t store files.'
+      },
+      { id: 15, domain: 'development', type: 'single',
+        q_ar: 'تطبيق في جافا ينشر أحداث إلى Kinesis Data Stream بمعدّل ٥٠٠٠ حدث/ثانية. الـ Stream له ٥ shards. ما السعة القصوى المتاحة؟',
+        q_en: 'A Java app publishes 5000 events/sec to Kinesis Data Stream with 5 shards. Max capacity?',
+        options_ar: ['١٠٠٠ حدث/ثانية.', '٥٠٠٠ حدث/ثانية (١٠٠٠ لكل shard).', '١٠٠٠٠ حدث/ثانية.', 'غير محدود.'],
+        options_en: ['1000 events/sec.', '5000 events/sec (1000 per shard).', '10000 events/sec.', 'Unlimited.'],
+        correct: 1,
+        explanation_ar: 'كل Kinesis shard يدعم ١٠٠٠ record/ثانية (writes) أو ١ ميغابايت/ثانية. ٥ shards × ١٠٠٠ = ٥٠٠٠. التجاوز يسبّب ProvisionedThroughputExceededException. الحلّ: زيادة shards (resharding).',
+        explanation_en: 'Each Kinesis shard supports 1000 records/sec writes or 1MB/sec. 5 shards × 1000 = 5000. Exceeding causes ProvisionedThroughputExceededException. Fix: add shards (resharding).'
+      },
+      { id: 16, domain: 'development', type: 'single',
+        q_ar: 'تريد استدعاء Lambda فقط عند تحديث صفّ في DynamoDB. ما أفضل إعداد؟',
+        q_en: 'You want Lambda triggered only on row updates in DynamoDB. Best setup?',
+        options_ar: ['DynamoDB Stream مع Lambda trigger ومعالجة MODIFY events فقط.', 'EventBridge Rule على كل تغيير.', 'Lambda polling كل دقيقة.', 'SNS topic عند التحديث.'],
+        options_en: ['DynamoDB Stream with Lambda trigger, filter MODIFY events.', 'EventBridge Rule on any change.', 'Lambda polling every minute.', 'SNS topic on update.'],
+        correct: 0,
+        explanation_ar: 'DynamoDB Streams تسجّل كل تغيير (INSERT / MODIFY / REMOVE) ويمكن ربطها بـ Lambda مع Event Source Mapping. تصفية MODIFY events في كود الـ Lambda. EventBridge لا يستقبل DynamoDB events مباشرةً (يحتاج وسيط).',
+        explanation_en: 'DynamoDB Streams record every change (INSERT/MODIFY/REMOVE), can be attached to Lambda via Event Source Mapping. Filter MODIFY in Lambda code. EventBridge doesn\'t directly receive DynamoDB events (needs mediator).'
+      },
+      { id: 17, domain: 'development', type: 'single',
+        q_ar: 'في API Gateway REST API، ما الفرق بين <span dir="ltr" class="font-mono">AWS_PROXY</span> و <span dir="ltr" class="font-mono">AWS</span> integration types؟',
+        q_en: 'In API Gateway REST API, difference between <span dir="ltr" class="font-mono">AWS_PROXY</span> and <span dir="ltr" class="font-mono">AWS</span> integration?',
+        options_ar: ['لا فرق.', '<span dir="ltr" class="font-mono">AWS_PROXY</span> يمرّر الطلب كاملاً لـ Lambda دون تحويل. <span dir="ltr" class="font-mono">AWS</span> يستخدم Mapping Templates.', '<span dir="ltr" class="font-mono">AWS_PROXY</span> أسرع.', '<span dir="ltr" class="font-mono">AWS</span> فقط مجّاني.'],
+        options_en: ['No difference.', '<span dir="ltr" class="font-mono">AWS_PROXY</span> passes full request to Lambda untouched. <span dir="ltr" class="font-mono">AWS</span> uses Mapping Templates.', '<span dir="ltr" class="font-mono">AWS_PROXY</span> is faster.', 'Only <span dir="ltr" class="font-mono">AWS</span> is free.'],
+        correct: 1,
+        explanation_ar: 'LAMBDA_PROXY / AWS_PROXY يمرّر الطلب كامل (headers, body, query) إلى Lambda في event object موحّد. AWS integration يتطلّب Mapping Template لتحويل الطلب إلى شكل محدّد. PROXY أبسط ومعياريّ لـ Lambda.',
+        explanation_en: 'LAMBDA_PROXY/AWS_PROXY passes the full request (headers, body, query) to Lambda in a uniform event object. AWS integration requires a Mapping Template to transform the request. PROXY is simpler and standard for Lambda.'
+      },
+      { id: 18, domain: 'development', type: 'single',
+        q_ar: 'Acme تريد فصل meta-data في DynamoDB عن blobs كبيرة. أين تخزّن كل واحد؟',
+        q_en: 'Acme wants to split meta-data in DynamoDB from large blobs. Where to store each?',
+        options_ar: ['DynamoDB للاثنين.', 'DynamoDB للميتا، S3 للـ blobs، ومفتاح S3 مخزّن في DynamoDB.', 'RDS للاثنين.', 'EFS للاثنين.'],
+        options_en: ['DynamoDB for both.', 'DynamoDB for metadata, S3 for blobs, with S3 key stored in DynamoDB.', 'RDS for both.', 'EFS for both.'],
+        correct: 1,
+        explanation_ar: 'نمط معياريّ: DynamoDB للبيانات المفهرسة القابلة للاستعلام (أقلّ من ٤٠٠ كيلوبايت لكل item)، S3 للـ blobs. الميتا في DynamoDB تحوي S3 object key للوصول للـ blob. يتجاوز حدّ الـ ٤٠٠ كيلوبايت لـ DynamoDB ويقلّل التكلفة.',
+        explanation_en: 'Standard pattern: DynamoDB for indexed/queryable metadata (400KB item limit), S3 for blobs. Metadata in DynamoDB holds the S3 object key. Bypasses DynamoDB\'s 400KB item limit and reduces cost.'
+      },
+      { id: 19, domain: 'development', type: 'single',
+        q_ar: 'WebSocket API في API Gateway: ما الـ route type المطلوب لمعالجة أيّ رسالة لا تطابق route آخر؟',
+        q_en: 'WebSocket API in API Gateway: what route type handles messages that don\'t match any other route?',
+        options_ar: ['<span class="font-mono">$connect</span>', '<span class="font-mono">$disconnect</span>', '<span class="font-mono">$default</span>', '<span class="font-mono">$fallback</span>'],
+        options_en: ['<span class="font-mono">$connect</span>', '<span class="font-mono">$disconnect</span>', '<span class="font-mono">$default</span>', '<span class="font-mono">$fallback</span>'],
+        correct: 2,
+        explanation_ar: 'WebSocket routes خاصّة: <span dir="ltr" class="font-mono">$connect</span> عند الاتّصال، <span dir="ltr" class="font-mono">$disconnect</span> عند القطع، <span dir="ltr" class="font-mono">$default</span> للرسائل غير المطابقة. <span dir="ltr" class="font-mono">$fallback</span> غير موجود.',
+        explanation_en: 'WebSocket special routes: <span dir="ltr" class="font-mono">$connect</span> on connect, <span dir="ltr" class="font-mono">$disconnect</span> on disconnect, <span dir="ltr" class="font-mono">$default</span> for non-matching messages. <span dir="ltr" class="font-mono">$fallback</span> doesn\'t exist.'
+      },
+      { id: 20, domain: 'development', type: 'single',
+        q_ar: 'تطبيق Java Spring يستخدم DynamoDB بشكل مكثّف للقراءة ولكن مع latency يقلّ أهمّ. ما الحلّ المباشر؟',
+        q_en: 'A Java Spring app heavily reads from DynamoDB and latency is critical. Direct fix?',
+        options_ar: ['DynamoDB Global Tables.', 'DynamoDB Accelerator (DAX).', 'DynamoDB Streams مع Lambda.', 'ElastiCache Redis.'],
+        options_en: ['DynamoDB Global Tables.', 'DynamoDB Accelerator (DAX).', 'DynamoDB Streams with Lambda.', 'ElastiCache Redis.'],
+        correct: 1,
+        explanation_ar: 'DAX طبقة تخزين مؤقّت مدمجة لـ DynamoDB، تختصر زمن الاستجابة من ميلي ثانية إلى ميكرو ثانية، بدون تغيير كود التطبيق (نفس SDK). ElastiCache ممكن لكنّه يتطلّب تنفيذ cache layer يدوياً.',
+        explanation_en: 'DAX is a managed caching layer for DynamoDB, cutting latency from ms to μs with no application code change (same SDK). ElastiCache is possible but requires manual caching layer.'
+      },
+      { id: 21, domain: 'development', type: 'single',
+        q_ar: 'ما أقصى مدّة لتنفيذ دالة Lambda؟',
+        q_en: 'Max Lambda execution duration?',
+        options_ar: ['٥ دقائق', '١٠ دقائق', '١٥ دقيقة', 'غير محدود'],
+        options_en: ['5 min', '10 min', '15 min', 'Unlimited'],
+        correct: 2,
+        explanation_ar: 'الحدّ الأقصى لتنفيذ دالة Lambda ١٥ دقيقة. للأحمال الأطول: Fargate أو EC2 أو Step Functions Express/Standard (حتى سنة).',
+        explanation_en: 'Lambda max execution is 15 min. For longer: Fargate, EC2, or Step Functions Express/Standard (up to 1 year).'
+      },
+
+      // ========== SECURITY (17) ==========
+      { id: 22, domain: 'security', type: 'single',
+        q_ar: 'مهندس يريد تطبيق least privilege على IAM policy — ما الأفضل؟',
+        q_en: 'An engineer wants to apply least privilege on an IAM policy — best practice?',
+        options_ar: ['إعطاء <span dir="ltr" class="font-mono">*</span> في Action.', 'تحديد Actions والـ Resources بالضبط كما تحتاج، واستخدام Conditions للتقييد.', 'استخدام AdministratorAccess المُدارة.', 'إنشاء IAM User لكلّ مهمّة.'],
+        options_en: ['Grant <span dir="ltr" class="font-mono">*</span> on Action.', 'Specify exact Actions and Resources; use Conditions to constrain.', 'Use AdministratorAccess managed policy.', 'Create one IAM User per task.'],
+        correct: 1,
+        explanation_ar: 'Least privilege = أعطِ الصلاحيات المطلوبة فقط. Action و Resource محدّدان بدقّة، مع Conditions لمزيد من التضييق (IP، MFA، Tags). AdministratorAccess عكس ذلك تماماً.',
+        explanation_en: 'Least privilege = grant only required permissions. Specify exact Actions/Resources, use Conditions to narrow further (IP, MFA, Tags). AdministratorAccess is the opposite.'
+      },
+      { id: 23, domain: 'security', type: 'single',
+        q_ar: 'تطبيق في حساب A يحتاج يقرأ S3 bucket في حساب B. ما الحلّ الصحيح؟',
+        q_en: 'An app in Account A needs to read an S3 bucket in Account B. Correct solution?',
+        options_ar: ['مشاركة IAM User بين الحسابين.', 'إنشاء Role في حساب B يثق بحساب A، والتطبيق يستخدم AssumeRole.', 'نسخ الـ bucket إلى حساب A.', 'فتح الـ bucket للعموم.'],
+        options_en: ['Share an IAM User between accounts.', 'Create a Role in Account B trusting Account A; app uses AssumeRole.', 'Copy the bucket to Account A.', 'Make the bucket public.'],
+        correct: 1,
+        explanation_ar: 'الحلّ المعياريّ لـ cross-account: Role في الحساب المالك للمورد، Trust Policy تسمح لـ Account A بـ AssumeRole. الـ SDK في التطبيق يستدعي STS AssumeRole ويستخدم الـ temporary credentials. مشاركة IAM User ممارسة سيّئة.',
+        explanation_en: 'Standard cross-account solution: create a Role in the resource-owning account with a Trust Policy allowing Account A to AssumeRole. The app\'s SDK calls STS AssumeRole and uses temporary credentials. Sharing IAM Users is bad practice.'
+      },
+      { id: 24, domain: 'security', type: 'single',
+        q_ar: 'Bucket Policy تسمح بـ <span dir="ltr" class="font-mono">s3:GetObject</span>، لكن IAM Policy للمستخدم تمنعها. ما النتيجة؟',
+        q_en: 'Bucket Policy allows <span dir="ltr" class="font-mono">s3:GetObject</span>, but user\'s IAM Policy denies it. Result?',
+        options_ar: ['يُسمح — Bucket Policy أقوى.', 'يُسمح — نظام AWS يختار الأوسع.', 'يُرفض — explicit deny في IAM يفوز دائماً.', 'يُطلَب MFA.'],
+        options_en: ['Allowed — Bucket Policy wins.', 'Allowed — AWS picks the most permissive.', 'Denied — explicit deny in IAM always wins.', 'MFA required.'],
+        correct: 2,
+        explanation_ar: 'قاعدة التقييم في IAM: Explicit Deny > Explicit Allow > Implicit Deny. إذا وُجدت قاعدة deny صريحة في أيّ مكان (IAM، Bucket Policy، SCP، إلخ)، النتيجة رفض. هذا مبدأ أساسي يُسأل كثيراً.',
+        explanation_en: 'IAM evaluation: Explicit Deny > Explicit Allow > Implicit Deny. If any explicit deny exists (IAM, Bucket Policy, SCP, etc.), the result is deny. This is foundational and asked often.'
+      },
+      { id: 25, domain: 'security', type: 'single',
+        q_ar: 'تريد مشاركة ملف S3 مع شخص خارجيّ لساعة واحدة فقط. ما الطريقة؟',
+        q_en: 'Share an S3 file with an outsider for 1 hour only. How?',
+        options_ar: ['جعل الـ bucket عام.', 'إنشاء IAM User مؤقّت.', 'Presigned URL تنتهي بعد ساعة.', 'إرسال الملف بالبريد.'],
+        options_en: ['Make bucket public.', 'Create a temporary IAM User.', 'Presigned URL that expires in 1 hour.', 'Email the file.'],
+        correct: 2,
+        explanation_ar: 'Presigned URL يوقّع رابطاً بصلاحيات عميل AWS محدّد لفترة زمنية (حتى ٧ أيّام). لا يحتاج المُستقبِل إلى حساب AWS. الجعل عام خطر. إنشاء User مبالغة.',
+        explanation_en: 'Presigned URL signs a URL with specific AWS perms for a time window (up to 7 days). Recipient doesn\'t need AWS account. Public is dangerous. Creating users is overkill.'
+      },
+      { id: 26, domain: 'security', type: 'single',
+        q_ar: 'يخزّن تطبيق كلمات مرور قواعد البيانات. أيّ خدمة AWS تدعم <strong>التدوير التلقائي</strong> لها؟',
+        q_en: 'An app stores DB passwords. Which AWS service supports <strong>automatic rotation</strong>?',
+        options_ar: ['SSM Parameter Store.', 'AWS Secrets Manager.', 'AWS KMS.', 'S3 مع SSE-KMS.'],
+        options_en: ['SSM Parameter Store.', 'AWS Secrets Manager.', 'AWS KMS.', 'S3 with SSE-KMS.'],
+        correct: 1,
+        explanation_ar: 'Secrets Manager يدعم التدوير التلقائي عبر Lambda لـ RDS / DocumentDB / Redshift / غيرها. أغلى من Parameter Store لكنّه الحلّ الرسمي للأسرار التي تُدوَّر. Parameter Store يخزّن SecureString لكن بلا تدوير مدمج.',
+        explanation_en: 'Secrets Manager supports automatic rotation via Lambda for RDS/DocumentDB/Redshift/others. Pricier than Parameter Store but the official solution for rotating secrets. Parameter Store stores SecureString without built-in rotation.'
+      },
+      { id: 27, domain: 'security', type: 'single',
+        q_ar: 'مفهوم envelope encryption في KMS — ما الهدف؟',
+        q_en: 'KMS envelope encryption concept — what\'s the goal?',
+        options_ar: ['تقليل التكلفة عبر حجم البيانات.', 'عدم إرسال بيانات كبيرة إلى KMS (حدّه ٤ كيلوبايت) — استخدم CMK لتشفير DEK، ثم DEK لتشفير البيانات.', 'تشفير عدّة مفاتيح.', 'تسريع التشفير.'],
+        options_en: ['Reduce cost via data size.', 'Avoid sending large data to KMS (4KB limit) — use CMK to encrypt DEK, DEK to encrypt data.', 'Encrypt multiple keys.', 'Speed up encryption.'],
+        correct: 1,
+        explanation_ar: 'KMS API محدود بـ ٤ كيلوبايت لكل استدعاء تشفير. Envelope encryption: KMS يولّد Data Encryption Key (DEK)، يشفّر DEK بـ CMK، التطبيق يشفّر البيانات الكبيرة بـ DEK محلّياً. النتيجة: أمان عالٍ مع قابلية للحجم الكبير.',
+        explanation_en: 'KMS API is limited to 4KB per encrypt call. Envelope encryption: KMS generates a Data Encryption Key (DEK), encrypts DEK with CMK, app encrypts large data locally with DEK. High security + scalability.'
+      },
+      { id: 28, domain: 'security', type: 'single',
+        q_ar: 'تطبيق EC2 يحتاج يرفع ملفّات إلى S3. أفضل طريقة لمنحه الصلاحيات؟',
+        q_en: 'An EC2 app needs to upload to S3. Best way to grant perms?',
+        options_ar: ['مفاتيح access key في ملف على الخادم.', 'IAM Role مرفق بالخادم (Instance Profile).', 'IAM User للخادم.', 'فتح S3 للعموم.'],
+        options_en: ['Access keys in a file on instance.', 'IAM Role attached (Instance Profile).', 'IAM User for instance.', 'Make S3 public.'],
+        correct: 1,
+        explanation_ar: 'IAM Role + Instance Profile هو دائماً الأفضل. AWS SDK يسحب temporary credentials من IMDS تلقائياً، تُدوَّر تلقائياً، لا تحتاج إدارة مفاتيح. وضع مفاتيح على الخادم ممارسة سيّئة معروفة.',
+        explanation_en: 'IAM Role + Instance Profile is always best. AWS SDK pulls temporary credentials from IMDS automatically, auto-rotated, no key management. Storing keys on instance is a known bad practice.'
+      },
+      { id: 29, domain: 'security', type: 'multi',
+        q_ar: 'أيّ من الخيارات التالية مسؤولية <strong>AWS</strong> في نموذج المسؤولية المشتركة؟ اختر كلّ ما ينطبق.',
+        q_en: 'Which are <strong>AWS</strong>\'s responsibility in the Shared Responsibility Model? Select all that apply.',
+        options_ar: ['صيانة الأجهزة الفيزيائية.', 'إدارة hypervisor.', 'تشفير ملفات S3.', 'ضبط Security Groups لـ EC2.', 'تحديث نظام التشغيل داخل EC2.'],
+        options_en: ['Physical hardware maintenance.', 'Hypervisor management.', 'S3 file encryption.', 'EC2 Security Groups config.', 'OS patching inside EC2.'],
+        correct: [0, 1],
+        explanation_ar: 'AWS = Security OF the Cloud: الأجهزة، المباني، hypervisor، الخدمات المُدارة (RDS patches مثلاً). العميل = Security IN the Cloud: data، encryption، SGs، OS على EC2، IAM.',
+        explanation_en: 'AWS = Security OF the Cloud: hardware, facilities, hypervisor, managed services (RDS patching e.g.). Customer = Security IN the Cloud: data, encryption, SGs, EC2 OS, IAM.'
+      },
+      { id: 30, domain: 'security', type: 'single',
+        q_ar: 'ما الفرق بين <span dir="ltr" class="font-mono">SSE-S3</span> و <span dir="ltr" class="font-mono">SSE-KMS</span>؟',
+        q_en: 'Difference between <span dir="ltr" class="font-mono">SSE-S3</span> and <span dir="ltr" class="font-mono">SSE-KMS</span>?',
+        options_ar: ['لا فرق.', 'SSE-S3 يدير AWS المفتاح بالكامل. SSE-KMS يستخدم CMK في KMS، يمكنك التحكّم به ومراقبته عبر CloudTrail.', 'SSE-S3 أقوى.', 'SSE-KMS مجّاني.'],
+        options_en: ['No difference.', 'SSE-S3: AWS fully manages the key. SSE-KMS: uses a KMS CMK, you control and audit via CloudTrail.', 'SSE-S3 is stronger.', 'SSE-KMS is free.'],
+        correct: 1,
+        explanation_ar: 'SSE-S3: AES-256، AWS تدير كلّ شيء. SSE-KMS: تستخدم CMK (إمّا AWS-managed <span dir="ltr" class="font-mono">aws/s3</span> أو Customer-managed)، يمكنك تفعيل CloudTrail لمعرفة من استخدم المفتاح ومتى. SSE-KMS أغلى قليلاً لكن أوسع تحكّماً.',
+        explanation_en: 'SSE-S3: AES-256, AWS manages everything. SSE-KMS: uses a CMK (either AWS-managed <span dir="ltr" class="font-mono">aws/s3</span> or Customer-managed); CloudTrail can audit key usage. SSE-KMS is slightly pricier but gives more control.'
+      },
+      { id: 31, domain: 'security', type: 'single',
+        q_ar: 'تريد إجبار كل حركة S3 على استخدام HTTPS فقط. كيف؟',
+        q_en: 'Force all S3 traffic to use HTTPS only. How?',
+        options_ar: ['تفعيل Block Public Access.', 'Bucket Policy تمنع عند <span dir="ltr" class="font-mono">aws:SecureTransport = false</span>.', 'SSL Certificate على الـ bucket.', 'CloudFront.'],
+        options_en: ['Enable Block Public Access.', 'Bucket Policy denying when <span dir="ltr" class="font-mono">aws:SecureTransport = false</span>.', 'SSL Certificate on bucket.', 'CloudFront.'],
+        correct: 1,
+        explanation_ar: 'Bucket Policy مع Condition <span dir="ltr" class="font-mono">aws:SecureTransport = false</span> و Effect = Deny ترفض أيّ طلب HTTP (غير مشفّر). هذا السلوك المعياريّ للامتثال (PCI DSS مثلاً).',
+        explanation_en: 'Bucket Policy with Condition <span dir="ltr" class="font-mono">aws:SecureTransport = false</span> and Effect = Deny rejects any HTTP (unencrypted) request. Standard for compliance (PCI DSS e.g.).'
+      },
+      { id: 32, domain: 'security', type: 'single',
+        q_ar: 'مهاجم سرق <span dir="ltr" class="font-mono">access key</span>. ما أوّل خطوة يجب اتّخاذها؟',
+        q_en: 'An attacker stole an <span dir="ltr" class="font-mono">access key</span>. First step to take?',
+        options_ar: ['تغيير كلمة السرّ.', 'تعطيل (deactivate) المفتاح فوراً ثم حذفه.', 'الإبلاغ إلى AWS Support.', 'حذف حساب AWS.'],
+        options_en: ['Change password.', 'Deactivate the key immediately, then delete.', 'Report to AWS Support.', 'Delete the AWS account.'],
+        correct: 1,
+        explanation_ar: 'الأولوية: إلغاء صلاحية المفتاح المسروق فوراً (Deactivate → Delete) ثم مراجعة CloudTrail لتحديد مدى الضرر. بعدها: دوّر جميع الـ secrets المرتبطة، وافحص الموارد الجديدة التي أنشأها المهاجم.',
+        explanation_en: 'Priority: deactivate the stolen key immediately (Deactivate → Delete), then review CloudTrail to assess damage. After: rotate all related secrets, check for attacker-created resources.'
+      },
+      { id: 33, domain: 'security', type: 'single',
+        q_ar: 'تطبيق Cognito يستخدم User Pool. ما صيغة الـ token التي تُستخدم لاستدعاء APIs محمية؟',
+        q_en: 'A Cognito User Pool app — which token calls protected APIs?',
+        options_ar: ['ID Token', 'Access Token', 'Refresh Token', 'SAML Assertion'],
+        options_en: ['ID Token', 'Access Token', 'Refresh Token', 'SAML Assertion'],
+        correct: 1,
+        explanation_ar: 'Cognito يُصدر ٣ tokens: <strong>ID Token</strong> (هوية المستخدم لتطبيقات الواجهة)، <strong>Access Token</strong> (لاستدعاء APIs)، <strong>Refresh Token</strong> (للحصول على tokens جديدة). API Gateway Cognito Authorizer يتحقّق من Access Token.',
+        explanation_en: 'Cognito issues 3 tokens: <strong>ID Token</strong> (user identity for UI), <strong>Access Token</strong> (call APIs), <strong>Refresh Token</strong> (renew tokens). API Gateway Cognito Authorizer validates the Access Token.'
+      },
+      { id: 34, domain: 'security', type: 'single',
+        q_ar: 'ما الفائدة من <strong>Permission Boundary</strong> في IAM؟',
+        q_en: 'Purpose of IAM <strong>Permission Boundary</strong>?',
+        options_ar: ['يعطي صلاحيات إضافية.', 'يضع حدّاً أقصى للصلاحيات حتى لو كانت IAM Policies أكثر سماحية.', 'يتبع كلّ API call.', 'يستبدل IAM Policies.'],
+        options_en: ['Grants additional perms.', 'Sets a maximum ceiling — policies cannot exceed this.', 'Tracks every API call.', 'Replaces IAM policies.'],
+        correct: 1,
+        explanation_ar: 'Permission Boundary = سقف أعلى للصلاحيات لا يتجاوزه المستخدم حتى لو كانت IAM Policy تمنحه المزيد. يُستخدم لتفويض إنشاء roles/users مع ضمان عدم تصعيد الصلاحيات. الصلاحية الفعلية = تقاطع Boundary ∩ Policies.',
+        explanation_en: 'Permission Boundary = maximum ceiling of permissions; even if an attached policy grants more, effective permission is intersection of boundary and policies. Used to delegate role/user creation safely.'
+      },
+      { id: 35, domain: 'security', type: 'single',
+        q_ar: 'أردت منع Lambda من الوصول إلى الإنترنت العام لأسباب أمنية. كيف؟',
+        q_en: 'Prevent a Lambda from accessing the public internet (security). How?',
+        options_ar: ['تعطيل الـ Lambda.', 'تشغيل Lambda داخل VPC بـ subnets خاصّة بدون NAT Gateway.', 'Security Group يمنع الـ egress.', 'خيار B أو C أيّهما.'],
+        options_en: ['Disable Lambda.', 'Run Lambda inside VPC, private subnets, no NAT Gateway.', 'Security Group blocking egress.', 'B or C (either).'],
+        correct: 3,
+        explanation_ar: 'يمكن تحقيق ذلك بأحد الأسلوبين: وضع Lambda في VPC داخل subnets خاصّة بلا NAT (يُمنع الخروج للنت)، أو Security Group يقيّد egress. الـ VPC يضيف cold-start overhead أوّل مرّة لكن يعطي عزلاً كاملاً.',
+        explanation_en: 'Either works: place Lambda in VPC private subnets with no NAT (blocks outbound internet), or restrict egress via Security Group. VPC adds initial cold-start overhead but gives complete isolation.'
+      },
+      { id: 36, domain: 'security', type: 'single',
+        q_ar: 'ما الفرق بين <span dir="ltr" class="font-mono">sts:AssumeRole</span> و <span dir="ltr" class="font-mono">sts:AssumeRoleWithWebIdentity</span>؟',
+        q_en: 'Difference between <span dir="ltr" class="font-mono">sts:AssumeRole</span> and <span dir="ltr" class="font-mono">sts:AssumeRoleWithWebIdentity</span>?',
+        options_ar: ['لا فرق.', 'AssumeRole يستخدم من IAM principal. AssumeRoleWithWebIdentity يستخدم من OIDC provider مثل Cognito/Google.', 'WithWebIdentity للجوال فقط.', 'AssumeRole أكثر أماناً.'],
+        options_en: ['No difference.', 'AssumeRole used by an IAM principal. AssumeRoleWithWebIdentity used with an OIDC provider (Cognito/Google).', 'WithWebIdentity is mobile-only.', 'AssumeRole is more secure.'],
+        correct: 1,
+        explanation_ar: 'AssumeRole: IAM user/role يتولّى role آخر. AssumeRoleWithWebIdentity: يستخدم مع identity providers خارجيّة (OIDC) مثل Cognito Identity Pools، Google، Facebook — لمنح مستخدمي التطبيقات AWS credentials دون IAM user. مفيد لتطبيقات الجوال والويب.',
+        explanation_en: 'AssumeRole: IAM user/role assumes another role. AssumeRoleWithWebIdentity: used with external OIDC providers (Cognito Identity Pools, Google, Facebook) to grant app users AWS credentials without IAM users. Key for mobile/web apps.'
+      },
+      { id: 37, domain: 'security', type: 'single',
+        q_ar: 'تريد تفعيل key rotation تلقائياً في KMS. كم المدّة الافتراضية؟',
+        q_en: 'Enable automatic key rotation in KMS. Default period?',
+        options_ar: ['٣٠ يوم', '٩٠ يوم', '١٨٠ يوم', 'سنة واحدة'],
+        options_en: ['30 days', '90 days', '180 days', '1 year'],
+        correct: 3,
+        explanation_ar: 'Automatic key rotation في KMS: سنة واحدة (٣٦٥ يوم). يعمل فقط لـ Symmetric CMKs. النسخ القديمة من المفتاح تبقى لفكّ تشفير البيانات القديمة.',
+        explanation_en: 'KMS automatic key rotation: 1 year (365 days). Only for symmetric CMKs. Older key versions retained to decrypt old data.'
+      },
+      { id: 38, domain: 'security', type: 'single',
+        q_ar: 'تطبيق متعدّد الحسابات يستخدم cross-account IAM Role. ما الذي يمنع confused deputy attack؟',
+        q_en: 'A cross-account IAM Role. What prevents confused deputy attack?',
+        options_ar: ['MFA.', 'ExternalId في Trust Policy.', 'حدود الجلسة.', 'تشفير.'],
+        options_en: ['MFA.', 'ExternalId in Trust Policy.', 'Session limits.', 'Encryption.'],
+        correct: 1,
+        explanation_ar: 'ExternalId سلسلة سرّية تُضاف إلى Trust Policy لـ Role في حساب B. يجب على حساب A إرسالها عند AssumeRole. تمنع طرفاً ثالثاً يعرف فقط ARN الـ Role من استغلاله. معياريّ لـ vendor integrations.',
+        explanation_en: 'ExternalId is a secret string in a Role\'s Trust Policy in Account B. Account A must pass it on AssumeRole. Prevents a third party who only knows the Role ARN from abusing it. Standard for vendor integrations.'
+      },
+
+      // ========== DEPLOYMENT (16) ==========
+      { id: 39, domain: 'deployment', type: 'single',
+        q_ar: 'CloudFormation template لم يكتمل — وقع خطأ في منتصف الـ stack creation. ما السلوك الافتراضي؟',
+        q_en: 'A CloudFormation template fails mid-stack creation. Default behavior?',
+        options_ar: ['إبقاء الموارد المنشأة بالفعل.', 'Rollback — حذف الموارد التي تمّ إنشاؤها.', 'إعادة المحاولة.', 'إنهاء الحساب.'],
+        options_en: ['Keep created resources.', 'Rollback — delete resources that were created.', 'Retry.', 'Terminate account.'],
+        correct: 1,
+        explanation_ar: 'السلوك الافتراضي: Rollback تلقائي لحالة ما قبل الإنشاء. يُحذف كلّ مورد أُنشئ حتى لحظة الفشل. يمكن تعطيله بـ <span dir="ltr" class="font-mono">OnFailure: DO_NOTHING</span> في AWS CLI، مفيد لتشخيص السبب.',
+        explanation_en: 'Default: automatic rollback to pre-creation state. All resources created up to the failure are deleted. Can be disabled with <span dir="ltr" class="font-mono">OnFailure: DO_NOTHING</span> in CLI for debugging.'
+      },
+      { id: 40, domain: 'deployment', type: 'single',
+        q_ar: 'تريد حفظ Resource حتى لو حُذف الـ stack — ما إعداد CloudFormation الصحيح؟',
+        q_en: 'Preserve a resource even if stack is deleted — what CloudFormation setting?',
+        options_ar: ['<span dir="ltr" class="font-mono">DeletionPolicy: Retain</span>.', '<span dir="ltr" class="font-mono">DeletionPolicy: Delete</span>.', '<span dir="ltr" class="font-mono">UpdatePolicy: Retain</span>.', 'Termination Protection.'],
+        options_en: ['<span dir="ltr" class="font-mono">DeletionPolicy: Retain</span>.', '<span dir="ltr" class="font-mono">DeletionPolicy: Delete</span>.', '<span dir="ltr" class="font-mono">UpdatePolicy: Retain</span>.', 'Termination Protection.'],
+        correct: 0,
+        explanation_ar: 'DeletionPolicy: Retain يُبقي المورد حتى لو حُذفت الـ stack. مفيد للبيانات الحرجة (RDS، S3، EFS). Termination Protection يمنع حذف الـ stack نفسه، لا الموارد المفردة.',
+        explanation_en: 'DeletionPolicy: Retain preserves the resource even when the stack is deleted. Useful for critical data (RDS, S3, EFS). Termination Protection prevents stack deletion itself, not individual resources.'
+      },
+      { id: 41, domain: 'deployment', type: 'single',
+        q_ar: 'مطوّر Java يحتاج ينشر API serverless بأقلّ YAML. ما الخيار؟',
+        q_en: 'A Java dev wants to deploy a serverless API with minimal YAML. Choice?',
+        options_ar: ['CloudFormation الكلاسيكي.', 'AWS SAM.', 'CDK.', 'Terraform.'],
+        options_en: ['Classic CloudFormation.', 'AWS SAM.', 'CDK.', 'Terraform.'],
+        correct: 1,
+        explanation_ar: 'SAM تطوّرة من CloudFormation تستخدم <span dir="ltr" class="font-mono">AWS::Serverless::Function</span> و <span dir="ltr" class="font-mono">AWS::Serverless::Api</span> و <span dir="ltr" class="font-mono">AWS::Serverless::Table</span> — تعطي نفس النتائج بـ YAML أقصر بكثير. CDK بلغة البرمجة وقوي لكنّه أعقد للمبتدئ. Terraform غير AWS-native.',
+        explanation_en: 'SAM extends CloudFormation with <span dir="ltr" class="font-mono">AWS::Serverless::Function / Api / Table</span> — same results in much shorter YAML. CDK uses code (powerful but steeper for beginners). Terraform isn\'t AWS-native.'
+      },
+      { id: 42, domain: 'deployment', type: 'single',
+        q_ar: 'Elastic Beanstalk — تريد تحديث تطبيق بدون downtime. ما أفضل deployment policy؟',
+        q_en: 'Elastic Beanstalk — update app with zero downtime. Best deployment policy?',
+        options_ar: ['All at once.', 'Rolling.', 'Immutable.', 'Swap URLs (Blue/Green).'],
+        options_en: ['All at once.', 'Rolling.', 'Immutable.', 'Swap URLs (Blue/Green).'],
+        correct: 3,
+        explanation_ar: 'Blue/Green عبر Swap URLs: بيئة جديدة كاملة، تحقّق منها، ثمّ بدّل URL — zero downtime مع إمكانية rollback فوري. Immutable قريبة لكنّها داخل نفس البيئة. Rolling تسبّب تخفيض مؤقّت في السعة. All at once = downtime.',
+        explanation_en: 'Blue/Green via Swap URLs: new full environment, validate, then swap — zero downtime with instant rollback. Immutable is similar but same environment. Rolling temporarily reduces capacity. All at once = downtime.'
+      },
+      { id: 43, domain: 'deployment', type: 'single',
+        q_ar: 'في ECS، ما الفرق بين <span dir="ltr" class="font-mono">taskRoleArn</span> و <span dir="ltr" class="font-mono">executionRoleArn</span>؟',
+        q_en: 'In ECS, difference between <span dir="ltr" class="font-mono">taskRoleArn</span> and <span dir="ltr" class="font-mono">executionRoleArn</span>?',
+        options_ar: ['لا فرق.', '<span dir="ltr" class="font-mono">taskRole</span> = صلاحيات تطبيق المهمّة (قراءة S3). <span dir="ltr" class="font-mono">executionRole</span> = صلاحيات ECS agent (سحب الصورة، logs).', '<span dir="ltr" class="font-mono">executionRole</span> أقوى.', '<span dir="ltr" class="font-mono">taskRole</span> اختياري فقط.'],
+        options_en: ['No difference.', '<span dir="ltr" class="font-mono">taskRole</span> = app-level perms (e.g. read S3). <span dir="ltr" class="font-mono">executionRole</span> = ECS agent perms (pull image, push logs).', '<span dir="ltr" class="font-mono">executionRole</span> is stronger.', '<span dir="ltr" class="font-mono">taskRole</span> is optional.'],
+        correct: 1,
+        explanation_ar: 'الفرق حاسم في الامتحان: <strong>executionRole</strong> يُستخدمه ECS agent لسحب صورة ECR وإرسال logs إلى CloudWatch. <strong>taskRole</strong> يُستخدمه الكود داخل الـ container لاستدعاء خدمات AWS (S3، DynamoDB). فصلهما يدعم least privilege.',
+        explanation_en: 'Critical exam distinction: <strong>executionRole</strong> is used by ECS agent to pull ECR image and push logs to CloudWatch. <strong>taskRole</strong> is used by code inside the container to call AWS services (S3, DynamoDB). Separation supports least privilege.'
+      },
+      { id: 44, domain: 'deployment', type: 'single',
+        q_ar: 'CodeDeploy on Lambda — تريد توجيه ١٠٪ من الترافيك للنسخة الجديدة لمدّة ٥ دقائق، ثم ١٠٠٪. ما الـ configuration؟',
+        q_en: 'CodeDeploy on Lambda — route 10% of traffic to new version for 5 min, then 100%. Which config?',
+        options_ar: ['Linear10PercentEvery1Minute', 'Canary10Percent5Minutes', 'AllAtOnce', 'HalfAtATime'],
+        options_en: ['Linear10PercentEvery1Minute', 'Canary10Percent5Minutes', 'AllAtOnce', 'HalfAtATime'],
+        correct: 1,
+        explanation_ar: 'Canary = قفزة واحدة من X% ثم ١٠٠٪ بعد فترة. Canary10Percent5Minutes = ١٠٪ لمدّة ٥ دقائق ثم ١٠٠٪. Linear = زيادة تدريجية. AllAtOnce = مباشرة ١٠٠٪.',
+        explanation_en: 'Canary = one step of X% then 100% after interval. Canary10Percent5Minutes = 10% for 5 min, then 100%. Linear = gradual increase. AllAtOnce = straight to 100%.'
+      },
+      { id: 45, domain: 'deployment', type: 'single',
+        q_ar: '<span dir="ltr" class="font-mono">buildspec.yml</span> في CodeBuild — ما الـ phase لتثبيت dependencies؟',
+        q_en: '<span dir="ltr" class="font-mono">buildspec.yml</span> in CodeBuild — which phase installs dependencies?',
+        options_ar: ['pre_build', 'install', 'build', 'post_build'],
+        options_en: ['pre_build', 'install', 'build', 'post_build'],
+        correct: 1,
+        explanation_ar: 'phases في buildspec.yml: <span dir="ltr" class="font-mono">install</span> (أدوات ومكتبات البناء)، <span dir="ltr" class="font-mono">pre_build</span> (اختبارات وتحضير)، <span dir="ltr" class="font-mono">build</span> (البناء نفسه)، <span dir="ltr" class="font-mono">post_build</span> (تحميل المخرجات، notifications).',
+        explanation_en: 'buildspec.yml phases: <span dir="ltr" class="font-mono">install</span> (build tools/libs), <span dir="ltr" class="font-mono">pre_build</span> (tests/setup), <span dir="ltr" class="font-mono">build</span> (actual build), <span dir="ltr" class="font-mono">post_build</span> (upload artifacts, notifications).'
+      },
+      { id: 46, domain: 'deployment', type: 'single',
+        q_ar: 'CDK — تريد استخدام مكتبات مكتوبة كـ TypeScript من Java. ما الإعداد؟',
+        q_en: 'CDK — use TypeScript-authored libraries from Java. Setup?',
+        options_ar: ['لا يمكن.', 'jsii يولّد Java bindings لـ constructs المكتوبة بـ TypeScript.', 'إعادة كتابة المكتبة بجافا.', 'استخدام Terraform.'],
+        options_en: ['Not possible.', 'jsii generates Java bindings from TypeScript constructs.', 'Rewrite the library in Java.', 'Use Terraform.'],
+        correct: 1,
+        explanation_ar: 'CDK يستخدم <strong>jsii</strong> (AWS Cloud Development Kit Interoperability) الذي يكتب مرّة واحدة بـ TypeScript ويولّد تلقائياً bindings لـ Java و Python و C# و Go. هذا ما يسمح لـ Yasir باستخدام CDK من Java بدون فقدان الـ ecosystem الأساسي.',
+        explanation_en: 'CDK uses <strong>jsii</strong> — write once in TypeScript, auto-generates bindings for Java, Python, C#, Go. This lets Java devs use CDK without losing the main ecosystem.'
+      },
+      { id: 47, domain: 'deployment', type: 'single',
+        q_ar: 'CloudFormation stack لديها مخرج (Output) يحتاج يُستخدم في stack أخرى. كيف؟',
+        q_en: 'A CloudFormation stack has an Output needed in another stack. How?',
+        options_ar: ['نسخ القيمة يدوياً.', '<span dir="ltr" class="font-mono">Export</span> في Output و <span dir="ltr" class="font-mono">Fn::ImportValue</span> في الـ stack الأخرى.', 'S3 bucket وسيط.', 'غير ممكن.'],
+        options_en: ['Copy value manually.', '<span dir="ltr" class="font-mono">Export</span> in Output; <span dir="ltr" class="font-mono">Fn::ImportValue</span> in other stack.', 'S3 bucket mediator.', 'Not possible.'],
+        correct: 1,
+        explanation_ar: 'Cross-Stack Reference: stack أولى تُصدّر قيمة (Export field في Output)، stack ثانية تستوردها بـ <span dir="ltr" class="font-mono">Fn::ImportValue</span>. البديل: Nested Stacks (أبسط لكن أقلّ مرونة). لا يمكن حذف/تعديل Export مستخدم.',
+        explanation_en: 'Cross-Stack Reference: first stack exports (Export field in Output); second stack imports via <span dir="ltr" class="font-mono">Fn::ImportValue</span>. Alternative: Nested Stacks (simpler but less flexible). Can\'t delete/modify exports in use.'
+      },
+      { id: 48, domain: 'deployment', type: 'single',
+        q_ar: 'Fargate — متى تختاره على EC2 launch type في ECS؟',
+        q_en: 'Fargate — when to pick over EC2 launch type in ECS?',
+        options_ar: ['لا تحتاج إدارة الخوادم، وحمل متغيّر، وتكلفة إدارة عالية مقبولة.', 'دائماً EC2 أرخص.', 'Fargate أسرع بناءً.', 'لا فرق.'],
+        options_en: ['Want zero server management, variable load, accept higher cost.', 'EC2 is always cheaper.', 'Fargate builds faster.', 'No difference.'],
+        correct: 0,
+        explanation_ar: 'Fargate serverless للـ containers: AWS تدير الخوادم، ولا داعي لـ patching أو scaling EC2. أغلى من EC2 لكن يقلّل جهد التشغيل. EC2 أرخص للأحمال الثابتة الكبيرة مع فريق مستعدّ لإدارة الـ cluster.',
+        explanation_en: 'Fargate is serverless containers: AWS manages servers, no EC2 patching/scaling. Pricier than EC2 but cuts ops effort. EC2 is cheaper for large steady workloads when team can manage the cluster.'
+      },
+      { id: 49, domain: 'deployment', type: 'single',
+        q_ar: '<span dir="ltr" class="font-mono">appspec.yml</span> على EC2 — أيّ hook يشغّل قبل تثبيت الإصدار الجديد؟',
+        q_en: '<span dir="ltr" class="font-mono">appspec.yml</span> on EC2 — which hook runs before installing the new version?',
+        options_ar: ['ApplicationStart', 'BeforeInstall', 'AfterInstall', 'ValidateService'],
+        options_en: ['ApplicationStart', 'BeforeInstall', 'AfterInstall', 'ValidateService'],
+        correct: 1,
+        explanation_ar: 'الترتيب الكامل لـ EC2 hooks: ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService. BeforeInstall ممتاز لأخذ backup أو مسح الـ cache قبل التحديث.',
+        explanation_en: 'EC2 hooks order: ApplicationStop → BeforeInstall → AfterInstall → ApplicationStart → ValidateService. BeforeInstall is great for taking backup or clearing cache before update.'
+      },
+      { id: 50, domain: 'deployment', type: 'single',
+        q_ar: 'CodePipeline — ما الـ stage الذي يسحب الكود من مصدر (مثل CodeCommit)؟',
+        q_en: 'CodePipeline — which stage pulls code from source (e.g. CodeCommit)?',
+        options_ar: ['Build stage.', 'Source stage.', 'Deploy stage.', 'Approval stage.'],
+        options_en: ['Build stage.', 'Source stage.', 'Deploy stage.', 'Approval stage.'],
+        correct: 1,
+        explanation_ar: 'CodePipeline يتكوّن من stages متسلسلة. الـ Source stage هو أوّل ما يعمل — يسحب الكود من CodeCommit / GitHub / S3 / ECR. ثمّ Build (CodeBuild)، Test، Deploy (CodeDeploy / CloudFormation / ECS / Beanstalk).',
+        explanation_en: 'CodePipeline has sequential stages. Source stage runs first — pulls code from CodeCommit/GitHub/S3/ECR. Then Build (CodeBuild), Test, Deploy (CodeDeploy/CloudFormation/ECS/Beanstalk).'
+      },
+      { id: 51, domain: 'deployment', type: 'single',
+        q_ar: 'SAM — تريد deployment تدريجي لـ Lambda. ما الخاصّية؟',
+        q_en: 'SAM — gradual Lambda deployment. Which feature?',
+        options_ar: ['AutoPublishAlias.', 'DeploymentPreference.', 'Policies.', 'Timeout.'],
+        options_en: ['AutoPublishAlias.', 'DeploymentPreference.', 'Policies.', 'Timeout.'],
+        correct: 1,
+        explanation_ar: 'DeploymentPreference في SAM Function يفعّل CodeDeploy لـ deployment تدريجي (Canary / Linear). يُدمج مع Alarms و Hooks للتراجع تلقائياً إن فشل. AutoPublishAlias ينشر version جديد ويُنشئ alias.',
+        explanation_en: 'DeploymentPreference on SAM Function enables CodeDeploy for gradual deployment (Canary/Linear). Integrates with Alarms and Hooks for auto-rollback on failure. AutoPublishAlias publishes new version and creates alias.'
+      },
+      { id: 52, domain: 'deployment', type: 'single',
+        q_ar: 'Elastic Beanstalk — أين تضع ملف الإعدادات المخصّصة للبيئة (apt install شيء، nginx config)؟',
+        q_en: 'Elastic Beanstalk — where do you put custom env config (apt install, nginx config)?',
+        options_ar: ['.ebextensions/ directory.', 'Dockerfile.', 'buildspec.yml.', 'CloudFormation.'],
+        options_en: ['.ebextensions/ directory.', 'Dockerfile.', 'buildspec.yml.', 'CloudFormation.'],
+        correct: 0,
+        explanation_ar: '<span dir="ltr" class="font-mono">.ebextensions/</span> هو المجلّد المعياريّ داخل الـ application bundle. كل ملفّ <span dir="ltr" class="font-mono">.config</span> داخله يحوي إعدادات YAML أو JSON لتخصيص البيئة (packages، files، commands، container_commands، option_settings).',
+        explanation_en: '<span dir="ltr" class="font-mono">.ebextensions/</span> is the standard folder inside the application bundle. Each <span dir="ltr" class="font-mono">.config</span> file contains YAML/JSON customization (packages, files, commands, container_commands, option_settings).'
+      },
+      { id: 53, domain: 'deployment', type: 'single',
+        q_ar: 'تريد نشر نفس الـ CloudFormation template في عدّة حسابات ومناطق. ما الأدق؟',
+        q_en: 'Deploy the same CloudFormation template across multiple accounts/regions. Best tool?',
+        options_ar: ['نسخ ولصق يدوياً.', 'CloudFormation StackSets.', 'Nested Stacks.', 'CDK فقط.'],
+        options_en: ['Manual copy-paste.', 'CloudFormation StackSets.', 'Nested Stacks.', 'CDK only.'],
+        correct: 1,
+        explanation_ar: 'StackSets صُمّمت لنشر stack في عدّة accounts و regions من مكان واحد (عادةً delegated admin account). مفيد للسياسات الأمنية، CloudTrail في كل الحسابات، IAM roles، إلخ.',
+        explanation_en: 'StackSets are designed to deploy a stack across multiple accounts and regions from one place (usually a delegated admin account). Useful for security policies, cross-account CloudTrail, IAM roles, etc.'
+      },
+      { id: 54, domain: 'deployment', type: 'single',
+        q_ar: 'تطبيق في ECS يحتاج accessible من DNS name ثابت داخل الـ VPC. ما الأدق؟',
+        q_en: 'An ECS app needs a stable DNS name inside VPC. Best option?',
+        options_ar: ['Elastic IP لكل task.', 'ECS Service Discovery (AWS Cloud Map).', 'Route 53 public records.', 'CloudFront.'],
+        options_en: ['Elastic IP per task.', 'ECS Service Discovery (AWS Cloud Map).', 'Route 53 public records.', 'CloudFront.'],
+        correct: 1,
+        explanation_ar: 'ECS Service Discovery (مدعوم بـ AWS Cloud Map) يعطي DNS names ثابتة لخدمات ECS داخل الـ VPC. الـ tasks تسجّل نفسها تلقائياً وتُحذَف عند الإيقاف. ممتاز لـ microservices.',
+        explanation_en: 'ECS Service Discovery (backed by AWS Cloud Map) provides stable DNS names for ECS services inside VPC. Tasks auto-register/deregister on start/stop. Great for microservices.'
+      },
+
+      // ========== TROUBLESHOOTING (11) ==========
+      { id: 55, domain: 'troubleshoot', type: 'single',
+        q_ar: 'تطبيق Spring Boot على EC2 لا تظهر logs في CloudWatch. ما الخطوة الأولى للتشخيص؟',
+        q_en: 'A Spring Boot app on EC2 — logs don\'t appear in CloudWatch. First step?',
+        options_ar: ['إعادة تشغيل الخادم.', 'التحقّق من تثبيت CloudWatch Agent + IAM Role يسمح بـ logs:PutLogEvents.', 'حذف Log Group.', 'اتّصل بـ AWS Support.'],
+        options_en: ['Reboot instance.', 'Verify CloudWatch Agent installed + IAM Role allows logs:PutLogEvents.', 'Delete Log Group.', 'Contact AWS Support.'],
+        correct: 1,
+        explanation_ar: 'CloudWatch لا تتلقّى logs تلقائياً من EC2. يحتاج CloudWatch Agent مثبّت ومهيّأ، و IAM Role مرفق بـ Instance Profile يسمح بـ <span dir="ltr" class="font-mono">logs:CreateLogStream, logs:PutLogEvents</span>. الخطوتان هما أكثر سبب للصمت.',
+        explanation_en: 'CloudWatch doesn\'t auto-receive logs from EC2. Need CloudWatch Agent installed+configured, and Instance Profile IAM Role allowing <span dir="ltr" class="font-mono">logs:CreateLogStream, logs:PutLogEvents</span>. Those two are the top reasons for silence.'
+      },
+      { id: 56, domain: 'troubleshoot', type: 'single',
+        q_ar: 'دالة Lambda تعمل في بعض الأحيان ببطء شديد (p99 high). ما أفضل أداة للتشخيص؟',
+        q_en: 'A Lambda has sporadic high p99 latency. Best tool for root cause?',
+        options_ar: ['CloudWatch Logs.', 'AWS X-Ray service map و traces.', 'CloudTrail.', 'CloudFront logs.'],
+        options_en: ['CloudWatch Logs.', 'AWS X-Ray service map and traces.', 'CloudTrail.', 'CloudFront logs.'],
+        correct: 1,
+        explanation_ar: 'X-Ray يُظهر service map ويكشف أين يضيع الوقت (DynamoDB؟ Lambda cold start؟ external API؟). Logs مفيدة لأخطاء محدّدة لكن X-Ray أفضل بكثير لـ latency analysis.',
+        explanation_en: 'X-Ray shows a service map and pinpoints where time is spent (DynamoDB? Lambda cold start? external API?). Logs help with specific errors, but X-Ray is far better for latency analysis.'
+      },
+      { id: 57, domain: 'troubleshoot', type: 'single',
+        q_ar: 'CloudTrail — ما الفرق بين Management Events و Data Events؟',
+        q_en: 'CloudTrail — difference between Management Events and Data Events?',
+        options_ar: ['لا فرق.', 'Management = إنشاء/تعديل/حذف الموارد. Data = عمليّات على محتوى المورد (مثل GetObject على S3). Data غير مُفعّل افتراضياً.', 'Management يحتسب بالحجم.', 'Data مجّانية.'],
+        options_en: ['No difference.', 'Management = resource create/update/delete. Data = object-level ops (e.g. S3 GetObject). Data is off by default.', 'Management is sized-based.', 'Data is free.'],
+        correct: 1,
+        explanation_ar: 'Management Events: عمليّات إدارية (RunInstances، AttachRolePolicy، CreateBucket) — مُفعّلة مجّاناً. Data Events: عمليّات عالية الحجم على المحتوى (S3 GetObject، Lambda Invoke، DynamoDB PutItem) — يجب تفعيلها صراحةً، وتكلّف لأنها كثيرة.',
+        explanation_en: 'Management Events: admin ops (RunInstances, AttachRolePolicy, CreateBucket) — on free. Data Events: high-volume object-level (S3 GetObject, Lambda Invoke, DynamoDB PutItem) — must be explicitly enabled, and cost-inducing due to volume.'
+      },
+      { id: 58, domain: 'troubleshoot', type: 'single',
+        q_ar: 'CloudWatch Alarm حالة <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span>. ما المعنى؟',
+        q_en: 'CloudWatch Alarm state <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span>. Meaning?',
+        options_ar: ['الـ alarm معطّل.', 'لا توجد بيانات كافية لتقييم الشرط (المقياس لم يصدر datapoints).', 'الشرط تحقّق.', 'تعطّل.'],
+        options_en: ['Alarm disabled.', 'Not enough data to evaluate (metric has no recent datapoints).', 'Condition met.', 'Broken.'],
+        correct: 1,
+        explanation_ar: 'ثلاث حالات لـ Alarm: OK (الشرط لم يتحقّق)، ALARM (الشرط تحقّق)، INSUFFICIENT_DATA (لا datapoints كافية). INSUFFICIENT_DATA عادة معناه: الـ metric جديد، أو الـ dimension غير صحيح، أو المورد الذي يصدر الـ metric توقّف.',
+        explanation_en: 'Alarm states: OK, ALARM, INSUFFICIENT_DATA (not enough datapoints). INSUFFICIENT_DATA usually means: metric is new, wrong dimension, or source resource stopped emitting.'
+      },
+      { id: 59, domain: 'troubleshoot', type: 'single',
+        q_ar: 'تريد استعلاماً بسيطاً على CloudWatch Logs لإيجاد كل رسائل تحوي <span dir="ltr" class="font-mono">ERROR</span>. ما الأدق؟',
+        q_en: 'Simple CloudWatch Logs query to find all messages containing <span dir="ltr" class="font-mono">ERROR</span>. Best?',
+        options_ar: ['Metric Filter.', 'CloudWatch Logs Insights مع <span dir="ltr" class="font-mono">fields @timestamp, @message | filter @message like /ERROR/</span>.', 'Subscription Filter.', 'X-Ray.'],
+        options_en: ['Metric Filter.', 'Logs Insights: <span dir="ltr" class="font-mono">fields @timestamp, @message | filter @message like /ERROR/</span>.', 'Subscription Filter.', 'X-Ray.'],
+        correct: 1,
+        explanation_ar: 'Logs Insights لغة استعلام SQL-like للبحث التفاعلي. Metric Filter لتحويل logs إلى metrics للـ alarms. Subscription Filter لبثّ logs إلى Lambda / Kinesis للمعالجة الآنية.',
+        explanation_en: 'Logs Insights provides SQL-like interactive query. Metric Filter turns logs into metrics for alarms. Subscription Filter streams logs to Lambda/Kinesis for real-time processing.'
+      },
+      { id: 60, domain: 'troubleshoot', type: 'single',
+        q_ar: 'دالة Lambda تُدعى ١٠٠٠ مرّة/ثانية لكنّها تفشل فقط ١٪ بـ <span dir="ltr" class="font-mono">Rate Exceeded</span>. أين المشكلة؟',
+        q_en: 'A Lambda invoked 1000/s fails 1% with <span dir="ltr" class="font-mono">Rate Exceeded</span>. Root cause?',
+        options_ar: ['فشل في DNS.', 'تجاوز Lambda concurrency limit أو downstream service throttling.', 'تجاوز حدّ المدّة.', 'تجاوز حدّ الذاكرة.'],
+        options_en: ['DNS failure.', 'Exceeded Lambda concurrency or downstream service throttling.', 'Timeout.', 'Memory limit.'],
+        correct: 1,
+        explanation_ar: 'Rate Exceeded يعني throttling. الأسباب: Lambda concurrency limit (افتراضي ١٠٠٠/region)، أو downstream service (DynamoDB WCU، API Gateway rate limit، SQS، إلخ) يرفض. تشخيص: CloudWatch metrics Throttles + X-Ray.',
+        explanation_en: 'Rate Exceeded = throttling. Causes: Lambda concurrency limit (default 1000/region) or downstream service (DynamoDB WCU, API Gateway rate limit, SQS, etc.) rejecting. Diagnose: CloudWatch Throttles metric + X-Ray.'
+      },
+      { id: 61, domain: 'troubleshoot', type: 'single',
+        q_ar: 'CloudWatch Metrics retention — كم تحفظ AWS metric ذات دقّة دقيقة واحدة؟',
+        q_en: 'CloudWatch Metrics retention — how long are 1-min resolution metrics kept?',
+        options_ar: ['٧ أيّام.', '١٥ يوم.', '٦٣ يوم.', '٤٥٥ يوم.'],
+        options_en: ['7 days.', '15 days.', '63 days.', '455 days.'],
+        correct: 1,
+        explanation_ar: 'CloudWatch retention: 1-min metrics = ١٥ يوم، 5-min = ٦٣ يوم، 1-hour = ٤٥٥ يوم. بعد التخزين الأدق يتحوّل تلقائياً إلى aggregated data. سؤال يسأل كثيراً لمهندس الـ monitoring.',
+        explanation_en: 'CloudWatch retention: 1-min metrics = 15 days, 5-min = 63 days, 1-hour = 455 days. After higher resolution expires, data is aggregated. Frequently asked monitoring question.'
+      },
+      { id: 62, domain: 'troubleshoot', type: 'single',
+        q_ar: 'X-Ray يحتاج إلى تشغيل daemon على EC2 أو ECS. لماذا؟',
+        q_en: 'X-Ray needs a daemon on EC2/ECS. Why?',
+        options_ar: ['لتجميع وتوقيع الـ traces وإرسالها إلى X-Ray API.', 'لتسريع التطبيق.', 'للحماية.', 'غير ضروري.'],
+        options_en: ['Collect and sign traces, forward to X-Ray API.', 'Speed up app.', 'Security.', 'Not required.'],
+        correct: 0,
+        explanation_ar: 'التطبيق يرسل segments إلى X-Ray daemon محلّياً (UDP port 2000). الـ daemon يجمّعها، يوقّعها (SigV4)، ثمّ يرسلها إلى X-Ray API. هذا يختصر overhead على التطبيق. Lambda مستثناة (X-Ray مدمج).',
+        explanation_en: 'App sends segments to local X-Ray daemon (UDP port 2000). Daemon batches, signs (SigV4), then forwards to X-Ray API. Offloads overhead from the app. Lambda is an exception (built-in X-Ray).'
+      },
+      { id: 63, domain: 'troubleshoot', type: 'single',
+        q_ar: 'CloudFront — cache hit ratio منخفض جداً. ما أوّل تحقّق؟',
+        q_en: 'CloudFront — very low cache hit ratio. First thing to check?',
+        options_ar: ['Cache behavior settings (TTL، Query strings forwarding، Cookies، Headers).', 'Security Groups.', 'Route 53.', 'IAM.'],
+        options_en: ['Cache behavior settings (TTL, Query string forwarding, Cookies, Headers).', 'Security Groups.', 'Route 53.', 'IAM.'],
+        correct: 0,
+        explanation_ar: 'cache hit ratio منخفض ناتج عن cache key عريض جداً — تمرير Query strings كلها، كل Cookies، كل Headers يُنتج cache entries مستقلّة لكل طلب. حلّ: قلّل ما يُمرَّر، ضبط TTL مناسب، استخدم Origin Shield.',
+        explanation_en: 'Low cache hit ratio comes from overly broad cache key — forwarding all Query strings, all Cookies, all Headers creates separate entries per request. Fix: reduce forwarded, tune TTL, use Origin Shield.'
+      },
+      { id: 64, domain: 'troubleshoot', type: 'single',
+        q_ar: 'تطبيق ينشر custom metrics كثيرة إلى CloudWatch. الفاتورة ارتفعت. ما الحلّ؟',
+        q_en: 'App pushes many custom metrics to CloudWatch. Bill jumped. Fix?',
+        options_ar: ['تعطيل custom metrics.', 'استخدام EMF (Embedded Metric Format) في الـ logs — أقلّ تكلفة وأكثر مرونة.', 'إرسالها إلى S3.', 'لا حلّ.'],
+        options_en: ['Disable custom metrics.', 'Use EMF (Embedded Metric Format) in logs — cheaper and more flexible.', 'Send to S3.', 'No fix.'],
+        correct: 1,
+        explanation_ar: 'Embedded Metric Format يسمح بكتابة metrics كجزء من JSON log، ثمّ CloudWatch يستخرجها تلقائياً وينشئ metrics. أرخص بكثير من PutMetricData API المباشرة، ويعطيك الـ logs والـ metrics في خطوة واحدة.',
+        explanation_en: 'Embedded Metric Format lets you write metrics as part of JSON logs; CloudWatch auto-extracts and creates metrics. Much cheaper than direct PutMetricData API, gives logs and metrics in one shot.'
+      },
+      { id: 65, domain: 'troubleshoot', type: 'single',
+        q_ar: 'أردت معرفة من حذف S3 bucket قبل أسبوع. أين تبحث؟',
+        q_en: 'Who deleted an S3 bucket a week ago? Where to look?',
+        options_ar: ['CloudWatch Metrics.', 'CloudTrail Management Events.', 'VPC Flow Logs.', 'X-Ray.'],
+        options_en: ['CloudWatch Metrics.', 'CloudTrail Management Events.', 'VPC Flow Logs.', 'X-Ray.'],
+        correct: 1,
+        explanation_ar: 'CloudTrail يسجّل كل API call (بما فيها DeleteBucket). Management Events مفعّلة افتراضياً مجّاناً ومحفوظة ٩٠ يوم في Event History (أو أكثر لو فعّلت Trail إلى S3). فلتر حسب eventName = DeleteBucket تجد المستخدم والوقت والـ IP.',
+        explanation_en: 'CloudTrail logs every API call (including DeleteBucket). Management Events are on by default, free, kept 90 days in Event History (or longer if Trail to S3 is enabled). Filter by eventName = DeleteBucket to find user, time, and IP.'
+      },
+    ];
+
+    // =========== STATE ===========
+    let state = {
+      answers: {},       // { qId: answer }
+      flagged: new Set(),
+      currentIdx: 0,
+      timerInterval: null,
+      secondsLeft: 130 * 60,
+      startedAt: null,
+      submitted: false,
+    };
+
+    const DOMAIN_INFO = {
+      development: { ar: 'التطوير', en: 'Development', color: 'blue', weight: 32 },
+      security: { ar: 'الأمان', en: 'Security', color: 'red', weight: 26 },
+      deployment: { ar: 'النشر', en: 'Deployment', color: 'emerald', weight: 25 },
+      troubleshoot: { ar: 'المراقبة والتحسين', en: 'Troubleshooting', color: 'amber', weight: 17 },
+    };
+
+    // =========== LANGUAGE ===========
+    function getLang() { return localStorage.getItem('dva_lang') || 'ar'; }
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('dva_lang', lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach((el) => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (!state.currentIdx && state.currentIdx !== 0) return;
+      if (state.submitted) return;
+      if (document.getElementById('screen-exam').classList.contains('hidden')) return;
+      renderQuestion();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+
+    // =========== START ===========
+    function startExam() {
+      state.startedAt = Date.now();
+      document.getElementById('screen-intro').classList.add('hidden');
+      document.getElementById('screen-exam').classList.remove('hidden');
+      startTimer();
+      renderQuestion();
+    }
+
+    function startTimer() {
+      state.timerInterval = setInterval(() => {
+        state.secondsLeft--;
+        updateTimerDisplay();
+        if (state.secondsLeft <= 0) {
+          clearInterval(state.timerInterval);
+          submitExam();
+        }
+      }, 1000);
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(state.secondsLeft / 60);
+      const s = state.secondsLeft % 60;
+      document.getElementById('timer-text').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const timerEl = document.getElementById('timer');
+      if (state.secondsLeft <= 300) {
+        timerEl.classList.add('timer-danger', '!bg-red-100', '!border-red-300', '!text-red-800');
+      }
+    }
+
+    // =========== RENDER QUESTION ===========
+    function renderQuestion() {
+      const q = QUESTIONS[state.currentIdx];
+      if (!q) return;
+
+      const card = document.getElementById('question-card');
+      const isMulti = q.type === 'multi';
+      const sel = state.answers[q.id];
+      const flagged = state.flagged.has(q.id);
+      const domInfo = DOMAIN_INFO[q.domain];
+
+      const badgeType = isMulti
+        ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+        : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+      const badgeDomain = `<span class="text-xs px-2 py-0.5 bg-${domInfo.color}-100 text-${domInfo.color}-700 rounded-full font-medium"><span class="lang-ar">${domInfo.ar}</span><span class="lang-en">${domInfo.en}</span></span>`;
+
+      const optsHtml = q.options_ar.map((_, i) => {
+        const optAr = q.options_ar[i];
+        const optEn = q.options_en[i];
+        const isSelected = isMulti ? (sel || []).includes(i) : sel === i;
+        return `
+          <button onclick="selectOption(${i})" class="w-full text-start p-4 rounded-xl border-2 transition-all flex items-start gap-3 ${isSelected ? '!border-brand-500 !bg-brand-50' : 'border-surface-200 hover:border-brand-300'}">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 ${isSelected ? 'border-brand-500 bg-brand-500 text-white' : 'border-surface-300'} text-xs font-bold flex items-center justify-center">${String.fromCharCode(65 + i)}</span>
+            <span class="flex-1 text-sm leading-relaxed"><span class="lang-ar">${optAr}</span><span class="lang-en">${optEn}</span></span>
+          </button>
+        `;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="flex items-center gap-2 flex-wrap">${badgeType}${badgeDomain}</div>
+        <h2 class="text-xl font-semibold text-surface-800 leading-relaxed">
+          <span class="lang-ar">${q.q_ar}</span>
+          <span class="lang-en">${q.q_en}</span>
+        </h2>
+        <div class="space-y-2">${optsHtml}</div>
+      `;
+
+      document.getElementById('current-q-num').textContent = state.currentIdx + 1;
+      document.getElementById('prev-btn').disabled = state.currentIdx === 0;
+      const nextBtn = document.getElementById('next-btn');
+      if (state.currentIdx === QUESTIONS.length - 1) {
+        nextBtn.innerHTML = '<span class="lang-ar">مراجعة</span><span class="lang-en">Review</span><i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>';
+      } else {
+        nextBtn.innerHTML = '<span class="lang-ar">التالي</span><span class="lang-en">Next</span><i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>';
+      }
+
+      // Flag state
+      const flagBtn = document.getElementById('flag-btn');
+      if (flagged) {
+        flagBtn.classList.add('!bg-amber-100', '!text-amber-800');
+      } else {
+        flagBtn.classList.remove('!bg-amber-100', '!text-amber-800');
+      }
+
+      updateAnsweredCount();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function selectOption(i) {
+      const q = QUESTIONS[state.currentIdx];
+      if (q.type === 'multi') {
+        if (!state.answers[q.id]) state.answers[q.id] = [];
+        const arr = state.answers[q.id];
+        const p = arr.indexOf(i);
+        if (p >= 0) arr.splice(p, 1); else arr.push(i);
+      } else {
+        state.answers[q.id] = i;
+      }
+      renderQuestion();
+    }
+
+    function toggleFlag() {
+      const q = QUESTIONS[state.currentIdx];
+      if (state.flagged.has(q.id)) state.flagged.delete(q.id);
+      else state.flagged.add(q.id);
+      renderQuestion();
+    }
+
+    function prevQ() {
+      if (state.currentIdx > 0) { state.currentIdx--; renderQuestion(); }
+    }
+    function nextQ() {
+      if (state.currentIdx < QUESTIONS.length - 1) { state.currentIdx++; renderQuestion(); }
+      else { showReview(); }
+    }
+
+    function goToQuestion(idx) {
+      state.currentIdx = idx;
+      hideReview();
+      renderQuestion();
+    }
+
+    function updateAnsweredCount() {
+      const count = Object.keys(state.answers).filter((id) => {
+        const a = state.answers[id];
+        if (Array.isArray(a)) return a.length > 0;
+        return a !== undefined;
+      }).length;
+      document.getElementById('answered-count').textContent = count;
+    }
+
+    // =========== REVIEW ===========
+    function showReview() {
+      document.getElementById('screen-exam').classList.add('hidden');
+      document.getElementById('screen-review').classList.remove('hidden');
+      const grid = document.getElementById('nav-grid');
+      grid.innerHTML = '';
+      let answered = 0, flagged = 0, unanswered = 0;
+      QUESTIONS.forEach((q, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-q h-10 rounded-lg font-semibold text-sm border border-surface-200';
+        btn.textContent = i + 1;
+        btn.onclick = () => goToQuestion(i);
+        const ans = state.answers[q.id];
+        const isAnswered = Array.isArray(ans) ? ans.length > 0 : ans !== undefined;
+        if (isAnswered) { btn.classList.add('bg-emerald-500', 'text-white'); answered++; }
+        else { btn.classList.add('bg-surface-100', 'text-surface-600'); unanswered++; }
+        if (state.flagged.has(q.id)) { btn.classList.add('ring-2', 'ring-amber-400'); flagged++; }
+        grid.appendChild(btn);
+      });
+      document.getElementById('review-answered').textContent = answered;
+      document.getElementById('review-flagged').textContent = flagged;
+      document.getElementById('review-unanswered').textContent = unanswered;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function hideReview() {
+      document.getElementById('screen-review').classList.add('hidden');
+      document.getElementById('screen-exam').classList.remove('hidden');
+    }
+
+    // =========== SUBMIT ===========
+    function submitExam() {
+      if (state.submitted) return;
+      state.submitted = true;
+      if (state.timerInterval) clearInterval(state.timerInterval);
+
+      // Score
+      let totalCorrect = 0;
+      const perDomain = {};
+      const wrong = [];
+      QUESTIONS.forEach((q) => {
+        const a = state.answers[q.id];
+        let correct = false;
+        if (q.type === 'multi') {
+          if (Array.isArray(a) && Array.isArray(q.correct) && a.length === q.correct.length && a.every((x) => q.correct.includes(x))) correct = true;
+        } else {
+          if (a === q.correct) correct = true;
+        }
+        if (!perDomain[q.domain]) perDomain[q.domain] = { correct: 0, total: 0 };
+        perDomain[q.domain].total++;
+        if (correct) { totalCorrect++; perDomain[q.domain].correct++; }
+        else { wrong.push(q); }
+      });
+
+      const pct = Math.round(totalCorrect / QUESTIONS.length * 100);
+      const score1000 = Math.round(pct * 10);
+      const passed = score1000 >= 720;
+
+      // Save
+      const existing = JSON.parse(localStorage.getItem('dva_exam_results') || '[]');
+      existing.push({ date: Date.now(), pct, score1000, passed, totalCorrect, total: QUESTIONS.length, perDomain });
+      localStorage.setItem('dva_exam_results', JSON.stringify(existing));
+
+      showResults(totalCorrect, pct, score1000, passed, perDomain, wrong);
+    }
+
+    function showResults(totalCorrect, pct, score1000, passed, perDomain, wrong) {
+      document.getElementById('screen-exam').classList.add('hidden');
+      document.getElementById('screen-review').classList.add('hidden');
+      document.getElementById('screen-results').classList.remove('hidden');
+
+      // Header
+      const hdr = document.getElementById('results-header');
+      const tone = passed ? 'from-emerald-500 via-emerald-600 to-emerald-700' : 'from-red-500 via-red-600 to-red-700';
+      const icon = passed ? '🎉' : '📚';
+      const titleAr = passed ? 'مبروك! نجحت في الامتحان' : 'لم تنجح هذه المرّة';
+      const titleEn = passed ? 'Congratulations! You passed' : 'Did not pass this time';
+      const adviceAr = passed ? 'أنت جاهز لامتحان DVA-C02 الحقيقي. راجع الأسئلة الخاطئة لتعزيز الفهم.' : 'راجع النطاقات الضعيفة أدناه ثم أعد الامتحان. التكرار يصنع البطل.';
+      const adviceEn = passed ? 'You\'re ready for the real DVA-C02 exam. Review wrong questions to solidify understanding.' : 'Review weak domains below then retake. Repetition builds mastery.';
+      hdr.className = `rounded-2xl p-8 md:p-10 text-white shadow-xl bg-gradient-to-br ${tone}`;
+      hdr.innerHTML = `
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-sm opacity-80 font-semibold mb-1">
+              <span class="lang-ar">النتيجة النهائية</span>
+              <span class="lang-en">Final Result</span>
+            </p>
+            <h1 class="text-3xl md:text-4xl font-bold mb-3"><span class="lang-ar">${titleAr}</span><span class="lang-en">${titleEn}</span></h1>
+            <div class="flex items-baseline gap-2">
+              <p class="text-5xl font-bold font-mono">${score1000}</p>
+              <p class="text-xl opacity-80">/ 1000</p>
+            </div>
+            <p class="text-sm opacity-90 mt-2">${totalCorrect} / ${QUESTIONS.length} <span class="lang-ar">صحيح</span><span class="lang-en">correct</span> (${pct}%)</p>
+          </div>
+          <div class="text-7xl">${icon}</div>
+        </div>
+        <p class="text-sm opacity-90 leading-relaxed mt-6"><span class="lang-ar">${adviceAr}</span><span class="lang-en">${adviceEn}</span></p>
+      `;
+
+      // Domain breakdown
+      const db = document.getElementById('domain-breakdown');
+      db.innerHTML = '';
+      Object.entries(perDomain).forEach(([dom, { correct, total }]) => {
+        const info = DOMAIN_INFO[dom];
+        const dPct = Math.round(correct / total * 100);
+        const color = dPct >= 75 ? 'emerald' : (dPct >= 50 ? 'amber' : 'red');
+        db.innerHTML += `
+          <div class="flex items-center gap-3">
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1">
+                <p class="text-sm font-semibold text-surface-700"><span class="lang-ar">${info.ar}</span><span class="lang-en">${info.en}</span></p>
+                <p class="text-sm font-mono text-${color}-600 font-semibold">${correct}/${total} (${dPct}%)</p>
+              </div>
+              <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div class="h-full bg-${color}-500 transition-all" style="width: ${dPct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Wrong answers
+      const wd = document.getElementById('wrong-answers');
+      if (wrong.length === 0) {
+        wd.innerHTML = '<p class="text-sm text-emerald-700 font-semibold"><span class="lang-ar">ممتاز — لا إجابات خاطئة!</span><span class="lang-en">Perfect — no wrong answers!</span></p>';
+      } else {
+        wd.innerHTML = wrong.map((q) => {
+          const correctIdx = q.correct;
+          const correctText_ar = Array.isArray(correctIdx) ? correctIdx.map((i) => q.options_ar[i]).join(' + ') : q.options_ar[correctIdx];
+          const correctText_en = Array.isArray(correctIdx) ? correctIdx.map((i) => q.options_en[i]).join(' + ') : q.options_en[correctIdx];
+          return `
+            <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p class="text-xs text-red-700 font-semibold mb-2">#${q.id} · ${DOMAIN_INFO[q.domain][getLang()]}</p>
+              <p class="font-semibold text-surface-800 mb-2"><span class="lang-ar">${q.q_ar}</span><span class="lang-en">${q.q_en}</span></p>
+              <p class="text-sm text-emerald-700 mb-2"><strong class="lang-ar">الإجابة الصحيحة:</strong><strong class="lang-en">Correct answer:</strong> <span class="lang-ar">${correctText_ar}</span><span class="lang-en">${correctText_en}</span></p>
+              <p class="text-sm text-surface-700 leading-relaxed"><span class="lang-ar">${q.explanation_ar}</span><span class="lang-en">${q.explanation_en}</span></p>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (window.lucide) lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function retakeExam() {
+      state = {
+        answers: {}, flagged: new Set(), currentIdx: 0, timerInterval: null,
+        secondsLeft: 130 * 60, startedAt: null, submitted: false,
+      };
+      document.getElementById('screen-results').classList.add('hidden');
+      document.getElementById('screen-intro').classList.remove('hidden');
+      const timerEl = document.getElementById('timer');
+      if (timerEl) timerEl.classList.remove('timer-danger', '!bg-red-100', '!border-red-300', '!text-red-800');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach((b) => b.addEventListener('click', toggleLang));
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

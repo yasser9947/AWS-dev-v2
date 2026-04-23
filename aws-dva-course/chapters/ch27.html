@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ch 27 — Amazon CloudWatch — Metrics, Logs & Alarms | DVA-C02</title>
+
+  <style>
+    html[lang="ar"] .lang-en { display: none !important; }
+    html[lang="en"] .lang-ar { display: none !important; }
+    html[lang="en"] { direction: ltr; text-align: left; }
+    html[lang="en"] body { font-family: 'Inter', system-ui, sans-serif !important; }
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important; font-size: 0.875rem !important;
+      margin: 0 !important; padding: 1.25rem 1.5rem !important; background: #0f172a !important;
+    }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.85rem !important; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .text-balance { text-wrap: balance; }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    .quiz-option { text-align: inherit; }
+    .quiz-option:disabled { cursor: not-allowed; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            arabic: ['IBM Plex Sans Arabic', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: { 50:'#f0f7ff',100:'#e0effe',200:'#bae0fd',300:'#7ccbfc',400:'#36b3f8',500:'#0c99e9',600:'#0079c7',700:'#0060a1',800:'#055285',900:'#0a446e',950:'#072b49' },
+            surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+</head>
+<body class="bg-surface-50 font-arabic text-surface-800 antialiased min-h-screen">
+
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-surface-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-surface-600 hover:text-brand-700 transition-colors">
+        <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+        <span class="text-sm font-semibold"><span class="lang-ar">الرئيسية</span><span class="lang-en">Home</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button data-lang-toggle class="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg font-semibold text-sm transition-all">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gradient-to-bl from-surface-800 via-surface-700 to-surface-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center gap-2 mb-4 text-xs text-surface-300 flex-wrap">
+        <span class="px-2.5 py-1 bg-amber-600/50 rounded-full font-semibold flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-3 h-3"></i>
+          <span class="lang-ar">النطاق الرابع — 18%</span>
+          <span class="lang-en">Domain 4 — 18%</span>
+        </span>
+        <span class="text-surface-400">·</span>
+        <span class="lang-ar">الشابتر ٢٧ من ٣٠</span>
+        <span class="lang-en">Chapter 27 of 30</span>
+        <span class="text-surface-400">·</span>
+        <span class="font-mono text-xs">p.474-505</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3 text-balance">
+        <span class="lang-ar">Amazon CloudWatch — المراقبة والسجلّات والإنذارات</span>
+        <span class="lang-en">Amazon CloudWatch — Metrics, Logs & Alarms</span>
+      </h1>
+      <p class="text-lg text-surface-200 mb-6 max-w-2xl leading-relaxed">
+        <span class="lang-ar">عمود المراقبة الأساس في AWS: مقاييس مخصّصة، سجلّات مركزية، فلاتر، إنذارات، و Logs Insights. إذا كنت مطوّر جافا معتاداً على Micrometer و ELK، فهذا نظيرها في السحابة.</span>
+        <span class="lang-en">AWS's core observability pillar: custom metrics, centralized logs, filters, alarms, and Logs Insights. If you're a Java dev familiar with Micrometer and ELK, this is the AWS equivalent.</span>
+      </p>
+      <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">CloudWatch</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Metrics</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Logs</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Alarms</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">Logs Insights</span>
+<span class="px-3 py-1 bg-surface-500/30 backdrop-blur-sm rounded-full text-xs font-medium font-mono">EMF</span></div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
+    <section class="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+  <div class="bg-gradient-to-l from-brand-50 to-white border-b border-surface-200 px-6 py-4">
+    <div class="flex items-center gap-2">
+      <i data-lucide="clipboard-check" class="w-5 h-5 text-brand-600"></i>
+      <h2 class="text-lg font-bold text-surface-800">
+        <span class="lang-ar">ربط المحتوى بأهداف الامتحان</span>
+        <span class="lang-en">Exam Objectives Mapping</span>
+      </h2>
+    </div>
+  </div>
+  <div class="p-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+        <thead class="bg-surface-100 text-surface-700">
+          <tr>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">المفهوم</span>
+              <span class="lang-en">Concept</span>
+            </th>
+            <th class="text-start px-4 py-2 font-semibold">
+              <span class="lang-ar">يُستخدم في الامتحان ضمن</span>
+              <span class="lang-en">Tested within</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surface-200">
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudWatch Metrics & Dimensions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أسئلة استخدام مقاييس مخصّصة ونشرها من التطبيق.</span>
+      <span class="lang-en">Domain 4 — publishing custom metrics and reading built-in ones.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">CloudWatch Logs (Groups/Streams/Filters)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أسئلة جمع السجلّات من EC2 و Lambda وتصفيتها.</span>
+      <span class="lang-en">Domain 4 — collecting logs from EC2/Lambda and filtering them.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Alarms (OK/ALARM/INSUFFICIENT_DATA)</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في أسئلة الإنذارات المركّبة والإجراءات التلقائية.</span>
+      <span class="lang-en">Domain 4 — composite alarms and automatic actions.</span>
+    </td>
+  </tr>
+
+  <tr>
+    <td class="px-4 py-2 font-mono text-brand-700" dir="ltr">Logs Insights & Subscriptions</td>
+    <td class="px-4 py-2 text-surface-600">
+      <span class="lang-ar">النطاق الرابع في الاستعلام عن السجلّات وبثّها لـ Kinesis/Lambda.</span>
+      <span class="lang-en">Domain 4 — querying logs and streaming to Kinesis/Lambda.</span>
+    </td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">1</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">المقاييس (Metrics) في CloudWatch</span>
+      <span class="lang-en">CloudWatch Metrics</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">CloudWatch يوفّر مقاييس لكلّ خدمة AWS تقريباً. <strong>Metric</strong> هو متغيّر قابل للرصد عبر الزمن (مثل <span dir="ltr" class="font-mono text-brand-700">CPUUtilization</span> أو <span dir="ltr" class="font-mono text-brand-700">NetworkIn</span>). كل مقياس ينتمي إلى <strong>namespace</strong> ويحمل <strong>timestamp</strong> و حتى ٣٠ <strong>dimension</strong> لتقسيمه (مثل <span dir="ltr" class="font-mono">InstanceId</span> أو <span dir="ltr" class="font-mono">Environment</span>).</p>
+  <p class="text-surface-700 leading-relaxed lang-en">CloudWatch provides metrics for every AWS service. A <strong>metric</strong> is a variable tracked over time (e.g., <span dir="ltr" class="font-mono text-brand-700">CPUUtilization</span>, <span dir="ltr" class="font-mono text-brand-700">NetworkIn</span>). Each belongs to a <strong>namespace</strong>, has a <strong>timestamp</strong>, and up to 30 <strong>dimensions</strong> (e.g., <span dir="ltr" class="font-mono">InstanceId</span>, <span dir="ltr" class="font-mono">Environment</span>).</p>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="gauge" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">EC2 Basic vs Detailed</span><span class="lang-en">EC2 Basic vs Detailed</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">الافتراضي: نقطة كلّ <strong>٥ دقائق</strong> مجّاناً. Detailed Monitoring: كلّ <strong>١ دقيقة</strong> (بمقابل). ضروري لـ Auto Scaling السريع. ملاحظة: الذاكرة (RAM) لا تُرسَل افتراضياً — تحتاج Custom Metric عبر Unified Agent.</p>
+      <p class="text-sm text-surface-700 lang-en">Default: 1 data point every <strong>5 minutes</strong>, free. Detailed Monitoring: every <strong>1 minute</strong> (paid). Needed for fast Auto Scaling. Note: memory (RAM) is NOT pushed by default — needs a custom metric via Unified Agent.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">Custom Metrics</span><span class="lang-en">Custom Metrics</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">أنشئ مقاييسك عبر <span dir="ltr" class="font-mono">PutMetricData</span>. استخدم dimensions لتقسيمها. <strong>Standard</strong>: دقّة ١ دقيقة. <strong>High Resolution</strong>: ١/٥/١٠/٣٠ ثانية (أغلى). يقبل نقاطاً من أسبوعين للماضي وساعتين للمستقبل.</p>
+      <p class="text-sm text-surface-700 lang-en">Create your own via <span dir="ltr" class="font-mono">PutMetricData</span>. Use dimensions to segment. <strong>Standard</strong>: 1-minute resolution. <strong>High Resolution</strong>: 1/5/10/30 sec (higher cost). Accepts points 2 weeks in the past to 2 hours in the future.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-java">// Publish a custom metric from a Spring Boot app
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.model.*;
+
+CloudWatchClient cw = CloudWatchClient.create();
+
+MetricDatum datum = MetricDatum.builder()
+    .metricName("OrdersProcessed")
+    .unit(StandardUnit.COUNT)
+    .value(42.0)
+    .storageResolution(60)   // 60 = standard, 1 = high-resolution
+    .dimensions(
+        Dimension.builder().name("Environment").value("prod").build(),
+        Dimension.builder().name("Service").value("checkout").build()
+    )
+    .timestamp(java.time.Instant.now())
+    .build();
+
+cw.putMetricData(PutMetricDataRequest.builder()
+    .namespace("Acme/Checkout")
+    .metricData(datum)
+    .build());</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> للامتحان: كلّ مقياس يحمل <strong>namespace + name + dimensions + timestamp</strong>. نفس الاسم مع dimensions مختلفة يُعتبر مقياساً منفصلاً. CloudWatch Dashboards تجمع المقاييس من عدّة حسابات ومناطق.</span>
+      <span class="lang-en"> Exam: each metric has <strong>namespace + name + dimensions + timestamp</strong>. Same name with different dimensions = separate metric. Dashboards can aggregate metrics from multiple accounts and regions.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">2</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">السجلّات (Logs): Groups و Streams و Agent</span>
+      <span class="lang-en">CloudWatch Logs: Groups, Streams & Agent</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">CloudWatch Logs هو مخزن السجلّات المركزيّ في AWS. <strong>Log Group</strong> اسم اعتباري يمثّل التطبيق. <strong>Log Stream</strong> هو مجرى سجلّ من مصدر واحد (خادم معيّن أو حاوية). يمكن تحديد <strong>سياسة انتهاء الصلاحية</strong> من يوم واحد إلى ١٠ سنوات أو أبداً.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">CloudWatch Logs is AWS's central log store. A <strong>Log Group</strong> is an arbitrary name representing an app. A <strong>Log Stream</strong> is a log from a single source (instance or container). You define <strong>retention policies</strong> from 1 day to 10 years, or never expire.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">المصدر</span><span class="lang-en">Source</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">كيف يُرسَل السجلّ</span><span class="lang-en">How logs arrive</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">EC2 / On-Prem</span><span class="lang-en">EC2 / On-Prem</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عبر CloudWatch Unified Agent (يحتاج IAM Role).</span><span class="lang-en">Via CloudWatch Unified Agent (needs IAM Role).</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Lambda</span><span class="lang-en">Lambda</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تلقائياً — لكن يحتاج الصلاحية <span dir="ltr" class="font-mono">logs:CreateLogStream</span>.</span><span class="lang-en">Automatic — but needs <span dir="ltr" class="font-mono">logs:CreateLogStream</span> permission.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">ECS / Beanstalk</span><span class="lang-en">ECS / Beanstalk</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">عبر driver مدمج أو configuration.</span><span class="lang-en">Via built-in driver / config.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">VPC Flow Logs, API Gateway, Route 53</span><span class="lang-en">VPC Flow Logs, API Gateway, Route 53</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">تكامل مباشر في الخدمة نفسها.</span><span class="lang-en">Direct integration inside each service.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">CloudTrail</span><span class="lang-en">CloudTrail</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">قابل للتوجيه لـ Logs بناءً على فلتر.</span><span class="lang-en">Can be routed to Logs based on a filter.</span></td></tr></tbody>
+    </table>
+  </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+          <i data-lucide="package" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CloudWatch Logs Agent (القديم)</span><span class="lang-en">CloudWatch Logs Agent (old)</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يُرسل السجلّات فقط لـ CloudWatch Logs. لا يجمع مقاييس إضافية. AWS توصي بالترحيل إلى Unified.</p>
+      <p class="text-sm text-surface-700 lang-en">Sends logs only to CloudWatch Logs. Doesn't collect extra metrics. AWS recommends migrating to Unified.</p>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-bold text-surface-800 text-lg"><span class="lang-ar">CloudWatch Unified Agent</span><span class="lang-en">CloudWatch Unified Agent</span></h3>
+      </div>
+      <p class="text-sm text-surface-700 lang-ar">يجمع السجلّات <strong>و</strong> مقاييس على مستوى النظام: CPU, Disk I/O, RAM, Netstat, Processes, Swap. الإعداد المركزي عبر SSM Parameter Store. هذا هو المطلوب في الامتحان لجمع مقاييس RAM.</p>
+      <p class="text-sm text-surface-700 lang-en">Collects logs <strong>plus</strong> system metrics: CPU, Disk I/O, RAM, Netstat, Processes, Swap. Centralized config via SSM Parameter Store. This is the answer for RAM metrics in exam.</p>
+    </div>
+  </div>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Unified Agent config snippet — /opt/aws/amazon-cloudwatch-agent/etc/config.json
+{
+  "metrics": {
+    "namespace": "Acme/EC2",
+    "append_dimensions": { "InstanceId": "${aws:InstanceId}" },
+    "metrics_collected": {
+      "mem":  { "measurement": ["mem_used_percent"] },
+      "disk": { "measurement": ["used_percent"], "resources": ["*"] }
+    }
+  },
+  "logs": {
+    "logs_collected": {
+      "files": { "collect_list": [
+        { "file_path": "/var/log/myapp/*.log",
+          "log_group_name": "acme-api",
+          "log_stream_name": "{instance_id}" }
+      ]}
+    }
+  }
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-amber-800">
+      <strong class="lang-ar">نصيحة للامتحان:</strong><strong class="lang-en">Exam tip:</strong>
+      <span class="lang-ar"> <strong>السجلّات مشفّرة افتراضياً</strong>. يمكن استخدام KMS key خاصّ. لا تسجّل معلومات حسّاسة بنصّ صريح — استخدم Filter Pattern لاكتشافها وإنذار الفريق.</span>
+      <span class="lang-en"> <strong>Logs are encrypted by default</strong>. You can supply your own KMS key. Never log sensitive data in plaintext — use Metric Filters to detect and alert.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">3</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Metric Filters و Subscriptions</span>
+      <span class="lang-en">Metric Filters & Subscriptions</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>Metric Filter</strong> يحوّل أنماطاً في السجلّات إلى مقياس (مثل عدّ ظهور كلمة <span dir="ltr" class="font-mono">ERROR</span>)، ثمّ يُمكن بناء Alarm عليه. مهمّ: <strong>الفلتر لا يعمل بأثر رجعيّ</strong>؛ يبدأ النشر فقط للأحداث اللاحقة لإنشائه. يدعم حتى ٣ أبعاد.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A <strong>Metric Filter</strong> turns log patterns into a metric (e.g., count of <span dir="ltr" class="font-mono">ERROR</span> occurrences), which can then trigger an alarm. Critical: <strong>filters do NOT retroactively filter</strong> — they only publish for events after the filter is created. Supports up to 3 dimensions.</p>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Subscription Filter</strong> يختلف: يبثّ السجلّات في الوقت الفعليّ إلى وجهة: Kinesis Data Streams، Kinesis Data Firehose (near real-time لـ S3)، أو Lambda (real-time). يدعم Cross-Account Subscription لتجميع السجلّات في حساب مركزيّ.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">A <strong>Subscription Filter</strong> is different: it streams logs in real time to a destination: Kinesis Data Streams, Kinesis Data Firehose (near real-time to S3), or Lambda (real-time). Supports Cross-Account Subscription for central log aggregation.</p>
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="download" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">S3 Export</span><span class="lang-en">S3 Export</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar"><span dir="ltr" class="font-mono">CreateExportTask</span>. يستغرق حتى ١٢ ساعة. ليس في الوقت الفعليّ.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en"><span dir="ltr" class="font-mono">CreateExportTask</span>. Up to 12 hours. Not real-time.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="zap" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Subscription → Lambda</span><span class="lang-en">Subscription → Lambda</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">فوريّ (real-time) لمعالجة السجلّ حدثاً بحدث.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Real-time, event-by-event log processing.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="share-2" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Subscription → Kinesis Firehose → S3</span><span class="lang-en">Subscription → Kinesis Firehose → S3</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">قريب من الفوريّ (near-real-time) لأرشفة منخفضة التكلفة.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Near-real-time for low-cost archival.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="globe" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Cross-Account Aggregation</span><span class="lang-en">Cross-Account Aggregation</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">Subscription Destination في الحساب المستقبل + IAM Role يسمح بـ PutRecord.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Subscription Destination in recipient account + IAM Role allowing PutRecord.</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+    <i data-lucide="alert-octagon" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-red-800">
+      <strong class="lang-ar">فخّ شائع:</strong><strong class="lang-en">Common pitfall:</strong>
+      <span class="lang-ar"> خلط شائع: <strong>Metric Filter ≠ Subscription Filter</strong>. الأوّل يعدّ/يستخرج ليصنع metric للإنذار. الثاني يبثّ السجلّ الخام كاملاً لخدمة أخرى.</span>
+      <span class="lang-en"> Common confusion: <strong>Metric Filter ≠ Subscription Filter</strong>. First counts/extracts to build a metric for alarms. Second streams the raw log to another service.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">4</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">Logs Insights — لغة استعلام السجلّات</span>
+      <span class="lang-en">Logs Insights — log query language</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar"><strong>CloudWatch Logs Insights</strong> محرّك استعلام مخصّص للسجلّات المخزّنة في CloudWatch. يكتشف الحقول تلقائياً من JSON ومن خدمات AWS. ليس محرّك real-time — بل محرّك استعلام. يمكن استعلام عدّة Log Groups عبر حسابات مختلفة وحفظ الاستعلامات في Dashboards.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>CloudWatch Logs Insights</strong> is a purpose-built query engine for logs stored in CloudWatch. Auto-discovers fields from JSON and AWS services. It's a query engine, not real-time. Can query multiple Log Groups across AWS accounts and save queries to Dashboards.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># 25 most recent events
+fields @timestamp, @message
+| sort @timestamp desc
+| limit 25
+
+# Count exceptions per 5-minute bucket
+filter @message like /Exception/
+| stats count(*) as exceptionCount by bin(5m)
+| sort exceptionCount desc
+
+# Spring Boot: find slow requests
+fields @timestamp, @message
+| parse @message /duration=(?&lt;duration>\d+)ms/
+| filter duration > 1000
+| stats avg(duration), max(duration), count(*) by bin(1m)</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-indigo-800">
+      <strong class="lang-ar">للمطوّر السينيور:</strong><strong class="lang-en">For the senior dev:</strong>
+      <span class="lang-ar"> للمطوّر السينيور: Logs Insights شبيه بـ KQL في Azure أو LogQL في Grafana Loki. اعتد على <span dir="ltr" class="font-mono">fields | filter | parse | stats | sort | limit</span>. Dashboards تربطها ببانل Alarm لتنبيه فوريّ على أنماط في السجلّ.</span>
+      <span class="lang-en"> Senior dev: Insights is like Azure KQL or Grafana Loki's LogQL. Memorize <span dir="ltr" class="font-mono">fields | filter | parse | stats | sort | limit</span>. Dashboards bind it to Alarm panels for instant log-pattern alerting.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">5</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">الإنذارات (Alarms) و EMF</span>
+      <span class="lang-en">Alarms & Embedded Metric Format (EMF)</span>
+    </h2>
+  </div>
+  <p class="text-surface-700 leading-relaxed lang-ar">الـ Alarm يراقب مقياساً واحداً ويطلق إجراءً عند تجاوز عتبة. الحالات الثلاث: <span dir="ltr" class="font-mono text-brand-700">OK</span>، <span dir="ltr" class="font-mono text-red-700">ALARM</span>، <span dir="ltr" class="font-mono text-amber-700">INSUFFICIENT_DATA</span>. الأخيرة مهمّة في الامتحان: تعني أنّ البيانات غير كافية للحكم.</p>
+  <p class="text-surface-700 leading-relaxed lang-en">An alarm watches one metric and triggers an action when a threshold is breached. Three states: <span dir="ltr" class="font-mono text-brand-700">OK</span>, <span dir="ltr" class="font-mono text-red-700">ALARM</span>, <span dir="ltr" class="font-mono text-amber-700">INSUFFICIENT_DATA</span>. The last one matters on exam: it means not enough data to judge.</p>
+<div class="overflow-x-auto">
+    <table class="w-full text-sm border border-surface-200 rounded-lg overflow-hidden">
+      <thead class="bg-surface-100 text-surface-700"><tr><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">نوع</span><span class="lang-en">Type</span></th><th class="text-start px-4 py-2 font-semibold"><span class="lang-ar">الخاصّية</span><span class="lang-en">Property</span></th></tr></thead>
+      <tbody class="divide-y divide-surface-200"><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Metric Alarm</span><span class="lang-en">Metric Alarm</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يراقب مقياساً واحداً مع period و threshold.</span><span class="lang-en">Watches one metric with period and threshold.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Composite Alarm</span><span class="lang-en">Composite Alarm</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">يجمع عدّة Alarms بمنطق <span dir="ltr" class="font-mono">AND/OR</span> — يقلّل ضجيج الإنذارات (alarm noise).</span><span class="lang-en">Combines multiple alarms with <span dir="ltr" class="font-mono">AND/OR</span> logic — reduces alarm noise.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">الإجراءات (Targets)</span><span class="lang-en">Targets</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Stop/Terminate/Reboot/Recover خادم EC2، أو Auto Scaling، أو SNS.</span><span class="lang-en">EC2 Stop/Terminate/Reboot/Recover, Auto Scaling action, or SNS.</span></td></tr><tr><td class="px-4 py-2 text-surface-600"><span class="lang-ar">Period</span><span class="lang-en">Period</span></td><td class="px-4 py-2 text-surface-600"><span class="lang-ar">High-resolution: ١٠ أو ٣٠ ثانية أو مضاعفات ٦٠. Standard: ١ دقيقة وأكثر.</span><span class="lang-en">High-resolution: 10s, 30s, or multiples of 60. Standard: 1 minute and up.</span></td></tr></tbody>
+    </table>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>EC2 Instance Recovery</strong>: ألارم على <span dir="ltr" class="font-mono">StatusCheckFailed_System</span> يعيد تشغيل الخادم على عتاد جديد مع الاحتفاظ بـ Private/Public/Elastic IP والـ metadata والـ placement group. حلّ سريع لأعطال الخادم الفيزيائي.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>EC2 Instance Recovery</strong>: alarm on <span dir="ltr" class="font-mono">StatusCheckFailed_System</span> recovers the instance on new hardware, keeping same Private/Public/Elastic IP, metadata, and placement group. Fast fix for physical host failures.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-bash"># Test an alarm without waiting for the threshold
+aws cloudwatch set-alarm-state \
+  --alarm-name 'high-cpu-prod' \
+  --state-value ALARM \
+  --state-reason 'testing'</code></pre>
+  </div>
+<p class="text-surface-700 leading-relaxed lang-ar"><strong>Embedded Metric Format (EMF)</strong>: JSON منظّم تُرسله من Lambda أو ECS إلى CloudWatch Logs، فتستخرج CloudWatch منه مقاييس مخصّصة <u>بدون</u> استدعاء <span dir="ltr" class="font-mono">PutMetricData</span>. موفّر للكلفة ويدمج السجلّ والمقياس في رحلة واحدة — مفيد جداً لتطبيقات Spring Boot بدون خادم.</p>
+  <p class="text-surface-700 leading-relaxed lang-en"><strong>Embedded Metric Format (EMF)</strong>: structured JSON you write from Lambda/ECS to CloudWatch Logs; CloudWatch extracts custom metrics from it <u>without</u> calling <span dir="ltr" class="font-mono">PutMetricData</span>. Saves cost and unifies log+metric in one trip — excellent for serverless Spring Boot apps.</p>
+<div class="code-block relative group" dir="ltr">
+    <button onclick="copyCode(this)" class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 hover:bg-surface-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 z-10">
+      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+      <span class="lang-ar">نسخ</span><span class="lang-en">Copy</span>
+    </button>
+    <pre class="scrollbar-thin"><code class="language-json">// Example EMF log line (Lambda prints this to stdout)
+{
+  "_aws": {
+    "Timestamp": 1700000000000,
+    "CloudWatchMetrics": [{
+      "Namespace": "Acme/Checkout",
+      "Dimensions": [["Service","Environment"]],
+      "Metrics": [{ "Name":"OrderLatency", "Unit":"Milliseconds" }]
+    }]
+  },
+  "Service": "checkout",
+  "Environment": "prod",
+  "OrderLatency": 143.7,
+  "OrderId": "o-9821"
+}</code></pre>
+  </div>
+<div class="flex gap-3 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+    <i data-lucide="info" class="w-5 h-5 text-brand-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-brand-800">
+      <strong class="lang-ar">مفهوم أساسي:</strong><strong class="lang-en">Key concept:</strong>
+      <span class="lang-ar"> <strong>ServiceLens</strong> يربط CloudWatch Metrics + Logs + X-Ray Traces في واجهة واحدة لكشف الاختناقات. يظهر في الامتحان كحلّ لـ end-to-end observability.</span>
+      <span class="lang-en"> <strong>ServiceLens</strong> unifies CloudWatch Metrics + Logs + X-Ray Traces in one view for bottleneck discovery. Appears on exam as the end-to-end observability answer.</span>
+    </div>
+  </div>
+</section>
+
+<section class="space-y-5">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">6</div>
+    <h2 class="text-2xl font-bold text-surface-800">
+      <span class="lang-ar">أدوات إضافيّة: Synthetics و EventBridge</span>
+      <span class="lang-en">Extras: Synthetics & EventBridge</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i data-lucide="bot" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">CloudWatch Synthetics Canary</span><span class="lang-en">CloudWatch Synthetics Canary</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">سكربت Node.js أو Python يحاكي مستخدماً ويرصد المتاحية والـ latency. يدعم Heartbeat، API Canary، Broken Link، Visual Monitoring.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Node.js or Python script emulating a user to check availability and latency. Heartbeat, API Canary, Broken Link Checker, Visual Monitoring blueprints.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="calendar-clock" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EventBridge (ex-CloudWatch Events)</span><span class="lang-en">EventBridge (ex-CloudWatch Events)</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">جدولة Cron، أو قواعد على أحداث (مثلاً تسجيل دخول Root) — تُطلق Lambda، SQS، SNS، Step Functions.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Cron schedules or event patterns (e.g., Root user sign-in) — trigger Lambda, SQS, SNS, Step Functions.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="archive" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">EventBridge Archive & Replay</span><span class="lang-en">EventBridge Archive & Replay</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">أرشفة الأحداث لفترة محدّدة أو للأبد، وإعادة بثّها لاختبار أو تعويض.</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">Archive events indefinitely or for a period, and replay them for testing or recovery.</p>
+  </div>
+
+  <div class="bg-white border border-surface-200 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="file-json" class="w-4 h-4"></i></div>
+      <h4 class="font-bold text-surface-800"><span class="lang-ar">Schema Registry</span><span class="lang-en">Schema Registry</span></h4>
+    </div>
+    <p class="text-sm text-surface-600 leading-relaxed lang-ar">EventBridge يستنتج schema الحدث ويولّد bindings للكود (Java/Python/Go).</p>
+    <p class="text-sm text-surface-600 leading-relaxed lang-en">EventBridge infers event schema and generates code bindings (Java/Python/Go).</p>
+  </div>
+</div>
+<div class="flex gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <i data-lucide="lightbulb" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+    <div class="text-sm text-emerald-800">
+      <strong class="lang-ar">نصيحة:</strong><strong class="lang-en">Tip:</strong>
+      <span class="lang-ar"> كلمة الامتحان: <strong>Cron على AWS</strong> = EventBridge Schedule + Lambda. <strong>تنبيه عند إجراء خطير</strong> (مثل تعديل Security Group) = EventBridge Rule + CloudTrail Source + SNS.</span>
+      <span class="lang-en"> Exam keywords: <strong>Cron on AWS</strong> = EventBridge Schedule + Lambda. <strong>Alert on risky action</strong> (e.g., SG edit) = EventBridge Rule + CloudTrail source + SNS.</span>
+    </div>
+  </div>
+</section>
+
+    <section class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 md:p-8">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+      <i data-lucide="flask-conical" class="w-5 h-5"></i>
+    </div>
+    <h2 class="text-xl font-bold text-surface-800">
+      <span class="lang-ar">معمل عملي</span>
+      <span class="lang-en">Hands-on Lab</span>
+    </h2>
+  </div>
+  <p class="text-sm text-surface-700 mb-4 lang-ar"><strong>الهدف:</strong> إعداد Metric Filter على سجلّات تطبيق Spring Boot لعدّ أخطاء Exception، وربطها بـ Alarm يرسل إشعار SNS.</p>
+  <p class="text-sm text-surface-700 mb-4 lang-en"><strong>Goal:</strong> Set up a Metric Filter on a Spring Boot app's logs to count Exceptions, then wire an Alarm to an SNS notification.</p>
+  <ol class="space-y-3 text-sm text-surface-700">
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">١</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Log Group</span>
+      <span class="lang-en">Create the Log Group</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws logs create-log-group --log-group-name /acme/api
+aws logs put-retention-policy --log-group-name /acme/api --retention-in-days 30</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٢</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ Metric Filter لاستخراج أخطاء Exception</span>
+      <span class="lang-en">Create a Metric Filter for Exceptions</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">نستخدم نمطاً بسيطاً يبحث عن كلمة <span dir="ltr" class="font-mono">Exception</span> في السجلّ.</p><p class="text-surface-600 leading-relaxed lang-en">Use a simple pattern matching <span dir="ltr" class="font-mono">Exception</span> in the log line.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws logs put-metric-filter \
+  --log-group-name /acme/api \
+  --filter-name exception-count \
+  --filter-pattern 'Exception' \
+  --metric-transformations \
+    metricName=ExceptionCount,metricNamespace=Acme/API,metricValue=1,defaultValue=0</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٣</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">أنشئ SNS Topic للتنبيه</span>
+      <span class="lang-en">Create an SNS Topic for the alert</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws sns create-topic --name ops-alerts
+aws sns subscribe --topic-arn arn:aws:sns:us-east-1:111122223333:ops-alerts \
+  --protocol email --notification-endpoint oncall@acme.com</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٤</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اربط Alarm يطلق SNS</span>
+      <span class="lang-en">Wire an Alarm to SNS</span>
+    </p>
+    <p class="text-surface-600 leading-relaxed lang-ar">عتبة: أكثر من ٥ أخطاء خلال ٥ دقائق.</p><p class="text-surface-600 leading-relaxed lang-en">Threshold: more than 5 exceptions in 5 minutes.</p>
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudwatch put-metric-alarm \
+  --alarm-name acme-api-exceptions \
+  --namespace Acme/API --metric-name ExceptionCount \
+  --statistic Sum --period 300 --evaluation-periods 1 \
+  --threshold 5 --comparison-operator GreaterThanThreshold \
+  --alarm-actions arn:aws:sns:us-east-1:111122223333:ops-alerts \
+  --treat-missing-data notBreaching</code></pre>
+    </div>
+
+  </div>
+</li>
+
+<li class="flex gap-3">
+  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">٥</span>
+  <div>
+    <p class="font-semibold mb-1">
+      <span class="lang-ar">اختبر الإنذار بدون انتظار</span>
+      <span class="lang-en">Test the alarm without waiting</span>
+    </p>
+    
+    <div class="code-block relative group mt-2" dir="ltr">
+      <button onclick="copyCode(this)" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-surface-700 text-white text-xs px-2 py-1 rounded z-10">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+      </button>
+      <pre class="!p-3"><code class="language-bash">aws cloudwatch set-alarm-state \
+  --alarm-name acme-api-exceptions \
+  --state-value ALARM --state-reason 'testing'</code></pre>
+    </div>
+
+  </div>
+</li>
+</ol>
+  
+<div class="flex gap-3 p-4 bg-amber-100 border border-amber-300 rounded-xl mt-5">
+  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+  <div class="text-sm text-amber-900">
+    <strong class="lang-ar">تنبيه:</strong>
+    <strong class="lang-en">Warning:</strong>
+    <span class="lang-ar"> احذف الـ Alarm والـ Metric Filter والـ SNS subscription بعد الاختبار — الـ Metric Filter مجانيّ لكن Alarms High-Resolution لها تكلفة.</span>
+    <span class="lang-en"> Delete the alarm, metric filter, and SNS subscription after testing — Metric Filters are free but high-res alarms aren't.</span>
+  </div>
+</div>
+
+</section>
+
+    <section class="space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-surface-800">
+          <span class="lang-ar">كويز الشابتر — ١٢ أسئلة</span>
+          <span class="lang-en">Chapter Quiz (12 questions)</span>
+        </h2>
+      </div>
+      <p class="text-sm text-surface-600 leading-relaxed bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <span class="lang-ar">الأسئلة على نمط الامتحان الفعلي وعلى هيئة سيناريوهات واقعية.</span>
+        <span class="lang-en">Questions follow the real exam style — scenario-based.</span>
+      </p>
+      <div id="quiz-container" class="space-y-4"></div>
+      <div id="quiz-final-result" class="hidden"></div>
+    </section>
+
+    <section class="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 text-white rounded-3xl p-8 md:p-10 shadow-xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <i data-lucide="sparkles" class="w-6 h-6"></i>
+    </div>
+    <h2 class="text-2xl md:text-3xl font-bold">
+      <span class="lang-ar">الملخّص وأهمّ النقاط</span>
+      <span class="lang-en">Summary & Key Takeaways</span>
+    </h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">المقاييس = متغيّر + dimensions</span>
+        <span class="lang-en">Metrics = variable + dimensions</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">EC2 افتراضياً كلّ ٥ دقائق. Detailed كلّ دقيقة. RAM مخصّص عبر Unified Agent.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">EC2 default every 5 min. Detailed every 1 min. RAM needs Unified Agent custom metric.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="search" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">Metric Filter ≠ Subscription Filter</span>
+        <span class="lang-en">Metric Filter ≠ Subscription Filter</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">الأوّل يصنع مقياساً للإنذار. الثاني يبثّ السجلّات الخام لـ Lambda/Kinesis.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">First builds a metric for alarms. Second streams raw logs to Lambda/Kinesis.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="bell" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">٣ حالات للإنذار</span>
+        <span class="lang-en">3 alarm states</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">OK, ALARM, INSUFFICIENT_DATA. Composite يدمج عدّة Alarms بـ AND/OR.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">OK, ALARM, INSUFFICIENT_DATA. Composite combines via AND/OR.</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-json" class="w-4 h-4"></i></div>
+    <div>
+      <p class="font-bold mb-1">
+        <span class="lang-ar">EMF لتوفير الكلفة</span>
+        <span class="lang-en">EMF for cost savings</span>
+      </p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-ar">JSON منظّم في السجلّ يستخرج منه CloudWatch مقاييس بدون PutMetricData.</p>
+      <p class="text-sm text-brand-100 leading-relaxed lang-en">Structured log JSON — CloudWatch extracts metrics without PutMetricData.</p>
+    </div>
+  </div>
+</div>
+</div>
+  
+<div class="mt-6 p-5 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10">
+  <div class="flex items-center gap-2 mb-2">
+    <i data-lucide="brain" class="w-5 h-5 text-amber-300"></i>
+    <p class="font-bold text-amber-100">
+      <span class="lang-ar">للحفظ السريع:</span>
+      <span class="lang-en">Mnemonic:</span>
+    </p>
+  </div>
+  <p class="text-sm text-brand-100 leading-relaxed lang-ar">تذكّر ترتيب الطبقات: <strong>M-L-A-E</strong> — <strong>M</strong>etrics (أرقام)، <strong>L</strong>ogs (نصوص)، <strong>A</strong>larms (ردّ فعل)، <strong>E</strong>ventBridge (توجيه وأتمتة). أي سيناريو مراقبة في الامتحان يقع في واحدة من هذه الأربع.</p>
+  <p class="text-sm text-brand-100 leading-relaxed lang-en">Remember the layers: <strong>M-L-A-E</strong> — <strong>M</strong>etrics (numbers), <strong>L</strong>ogs (text), <strong>A</strong>larms (reaction), <strong>E</strong>ventBridge (routing & automation). Any exam monitoring scenario maps to one of these four.</p>
+</div>
+
+</section>
+
+    <nav class="flex items-center justify-between gap-3 pt-6 border-t border-surface-200 flex-wrap">
+  <div>
+<a href="ch26.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-surface-200 hover:bg-surface-50 text-surface-700 rounded-xl font-semibold text-sm transition-all">
+  <i data-lucide="arrow-right" class="w-4 h-4 rtl-flip"></i>
+  <span class="lang-ar">السابق</span>
+  <span class="lang-en">Previous</span>
+</a>
+</div>
+  <button onclick="toggleComplete(27, this)" id="complete-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span class="btn-label">
+      <span class="lang-ar">وسم كمكتمل</span>
+      <span class="lang-en">Mark complete</span>
+    </span>
+  </button>
+  
+<a href="ch28.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-800 hover:bg-surface-900 text-white rounded-xl font-semibold text-sm transition-all">
+  <span class="lang-ar">التالي</span>
+  <span class="lang-en">Next</span>
+  <i data-lucide="arrow-left" class="w-4 h-4 rtl-flip"></i>
+</a>
+
+</nav>
+  </main>
+
+  <footer class="bg-surface-900 text-surface-400 py-8 px-4 sm:px-6 text-center text-sm">
+    <a href="../index.html" class="text-brand-300 hover:text-brand-100">
+      <span class="lang-ar">← العودة للرئيسية</span>
+      <span class="lang-en">← Back to home</span>
+    </a>
+  </footer>
+
+  <script>
+    const STORAGE_KEYS = { LANG:'dva_lang', COMPLETED:'dva_completed_chapters', QUIZ_RESULTS:'dva_quiz_results' };
+    function getLang() { return localStorage.getItem(STORAGE_KEYS.LANG) || 'ar'; }
+    function setLang(lang) {
+      const html = document.documentElement;
+      html.lang = lang; html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem(STORAGE_KEYS.LANG, lang);
+      document.querySelectorAll('[data-lang-toggle]').forEach(el => el.textContent = lang === 'ar' ? 'EN' : 'ع');
+      if (QuizEngine.currentChapter) QuizEngine.render();
+    }
+    function toggleLang() { setLang(getLang() === 'ar' ? 'en' : 'ar'); }
+    function getCompletedChapters() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETED) || '[]'); } catch { return []; } }
+    function markChapterComplete(n) { const c = getCompletedChapters(); if (!c.includes(n)) { c.push(n); localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(c)); } }
+    function unmarkChapterComplete(n) { localStorage.setItem(STORAGE_KEYS.COMPLETED, JSON.stringify(getCompletedChapters().filter(x => x !== n))); }
+    function isChapterComplete(n) { return getCompletedChapters().includes(n); }
+    function toggleComplete(n, btn) {
+      if (isChapterComplete(n)) {
+        unmarkChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">وسم كمكتمل</span><span class="lang-en">Mark complete</span>';
+        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+      } else {
+        markChapterComplete(n);
+        btn.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+      }
+    }
+    function saveQuizResult(ch, score, total) {
+      const r = JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS) || '{}');
+      r[ch] = { score, total, percent: Math.round(score/total*100), timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEYS.QUIZ_RESULTS, JSON.stringify(r));
+    }
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.querySelector('code').textContent).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span class="lang-ar">تم</span><span class="lang-en">Copied</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = orig; if (window.lucide) lucide.createIcons(); }, 1800);
+      });
+    }
+
+    const QuizEngine = {
+      currentChapter: null, questions: [], answers: {}, revealed: {}, wrongOnly: false,
+      init(ch, qs) { this.currentChapter = ch; this.questions = qs; this.answers = {}; this.revealed = {}; this.render(); },
+      render() {
+        const c = document.getElementById('quiz-container'); if (!c) return; c.innerHTML = '';
+        this.questions.forEach((q, idx) => {
+          if (this.wrongOnly) {
+            if (this.answers[q.id] === undefined) return;
+            if (this.isCorrect(q)) return;
+          }
+          c.appendChild(this.renderQ(q, idx));
+        });
+        if (window.lucide) lucide.createIcons();
+      },
+      renderQ(q, idx) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border border-surface-200 p-6 space-y-4';
+        card.dataset.qId = q.id;
+        const isMulti = q.type === 'multi';
+        const revealed = this.revealed[q.id];
+        const sel = this.answers[q.id];
+        const badge = isMulti
+          ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium"><span class="lang-ar">اختيارات متعدّدة</span><span class="lang-en">Multi-select</span></span>'
+          : '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium"><span class="lang-ar">اختيار واحد</span><span class="lang-en">Single</span></span>';
+        card.innerHTML = `<div class="flex items-start gap-3"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">${idx+1}</span><div class="flex-1 min-w-0"><div class="mb-2">${badge}</div><p class="font-semibold text-surface-800 leading-relaxed">${q.question}</p></div></div><div class="space-y-2 quiz-options"></div><div class="feedback hidden"></div>`;
+        const optsDiv = card.querySelector('.quiz-options');
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-option w-full text-start p-4 rounded-xl border-2 border-surface-200 hover:border-brand-300 hover:bg-brand-50/30 transition-all flex items-start gap-3';
+          btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-surface-300 text-xs font-bold flex items-center justify-center option-letter">${String.fromCharCode(65+oIdx)}</span><span class="flex-1 text-sm leading-relaxed">${opt}</span>`;
+          if (revealed) {
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const correct = isMulti ? q.correct.includes(oIdx) : q.correct === oIdx;
+            const selected = isMulti ? (sel||[]).includes(oIdx) : sel === oIdx;
+            if (correct) { btn.classList.add('!border-emerald-500', '!bg-emerald-50'); btn.querySelector('.option-letter').classList.add('!border-emerald-500', '!bg-emerald-500', '!text-white'); }
+            else if (selected) { btn.classList.add('!border-red-500', '!bg-red-50'); btn.querySelector('.option-letter').classList.add('!border-red-500', '!bg-red-500', '!text-white'); }
+          } else {
+            btn.onclick = () => this.selectOpt(q, oIdx, card);
+            if (isMulti && sel && sel.includes(oIdx)) btn.classList.add('!border-brand-500', '!bg-brand-50');
+            else if (!isMulti && sel === oIdx) btn.classList.add('!border-brand-500', '!bg-brand-50');
+          }
+          optsDiv.appendChild(btn);
+        });
+        if (revealed) {
+          const fb = card.querySelector('.feedback'); fb.classList.remove('hidden');
+          const ok = this.isCorrect(q);
+          fb.className = `feedback mt-4 p-4 rounded-xl border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+          fb.innerHTML = `<div class="flex items-start gap-2"><i data-lucide="${ok ? 'check-circle' : 'x-circle'}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><div class="flex-1 space-y-2"><p class="font-bold">${ok ? '<span class="lang-ar">صحيح!</span><span class="lang-en">Correct!</span>' : '<span class="lang-ar">إجابة خاطئة</span><span class="lang-en">Incorrect</span>'}</p><p class="text-sm leading-relaxed">${q.explanation}</p>${q.wrongExplanations ? `<div class="text-sm space-y-1 pt-2 border-t border-current/10">${q.wrongExplanations.map((e, i) => e ? `<p><strong>${String.fromCharCode(65+i)})</strong> ${e}</p>` : '').join('')}</div>` : ''}${q.reference ? `<p class="text-xs text-current/70 pt-1"><i data-lucide="book-open" class="inline w-3 h-3"></i> <span class="lang-ar">راجع:</span><span class="lang-en">Review:</span> ${q.reference}</p>` : ''}</div></div>`;
+        } else {
+          const sbtn = document.createElement('button');
+          sbtn.type = 'button';
+          sbtn.className = 'px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all';
+          sbtn.innerHTML = '<span class="lang-ar">تحقّق من الإجابة</span><span class="lang-en">Check Answer</span>';
+          sbtn.disabled = sel === undefined || (isMulti && (!sel || sel.length === 0));
+          sbtn.onclick = () => this.reveal(q, card);
+          card.appendChild(sbtn);
+        }
+        return card;
+      },
+      selectOpt(q, oIdx, card) {
+        if (q.type === 'multi') {
+          if (!this.answers[q.id]) this.answers[q.id] = [];
+          const a = this.answers[q.id]; const p = a.indexOf(oIdx);
+          if (p >= 0) a.splice(p, 1); else a.push(oIdx);
+        } else { this.answers[q.id] = oIdx; }
+        const newCard = this.renderQ(q, this.questions.indexOf(q));
+        card.replaceWith(newCard); if (window.lucide) lucide.createIcons();
+      },
+      reveal(q, card) { this.revealed[q.id] = true; const newCard = this.renderQ(q, this.questions.indexOf(q)); card.replaceWith(newCard); if (window.lucide) lucide.createIcons(); this.checkAll(); },
+      isCorrect(q) {
+        const a = this.answers[q.id]; if (a === undefined) return false;
+        if (q.type === 'multi') {
+          if (!Array.isArray(a) || !Array.isArray(q.correct)) return false;
+          if (a.length !== q.correct.length) return false;
+          return a.every(x => q.correct.includes(x));
+        }
+        return a === q.correct;
+      },
+      checkAll() {
+        const done = this.questions.filter(q => this.revealed[q.id]).length;
+        if (done === this.questions.length) {
+          const score = this.questions.filter(q => this.isCorrect(q)).length;
+          saveQuizResult(this.currentChapter, score, this.questions.length);
+          this.renderResult(score, this.questions.length);
+        }
+      },
+      renderResult(score, total) {
+        const el = document.getElementById('quiz-final-result'); if (!el) return;
+        const pct = Math.round(score/total*100);
+        let tone, tAr, tEn, aAr, aEn, icon;
+        if (pct >= 80) { tone='from-emerald-500 to-emerald-600'; icon='🏆'; tAr='ممتاز!'; tEn='Excellent!'; aAr='فاهم الموضوع كويس. راجع الأسئلة الخاطئة وانتقل للشابتر التالي.'; aEn='Mastered. Review wrong answers and move on.'; }
+        else if (pct >= 60) { tone='from-amber-500 to-amber-600'; icon='📚'; tAr='جيّد — يحتاج مراجعة'; tEn='Good — needs review'; aAr='في تفاصيل ضايعة. راجع الأقسام المرتبطة بالأسئلة الخاطئة.'; aEn='Review the sections tied to wrong answers.'; }
+        else { tone='from-red-500 to-red-600'; icon='🔁'; tAr='أعد الدراسة'; tEn='Restudy recommended'; aAr='الشابتر يحتاج قراءة ثانية.'; aEn='Needs a second read.'; }
+        el.classList.remove('hidden');
+        el.innerHTML = `<div class="bg-gradient-to-br ${tone} text-white rounded-2xl p-8 space-y-4 shadow-lg"><div class="flex items-center justify-between"><div><p class="text-white/80 text-sm font-medium"><span class="lang-ar">نتيجتك</span><span class="lang-en">Your score</span></p><p class="text-4xl font-bold mt-1">${score}/${total} <span class="text-2xl font-normal text-white/80">(${pct}%)</span></p></div><div class="text-5xl">${icon}</div></div><h3 class="text-2xl font-bold"><span class="lang-ar">${tAr}</span><span class="lang-en">${tEn}</span></h3><p class="text-white/90 leading-relaxed"><span class="lang-ar">${aAr}</span><span class="lang-en">${aEn}</span></p><div class="flex flex-wrap gap-2 pt-2"><button onclick="QuizEngine.retake()" class="px-4 py-2 bg-white text-surface-800 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span class="lang-ar">إعادة الكويز</span><span class="lang-en">Retake</span></button><button onclick="QuizEngine.toggleWrong()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-all flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i><span class="lang-ar">راجع الخاطئة فقط</span><span class="lang-en">Review wrong only</span></button></div></div>`;
+        if (window.lucide) lucide.createIcons();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      retake() { this.answers = {}; this.revealed = {}; this.wrongOnly = false; const el = document.getElementById('quiz-final-result'); if (el) el.classList.add('hidden'); this.render(); document.getElementById('quiz-container')?.scrollIntoView({ behavior: 'smooth' }); },
+      toggleWrong() { this.wrongOnly = !this.wrongOnly; this.render(); },
+    };
+
+    const QUESTIONS = [
+      {
+        id: "q1",
+        type: "single",
+        question: "<span class="lang-ar">فريق تطوير يريد مراقبة استخدام الـ RAM على خوادم EC2. ما الطريقة الصحيحة؟</span><span class="lang-en">A dev team wants to monitor RAM usage on EC2 instances. Correct approach?</span>",
+        options: [
+          "<span class="lang-ar">RAM مرسَل افتراضياً كمقياس EC2 قياسيّ.</span><span class="lang-en">RAM is auto-reported as a standard EC2 metric.</span>",
+          "<span class="lang-ar">تفعيل Detailed Monitoring.</span><span class="lang-en">Enable Detailed Monitoring.</span>",
+          "<span class="lang-ar">تثبيت CloudWatch Unified Agent ودفع <span dir="ltr" class="font-mono">mem_used_percent</span> كمقياس مخصّص.</span><span class="lang-en">Install the CloudWatch Unified Agent and push <span dir="ltr" class="font-mono">mem_used_percent</span> as a custom metric.</span>",
+          "<span class="lang-ar">استخدام CloudTrail لمراقبة الذاكرة.</span><span class="lang-en">Use CloudTrail to monitor memory.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">مقاييس EC2 الافتراضية تشمل CPU و Network و Disk — لكن ليس RAM. لجمع RAM يجب تثبيت Unified Agent داخل الخادم وإرساله كمقياس مخصّص. Detailed Monitoring يزيد التردّد فقط ولا يضيف مقاييس جديدة.</span><span class="lang-en">Default EC2 metrics cover CPU, Network, Disk — NOT RAM. To collect RAM, install the Unified Agent inside the instance and push it as a custom metric. Detailed Monitoring only changes frequency, not which metrics exist.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">RAM لا يُرسَل افتراضياً.</span><span class=\"lang-en\">RAM isn't pushed by default.</span>", "<span class=\"lang-ar\">يغيّر التردّد فقط إلى دقيقة، لا يضيف مقاييس جديدة.</span><span class=\"lang-en\">Only changes frequency, doesn't add new metrics.</span>", "", "<span class=\"lang-ar\">CloudTrail لتدقيق API لا لمراقبة أداء النظام.</span><span class=\"lang-en\">CloudTrail audits API calls, not system performance.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢ — Unified Agent</span><span class=\"lang-en\">Section 2 — Unified Agent</span>"
+      },
+      {
+        id: "q2",
+        type: "single",
+        question: "<span class="lang-ar">يريد فريق الأمن إرسال السجلّات من CloudWatch Logs إلى Lambda لتحليلها في الوقت الفعليّ. ما الأداة؟</span><span class="lang-en">Security team wants to stream CloudWatch Logs to Lambda for real-time analysis. Which feature?</span>",
+        options: [
+          "<span class="lang-ar">Metric Filter</span><span class="lang-en">Metric Filter</span>",
+          "<span class="lang-ar">Subscription Filter إلى Lambda</span><span class="lang-en">Subscription Filter to Lambda</span>",
+          "<span class="lang-ar">Logs Insights query</span><span class="lang-en">Logs Insights query</span>",
+          "<span class="lang-ar">S3 Export</span><span class="lang-en">S3 Export</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Subscription Filter يبثّ الأحداث للوجهة في الوقت الفعليّ — و Lambda هي الوجهة المناسبة للمعالجة الفوريّة. S3 Export ليس فوريّاً (حتى ١٢ ساعة). Metric Filter يصنع مقاييس لا يبثّ سجلّات.</span><span class="lang-en">Subscription Filter streams events in real time — Lambda is the right destination for instant processing. S3 Export isn't real-time (up to 12h). Metric Filter creates metrics, doesn't stream logs.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">يصنع مقياساً من السجلّ، لا يبثّ المحتوى.</span><span class=\"lang-en\">Creates a metric from logs, doesn't stream content.</span>", "", "<span class=\"lang-ar\">محرّك استعلام، ليس بثّاً مستمرّاً.</span><span class=\"lang-en\">Query engine, not continuous streaming.</span>", "<span class=\"lang-ar\">غير فوريّ (حتى ١٢ ساعة).</span><span class=\"lang-en\">Not real-time (up to 12h).</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q3",
+        type: "single",
+        question: "<span class="lang-ar">أنشأ مطوّر Metric Filter على Log Group موجود منذ أسبوع. متى تظهر المقاييس؟</span><span class="lang-en">A developer creates a Metric Filter on a Log Group that's been active for a week. When do metrics appear?</span>",
+        options: [
+          "<span class="lang-ar">للسجلّات السابقة والجديدة.</span><span class="lang-en">For past and future logs.</span>",
+          "<span class="lang-ar">للأحداث التي تصل <u>بعد</u> إنشاء الفلتر فقط.</span><span class="lang-en">Only for events arriving <u>after</u> the filter is created.</span>",
+          "<span class="lang-ar">خلال ٢٤ ساعة لكلّ السجلّات.</span><span class="lang-en">Within 24h for all logs.</span>",
+          "<span class="lang-ar">يجب إعادة بناء الـ Log Group.</span><span class="lang-en">Must recreate the Log Group.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Metric Filters <strong>لا تعمل بأثر رجعيّ</strong>. تبدأ بحساب الأحداث من لحظة إنشاء الفلتر فقط. هذه نقطة يركّز عليها الامتحان.</span><span class="lang-en">Metric Filters do <strong>not</strong> retroactively process data. They only start counting events arriving after creation. Exam-favourite point.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q4",
+        type: "multi",
+        question: "<span class="lang-ar">أيّ من التالي صحيح حول Composite Alarms؟ اختر كلّ ما ينطبق.</span><span class="lang-en">Which statements are true about Composite Alarms? Select all that apply.</span>",
+        options: [
+          "<span class="lang-ar">تراقب حالة عدّة Alarms أخرى.</span><span class="lang-en">They monitor the state of multiple other alarms.</span>",
+          "<span class="lang-ar">تدعم شروط AND و OR.</span><span class="lang-en">Support AND and OR conditions.</span>",
+          "<span class="lang-ar">تقلّل ضجيج الإنذارات.</span><span class="lang-en">Help reduce alarm noise.</span>",
+          "<span class="lang-ar">تُستخدم للمقاييس High Resolution فقط.</span><span class="lang-en">Can only be used with high-resolution metrics.</span>"
+        ],
+        correct: [0,1,2],
+        explanation: "<span class="lang-ar">Composite Alarm يبني على حالات Alarms أخرى بشروط AND/OR، ويمنع إغراق الفريق بعشرات الإنذارات المترابطة. لا علاقة له بدقّة المقياس.</span><span class="lang-en">Composite Alarm aggregates other alarm states with AND/OR conditions, preventing overwhelming alert storms. Resolution is irrelevant.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q5",
+        type: "single",
+        question: "<span class="lang-ar">Alarm يبقى في حالة <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span>. ماذا يعني ذلك؟</span><span class="lang-en">An alarm stays in <span dir="ltr" class="font-mono">INSUFFICIENT_DATA</span> state. What does this mean?</span>",
+        options: [
+          "<span class="lang-ar">تجاوز العتبة ويحتاج تدخّل.</span><span class="lang-en">Threshold breached, needs intervention.</span>",
+          "<span class="lang-ar">المقياس سليم ولا مشكلة.</span><span class="lang-en">Metric is healthy.</span>",
+          "<span class="lang-ar">لا توجد بيانات كافية لتقييم حالة الـ Alarm.</span><span class="lang-en">Not enough data points to evaluate the alarm.</span>",
+          "<span class="lang-ar">الـ Alarm معطّل يدوياً.</span><span class="lang-en">Alarm was manually disabled.</span>"
+        ],
+        correct: 2,
+        explanation: "<span class="lang-ar">الحالات الثلاث: OK (سليم)، ALARM (عتبة تُجاوزت)، INSUFFICIENT_DATA (لا بيانات كافية — ربّما المقياس توقّف عن النشر).</span><span class="lang-en">Three states: OK (healthy), ALARM (breached), INSUFFICIENT_DATA (not enough datapoints — maybe the metric stopped being published).</span>",
+        reference: "<span class=\"lang-ar\">القسم ٥</span><span class=\"lang-en\">Section 5</span>"
+      },
+      {
+        id: "q6",
+        type: "single",
+        question: "<span class="lang-ar">مطوّر جافا يريد إرسال مقياس OrderLatency من Lambda بأقلّ تكلفة. ما الحلّ الأمثل؟</span><span class="lang-en">A Java dev wants to emit OrderLatency from Lambda at the lowest cost. Best option?</span>",
+        options: [
+          "<span class="lang-ar">استدعاء <span dir="ltr" class="font-mono">PutMetricData</span> عند كلّ طلب.</span><span class="lang-en">Call <span dir="ltr" class="font-mono">PutMetricData</span> per request.</span>",
+          "<span class="lang-ar">طباعة سجلّ Embedded Metric Format (EMF) إلى stdout.</span><span class="lang-en">Log Embedded Metric Format (EMF) JSON to stdout.</span>",
+          "<span class="lang-ar">كتابة المقياس في DynamoDB ثمّ استيراده.</span><span class="lang-en">Write the metric to DynamoDB then import it.</span>",
+          "<span class="lang-ar">استخدام CloudTrail لتتبّع Latency.</span><span class="lang-en">Use CloudTrail to trace latency.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">EMF يرسل سجلّ JSON منظّم يستخرج منه CloudWatch مقاييس مخصّصة دون تكلفة <span dir="ltr" class="font-mono">PutMetricData</span> إضافيّة. ممارسة الأفضل في Lambda ذات الحجم الكبير.</span><span class="lang-en">EMF logs a structured JSON from which CloudWatch extracts custom metrics with no extra <span dir="ltr" class="font-mono">PutMetricData</span> cost. Best practice for high-volume Lambda.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">تكلفة وزمن استجابة إضافيّ على كلّ طلب.</span><span class=\"lang-en\">Extra cost and latency per request.</span>", "", "<span class=\"lang-ar\">معقّد وليس لهذا الغرض.</span><span class=\"lang-en\">Overkill and wrong tool.</span>", "<span class=\"lang-ar\">CloudTrail للتدقيق، ليس للمقاييس.</span><span class=\"lang-en\">CloudTrail is audit, not metrics.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٥ — EMF</span><span class=\"lang-en\">Section 5 — EMF</span>"
+      },
+      {
+        id: "q7",
+        type: "single",
+        question: "<span class="lang-ar">ما المكوّن الذي يجب تثبيته على خادم On-Premises لإرسال سجلّاته إلى CloudWatch Logs؟</span><span class="lang-en">What must be installed on an on-premises server to send logs to CloudWatch Logs?</span>",
+        options: [
+          "<span class="lang-ar">X-Ray Daemon</span><span class="lang-en">X-Ray Daemon</span>",
+          "<span class="lang-ar">CloudWatch Logs Agent أو Unified Agent (مع IAM creds).</span><span class="lang-en">CloudWatch Logs Agent or Unified Agent (with IAM creds).</span>",
+          "<span class="lang-ar">AWS CLI فقط.</span><span class="lang-en">Just the AWS CLI.</span>",
+          "<span class="lang-ar">CloudTrail trail.</span><span class="lang-en">A CloudTrail trail.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Unified Agent يعمل على EC2 وعلى On-Prem وعلى Windows/Linux، ويحتاج اعتمادات AWS (Access Key أو SSM Activation). X-Ray Daemon للتتبّع لا للسجلّات.</span><span class="lang-en">Unified Agent runs on EC2 and on-prem (Windows/Linux) with AWS creds (access key or SSM activation). X-Ray Daemon is tracing, not logs.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      },
+      {
+        id: "q8",
+        type: "single",
+        question: "<span class="lang-ar">استعلام Logs Insights التالي ماذا يفعل؟<br><span dir="ltr" class="font-mono text-sm">filter @message like /Exception/ | stats count(*) by bin(5m)</span></span><span class="lang-en">What does this Logs Insights query do?<br><span dir="ltr" class="font-mono text-sm">filter @message like /Exception/ | stats count(*) by bin(5m)</span></span>",
+        options: [
+          "<span class="lang-ar">يحذف سجلّات الأخطاء.</span><span class="lang-en">Deletes error logs.</span>",
+          "<span class="lang-ar">يعدّ عدد السجلّات المحتوية على كلمة Exception في كلّ نافذة ٥ دقائق.</span><span class="lang-en">Counts log events containing 'Exception' per 5-minute bucket.</span>",
+          "<span class="lang-ar">يرسل إنذار SNS لكلّ Exception.</span><span class="lang-en">Sends an SNS alert per Exception.</span>",
+          "<span class="lang-ar">يصدّر السجلّات إلى S3.</span><span class="lang-en">Exports logs to S3.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar"><span dir="ltr" class="font-mono">filter</span> يحصر السجلّات، <span dir="ltr" class="font-mono">stats count(*) by bin(5m)</span> يعدّ ويجمّع في نوافذ ٥ دقائق. أساسيّ في تحليل أنماط الأخطاء.</span><span class="lang-en"><span dir="ltr" class="font-mono">filter</span> narrows logs, <span dir="ltr" class="font-mono">stats count(*) by bin(5m)</span> counts and buckets into 5-min windows. Core error-trend analysis.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٤</span><span class=\"lang-en\">Section 4</span>"
+      },
+      {
+        id: "q9",
+        type: "single",
+        question: "<span class="lang-ar">فريق يريد تشغيل Lambda كلّ ساعة تلقائياً. ما الحلّ؟</span><span class="lang-en">Team wants to trigger a Lambda automatically every hour. Solution?</span>",
+        options: [
+          "<span class="lang-ar">Metric Filter على CloudWatch Logs.</span><span class="lang-en">A Metric Filter on CloudWatch Logs.</span>",
+          "<span class="lang-ar">EventBridge Schedule (Cron) يستدعي Lambda.</span><span class="lang-en">EventBridge Schedule (Cron) invoking Lambda.</span>",
+          "<span class="lang-ar">SNS topic بتوقيت.</span><span class="lang-en">A timed SNS topic.</span>",
+          "<span class="lang-ar">CloudTrail Trail.</span><span class="lang-en">A CloudTrail trail.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">EventBridge (CloudWatch Events سابقاً) يدعم جداول Cron تطلق Lambda أو Step Functions أو غيرها. SNS لا يدعم الجدولة الذاتيّة. CloudTrail للتدقيق.</span><span class="lang-en">EventBridge (formerly CloudWatch Events) supports Cron schedules firing Lambda/Step Functions/etc. SNS has no self-schedule. CloudTrail is audit-only.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q10",
+        type: "single",
+        question: "<span class="lang-ar">شركة تريد تجميع سجلّات CloudWatch من ٣ حسابات مختلفة في S3 bucket مركزيّ. الطريقة الأمثل؟</span><span class="lang-en">A company wants to aggregate CloudWatch Logs from 3 accounts into a central S3 bucket. Best way?</span>",
+        options: [
+          "<span class="lang-ar">S3 Export من كلّ حساب يوميّاً.</span><span class="lang-en">Daily S3 Export from each account.</span>",
+          "<span class="lang-ar">Subscription Filter Cross-Account → Kinesis Data Streams → Firehose → S3.</span><span class="lang-en">Cross-Account Subscription Filter → Kinesis Data Streams → Firehose → S3.</span>",
+          "<span class="lang-ar">نسخ السجلّات يدوياً.</span><span class="lang-en">Manual copy of logs.</span>",
+          "<span class="lang-ar">Lambda دوريّة تقرأ السجلّات.</span><span class="lang-en">A scheduled Lambda that reads logs.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Cross-Account Subscription Filter هو النمط المعياريّ: كلّ حساب يبثّ سجلّاته عبر Subscription Destination في الحساب المركزيّ (IAM Role + Kinesis). الحلّ الأكثر كفاءة وقرب-فوري.</span><span class="lang-en">Cross-Account Subscription Filter is the standard pattern: each account streams via a Subscription Destination in the central account (IAM Role + Kinesis). Most efficient, near-real-time.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">غير فوريّ، وتعقيد إداريّ.</span><span class=\"lang-en\">Not real-time, ops overhead.</span>", "", "<span class=\"lang-ar\">لا يتوسّع.</span><span class=\"lang-en\">Doesn't scale.</span>", "<span class=\"lang-ar\">غير فوريّ وعرضة لفقد بيانات.</span><span class=\"lang-en\">Not real-time, risks data loss.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٣</span><span class=\"lang-en\">Section 3</span>"
+      },
+      {
+        id: "q11",
+        type: "single",
+        question: "<span class="lang-ar">يريد فريق اكتشاف تعطّل صفحة الدفع قبل شكوى المستخدمين. ما الحلّ المناسب في CloudWatch؟</span><span class="lang-en">Team wants to detect checkout page outages before users complain. Right CloudWatch feature?</span>",
+        options: [
+          "<span class="lang-ar">CloudWatch Dashboards</span><span class="lang-en">CloudWatch Dashboards</span>",
+          "<span class="lang-ar">CloudWatch Synthetics Canary</span><span class="lang-en">CloudWatch Synthetics Canary</span>",
+          "<span class="lang-ar">CloudWatch Logs Insights</span><span class="lang-en">CloudWatch Logs Insights</span>",
+          "<span class="lang-ar">CloudWatch Metric Stream</span><span class="lang-en">CloudWatch Metric Stream</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">Synthetics Canary يشغّل سكربت دوريّ يحاكي المستخدم (تسجيل دخول، إضافة للسلّة، دفع) ويُنبّه عند الفشل. هو حلّ AWS المعياريّ للمراقبة الاستباقيّة.</span><span class="lang-en">Synthetics Canary runs a periodic script simulating a user (login, add-to-cart, checkout) and alerts on failure. AWS's standard synthetic monitoring answer.</span>",
+        reference: "<span class=\"lang-ar\">القسم ٦</span><span class=\"lang-en\">Section 6</span>"
+      },
+      {
+        id: "q12",
+        type: "single",
+        question: "<span class="lang-ar">تطبيق Spring Boot يعمل على EC2. السجلّات لا تصل إلى CloudWatch. الخطوة الأولى للتشخيص؟</span><span class="lang-en">A Spring Boot app on EC2 — logs aren't reaching CloudWatch. First troubleshooting step?</span>",
+        options: [
+          "<span class="lang-ar">إعادة تشغيل الخادم.</span><span class="lang-en">Reboot the instance.</span>",
+          "<span class="lang-ar">التحقّق من تثبيت الـ CloudWatch Agent ومن IAM Role مع صلاحيات <span dir="ltr" class="font-mono">logs:PutLogEvents</span>.</span><span class="lang-en">Check the CloudWatch Agent is installed AND the IAM Role has <span dir="ltr" class="font-mono">logs:PutLogEvents</span>.</span>",
+          "<span class="lang-ar">تمكين Detailed Monitoring.</span><span class="lang-en">Enable Detailed Monitoring.</span>",
+          "<span class="lang-ar">تحويل السجلّات إلى S3 بدلاً من CloudWatch.</span><span class="lang-en">Route logs to S3 instead.</span>"
+        ],
+        correct: 1,
+        explanation: "<span class="lang-ar">السببان الأكثر شيوعاً: الـ Agent غير مثبّت/متوقّف، أو الـ IAM Role ينقصه الإذن <span dir="ltr" class="font-mono">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring للمقاييس لا للسجلّات.</span><span class="lang-en">Two most common causes: agent not installed/running, or IAM Role missing <span dir="ltr" class="font-mono">logs:CreateLogStream / PutLogEvents</span>. Detailed Monitoring is metrics, not logs.</span>",
+        wrongExplanations: ["<span class=\"lang-ar\">لا يحلّ مشكلة الإعداد.</span><span class=\"lang-en\">Doesn't fix config issues.</span>", "", "<span class=\"lang-ar\">للمقاييس فقط.</span><span class=\"lang-en\">Metrics only.</span>", "<span class=\"lang-ar\">يُخفي المشكلة ولا يحلّها.</span><span class=\"lang-en\">Hides rather than fixes.</span>"],
+        reference: "<span class=\"lang-ar\">القسم ٢</span><span class=\"lang-en\">Section 2</span>"
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(getLang());
+      document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', toggleLang));
+      QuizEngine.init(27, QUESTIONS);
+      if (isChapterComplete(27)) {
+        const b = document.getElementById('complete-btn');
+        if (b) {
+          b.querySelector('.btn-label').innerHTML = '<span class="lang-ar">مكتمل ✓</span><span class="lang-en">Completed ✓</span>';
+          b.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+          b.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }
+      }
+      if (window.lucide) lucide.createIcons();
+      if (window.Prism) Prism.highlightAll();
+    });
+  </script>
+</body>
+</html>
